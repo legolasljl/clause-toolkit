@@ -1133,6 +1133,46 @@ def levenshtein_ratio(s1: str, s2: str) -> float:
 class ClauseMatcherLogic:
     """条款匹配核心逻辑 - 优化版"""
 
+    # v18.4: 排除词汇缓存（完全匹配时排除，忽略编号和大小写）
+    _excluded_titles: Optional[set] = None
+
+    @classmethod
+    def _load_excluded_titles(cls) -> set:
+        """加载排除词汇列表"""
+        if cls._excluded_titles is not None:
+            return cls._excluded_titles
+
+        cls._excluded_titles = set()
+        config_path = Path(__file__).parent / "excluded_titles.json"
+
+        if config_path.exists():
+            try:
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    titles = data.get('titles', [])
+                    # 转换为大写存储，便于比较
+                    cls._excluded_titles = {t.upper().strip() for t in titles if t}
+                    logger.info(f"加载排除词汇 {len(cls._excluded_titles)} 条")
+            except Exception as e:
+                logger.warning(f"加载排除词汇失败: {e}")
+
+        return cls._excluded_titles
+
+    @staticmethod
+    def _remove_leading_number(text: str) -> str:
+        """去除开头的编号，如 '1.', '（一）', '(1)' 等"""
+        text = text.strip()
+        # 去除各种编号格式
+        patterns = [
+            r'^[\(（]\s*[一二三四五六七八九十\d]+\s*[\)）]\s*',  # (一)、（1）
+            r'^[一二三四五六七八九十]+[、\.．]\s*',  # 一、二、
+            r'^\d+[、\.．\s]\s*',  # 1、2.
+            r'^[A-Za-z]\)\s*',  # a)、A)
+        ]
+        for pattern in patterns:
+            text = re.sub(pattern, '', text)
+        return text.strip()
+
     # 条款库中的常见样板内容（这些内容不影响匹配度计算）
     BOILERPLATE_PHRASES = [
         "本条款所述费用在本保险单明细表所列保险金额之外另行赔付。",
@@ -2257,6 +2297,14 @@ class ClauseMatcherLogic:
         """
         if not text or len(text) < 3:
             return False
+
+        # ===== v18.4: 排除词汇检查（最高优先级）=====
+        # 去除编号后完全匹配（忽略大小写）则排除
+        excluded_titles = ClauseMatcherLogic._load_excluded_titles()
+        if excluded_titles:
+            cleaned_text = ClauseMatcherLogic._remove_leading_number(text)
+            if cleaned_text.upper() in excluded_titles:
+                return False
 
         # ===== v18.2: 特殊长条款识别（在长度检查之前）=====
         # 这些是特殊的长文本条款，需要被识别为条款标题
