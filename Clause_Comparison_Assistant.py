@@ -2643,6 +2643,26 @@ class ClauseMatcherLogic:
 
         # 3. 基于标题识别进行分割（不再依赖空行）
         # v18.4: 使用 Heading 样式作为条款标题的强识别信号
+        # v18.5: 已映射的条款名称优先识别为标题
+
+        # v18.5: 获取已映射的客户条款名称（用于优先识别）
+        mapped_client_names = set()
+        try:
+            if HAS_MAPPING_MANAGER:
+                mapping_mgr = get_mapping_manager()
+                if mapping_mgr:
+                    for mapping in mapping_mgr.get_all_mappings():
+                        if mapping.client_name:
+                            mapped_client_names.add(mapping.client_name.strip())
+                            # 也添加去除编号后的名称
+                            cleaned = re.sub(r'^\d+[\.\s、]+', '', mapping.client_name).strip()
+                            if cleaned:
+                                mapped_client_names.add(cleaned)
+            if mapped_client_names:
+                logger.info(f"已加载 {len(mapped_client_names)} 个已映射条款名称用于优先识别")
+        except Exception as e:
+            logger.warning(f"获取映射条款名称失败: {e}")
+
         clauses = []
         current_title = None
         current_content = []
@@ -2650,8 +2670,22 @@ class ClauseMatcherLogic:
         for line, is_heading in non_empty_lines_with_info:
             # 判断是否是条款标题：
             # 1. is_likely_title 返回 True，或者
-            # 2. 是 Heading 样式且不是明显的子编号内容
+            # 2. 是 Heading 样式且不是明显的子编号内容，或者
+            # 3. v18.5: 匹配已映射的条款名称
             is_title = self.is_likely_title(line)
+
+            # v18.5: 已映射的条款名称优先识别为标题
+            if not is_title and mapped_client_names:
+                # 精确匹配
+                if line in mapped_client_names:
+                    is_title = True
+                    logger.debug(f"已映射条款识别为标题: {line[:50]}")
+                else:
+                    # 去除编号后匹配
+                    line_cleaned = re.sub(r'^\d+[\.\s、]+', '', line).strip()
+                    if line_cleaned and line_cleaned in mapped_client_names:
+                        is_title = True
+                        logger.debug(f"已映射条款识别为标题(去编号): {line[:50]}")
 
             # v18.4: Heading 样式的段落优先识别为标题
             if is_heading and not is_title:
