@@ -2442,6 +2442,11 @@ class ClauseMatcherLogic:
             if re.match(r'^[ivxIVX]+[\.\)]', text):  # i., ii., iii.
                 return False
 
+            # v18.4 修复5: 排除"数字+点+The/It/In/Any..."开头的子项内容
+            # 如 "1. The liability of...", "2. It is agreed that..."
+            if re.match(r'^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s', text, re.IGNORECASE):
+                return False
+
             # v18.4 修复4: 排除以冒号结尾的全大写文本（如 WARRANTED:）
             if text.isupper() and text.rstrip().endswith(':'):
                 return False
