@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Clause Comparison Assistant V18.3 (Special Rules Edition)
+Clause Comparison Assistant V18.5 (Enhanced Recognition Edition)
 智能条款工具箱
 - [性能] 预处理索引加速匹配 5-10x
 - [算法] 编辑距离容错 + 混合相似度
@@ -39,10 +39,14 @@ Clause Comparison Assistant V18.3 (Special Rules Edition)
 - [V18.0] 智能Excel列识别（自动匹配条款名称/注册号/内容列）
 - [V18.0] Word文档Anthropic配色方案
 - [V18.1] 特殊规则匹配：支持自定义条款匹配规则和提示信息
+- [V18.5] 从报告导入映射显示详细统计（新增/更新/相同/跳过）
+- [V18.5] 已映射条款名称优先识别为标题
+- [V18.5] 修复排除列表对 Heading 样式的优先级问题
+- [V18.5] 代码质量优化（预编译正则、常量定义、类型注解、辅助方法）
 
 Author: Dachi Yijin
 Date: 2025-12-23
-Updated: 2026-01-24 (V18.3 Special Rules Edition)
+Updated: 2026-01-25 (V18.5 Enhanced Recognition Edition)
 """
 
 import sys
@@ -5749,7 +5753,7 @@ class ClauseComparisonAssistant(QMainWindow):
         header_layout.addStretch()
 
         # 版本信息
-        subtitle = QLabel("V18.0 · 条款提取 · 条款比对 · 条款输出")
+        subtitle = QLabel("V18.5 · 条款提取 · 条款比对 · 条款输出")
         subtitle.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
         header_layout.addWidget(subtitle)
 
@@ -5834,7 +5838,7 @@ class ClauseComparisonAssistant(QMainWindow):
         layout.addWidget(self.main_tabs, 1)
 
         # 版本信息
-        version = QLabel("V18.0 Multi-Tab Edition · Made with ❤️ by Dachi Yijin")
+        version = QLabel("V18.5 Enhanced Recognition Edition · Made with ❤️ by Dachi Yijin")
         version.setAlignment(Qt.AlignCenter)
         version.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 11px;")
         layout.addWidget(version)
