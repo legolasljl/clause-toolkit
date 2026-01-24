@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能条款工具箱 v18.3 Web版 (离线)</title>
+    <title>智能条款工具箱 v18.5 Web版 (离线)</title>
     <style>
         /* Anthropic 官方设计系统 */
         :root {
@@ -1161,7 +1161,7 @@
         <div class="header">
             <h1>🛠️ 智能条款工具箱</h1>
             <div class="subtitle">
-                v18.3 Web版 · 完全离线 · 单文件部署
+                v18.5 Web版 · 完全离线 · 单文件部署
                 <button class="donate-btn" onclick="showDonateModal()">💝 支持作者</button>
             </div>
         </div>
@@ -1468,7 +1468,7 @@
 
         <!-- 页脚 -->
         <div class="footer">
-            智能条款工具箱 v18.3 · 作者: Dachi_Yijin · 2026
+            智能条款工具箱 v18.5 · 作者: Dachi_Yijin · 2026
         </div>
     </div>
 
@@ -3239,8 +3239,32 @@ ${fileList}
         }
 
         // ==========================================
-        // 标题识别 (v17.1 对齐Python版本)
+        // 标题识别 (v18.5 对齐Python版本)
         // ==========================================
+
+        // v18.4: 排除词汇列表（这些词汇完全匹配时不作为条款标题）
+        const EXCLUDED_TITLES = new Set([
+            '机器损坏保险条款', '营业中断保险条款', '锅炉及压力容器爆炸保险条款',
+            '利润损失保险条款', '额外费用保险', '财产一切险', '财产综合险',
+            '机损险', '财产损失险', '公众责任险', '雇主责任险', '产品责任险',
+            '职业责任险', '董事责任险', '货物运输险', '工程一切险', '安装工程险',
+            '建筑工程险', '设备险', '电子设备险', '机器设备险', '固定资产险',
+            '流动资产险', '存货险', '在建工程险', '停工损失险', '延迟完工险',
+            '预期利润险', '租金损失险', '额外费用险', '恐怖主义险', '罢工险',
+            '战争险', '核风险除外', '污染除外', '石棉除外', '霉菌除外',
+            'FLEXA', 'All Risks', 'Named Perils', 'Fire Insurance', 'Burglary Insurance',
+            'Business Interruption', 'Loss of Profits', 'Machinery Breakdown',
+            'Electronic Equipment', 'Erection All Risks', 'Contractors All Risks',
+            'Marine Cargo', 'Inland Transit', 'Public Liability', 'Product Liability',
+            'Employers Liability', 'Professional Indemnity', 'Directors and Officers',
+            'Terrorism', 'War Risk', 'Strike Risk', 'Civil Commotion',
+        ]);
+
+        // 辅助函数：清理标题用于匹配
+        function cleanTitleForMatch(text) {
+            return text.replace(/^\d+[\.\s、]+/, '').replace(/[（(][^)）]*[)）]$/, '').trim();
+        }
+
         function isLikelyTitle(text) {
             /**
              * 判断是否像标题（严格模式）
@@ -3248,8 +3272,16 @@ ${fileList}
              * v17.1: 增强过滤规则
              * v18.1: 增强英文条款标题识别
              * v18.2.1: 排除条款内部章节标题
+             * v18.4: 排除词汇检查
+             * v18.5: 性能优化
              */
             if (!text || text.length < 3) return false;
+
+            // ===== v18.4: 排除词汇检查（最高优先级）=====
+            const cleanedText = cleanTitleForMatch(text);
+            if (EXCLUDED_TITLES.has(cleanedText) || EXCLUDED_TITLES.has(text)) {
+                return false;
+            }
 
             // v18.1: 优先检测英文条款标题（即使超长，只要开头明确是标题就识别）
             // 匹配 "XXXXX CLAUSE" 或 "XXXXX COVER" 开头的行
@@ -3408,11 +3440,50 @@ ${fileList}
                 if (pattern.test(text)) return false;
             }
 
-            // ===== v18.1: 英文条款标题增强识别 =====
+            // ===== v18.3: 英文条款关键词优先检查（在排除检查之前）=====
+            const enClauseKeywords = /\b(Clause|Extension|Coverage|Endorsement)\b/i;
+            if (enClauseKeywords.test(text)) {
+                // v18.4 修复1: 排除保险公司名称（包含 "Insurance Company" 或 "Insurance Co."）
+                if (/Insurance\s+(Company|Co\.?)\b/i.test(text)) {
+                    return false;
+                }
+                // v18.4 修复2: 排除 "this/the + 关键词" 形式（条款正文内容）
+                if (/\b(this|the)\s+(Clause|Extension|Coverage|Endorsement)\b/i.test(text)) {
+                    return false;
+                }
+                // v18.4 修复3: 排除编号开头的内容（条款正文的子项）
+                // v18.5: 使用预编译正则提升性能
+                if (/^\d+\.\s/.test(text) || /^[\(（]\s*\d+\s*[\)）]/.test(text) ||
+                    /^[\(（]\s*[a-zA-Z]\s*[\)）]/.test(text) || /^[a-z]\)/.test(text) ||
+                    /^[ivxIVX]+[\.\)]/.test(text)) {
+                    return false;
+                }
+                // v18.5 修复8: 排除"数字+点+紧跟大写字母（无空格）"的子编号内容
+                if (/^\d+\.[A-Z]/.test(text)) {
+                    return false;
+                }
+                // v18.4 修复5: 排除"数字+点+The/It/In/Any..."开头的子项内容
+                if (/^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s/i.test(text)) {
+                    return false;
+                }
+                // v18.4 修复6: 排除以正文开头词开始的内容
+                if (/^(The|It|In|Any|This|Where|If|When|Unless|Subject|Notwithstanding)\s/i.test(text)) {
+                    return false;
+                }
+                // v18.4 修复7: 以小写字母开头的通常是正文内容
+                if (text && text[0] && text[0] === text[0].toLowerCase() && /^[a-z]/.test(text)) {
+                    return false;
+                }
+                // v18.4 修复4: 排除以冒号结尾的全大写文本（如 WARRANTED:）
+                if (/^[A-Z\s]+:$/.test(text)) {
+                    return false;
+                }
+                return true;
+            }
 
-            // 1. 英文条款关键词（扩展版）
-            const enClauseKeywords = /\b(Clause|Extension|Coverage|Insurance|Exclusion|Endorsement|Rider|Amendment|Warranty|Provision|Cover|Costs?|Notice|Debris|Reinstatement|Theft|Robbery|Burglary|Authorities|Omissions?|Adjustment|Resolution|Notification)\b/i;
-            if (enClauseKeywords.test(text)) return true;
+            // v18.1: 英文条款标题增强识别（其他关键词）
+            const enOtherKeywords = /\b(Insurance|Exclusion|Rider|Amendment|Warranty|Provision|Cover|Costs?|Notice|Debris|Reinstatement|Theft|Robbery|Burglary|Authorities|Omissions?|Adjustment|Resolution|Notification)\b/i;
+            if (enOtherKeywords.test(text)) return true;
 
             // v18.1: 特殊短语模式（不区分大小写）
             const enPhrasePatterns = [
