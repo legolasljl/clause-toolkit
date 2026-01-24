@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Clause Comparison Assistant V18.0 (Multi-Tab Toolkit Edition)
+Clause Comparison Assistant V18.5 (Enhanced Recognition Edition)
 智能条款工具箱
 - [性能] 预处理索引加速匹配 5-10x
 - [算法] 编辑距离容错 + 混合相似度
@@ -38,10 +38,15 @@ Clause Comparison Assistant V18.0 (Multi-Tab Toolkit Edition)
 - [V18.0] 条款预览列表支持多选/全选
 - [V18.0] 智能Excel列识别（自动匹配条款名称/注册号/内容列）
 - [V18.0] Word文档Anthropic配色方案
+- [V18.1] 特殊规则匹配：支持自定义条款匹配规则和提示信息
+- [V18.5] 从报告导入映射显示详细统计（新增/更新/相同/跳过）
+- [V18.5] 已映射条款名称优先识别为标题
+- [V18.5] 修复排除列表对 Heading 样式的优先级问题
+- [V18.5] 代码质量优化（预编译正则、常量定义、类型注解、辅助方法）
 
 Author: Dachi Yijin
 Date: 2025-12-23
-Updated: 2026-01-22 (V18.0 Multi-Tab Toolkit Edition)
+Updated: 2026-01-25 (V18.5 Enhanced Recognition Edition)
 """
 
 import sys
@@ -52,7 +57,6 @@ import traceback
 import logging
 import subprocess
 import platform
-from typing import List, Dict, Tuple, Optional, Set, Any
 
 # Windows 控制台编码修复（仅当有控制台时）
 if platform.system() == 'Windows':
@@ -62,12 +66,15 @@ if platform.system() == 'Windows':
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     if sys.stderr is not None and hasattr(sys.stderr, 'buffer'):
         sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+from typing import List, Dict, Tuple, Optional, Set, Any
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
 from datetime import datetime
+import json
 import pandas as pd
 from docx import Document
 
@@ -412,6 +419,7 @@ class ClauseItem:
     title: str
     content: str
     original_title: str = ""
+
 
 @dataclass
 class MatchResult:
@@ -1025,6 +1033,75 @@ class DefaultConfig:
         "责任类": ["责任", "赔偿", "liability", "indemnity"],
     }
 
+    # ========================================
+    # 特殊规则（v18.1）
+    # 当客户条款名称匹配特定模式时，返回预定义的提示信息
+    # 格式: {
+    #   "patterns": [匹配模式列表],
+    #   "matched_name": "显示的匹配名称",
+    #   "message": "提示信息",
+    #   "match_level": "匹配级别"
+    # }
+    # ========================================
+    SPECIAL_RULES = [
+        {
+            # 制造商/供应商担保条款 - 考虑各种变体
+            "patterns": [
+                "制造商/供应商担保条款",
+                "制造商／供应商担保条款",  # 全角斜杠
+                "制造商 / 供应商担保条款",  # 带空格
+                "制造商/ 供应商担保条款",
+                "制造商 /供应商担保条款",
+                "制造商供应商担保条款",  # 无分隔符
+                "manufacturer/supplier warranty",
+                "manufacturer / supplier warranty",
+                "manufacturer's warranty",
+                "supplier's warranty",
+            ],
+            "matched_name": "主条款相关约定",
+            "message": "主条款已有相关约定：被保险人已经从有关责任方取得赔偿的，保险人赔偿保险金时，可以相应扣减被保险人已从有关责任方取得的赔偿金额。",
+            "match_level": "精确匹配",
+        },
+        {
+            # 合同争议解决
+            "patterns": [
+                "合同争议解决",
+                "争议解决",
+                "合同争议",
+            ],
+            "matched_name": "主条款已有相关约定",
+            "message": "主条款已有相关约定：因履行本合同发生的争议，由当事人协商解决，协商不成的，依法向保险标的所在地法院起诉。",
+            "match_level": "精确匹配",
+        },
+        {
+            # 责任免除第七条修改 - 除外责任明晰条款
+            "patterns": [
+                "责任免除第七条",
+                "责任免除第七条（七）修改",
+                "责任免除第七条(七)修改",
+                "兹经双方同意，责任免除第七条",
+                "但因此造成其他财产的损失不在此限",
+                "造成其他财产的损失不在此限",
+            ],
+            "matched_name": "企业财产保险附加除外责任明晰条款",
+            "message": "匹配条款：企业财产保险附加除外责任明晰条款。该条款对责任免除第七条（七）进行了修改，明确\"但因此造成其他财产的损失不在此限\"。",
+            "match_level": "精确匹配",
+        },
+        {
+            # "三停"损失保险 - 供应水电气中断
+            "patterns": [
+                "由于供应水、电、气",
+                "供应水、电、气及其他能源",
+                "供应发生故障或中断",
+                "三停",
+                "公共设施当局",
+            ],
+            "matched_name": "企业财产保险附加'三停'损失保险",
+            "message": "匹配条款：企业财产保险附加'三停'损失保险。该条款承保因供应水、电、气等能源中断造成的损失。",
+            "match_level": "精确匹配",
+        },
+    ]
+
 
 # ==========================================
 # 编辑距离算法
@@ -1071,6 +1148,68 @@ def levenshtein_ratio(s1: str, s2: str) -> float:
 # ==========================================
 class ClauseMatcherLogic:
     """条款匹配核心逻辑 - 优化版"""
+
+    # ===== v18.5: 常量定义 =====
+    # 条款标题最大长度
+    MAX_TITLE_LENGTH_DEFAULT = 150   # 中文条款标题通常较短
+    MAX_TITLE_LENGTH_ENGLISH = 250   # 英文条款标题可能较长，包含完整描述
+
+    # ===== v18.5: 预编译正则表达式（性能优化）=====
+    _RE_CLAUSE_KEYWORDS = re.compile(r'\b(Clause|Extension|Coverage|Endorsement)\b', re.IGNORECASE)
+    _RE_MONEY_PATTERN = re.compile(
+        r'(RMB|CNY|人民币|美元|USD|EUR|HKD|港币)?\s*\d+[\d,\.]*\s*(万元|元|万|亿|千元)',
+        re.IGNORECASE
+    )
+    _RE_SUB_NUMBER = re.compile(r'^\d+\.[A-Z]')  # 子编号格式: 1.REINSTATEMENT
+    _RE_LEADING_NUMBER = re.compile(r'^\d+[\.\s、]+')  # 开头编号
+    _RE_PARENTHESIS_NUMBER = re.compile(r'^[\(（]\s*\d+\s*[\)）]')  # (1), （2）
+    _RE_PARENTHESIS_LETTER = re.compile(r'^[\(（]\s*[a-zA-Z]\s*[\)）]')  # (a), (b)
+    _RE_LETTER_PAREN = re.compile(r'^[a-z]\)')  # a), b)
+    _RE_ROMAN_NUMBER = re.compile(r'^[ivxIVX]+[\.\)]')  # i., ii.
+    _RE_CONTENT_STARTER = re.compile(
+        r'^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s',
+        re.IGNORECASE
+    )
+
+    # v18.4: 排除词汇缓存（完全匹配时排除，忽略编号和大小写）
+    _excluded_titles: Optional[set] = None
+
+    @classmethod
+    def _load_excluded_titles(cls) -> set:
+        """加载排除词汇列表"""
+        if cls._excluded_titles is not None:
+            return cls._excluded_titles
+
+        cls._excluded_titles = set()
+        config_path = Path(__file__).parent / "excluded_titles.json"
+
+        if config_path.exists():
+            try:
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    titles = data.get('titles', [])
+                    # 转换为大写存储，便于比较
+                    cls._excluded_titles = {t.upper().strip() for t in titles if t}
+                    logger.info(f"加载排除词汇 {len(cls._excluded_titles)} 条")
+            except Exception as e:
+                logger.error(f"加载排除词汇失败: {e}")
+
+        return cls._excluded_titles
+
+    @staticmethod
+    def _remove_leading_number(text: str) -> str:
+        """去除开头的编号，如 '1.', '（一）', '(1)' 等"""
+        text = text.strip()
+        # 去除各种编号格式
+        patterns = [
+            r'^[\(（]\s*[一二三四五六七八九十\d]+\s*[\)）]\s*',  # (一)、（1）
+            r'^[一二三四五六七八九十]+[、\.．]\s*',  # 一、二、
+            r'^\d+[、\.．\s]\s*',  # 1、2.
+            r'^[A-Za-z]\)\s*',  # a)、A)
+        ]
+        for pattern in patterns:
+            text = re.sub(pattern, '', text)
+        return text.strip()
 
     # 条款库中的常见样板内容（这些内容不影响匹配度计算）
     BOILERPLATE_PHRASES = [
@@ -1120,6 +1259,75 @@ class ClauseMatcherLogic:
         # 移除多余的空白和换行
         result = re.sub(r'\s+', ' ', result).strip()
         return result
+
+    @staticmethod
+    def _normalize_for_special_rules(text: str) -> str:
+        """
+        标准化文本用于特殊规则匹配
+        - 全角转半角
+        - 移除空格
+        - 转小写
+        """
+        if not text:
+            return ""
+
+        result = []
+        for char in text:
+            code = ord(char)
+            # 全角空格
+            if code == 0x3000:
+                continue  # 移除空格
+            # 全角字符范围 (！到～)
+            elif 0xFF01 <= code <= 0xFF5E:
+                result.append(chr(code - 0xFEE0))
+            # 普通空格
+            elif char == ' ':
+                continue  # 移除空格
+            else:
+                result.append(char)
+
+        return ''.join(result).lower()
+
+    def check_special_rules(self, clause_title: str) -> Optional[MatchResult]:
+        """
+        检查条款是否匹配特殊规则
+        返回 MatchResult 如果匹配，否则返回 None
+        """
+        if not clause_title:
+            return None
+
+        normalized_title = self._normalize_for_special_rules(clause_title)
+
+        for rule in DefaultConfig.SPECIAL_RULES:
+            patterns = rule.get("patterns", [])
+
+            for pattern in patterns:
+                normalized_pattern = self._normalize_for_special_rules(pattern)
+
+                # 包含匹配（任一方向）
+                if normalized_pattern in normalized_title or normalized_title in normalized_pattern:
+                    # 匹配成功，返回特殊结果
+                    match_level_str = rule.get("match_level", "精确匹配")
+                    match_level = MatchLevel.EXACT
+                    if "语义" in match_level_str:
+                        match_level = MatchLevel.SEMANTIC
+                    elif "关键词" in match_level_str:
+                        match_level = MatchLevel.KEYWORD
+
+                    logger.info(f"特殊规则匹配: '{clause_title}' -> '{rule.get('matched_name')}'")
+
+                    return MatchResult(
+                        matched_name=rule.get("matched_name", "特殊规则匹配"),
+                        matched_content=rule.get("message", ""),
+                        matched_reg="",
+                        score=1.0,
+                        title_score=1.0,
+                        content_score=0.0,
+                        match_level=match_level,
+                        diff_analysis=rule.get("message", ""),
+                    )
+
+        return None
 
     # ========================================
     # 配置访问方法
@@ -1894,6 +2102,15 @@ class ClauseMatcherLogic:
         content = clause.content
         original_title = clause.original_title or title
 
+        # v18.1: 首先检查特殊规则
+        special_result = self.check_special_rules(original_title)
+        if special_result is None and title != original_title:
+            # 如果原标题没匹配，也检查翻译后的标题
+            special_result = self.check_special_rules(title)
+
+        if special_result:
+            return [special_result]
+
         title_clean = self.clean_title(title)
 
         results = []
@@ -2041,6 +2258,41 @@ class ClauseMatcherLogic:
 
         return results
 
+    def create_user_mapping_result(self, lib_entry: Dict, user_library_name: str) -> MatchResult:
+        """
+        v18.5: 根据用户映射创建匹配结果（提取重复代码）
+
+        Args:
+            lib_entry: 条款库条目
+            user_library_name: 用户映射的条款库名称
+
+        Returns:
+            MatchResult: 匹配结果
+        """
+        if lib_entry:
+            return MatchResult(
+                matched_name=lib_entry.get('条款名称', user_library_name),
+                matched_reg=self.clean_reg_number(lib_entry.get('产品注册号', lib_entry.get('注册号', ''))),
+                matched_content=lib_entry.get('条款内容', ''),
+                score=1.0,
+                match_level=MatchLevel.EXACT,
+                diff_analysis="用户自定义映射",
+                title_score=1.0,
+                content_score=0.0,
+            )
+        else:
+            # 映射的条款在库中不存在
+            return MatchResult(
+                matched_name=user_library_name,
+                matched_reg="",
+                matched_content="",
+                score=1.0,
+                match_level=MatchLevel.EXACT,
+                diff_analysis="用户映射（条款库中未找到）",
+                title_score=1.0,
+                content_score=0.0,
+            )
+
     # ========================================
     # 翻译和差异分析
     # ========================================
@@ -2119,13 +2371,77 @@ class ClauseMatcherLogic:
         if not text or len(text) < 3:
             return False
 
+        # ===== v18.4: 排除词汇检查（最高优先级）=====
+        # 去除编号后完全匹配（忽略大小写）则排除
+        excluded_titles = ClauseMatcherLogic._load_excluded_titles()
+        if excluded_titles:
+            cleaned_text = ClauseMatcherLogic._remove_leading_number(text)
+            if cleaned_text.upper() in excluded_titles:
+                return False
+
+        # ===== v18.2: 特殊长条款识别（在长度检查之前）=====
+        # 这些是特殊的长文本条款，需要被识别为条款标题
+        special_long_clause_patterns = [
+            '兹经双方同意，责任免除第七条',  # 除外责任明晰条款
+            '责任免除第七条（七）修改',
+            '责任免除第七条(七)修改',
+            '由于供应水、电、气',  # "三停"损失保险
+            '供应水、电、气及其他能源',
+        ]
+        for pattern in special_long_clause_patterns:
+            if pattern in text:
+                return True
+
         # 太长的不是标题
-        if len(text) > 100:
+        # v18.5: 使用类常量替代硬编码值
+        max_length = cls.MAX_TITLE_LENGTH_DEFAULT
+        if cls._RE_CLAUSE_KEYWORDS.search(text):
+            max_length = cls.MAX_TITLE_LENGTH_ENGLISH
+        if len(text) > max_length:
             return False
 
-        # 以句号等结尾的通常是内容
+        # 以句号等结尾的通常是内容（但排除 ":" 和 "）"，这些在条款标题中常见）
         if text.endswith(('。', '；', '.', ';', '，', ',')):
-            return False
+            # 但如果包含条款关键词，可能是标题带了额外说明
+            if not cls._RE_CLAUSE_KEYWORDS.search(text):
+                return False
+
+        # ===== v18.2: 特殊标题关键词（优先检查）=====
+        # 这些短标题虽然不含"条款"但确实是条款名称
+        special_title_keywords = [
+            '合同争议解决', '争议解决', '合同争议',
+            '自动恢复保险金额', '恢复保险金额',
+            '通译和标题', '错误和遗漏', '错误与遗漏',
+            '权益保障', '损失通知', '不受控制',
+            '品牌和商标', '合同价格',
+        ]
+        for kw in special_title_keywords:
+            if kw in text:
+                return True
+
+        # ===== v18.4: 英文特殊条款关键词（无Clause/Extension但确实是条款）=====
+        english_special_keywords = [
+            'Burglary', 'Theft', 'Robbery',  # 盗窃抢劫
+            'Strike', 'Riot', 'Civil Commotion',  # 罢工暴动
+            'Works of Arts', 'Work of Art',  # 艺术品
+            'Cancellation by Insurer', 'Cancellation by Insured',  # 注销条款
+            'Notice of Cancellation',  # 注销通知
+            'Property in the Open',  # 露天财产
+            'Unnamed location', 'Unnamed Location',  # 未指定地点
+            'Miscellaneous',  # 杂项（但不在excluded中时）
+        ]
+        # 检查是否包含英文特殊关键词（需要至少匹配一个）
+        for kw in english_special_keywords:
+            if kw.lower() in text.lower():
+                # 额外检查：排除明显是正文的情况
+                content_starts = ('the ', 'this ', 'if ', 'when ', 'where ', 'by ', 'and ', 'or ',
+                                  'provided ', 'subject ', 'in ', 'for ', 'any ', 'all ', 'such ')
+                if text.lower().startswith(content_starts):
+                    continue  # 跳过这个关键词，继续检查其他
+                # 额外检查：以小写字母开头的通常是正文
+                if text and text[0].islower():
+                    continue
+                return True
 
         # ===== v17.1: 优先检查是否为标题（"条款"关键词最优先）=====
 
@@ -2135,6 +2451,12 @@ class ClauseMatcherLogic:
             if text.startswith(('本条款', '本扩展条款', '本附加条款')):
                 return False
             return True
+
+        # v18.2: 包含"附加"和"保险"的也可能是条款标题（如"企业财产保险附加自动恢复保险金额保险"）
+        if '附加' in text and '保险' in text:
+            # 排除以"本附加"开头的内容句
+            if not text.startswith(('本附加', '在附加')):
+                return True
 
         # ===== 排除明确不是标题的内容 =====
 
@@ -2176,6 +2498,62 @@ class ClauseMatcherLogic:
         if '附加' in text and '保险' in text and re.search(r'[（(]\d{4}版?[）)]$', text):
             return True
 
+        # ===== v18.3: 英文条款关键词优先检查（在排除检查之前）=====
+        # 包含 Clause/Extension/Coverage/Cover/Insurance 的英文文本通常是条款标题
+        # 注意：Clauses 是复数形式，Cover 是 Coverage 的简写
+        if re.search(r'\b(Clauses?|Extensions?|Coverage|Cover|Endorsement|Insurance)\b', text, re.IGNORECASE):
+            # v18.4 修复1: 排除保险公司名称（包含 "Insurance Company" 或 "Insurance Co."）
+            if re.search(r'Insurance\s+(Company|Co\.?)\b', text, re.IGNORECASE):
+                return False
+
+            # v18.4 修复2: 排除 "this/the + 关键词" 形式（条款正文内容）
+            # 如 "this Clause", "the Policy", "this extension", "this Endorsement"
+            if re.search(r'\b(this|the|such|that)\s+(Clause|Extension|Policy|Insurance|Cover|Endorsement)\b', text, re.IGNORECASE):
+                return False
+
+            # v18.4 修复3: 排除编号开头的内容（条款正文的子项）
+            # v18.5: 使用预编译正则提升性能
+            if cls._RE_PARENTHESIS_NUMBER.match(text):  # (1), (2), （1）
+                return False
+            if cls._RE_PARENTHESIS_LETTER.match(text):  # (a), (b), (c), (A), (B)
+                return False
+            if cls._RE_LETTER_PAREN.match(text):  # a), b), c)
+                return False
+            if cls._RE_ROMAN_NUMBER.match(text):  # i., ii., iii.
+                return False
+
+            # v18.5 修复8: 排除"数字+点+紧跟大写字母（无空格）"的子编号内容
+            # 如 "1.REINSTATEMENT VALUE CLAUSE" - 这是条款正文的子项，不是独立条款
+            if cls._RE_SUB_NUMBER.match(text):
+                return False
+
+            # v18.4 修复5: 排除"数字+点+The/It/In/Any..."开头的子项内容
+            # 如 "1. The liability of...", "2. It is agreed that..."
+            if cls._RE_CONTENT_STARTER.match(text):
+                return False
+
+            # v18.4 修复6: 排除以正文开头词开始的内容
+            # 如 "Provided that...", "If the sum...", "by fire caused..."
+            content_starters = (
+                'Provided ', 'If ', 'Where ', 'When ', 'Unless ', 'Subject to ',
+                'In the event ', 'In respect ', 'For the purpose ', 'Notwithstanding ',
+                'by ', 'and ', 'or ', 'but ', 'that ', 'which ', 'who ', 'whose ',
+            )
+            if text.startswith(content_starters):
+                return False
+
+            # v18.4 修复7: 以小写字母开头的通常是正文内容
+            if text and text[0].islower():
+                return False
+
+            # v18.4 修复4: 排除以冒号结尾的全大写文本（如 WARRANTED:）
+            if text.isupper() and text.rstrip().endswith(':'):
+                return False
+
+            # 排除其他明显不是标题的情况
+            if not text.startswith(('All the terms',)):
+                return True
+
         # ===== 明确是内容的模式（不是标题）=====
         content_start_patterns = [
             # 条款内容常见开头
@@ -2208,11 +2586,30 @@ class ClauseMatcherLogic:
             r'^除',
             r'^凡',
             r'^任何',
+            r'^无论',
+            r'^特别条件',
+            r'^重置价值是指',
+            # 金额和免赔额描述（不是条款标题）
+            r'^每次事故免赔额',
+            r'^每次事故赔偿限额',
+            r'^每次及累计',
+            r'^累计赔偿限额',
+            r'^RMB\s*[\d,]+',
+            r'^\d+[\.,]\d+',  # 纯数字开头
+            # 公司名称（不是条款标题）- v18.3: 只排除明确的公司名，不要太宽泛
+            r'^Charles\s+Taylor',
+            r'^McLarens',
+            r'^Sedgwick',
+            r'^Crawford',
+            # 交付日期等说明
+            r'^交付日期',
+            r'^分期数',
             # 列表项（子条目，不是新条款）
             r'^[\(（]\s*[一二三四五六七八九十]+\s*[\)）]',  # (一)、（二）
             r'^[一二三四五六七八九十]+[、\.．]',  # 一、二、
             r'^\d+[、\.．\s](?![\.．\s]*[^\d].*条款)',  # 1、2、但不匹配 "1. xxx条款"
             r'^[\(（]\s*\d+\s*[\)）]',  # (1)、（2）
+            r'^①|^②|^③|^④|^⑤',  # 圈数字
         ]
 
         for pattern in content_start_patterns:
@@ -2220,19 +2617,18 @@ class ClauseMatcherLogic:
                 return False
 
         # ===== 其他标题模式（已通过内容排除检查）=====
-        # 英文条款关键词
-        if re.search(r'\b(Clause|Extension|Coverage|Insurance)\b', text, re.IGNORECASE):
-            return True
-
         # 全大写英文（可能是英文条款名）
         if text.isupper() and len(text) > 5 and re.search(r'[A-Z]{3,}', text):
+            # v18.4: 排除以冒号结尾的（如 WARRANTED:）
+            if text.rstrip().endswith(':'):
+                return False
             return True
 
         # 默认不是标题（保守策略）
         return False
 
     def parse_docx(self, doc_path: str) -> Tuple[List[ClauseItem], bool]:
-        """解析Word文档 - 基于标题识别的智能分割"""
+        """解析Word文档 - 智能识别表格中的条款列表"""
         logger.info(f"解析文档: {doc_path}")
 
         try:
@@ -2241,37 +2637,147 @@ class ClauseMatcherLogic:
             logger.error(f"文档打开失败: {e}")
             raise ValueError(f"无法打开文档: {e}")
 
-        # 1. 读取普通段落
-        all_lines = [p.text.strip() for p in doc.paragraphs]
+        # 1. 读取普通段落，同时记录样式信息
+        # v18.4: 使用 Heading 样式作为条款标题的强识别信号
+        all_lines = []
+        heading_lines = set()  # 记录哪些行是 Heading 样式
 
-        # 2. 读取表格中的内容
-        table_lines = []
+        for i, para in enumerate(doc.paragraphs):
+            text = para.text.strip()
+            all_lines.append(text)
+
+            # 检查是否是 Heading 样式（条款标题通常使用 Heading 样式）
+            if para.style and para.style.name:
+                style_name = para.style.name.lower()
+                if 'heading' in style_name or 'title' in style_name:
+                    if text:  # 只记录非空的 Heading
+                        heading_lines.add(i)
+
+        # 2. 智能读取表格内容 - 特别处理"附加条款"列
+        table_clauses = []  # 从"附加条款"单元格提取的条款
+        table_lines = []    # 其他表格内容
+
+        # 定义条款列的关键词
+        clause_row_keywords = ['附加条款', '除外条款', '特别条款', '扩展条款']
+
         for table in doc.tables:
             for row in table.rows:
-                row_text = ' '.join(cell.text.strip() for cell in row.cells if cell.text.strip())
-                if row_text:
-                    table_lines.append(row_text)
+                first_cell_text = row.cells[0].text.strip()
+
+                # 检查是否是条款列表行
+                is_clause_row = any(kw in first_cell_text for kw in clause_row_keywords)
+
+                if is_clause_row:
+                    # 查找包含条款列表的单元格（通常是最后一个非空单元格）
+                    for cell in reversed(row.cells):
+                        cell_text = cell.text.strip()
+                        # 跳过标签单元格和分隔符
+                        if cell_text and cell_text != first_cell_text and cell_text not in ['：', ':', '']:
+                            # 按换行分割
+                            lines = [l.strip() for l in cell_text.split('\n') if l.strip()]
+                            for line in lines:
+                                # 使用 is_likely_title 判断是否是条款标题
+                                if self.is_likely_title(line):
+                                    table_clauses.append(line)
+                            break  # 找到条款单元格后停止
+                else:
+                    # 其他行正常处理
+                    row_text = ' '.join(cell.text.strip() for cell in row.cells if cell.text.strip())
+                    if row_text:
+                        table_lines.append(row_text)
+
+        # 如果从表格中提取到条款，优先使用这些条款
+        if table_clauses:
+            logger.info(f"从表格条款列提取到 {len(table_clauses)} 个条款")
+            clauses = [ClauseItem(title=t, content="", original_title=t) for t in table_clauses]
+            return clauses, True  # 纯标题模式
+
+        # 如果没有提取到条款，使用原来的逻辑
+        # 构建带格式信息的行列表: [(text, is_heading), ...]
+        non_empty_lines_with_info = []
+
+        # 先添加段落内容（保留Heading信息）
+        non_empty_paragraphs = [(line, i in heading_lines) for i, line in enumerate(all_lines) if line]
 
         # 如果表格有内容且段落基本为空，优先使用表格内容
-        non_empty_paragraphs = [l for l in all_lines if l]
         if table_lines and len(non_empty_paragraphs) < len(table_lines):
             logger.info(f"检测到表格内容: {len(table_lines)} 行，优先使用表格")
-            all_lines = table_lines
+            non_empty_lines_with_info = [(line, False) for line in table_lines if line]
         elif table_lines:
             logger.info(f"合并段落({len(non_empty_paragraphs)})和表格({len(table_lines)})内容")
-            all_lines.extend(table_lines)
+            non_empty_lines_with_info = non_empty_paragraphs + [(line, False) for line in table_lines if line]
+        else:
+            non_empty_lines_with_info = non_empty_paragraphs
 
-        # 过滤空行
-        non_empty_lines = [l for l in all_lines if l]
-        logger.info(f"非空行数: {len(non_empty_lines)}")
+        heading_count = sum(1 for _, is_h in non_empty_lines_with_info if is_h)
+        logger.info(f"非空行数: {len(non_empty_lines_with_info)}, Heading行数: {heading_count}")
 
         # 3. 基于标题识别进行分割（不再依赖空行）
+        # v18.4: 使用 Heading 样式作为条款标题的强识别信号
+        # v18.5: 已映射的条款名称优先识别为标题
+
+        # v18.5: 获取已映射的客户条款名称（用于优先识别）
+        mapped_client_names = set()
+        try:
+            if HAS_MAPPING_MANAGER:
+                mapping_mgr = get_mapping_manager()
+                if mapping_mgr:
+                    for mapping in mapping_mgr.get_all_mappings():
+                        if mapping.client_name:
+                            mapped_client_names.add(mapping.client_name.strip())
+                            # 也添加去除编号后的名称
+                            cleaned = re.sub(r'^\d+[\.\s、]+', '', mapping.client_name).strip()
+                            if cleaned:
+                                mapped_client_names.add(cleaned)
+            if mapped_client_names:
+                logger.info(f"已加载 {len(mapped_client_names)} 个已映射条款名称用于优先识别")
+        except Exception as e:
+            logger.warning(f"获取映射条款名称失败: {e}")
+
         clauses = []
         current_title = None
         current_content = []
 
-        for line in non_empty_lines:
-            if self.is_likely_title(line):
+        for line, is_heading in non_empty_lines_with_info:
+            # 判断是否是条款标题：
+            # 1. is_likely_title 返回 True，或者
+            # 2. 是 Heading 样式且不是明显的子编号内容，或者
+            # 3. v18.5: 匹配已映射的条款名称
+            is_title = self.is_likely_title(line)
+
+            # v18.5: 检查是否在排除列表中（用于后续的 Heading/映射识别）
+            is_excluded = False
+            if HAS_MAPPING_MANAGER:
+                excluded_titles = ClauseMatcherLogic._load_excluded_titles()
+                if excluded_titles:
+                    line_cleaned_for_exclude = ClauseMatcherLogic._remove_leading_number(line)
+                    if line_cleaned_for_exclude.upper() in excluded_titles:
+                        is_excluded = True
+                        logger.debug(f"排除列表跳过: {line[:50]}")
+
+            # v18.5: 已映射的条款名称优先识别为标题（但排除列表优先）
+            if not is_title and not is_excluded and mapped_client_names:
+                # 精确匹配
+                if line in mapped_client_names:
+                    is_title = True
+                    logger.debug(f"已映射条款识别为标题: {line[:50]}")
+                else:
+                    # 去除编号后匹配
+                    line_cleaned = re.sub(r'^\d+[\.\s、]+', '', line).strip()
+                    if line_cleaned and line_cleaned in mapped_client_names:
+                        is_title = True
+                        logger.debug(f"已映射条款识别为标题(去编号): {line[:50]}")
+
+            # v18.4: Heading 样式的段落优先识别为标题（但排除列表优先）
+            if is_heading and not is_title and not is_excluded:
+                # Heading 样式，但 is_likely_title 返回 False
+                # 检查是否是子编号内容（如 "1.REINSTATEMENT VALUE CLAUSE"）
+                # 子编号格式通常以 "数字.大写" 紧密连接，没有空格
+                if not re.match(r'^\d+\.[A-Z]', line):
+                    is_title = True
+                    logger.debug(f"Heading样式识别为标题: {line[:50]}")
+
+            if is_title:
                 # 保存前一个条款
                 if current_title is not None:
                     clauses.append(ClauseItem(
@@ -2286,13 +2792,8 @@ class ClauseMatcherLogic:
                 # 内容行
                 if current_title is not None:
                     current_content.append(line)
-                else:
-                    # 没有标题的内容，作为独立条款
-                    clauses.append(ClauseItem(
-                        title=line,
-                        content="",
-                        original_title=line
-                    ))
+                # v18.4修复: 在第一个标题之前的内容直接跳过，不再作为独立条款
+                # 这避免了excluded_titles排除标题后，前置内容变成大量"条款"的问题
 
         # 保存最后一个条款
         if current_title is not None:
@@ -2512,12 +3013,22 @@ class MatchWorker(QThread):
     progress_signal = pyqtSignal(int, int)
     finished_signal = pyqtSignal(bool, str)
 
-    def __init__(self, doc_path: str, excel_path: str, output_path: str, sheet_name: str = None):
+    def __init__(self, doc_path: str, excel_path: str, output_path: str, sheet_name: str = None, match_mode: str = "auto"):
         super().__init__()
         self.doc_path = doc_path
         self.excel_path = excel_path
         self.output_path = output_path
         self.sheet_name = sheet_name  # 指定的Sheet名称
+        self.match_mode = match_mode  # v18.3: 匹配模式 (auto/title/content)
+        self._cancelled = False  # v18.4: 取消标志
+
+    def cancel(self):
+        """v18.4: 取消比对"""
+        self._cancelled = True
+
+    def is_cancelled(self) -> bool:
+        """v18.4: 检查是否已取消"""
+        return self._cancelled
 
     def run(self):
         try:
@@ -2528,8 +3039,19 @@ class MatchWorker(QThread):
 
             # 解析文档
             self.log_signal.emit("⏳ 正在解析文档...", "info")
-            clauses, is_title_only = logic.parse_docx(self.doc_path)
-            mode_str = "纯标题模式" if is_title_only else "完整内容模式"
+            clauses, auto_detected_mode = logic.parse_docx(self.doc_path)
+
+            # v18.3: 根据用户选择的模式决定 is_title_only
+            if self.match_mode == "auto":
+                is_title_only = auto_detected_mode
+                mode_str = "自动检测→纯标题模式" if is_title_only else "自动检测→完整内容模式"
+            elif self.match_mode == "title":
+                is_title_only = True
+                mode_str = "手动指定→纯标题模式"
+            else:  # content
+                is_title_only = False
+                mode_str = "手动指定→完整内容模式"
+
             self.log_signal.emit(f"📖 [{mode_str}] 提取到 {len(clauses)} 条", "success")
 
             # 加载条款库
@@ -2549,6 +3071,12 @@ class MatchWorker(QThread):
             stats = {'exact': 0, 'semantic': 0, 'keyword': 0, 'fuzzy': 0, 'none': 0}
 
             for idx, clause in enumerate(clauses, 1):
+                # v18.4: 检查取消
+                if self._cancelled:
+                    self.log_signal.emit("⛔ 用户取消了比对操作", "warning")
+                    self.finished_signal.emit(False, "用户取消")
+                    return
+
                 self.progress_signal.emit(idx, len(clauses))
 
                 # 翻译
@@ -2568,32 +3096,12 @@ class MatchWorker(QThread):
                         user_library_name = mapping_mgr.get_library_name(translated_title)
 
                 # v17.1: 根据是否有用户映射决定匹配策略
+                # v18.5: 使用 create_user_mapping_result 方法减少重复代码
                 match_results = []
                 if user_library_name:
                     # 有用户映射，只返回映射的那一条
                     lib_entry = logic.find_library_entry_by_name(user_library_name, index)
-                    if lib_entry:
-                        mapped_result = MatchResult(
-                            matched_name=lib_entry.get('条款名称', user_library_name),
-                            matched_reg=logic.clean_reg_number(lib_entry.get('产品注册号', lib_entry.get('注册号', ''))),
-                            matched_content=lib_entry.get('条款内容', ''),
-                            score=1.0,
-                            match_level=MatchLevel.EXACT,
-                            diff_analysis="用户自定义映射",
-                            title_score=1.0,
-                            content_score=0.0,
-                        )
-                    else:
-                        mapped_result = MatchResult(
-                            matched_name=user_library_name,
-                            matched_reg="",
-                            matched_content="",
-                            score=1.0,
-                            match_level=MatchLevel.EXACT,
-                            diff_analysis="用户自定义映射（未在库中找到）",
-                            title_score=1.0,
-                            content_score=0.0,
-                        )
+                    mapped_result = logic.create_user_mapping_result(lib_entry, user_library_name)
                     match_results = [mapped_result]
                 else:
                     # 无用户映射，使用多结果匹配（最多3条）
@@ -2668,12 +3176,18 @@ class BatchMatchWorker(QThread):
     batch_progress_signal = pyqtSignal(int, int, str)  # 当前文件, 总数, 文件名
     finished_signal = pyqtSignal(bool, str, int, int)  # 成功, 消息, 成功数, 总数
 
-    def __init__(self, doc_paths: List[str], excel_path: str, output_dir: str, sheet_name: str = None):
+    def __init__(self, doc_paths: List[str], excel_path: str, output_dir: str, sheet_name: str = None, match_mode: str = "auto"):
         super().__init__()
         self.doc_paths = doc_paths
         self.excel_path = excel_path
         self.output_dir = output_dir
         self.sheet_name = sheet_name  # 指定的Sheet名称
+        self.match_mode = match_mode  # v18.3: 匹配模式 (auto/title/content)
+        self._cancelled = False  # v18.4: 取消标志
+
+    def cancel(self):
+        """v18.4: 取消批量处理"""
+        self._cancelled = True
 
     def run(self):
         try:
@@ -2693,13 +3207,28 @@ class BatchMatchWorker(QThread):
             total = len(self.doc_paths)
 
             for file_idx, doc_path in enumerate(self.doc_paths, 1):
+                # v18.4: 检查取消
+                if self._cancelled:
+                    self.log_signal.emit("⛔ 用户取消了批量处理", "warning")
+                    self.finished_signal.emit(False, "用户取消", success_count, file_idx - 1)
+                    return
+
                 file_name = Path(doc_path).name
                 self.batch_progress_signal.emit(file_idx, total, file_name)
                 self.log_signal.emit(f"\n📄 [{file_idx}/{total}] {file_name}", "info")
 
                 try:
                     # 解析文档
-                    clauses, is_title_only = logic.parse_docx(doc_path)
+                    clauses, auto_detected_mode = logic.parse_docx(doc_path)
+
+                    # v18.3: 根据用户选择的模式决定 is_title_only
+                    if self.match_mode == "auto":
+                        is_title_only = auto_detected_mode
+                    elif self.match_mode == "title":
+                        is_title_only = True
+                    else:  # content
+                        is_title_only = False
+
                     self.log_signal.emit(f"   提取 {len(clauses)} 条款", "info")
 
                     # 匹配 (v17.1 多结果匹配)
@@ -2721,32 +3250,12 @@ class BatchMatchWorker(QThread):
                                 user_library_name = mapping_mgr.get_library_name(translated_title)
 
                         # v17.1: 根据是否有用户映射决定匹配策略
+                        # v18.5: 使用辅助方法减少重复代码
                         match_results = []
                         if user_library_name:
                             # 有用户映射，只返回映射的那一条
                             lib_entry = logic.find_library_entry_by_name(user_library_name, index)
-                            if lib_entry:
-                                mapped_result = MatchResult(
-                                    matched_name=lib_entry.get('条款名称', user_library_name),
-                                    matched_reg=logic.clean_reg_number(lib_entry.get('产品注册号', lib_entry.get('注册号', ''))),
-                                    matched_content=lib_entry.get('条款内容', ''),
-                                    score=1.0,
-                                    match_level=MatchLevel.EXACT,
-                                    diff_analysis="用户自定义映射",
-                                    title_score=1.0,
-                                    content_score=0.0,
-                                )
-                            else:
-                                mapped_result = MatchResult(
-                                    matched_name=user_library_name,
-                                    matched_reg="",
-                                    matched_content="",
-                                    score=1.0,
-                                    match_level=MatchLevel.EXACT,
-                                    diff_analysis="用户自定义映射（未在库中找到）",
-                                    title_score=1.0,
-                                    content_score=0.0,
-                                )
+                            mapped_result = logic.create_user_mapping_result(lib_entry, user_library_name)
                             match_results = [mapped_result]
                         else:
                             # 无用户映射，使用多结果匹配（最多3条）
@@ -3532,7 +4041,7 @@ class ClauseExtractorTab(QWidget):
         """)
         self.extract_btn.clicked.connect(self._start_extraction)
 
-        self.download_zip_btn = QPushButton("📦 下载分类ZIP")
+        self.download_zip_btn = QPushButton("📦 进行分类ZIP打包")
         self.download_zip_btn.setMinimumHeight(48)
         self.download_zip_btn.setCursor(Qt.PointingHandCursor)
         self.download_zip_btn.setVisible(False)
@@ -4326,13 +4835,9 @@ class ClauseExtractorTab(QWidget):
             wb.save(save_path)
             self._log(f"✅ Excel报告已保存: {os.path.basename(save_path)}", "success")
 
-            # 打开文件所在目录（跨平台）
-            if platform.system() == 'Windows':
-                os.startfile(os.path.dirname(save_path))
-            elif platform.system() == 'Darwin':
+            # 打开文件所在目录（使用subprocess防止命令注入）
+            if sys.platform == 'darwin':
                 subprocess.run(['open', '-R', save_path], check=False)
-            else:
-                subprocess.run(['xdg-open', os.path.dirname(save_path)], check=False)
 
         except Exception as e:
             self._log(f"❌ Excel导出失败: {sanitize_error_message(e)}", "error")
@@ -4980,13 +5485,9 @@ class ClauseOutputTab(QWidget):
         self._log(f"   输出目录: {output_dir}", "info")
         self.progress_bar.setVisible(False)
 
-        # 打开输出目录（跨平台）
-        if platform.system() == 'Windows':
-            os.startfile(output_dir)
-        elif platform.system() == 'Darwin':
+        # 打开输出目录（使用subprocess防止命令注入）
+        if sys.platform == 'darwin':
             subprocess.run(['open', output_dir], check=False)
-        else:
-            subprocess.run(['xdg-open', output_dir], check=False)
 
     def _generate_category_docs(self, clauses: list, output_dir: str):
         """按分类生成Word文档"""
@@ -5021,13 +5522,9 @@ class ClauseOutputTab(QWidget):
         self._log(f"✅ 完成! 输出目录: {output_dir}", "success")
         self.progress_bar.setVisible(False)
 
-        # 打开输出目录（跨平台）
-        if platform.system() == 'Windows':
-            os.startfile(output_dir)
-        elif platform.system() == 'Darwin':
+        # 打开输出目录（使用subprocess防止命令注入）
+        if sys.platform == 'darwin':
             subprocess.run(['open', output_dir], check=False)
-        else:
-            subprocess.run(['xdg-open', output_dir], check=False)
 
     def _set_run_font(self, run, size_pt: int, bold: bool = False, color_rgb=None):
         """设置run的字体：宋体(中文) + Times New Roman(英文)"""
@@ -5120,13 +5617,9 @@ class ClauseOutputTab(QWidget):
             self._log(f"✅ Word文档已生成: {os.path.basename(save_path)}", "success")
             self._log(f"   共导出 {len(clauses)} 条条款，{len(categorized)} 个分类", "info")
 
-            # 打开生成的文档（跨平台）
-            if platform.system() == 'Windows':
-                os.startfile(save_path)
-            elif platform.system() == 'Darwin':
+            # 打开生成的文档（使用subprocess防止命令注入）
+            if sys.platform == 'darwin':
                 subprocess.run(['open', save_path], check=False)
-            else:
-                subprocess.run(['xdg-open', save_path], check=False)
 
         except Exception as e:
             self._log(f"❌ 生成失败: {sanitize_error_message(e)}", "error")
@@ -5271,7 +5764,7 @@ class ClauseComparisonAssistant(QMainWindow):
         header_layout.addStretch()
 
         # 版本信息
-        subtitle = QLabel("V18.0 · 条款提取 · 条款比对 · 条款输出")
+        subtitle = QLabel("V18.5 · 条款提取 · 条款比对 · 条款输出")
         subtitle.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
         header_layout.addWidget(subtitle)
 
@@ -5356,7 +5849,7 @@ class ClauseComparisonAssistant(QMainWindow):
         layout.addWidget(self.main_tabs, 1)
 
         # 版本信息
-        version = QLabel("V18.0 Multi-Tab Edition · Made with ❤️ by Dachi Yijin")
+        version = QLabel("V18.5 Enhanced Recognition Edition · Made with ❤️ by Dachi Yijin")
         version.setAlignment(Qt.AlignCenter)
         version.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 11px;")
         layout.addWidget(version)
@@ -5374,7 +5867,7 @@ class ClauseComparisonAssistant(QMainWindow):
             user_mappings = self._mapping_manager.get_mapping_count() if self._mapping_manager else 0
             stats_text = f"📊 {stats['client_mappings']} 映射 | {user_mappings} 自定义 | {stats['semantic_aliases']} 别名"
         else:
-            stats_text = "📊 使用内置配置"
+            stats_text = "📊 使用DCYJIN智能AI配置"
         self.stats_label = QLabel(stats_text)
         self.stats_label.setAlignment(Qt.AlignCenter)
         self.stats_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 11px;")
@@ -5476,6 +5969,61 @@ class ClauseComparisonAssistant(QMainWindow):
 
         layout.addWidget(card)
 
+        # v18.3: 匹配模式选择
+        mode_layout = QHBoxLayout()
+        mode_layout.setSpacing(12)
+
+        mode_label = QLabel("匹配模式：")
+        mode_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 14px;")
+
+        self.match_mode_combo = QComboBox()
+        self.match_mode_combo.addItems(["🔄 自动检测（推荐）", "📝 纯标题模式", "📄 完整内容模式"])
+        self.match_mode_combo.setMinimumHeight(36)
+        self.match_mode_combo.setMinimumWidth(200)
+        self.match_mode_combo.setCursor(Qt.PointingHandCursor)
+        self.match_mode_combo.setStyleSheet(f"""
+            QComboBox {{
+                padding: 8px 12px;
+                border: 1px solid {AnthropicColors.BORDER};
+                border-radius: 8px;
+                background: white;
+                color: {AnthropicColors.TEXT_PRIMARY};
+                font-size: 14px;
+            }}
+            QComboBox:hover {{
+                border-color: {AnthropicColors.ACCENT};
+            }}
+            QComboBox::drop-down {{
+                border: none;
+                width: 24px;
+            }}
+            QComboBox::down-arrow {{
+                image: none;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 6px solid {AnthropicColors.TEXT_MUTED};
+                margin-right: 8px;
+            }}
+            QComboBox QAbstractItemView {{
+                background: white;
+                color: {AnthropicColors.TEXT_PRIMARY};
+                selection-background-color: {AnthropicColors.BG_CARD};
+                selection-color: {AnthropicColors.TEXT_PRIMARY};
+                border: 1px solid {AnthropicColors.BORDER};
+                border-radius: 4px;
+                padding: 4px;
+            }}
+        """)
+
+        self.mode_hint_label = QLabel("")
+        self.mode_hint_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 12px;")
+
+        mode_layout.addWidget(mode_label)
+        mode_layout.addWidget(self.match_mode_combo)
+        mode_layout.addWidget(self.mode_hint_label)
+        mode_layout.addStretch()
+        layout.addLayout(mode_layout)
+
         # 按钮行
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(12)
@@ -5496,30 +6044,43 @@ class ClauseComparisonAssistant(QMainWindow):
         """)
         self.start_btn.clicked.connect(self._start_process)
 
-        self.batch_btn = QPushButton("📦 批量处理")
-        self.batch_btn.setCursor(Qt.PointingHandCursor)
-        self.batch_btn.setMinimumHeight(52)
-        self.batch_btn.setStyleSheet(f"""
+        # v18.4: 取消比对按钮（替代原批量处理按钮）
+        self.cancel_btn = QPushButton("⛔ 取消比对")
+        self.cancel_btn.setCursor(Qt.PointingHandCursor)
+        self.cancel_btn.setMinimumHeight(52)
+        self.cancel_btn.setEnabled(False)  # 默认禁用
+        self.cancel_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent; color: #e74c3c;
+                font-size: 14px; font-weight: 500;
+                border-radius: 8px; border: 1px solid #e74c3c;
+            }}
+            QPushButton:hover {{ background: #e74c3c; color: white; }}
+            QPushButton:disabled {{ color: {AnthropicColors.BORDER}; border-color: {AnthropicColors.BORDER}; }}
+        """)
+        self.cancel_btn.clicked.connect(self._cancel_process)
+
+        # 普通按钮样式
+        normal_btn_style = f"""
             QPushButton {{
                 background: transparent; color: {AnthropicColors.TEXT_PRIMARY};
                 font-size: 14px; font-weight: 500;
                 border-radius: 8px; border: 1px solid {AnthropicColors.BG_DARK};
             }}
             QPushButton:hover {{ background: {AnthropicColors.BG_DARK}; color: {AnthropicColors.TEXT_LIGHT}; }}
-        """)
-        self.batch_btn.clicked.connect(self._show_batch_dialog)
+        """
 
         self.add_btn = QPushButton("🔧 映射设置")
         self.add_btn.setCursor(Qt.PointingHandCursor)
         self.add_btn.setMinimumHeight(52)
-        self.add_btn.setStyleSheet(self.batch_btn.styleSheet())
+        self.add_btn.setStyleSheet(normal_btn_style)
         self.add_btn.clicked.connect(self._show_add_mapping_dialog)
 
         # v17.1: 条款查询按钮
         self.query_btn = QPushButton("🔍 条款查询")
         self.query_btn.setCursor(Qt.PointingHandCursor)
         self.query_btn.setMinimumHeight(52)
-        self.query_btn.setStyleSheet(self.batch_btn.styleSheet())
+        self.query_btn.setStyleSheet(normal_btn_style)
         self.query_btn.clicked.connect(self._show_query_dialog)
 
         self.open_btn = QPushButton("📂 打开目录")
@@ -5538,7 +6099,7 @@ class ClauseComparisonAssistant(QMainWindow):
         self.open_btn.clicked.connect(self._open_output_folder)
 
         btn_layout.addWidget(self.start_btn, 3)
-        btn_layout.addWidget(self.batch_btn, 1)
+        btn_layout.addWidget(self.cancel_btn, 1)
         btn_layout.addWidget(self.add_btn, 1)
         btn_layout.addWidget(self.query_btn, 1)  # v17.1: 条款查询
         btn_layout.addWidget(self.open_btn, 1)
@@ -5748,7 +6309,10 @@ class ClauseComparisonAssistant(QMainWindow):
         # 获取选择的Sheet名称
         sheet_name = self._get_selected_sheet()
 
-        self.worker = MatchWorker(doc, excel, out, sheet_name)
+        # v18.3: 获取选择的匹配模式
+        match_mode = self._get_match_mode()
+
+        self.worker = MatchWorker(doc, excel, out, sheet_name, match_mode)
         self.worker.log_signal.connect(self._append_log)
         self.worker.progress_signal.connect(lambda c, t: self.progress_bar.setValue(int(c/t*100)))
         self.worker.finished_signal.connect(self._on_finished)
@@ -5761,7 +6325,10 @@ class ClauseComparisonAssistant(QMainWindow):
         # 获取选择的Sheet名称
         sheet_name = self._get_selected_sheet()
 
-        self.batch_worker = BatchMatchWorker(files, self.lib_input.text(), output_dir, sheet_name)
+        # v18.3: 获取选择的匹配模式
+        match_mode = self._get_match_mode()
+
+        self.batch_worker = BatchMatchWorker(files, self.lib_input.text(), output_dir, sheet_name, match_mode)
         self.batch_worker.log_signal.connect(self._append_log)
         self.batch_worker.batch_progress_signal.connect(
             lambda c, t, n: self.progress_bar.setValue(int(c/t*100))
@@ -5774,6 +6341,16 @@ class ClauseComparisonAssistant(QMainWindow):
         if self.sheet_combo.currentIndex() == 0:  # "自动选择第一个Sheet"
             return None
         return self.sheet_combo.currentText()
+
+    def _get_match_mode(self) -> str:
+        """v18.3: 获取选择的匹配模式"""
+        idx = self.match_mode_combo.currentIndex()
+        if idx == 0:
+            return "auto"
+        elif idx == 1:
+            return "title"
+        else:
+            return "content"
 
     def _update_sheet_list(self, excel_path: str):
         """当条款库文件改变时更新Sheet列表"""
@@ -5796,11 +6373,22 @@ class ClauseComparisonAssistant(QMainWindow):
 
     def _set_ui_state(self, enabled: bool):
         self.start_btn.setEnabled(enabled)
-        self.batch_btn.setEnabled(enabled)
         self.start_btn.setText("🚀 开始比对" if enabled else "⏳ 处理中...")
         self.progress_bar.setVisible(not enabled)
+
+        # v18.4: 取消按钮 - 空闲时禁用，处理中时启用
+        self.cancel_btn.setEnabled(not enabled)
         if not enabled:
             self.progress_bar.setValue(0)
+
+    def _cancel_process(self):
+        """v18.4: 取消比对操作"""
+        if hasattr(self, 'worker') and self.worker and self.worker.isRunning():
+            self.worker.cancel()
+            self._append_log("⏳ 正在取消...", "warning")
+        elif hasattr(self, 'batch_worker') and self.batch_worker and self.batch_worker.isRunning():
+            self.batch_worker.cancel()
+            self._append_log("⏳ 正在取消批量处理...", "warning")
 
     def _on_finished(self, success: bool, msg: str):
         self._set_ui_state(True)
