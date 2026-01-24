@@ -4030,7 +4030,7 @@ class ClauseExtractorTab(QWidget):
         """)
         self.extract_btn.clicked.connect(self._start_extraction)
 
-        self.download_zip_btn = QPushButton("📦 下载分类ZIP")
+        self.download_zip_btn = QPushButton("📦 进行分类ZIP打包")
         self.download_zip_btn.setMinimumHeight(48)
         self.download_zip_btn.setCursor(Qt.PointingHandCursor)
         self.download_zip_btn.setVisible(False)
@@ -5976,6 +5976,7 @@ class ClauseComparisonAssistant(QMainWindow):
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
                 background: white;
+                color: {AnthropicColors.TEXT_PRIMARY};
                 font-size: 14px;
             }}
             QComboBox:hover {{
@@ -5989,8 +5990,17 @@ class ClauseComparisonAssistant(QMainWindow):
                 image: none;
                 border-left: 5px solid transparent;
                 border-right: 5px solid transparent;
-                border-top: 6px solid {AnthropicColors.TEXT_SECONDARY};
+                border-top: 6px solid {AnthropicColors.TEXT_MUTED};
                 margin-right: 8px;
+            }}
+            QComboBox QAbstractItemView {{
+                background: white;
+                color: {AnthropicColors.TEXT_PRIMARY};
+                selection-background-color: {AnthropicColors.BG_CARD};
+                selection-color: {AnthropicColors.TEXT_PRIMARY};
+                border: 1px solid {AnthropicColors.BORDER};
+                border-radius: 4px;
+                padding: 4px;
             }}
         """)
 
