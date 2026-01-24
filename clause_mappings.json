@@ -1,0 +1,258 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-01-24 17:51:46",
+  "mappings": [
+    {
+      "client_name": "Earthquake and Tsunami Clause (Limit: 100% of sum insured)",
+      "library_name": "企业财产保险附加地震或海啸条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Reinstatement Value Clause",
+      "library_name": "企业财产保险附加重置价值条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Automatic Reinstatement of Sum Insured Clause",
+      "library_name": "企业财产保险附加自动恢复保险金额条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Professional Fees Clause (10% of loss)",
+      "library_name": "企业财产保险附加专业费用条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Extra Charges Clause (10% of loss)",
+      "library_name": "企业财产保险附加额外费用条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Removal of Debris Clause (10% of loss)",
+      "library_name": "企业财产保险附加清理残骸条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Public Authorities Clause",
+      "library_name": "企业财产保险附加公共当局扩展条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Alteration, Maintenance, Repair and Decoration Clause (total contract value: RMB1,000,000.00)",
+      "library_name": "企业财产保险附加装修、改造条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Strike, Riot & Civil Commotion Extension",
+      "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Fire Extinguish Expenses Clause (10% of loss)",
+      "library_name": "企业财产保险附加灭火费用条款（D款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Inland Transit Extension（ RMB 500,000 in total）",
+      "library_name": "企业财产保险附加内陆运输条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Temporary Removal Clause (10% of sum insured)",
+      "library_name": "企业财产保险附加临时移动条款（B款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Escalation Clause (10%)",
+      "library_name": "企业财产保险附加自动升值条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Capital Addition Clause (10% of sum insured)",
+      "library_name": "企业财产保险附加资产增加条款（B款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Loss Adjuster Clause",
+      "library_name": "企业财产保险附加指定理算人条款（A款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Waiver of Subrogation Clause",
+      "library_name": "企业财产保险附加放弃代位求偿权条款（A款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Designation of Property Clause",
+      "library_name": "企业财产保险附加指明财产条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Payment on Account Clause (30%)",
+      "library_name": "企业财产保险附加预付赔款条款（A款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Boiler & Pressure Vessels Clause",
+      "library_name": "企业财产保险附加锅炉及压力容器爆炸扩展条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Landslide & Subsidence Clause",
+      "library_name": "企业财产保险附加泥石流、崖崩、突发性滑坡保险",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Import Duty Clause",
+      "library_name": "企业财产保险附加关税条款A款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Claim & Adjuster’s Expenses Clause (10% of loss)",
+      "library_name": "企业财产保险附加索赔费用条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Malicious Damage",
+      "library_name": "企业财产保险附加恶意破坏扩展条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Inhibition Clause",
+      "library_name": "企业财产保险附加阻止损失条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Laptop Extension Clause (Within premise)",
+      "library_name": "企业财产保险附加便携式电脑扩展条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Burglary Extension Clause",
+      "library_name": "企业财产保险附加盗窃险扩展条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Interruption of Public Supplier Clause",
+      "library_name": "企业财产保险附加“三停”损失保险",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Contract Price Valuation Clause",
+      "library_name": "企业财产保险附加合同价格（仓储物）条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Brand and Label Clause",
+      "library_name": "企业财产保险附加商标及标签条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Non-Average Clause(85%)",
+      "library_name": "企业财产保险附加比例共保条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Sprinkler Leakage Damage Extension Clause",
+      "library_name": "企业财产保险附加自动喷淋水损条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Glass Breakage Clause",
+      "library_name": "企业财产保险附加玻璃破碎扩展条款（B款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Time Adjustment Clause (72 hours)",
+      "library_name": "企业财产保险附加时间调整条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Errors and Omissions Clause（RMB 100,000.00）",
+      "library_name": "企业财产保险附加错误和遗漏条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "No Control Clause",
+      "library_name": "企业财产保险附加不可控制条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Breach of Conditions Clause",
+      "library_name": "企业财产保险附加违反保单条件条款（A款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "90 Days Notice of Cancellation Clause",
+      "library_name": "企业财产保险附加提前通知注销保单条款（A款）",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Non-Invalidation Clause",
+      "library_name": "企业财产保险附加不予失效条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "All Other Contents Clause (Limit: RMB10,000 per occurrence, RMB50,000 in aggregate)",
+      "library_name": "企业财产保险附加所有其他物品条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Automatic Cover for New Location (Limit: RMB1,000,000 subject to 90 days reporting period)",
+      "library_name": "企业财产保险附加自动承保新的营业场所条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Vehicle Load Clause",
+      "library_name": "企业财产保险附加车辆装载物条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Failure of Public Utilities Extension Clause",
+      "library_name": "企业财产保险附加公众事业设备扩展条款",
+      "created_at": "2026-01-24 17:51:46",
+      "notes": "从修正报告导入"
+    }
+  ]
+}

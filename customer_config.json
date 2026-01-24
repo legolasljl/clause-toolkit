@@ -1,0 +1,698 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "货运险投保工具 - 客户类型配置文件",
+    "created": "2025-12-22 00:07:36",
+    "last_modified": "2025-12-22 23:42:36"
+  },
+  "customer_types": {
+    "多式联运": {
+      "id": "multimodal",
+      "display_name": "多式联运",
+      "description": "标准多式联运保险业务",
+      "enabled": true,
+      "extract_function": "extract_sheet_data",
+      "process_function": "process_multimodal_sheet",
+      "use_excel_formatter": true,
+      "is_hengli": false,
+      "summary_headers": {
+        "columns": [
+          {
+            "key": "file_name",
+            "label": "文件名",
+            "width": 25
+          },
+          {
+            "key": "sheet_name",
+            "label": "Sheet名",
+            "width": 30
+          },
+          {
+            "key": "ship_voyage",
+            "label": "船名/航次",
+            "width": 15
+          },
+          {
+            "key": "business_count",
+            "label": "业务笔数",
+            "width": 10,
+            "sum": true
+          },
+          {
+            "key": "departure_date",
+            "label": "起运日期",
+            "width": 12
+          },
+          {
+            "key": "cargo_type",
+            "label": "货种",
+            "width": 50
+          },
+          {
+            "key": "tonnage",
+            "label": "实载吨位",
+            "width": 15,
+            "format": "#,##0.000",
+            "sum": true
+          },
+          {
+            "key": "insurance_amount",
+            "label": "保险金额",
+            "width": 18,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "rate_percent",
+            "label": "综合费率",
+            "width": 12
+          },
+          {
+            "key": "rate_permille",
+            "label": "千分费率",
+            "width": 10
+          },
+          {
+            "key": "new_premium",
+            "label": "保费",
+            "width": 15,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "rmb_premium",
+            "label": "人民币保费",
+            "width": 20
+          },
+          {
+            "key": "special_terms",
+            "label": "非标准化特约",
+            "width": 60,
+            "wrap_text": true
+          }
+        ],
+        "sum_row_label_column": 1,
+        "rmb_total_column": 12
+      },
+      "placeholders": {
+        "common": [
+          "{Sheet名}",
+          "{船名/航次}",
+          "{业务笔数}",
+          "{起运日期}",
+          "{货种}",
+          "{实载吨位}",
+          "{保险金额}",
+          "{总保额}",
+          "{综合费率}",
+          "{千分费率}",
+          "{保费}",
+          "{总保费}",
+          "{保费大写}",
+          "{非标准化特约}",
+          "{特约}"
+        ],
+        "mappings": {
+          "{Sheet名}": "sheet_name",
+          "{船名/航次}": "ship_voyage",
+          "{业务笔数}": "business_count",
+          "{起运日期}": "departure_date",
+          "{货种}": "cargo_type",
+          "{实载吨位}": {
+            "field": "tonnage",
+            "format": ",.3f"
+          },
+          "{保险金额}": {
+            "field": "insurance_amount",
+            "format": ",.2f"
+          },
+          "{总保额}": {
+            "field": "insurance_amount",
+            "format": ",.2f"
+          },
+          "{综合费率}": {
+            "field": "rate",
+            "format": ".6%"
+          },
+          "{千分费率}": {
+            "field": "rate",
+            "format": ".6f"
+          },
+          "{保费}": {
+            "field": "new_premium",
+            "format": ",.2f"
+          },
+          "{总保费}": {
+            "field": "new_premium",
+            "format": ",.2f"
+          },
+          "{保费大写}": {
+            "field": "new_premium",
+            "transform": "cn_currency"
+          },
+          "{非标准化特约}": "special_terms",
+          "{特约}": "special_terms"
+        }
+      },
+      "rate_config": {
+        "display_unit": "%",
+        "multiplier": 100,
+        "precision": 6
+      },
+      "log_format": "{sheet_name}: 费率={rate:.6f}, 保费={new_premium:,.2f}",
+      "agreement_codes": {},
+      "pdf_export_groups": {},
+      "processed_column_widths": [
+        {
+          "column": "G",
+          "width": 15.8
+        }
+      ],
+      "statement_groups": {}
+    },
+    "恒力PTA": {
+      "id": "hengli_pta",
+      "display_name": "恒力PTA",
+      "description": "恒力PTA运输保险业务",
+      "enabled": true,
+      "extract_function": "extract_hengli_data",
+      "process_function": "process_hengli_sheet",
+      "use_excel_formatter": true,
+      "is_hengli": true,
+      "summary_headers": {
+        "columns": [
+          {
+            "key": "file_name",
+            "label": "文件名",
+            "width": 25
+          },
+          {
+            "key": "sheet_name",
+            "label": "Sheet名",
+            "width": 30
+          },
+          {
+            "key": "transport_tool",
+            "label": "运输工具",
+            "width": 20
+          },
+          {
+            "key": "business_count",
+            "label": "业务笔数",
+            "width": 10,
+            "sum": true
+          },
+          {
+            "key": "departure_date",
+            "label": "起运日期",
+            "width": 12
+          },
+          {
+            "key": "tonnage",
+            "label": "装货数量（吨）",
+            "width": 15,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "insurance_amount",
+            "label": "保险金额",
+            "width": 18,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "rate_permille",
+            "label": "千分费率",
+            "width": 10,
+            "fixed_value": "0.083"
+          },
+          {
+            "key": "new_premium",
+            "label": "保费",
+            "width": 15,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "rmb_premium",
+            "label": "人民币保费",
+            "width": 20
+          }
+        ],
+        "sum_row_label_column": 1,
+        "rmb_total_column": 10
+      },
+      "placeholders": {
+        "common": [
+          "{Sheet名}",
+          "{运输工具}",
+          "{业务笔数}",
+          "{起运日期}",
+          "{装货数量（吨）}",
+          "{装货数量}",
+          "{保险金额}",
+          "{千分费率}",
+          "{保费}",
+          "{保费大写}"
+        ],
+        "mappings": {
+          "{Sheet名}": "sheet_name",
+          "{运输工具}": "transport_tool",
+          "{业务笔数}": "business_count",
+          "{起运日期}": "departure_date",
+          "{装货数量（吨）}": {
+            "field": "tonnage",
+            "format": ",.2f"
+          },
+          "{装货数量}": {
+            "field": "tonnage",
+            "format": ",.2f"
+          },
+          "{保险金额}": {
+            "field": "insurance_amount",
+            "format": ",.2f"
+          },
+          "{千分费率}": {
+            "fixed": "0.083"
+          },
+          "{保费}": {
+            "field": "new_premium",
+            "format": ",.2f"
+          },
+          "{保费大写}": {
+            "field": "new_premium",
+            "transform": "cn_currency"
+          }
+        }
+      },
+      "rate_config": {
+        "fixed_rate": 8.3e-05,
+        "display_unit": "‰",
+        "display_value": "0.083"
+      },
+      "log_format": "{sheet_name}: 费率=0.083‰, 保费={new_premium:,.2f}"
+    },
+    "惠州PTA": {
+      "id": "huizhou_pta",
+      "display_name": "惠州PTA",
+      "description": "惠州PTA运输保险业务（纵向打印）",
+      "enabled": true,
+      "extract_function": "extract_hengli_data",
+      "process_function": "process_hengli_sheet",
+      "use_excel_formatter": true,
+      "is_hengli": true,
+      "page_orientation": "portrait",
+      "source_field": {
+        "enabled": true,
+        "column_keywords": ["收货单位", "收货方", "客户名称", "发货方"],
+        "row": "first_data",
+        "label": "来源"
+      },
+      "summary_headers": {
+        "columns": [
+          {
+            "key": "file_name",
+            "label": "文件名",
+            "width": 25
+          },
+          {
+            "key": "sheet_name",
+            "label": "Sheet名",
+            "width": 30
+          },
+          {
+            "key": "transport_tool",
+            "label": "运输工具",
+            "width": 20
+          },
+          {
+            "key": "business_count",
+            "label": "业务笔数",
+            "width": 10,
+            "sum": true
+          },
+          {
+            "key": "departure_date",
+            "label": "起运日期",
+            "width": 12
+          },
+          {
+            "key": "tonnage",
+            "label": "装货数量（吨）",
+            "width": 15,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "insurance_amount",
+            "label": "保险金额",
+            "width": 18,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "rate_permille",
+            "label": "千分费率",
+            "width": 10,
+            "fixed_value": "0.083"
+          },
+          {
+            "key": "new_premium",
+            "label": "保费",
+            "width": 15,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "rmb_premium",
+            "label": "人民币保费",
+            "width": 20
+          },
+          {
+            "key": "source",
+            "label": "来源",
+            "width": 25
+          }
+        ],
+        "sum_row_label_column": 1,
+        "rmb_total_column": 10
+      },
+      "placeholders": {
+        "common": [
+          "{Sheet名}",
+          "{运输工具}",
+          "{业务笔数}",
+          "{起运日期}",
+          "{装货数量（吨）}",
+          "{装货数量}",
+          "{保险金额}",
+          "{千分费率}",
+          "{保费}",
+          "{保费大写}"
+        ],
+        "mappings": {
+          "{Sheet名}": "sheet_name",
+          "{运输工具}": "transport_tool",
+          "{业务笔数}": "business_count",
+          "{起运日期}": "departure_date",
+          "{装货数量（吨）}": {
+            "field": "tonnage",
+            "format": ",.2f"
+          },
+          "{装货数量}": {
+            "field": "tonnage",
+            "format": ",.2f"
+          },
+          "{保险金额}": {
+            "field": "insurance_amount",
+            "format": ",.2f"
+          },
+          "{千分费率}": "",
+          "{保费}": {
+            "field": "new_premium",
+            "format": ",.2f"
+          },
+          "{保费大写}": {
+            "field": "new_premium",
+            "transform": "cn_currency"
+          }
+        }
+      },
+      "rate_config": {
+        "fixed_rate": 8.3e-05,
+        "display_unit": "‰",
+        "display_value": "0.083"
+      },
+      "log_format": "{sheet_name}: 费率=0.083‰, 保费={new_premium:,.2f}",
+      "agreement_codes": {},
+      "pdf_export_groups": {},
+      "processed_column_widths": [
+        {
+          "column": "D",
+          "width": 13.5
+        },
+        {
+          "column": "E",
+          "width": 15.8
+        },
+        {
+          "column": "F",
+          "width": 24.7
+        },
+        {
+          "column": "G",
+          "width": 22.0
+        }
+      ],
+      "visual_settings": {
+        "font": {
+          "title_size": 18
+        },
+        "row_height": {
+          "header": 22,
+          "data": 15,
+          "total": 18
+        },
+        "header_style": {
+          "bold": true,
+          "background_color": "E6E6E6",
+          "alignment": "center"
+        },
+        "number_formats": {
+          "tonnage": "#,##0.00",
+          "amount": "#,##0.00",
+          "premium": "#,##0.00"
+        }
+      },
+      "statement_groups": {}
+    },
+    "恒力能源销售": {
+      "id": "hengli_energy",
+      "display_name": "恒力能源销售",
+      "description": "恒力能源销售保险业务",
+      "enabled": true,
+      "extract_function": "extract_hengli_energy_data",
+      "process_function": "process_hengli_energy_sheet",
+      "use_excel_formatter": false,
+      "is_hengli": false,
+      "summary_headers": {
+        "columns": [
+          {
+            "key": "comp",
+            "label": "申报公司名称",
+            "width": 38
+          },
+          {
+            "key": "no",
+            "label": "车船号",
+            "width": 14
+          },
+          {
+            "key": "date",
+            "label": "发货日期",
+            "width": 18,
+            "transform": "format_date_slashes"
+          },
+          {
+            "key": "latest_date",
+            "label": "申报止期",
+            "width": 14
+          },
+          {
+            "key": "mat",
+            "label": "物料名称",
+            "width": 38
+          },
+          {
+            "key": "business_count",
+            "label": "业务笔数",
+            "width": 10,
+            "sum": true
+          },
+          {
+            "key": "amt",
+            "label": "开单量",
+            "width": 14,
+            "format": "0.000",
+            "sum": true
+          },
+          {
+            "key": "money",
+            "label": "金额（元）",
+            "width": 18,
+            "format": "#,##0.00",
+            "sum": true
+          },
+          {
+            "key": "prem",
+            "label": "保费（元）",
+            "width": 16,
+            "format": "#,##0.00",
+            "sum": true
+          }
+        ],
+        "sum_row_label_column": 1,
+        "rmb_total_column": null
+      },
+      "placeholders": {
+        "common": [
+          "{申报公司名称}",
+          "{申报公司}",
+          "{车船号}",
+          "{发货日期}",
+          "{物料名称}",
+          "{业务笔数}",
+          "{开单量}",
+          "{金额（元）}",
+          "{金额(元)}",
+          "{金额}",
+          "{保费（元）}",
+          "{保费(元)}",
+          "{保费}",
+          "{保费大写}",
+          "{协议编号}",
+          "{起始日期}",
+          "{截止日期}",
+          "{申报周期}"
+        ],
+        "mappings": {
+          "{申报公司名称}": "comp",
+          "{申报公司}": "comp",
+          "{车船号}": "no",
+          "{发货日期}": {
+            "field": "date",
+            "transform": "format_date_slashes"
+          },
+          "{物料名称}": "mat",
+          "{业务笔数}": "business_count",
+          "{开单量}": {
+            "field": "amt",
+            "format": ",.3f"
+          },
+          "{金额（元）}": {
+            "field": "money",
+            "format": ",.2f"
+          },
+          "{金额(元)}": {
+            "field": "money",
+            "format": ",.2f"
+          },
+          "{金额}": {
+            "field": "money",
+            "format": ",.2f"
+          },
+          "{保费（元）}": {
+            "field": "prem",
+            "format": ",.2f"
+          },
+          "{保费(元)}": {
+            "field": "prem",
+            "format": ",.2f"
+          },
+          "{保费}": {
+            "field": "prem",
+            "format": ",.2f"
+          },
+          "{保费大写}": {
+            "field": "prem",
+            "transform": "cn_currency"
+          },
+          "{协议编号}": {
+            "lookup": "agreement_codes",
+            "key_field": "comp"
+          },
+          "{起始日期}": {
+            "source": "period",
+            "field": "start"
+          },
+          "{截止日期}": {
+            "source": "period",
+            "field": "end"
+          },
+          "{申报周期}": {
+            "source": "period",
+            "field": "str"
+          }
+        }
+      },
+      "rate_config": {},
+      "log_format": "{sheet_name}: 金额={money:,.2f}, 保费={prem:,.2f}",
+      "agreement_codes": {
+        "恒力能源（苏州）有限公司": "CSHHHYX2025Q000337",
+        "苏州恒力精细化工销售有限公司": "CSHHHYX2025Q000360",
+        "恒力石化销售有限公司": "CSHHHYX2025Q000356",
+        "恒力油品销售（苏州）有限公司": "CSHHHYX2025Q000361",
+        "恒力华南石化销售有限公司": "CSHHHYX2025Q000358"
+      },
+      "pdf_export_groups": {
+        "能源苏州": {
+          "match_type": "contains",
+          "patterns": [
+            "能源苏州"
+          ]
+        },
+        "华南石化": {
+          "match_type": "contains",
+          "patterns": [
+            "华南石化"
+          ]
+        },
+        "其他业务": {
+          "match_type": "contains_any",
+          "patterns": [
+            "精细化工",
+            "恒力石化",
+            "油品销售"
+          ]
+        }
+      }
+    }
+  },
+  "global_settings": {
+    "default_customer_type": "多式联运",
+    "date_format": "yyyy/MM/dd",
+    "currency_locale": "zh_CN",
+    "visual_settings": {
+      "font": {
+        "name": "Songti SC",
+        "size": 10,
+        "header_size": 10,
+        "title_size": 18
+      },
+      "row_height": {
+        "header": 20,
+        "data": 15,
+        "total": 18
+      },
+      "header_style": {
+        "bold": true,
+        "background_color": null,
+        "text_color": null,
+        "alignment": "center"
+      },
+      "data_style": {
+        "alternate_row_color": null,
+        "alignment": {
+          "number": "right",
+          "text": "left",
+          "date": "center"
+        }
+      },
+      "border": {
+        "style": "thin",
+        "color": "000000"
+      },
+      "print_settings": {
+        "paper_size": "A4",
+        "margins": {
+          "top": 0.5,
+          "bottom": 0.5,
+          "left": 0.3,
+          "right": 0.3
+        },
+        "fit_to_page": true
+      }
+    }
+  }
+}
