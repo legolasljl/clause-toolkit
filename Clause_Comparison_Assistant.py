@@ -2294,11 +2294,6 @@ class ClauseMatcherLogic:
             if kw in text:
                 return True
 
-        # ===== v18.4: 排除文档标记（在其他检查之前）=====
-        # 排除 "（ORIGINAL）"、"（COPY）" 等文档标记
-        if re.match(r'^[（\(]\s*(ORIGINAL|COPY|DUPLICATE|副本|正本|原件)\s*[）\)]$', text, re.IGNORECASE):
-            return False
-
         # ===== v17.1: 优先检查是否为标题（"条款"关键词最优先）=====
 
         # 包含"条款"关键词，但排除以"本条款"、"本扩展条款"、"本附加条款"开头的内容句
@@ -2306,17 +2301,6 @@ class ClauseMatcherLogic:
         if '条款' in text:
             if text.startswith(('本条款', '本扩展条款', '本附加条款')):
                 return False
-            # v18.4: 排除主条款标题（不含"附加"、"扩展"、"特约"的条款名）
-            # 如"财产一切险条款"、"机器损坏险条款"是主条款，不是附加条款
-            if '附加' not in text and '扩展' not in text and '特约' not in text:
-                # 检查是否是主条款标题格式
-                main_clause_patterns = [
-                    r'(财产|机器|工程|责任|货运|船舶|航空|车辆|健康|意外|寿险).*[险保]条款$',
-                    r'^[A-Z].*\s+(Insurance|Policy)\s+Clauses?$',  # Property All Risks Insurance Clauses
-                ]
-                for pattern in main_clause_patterns:
-                    if re.search(pattern, text, re.IGNORECASE):
-                        return False
             return True
 
         # v18.2: 包含"附加"和"保险"的也可能是条款标题（如"企业财产保险附加自动恢复保险金额保险"）
@@ -2365,112 +2349,26 @@ class ClauseMatcherLogic:
         if '附加' in text and '保险' in text and re.search(r'[（(]\d{4}版?[）)]$', text):
             return True
 
-        # ===== v18.4: 英文条款关键词优先检查（在排除检查之前）=====
+        # ===== v18.3: 英文条款关键词优先检查（在排除检查之前）=====
         # 包含 Clause/Extension/Coverage/Cover/Insurance 的英文文本通常是条款标题
         # 注意：Clauses 是复数形式，Cover 是 Coverage 的简写
         if re.search(r'\b(Clauses?|Extensions?|Coverage|Cover|Endorsement|Insurance)\b', text, re.IGNORECASE):
-            # 先排除保险公司名称（包含 "Insurance Company" 或 "Insurance Co."）
-            if re.search(r'Insurance\s+(Company|Co\.?)', text, re.IGNORECASE):
+            # v18.4 修复1: 排除保险公司名称（包含 "Insurance Company" 或 "Insurance Co."）
+            if re.search(r'Insurance\s+(Company|Co\.?)\b', text, re.IGNORECASE):
                 return False
 
-            # 排除 "this/the + 关键词" 形式（条款正文内容）
+            # v18.4 修复2: 排除 "this/the + 关键词" 形式（条款正文内容）
+            # 如 "this Clause", "the Policy", "this extension", "the Insurance"
             if re.search(r'\b(this|the|such|that)\s+(Clause|Extension|Policy|Insurance|Cover)\b', text, re.IGNORECASE):
                 return False
 
-            # 排除条款正文常见开头
-            english_content_starts = [
-                r'^It\s+is\s+(agreed|hereby|understood)',  # It is agreed..., It is hereby agreed...
-                r'^For\s+the\s+purpose\s+of',  # For the purpose of this Clause...
-                r'^The\s+Insurer',  # The Insurer's liability...
-                r'^Subject\s+to',  # Subject to the terms...
-                r'^Notwithstanding',  # Notwithstanding anything...
-                r'^In\s+the\s+event',  # In the event of...
-                r'^All\s+the\s+terms',  # All the terms and conditions...
-                r'^Where\s+',  # Where the...
-                r'^If\s+',  # If the insured...
-                r'^[a-z]\)',  # a) b) c) 小写字母编号
-                r'^[ivxIVX]+[\.\)]',  # i. ii. iii. 罗马数字编号
-            ]
-            for pattern in english_content_starts:
-                if re.match(pattern, text, re.IGNORECASE):
-                    return False
-
-            # 排除保单结构性章节标题（全大写的通用标题）
-            policy_section_titles = [
-                'PROPERTY ALL RISKS INSURANCE POLICY',
-                'PROPERTY ALL RISKS INSURANCE CLAUSES',
-                'GENERAL PROVISION', 'GENERAL PROVISIONS',
-                'PROPERTY INSURED',
-                'SCOPE OF COVER', 'SCOPE OF COVERAGE',
-                'EXCLUSIONS', 'EXCLUSION',
-                'INSURED VALUE',
-                'PERIOD OF INSURANCE',
-                'OBLIGATIONS OF THE INSURER',
-                'OBLIGATIONS OF THE APPLICANT',
-                'OBLIGATIONS OF THE INSURED',
-                'LOSS SETTLEMENT',
-                'DISPUTE RESOLUTION',
-                'JURISDICTION',
-                'MISCELLANEOUS',
-                'LANGUAGE',
-                'DEFINITIONS',
-                'APPENDIX',
-                'CLAIMS', 'CLAIM',
-                'PREMIUM', 'PREMIUMS',
-                'DEDUCTIBLE', 'DEDUCTIBLES',
-                'CONDITIONS', 'CONDITION',
-                'WARRANTIES', 'WARRANTY',
-            ]
-            text_upper = text.upper().strip()
-            for section in policy_section_titles:
-                if text_upper == section or text_upper.startswith(section + ' '):
-                    return False
-
-            # 排除 "（ORIGINAL）" 等文档标记
-            if re.match(r'^[（\(]\s*(ORIGINAL|COPY|DUPLICATE)\s*[）\)]$', text, re.IGNORECASE):
-                return False
-
-            # 排除 "By + 公司名" 署名
-            if re.match(r'^By\s+', text, re.IGNORECASE):
-                return False
-
-            # 排除以 "Article" 开头的条款正文
-            if re.match(r'^Article\s+\d+', text, re.IGNORECASE):
-                return False
-
-            # 通过所有排除检查后，认为是条款标题
-            return True
-
-        # ===== v18.4: 额外的英文保险术语关键词检查 =====
-        # 这些术语通常出现在条款标题中，但不包含 Clause/Extension 等常见词
-        insurance_term_keywords = [
-            # 保险动作/类型
-            r'\b(Burglary|Theft|Robbery)\b',  # 盗窃险
-            r'\b(Earthquake|Tsunami|Flood|Storm)\b',  # 自然灾害
-            r'\b(Reinstatement|Subrogation|Cancellation)\b',  # 保险术语
-            r'\b(Additions|Escalation|Valuation)\b',  # 金额相关
-            r'\b(Expenses|Charges|Fees|Debris)\b',  # 费用相关
-            r'\b(Authorities|Notification|Adjustment)\b',  # 流程相关
-            r'\b(Invalidation|Omissions|Conditions)\b',  # 条件相关
-            r'\b(Removal|Protection|Waiver)\b',  # 动作相关
-            r'\b(Strike|Riot|Commotion)\b',  # 罢工暴动
-            r'\b(Brand|Trade\s*Mark|Trademark)\b',  # 商标
-            r'\b(Payment|Account)\b',  # 支付相关
-            r'\b(Terrorism|Malicious)\b',  # 恐怖主义/恶意
-            r'\b(Leakage|Spillage|Contamination)\b',  # 泄漏污染
-        ]
-        for pattern in insurance_term_keywords:
-            if re.search(pattern, text, re.IGNORECASE):
-                # 排除条款正文内容
-                if re.search(r'\b(this|the|such|that)\s+\w+', text[:20], re.IGNORECASE):
-                    continue
-                if re.match(r'^(It\s+is|For\s+the|The\s+|Subject\s+to|If\s+)', text, re.IGNORECASE):
-                    continue
+            # 排除其他明显不是标题的情况
+            if not text.startswith(('All the terms',)):
                 return True
 
         # ===== 明确是内容的模式（不是标题）=====
         content_start_patterns = [
-            # === 中文条款内容常见开头 ===
+            # 条款内容常见开头
             r'^经双方同意',
             r'^兹经双方同意',
             r'^兹经保险',
@@ -2524,27 +2422,6 @@ class ClauseMatcherLogic:
             r'^\d+[、\.．\s](?![\.．\s]*[^\d].*条款)',  # 1、2、但不匹配 "1. xxx条款"
             r'^[\(（]\s*\d+\s*[\)）]',  # (1)、（2）
             r'^①|^②|^③|^④|^⑤',  # 圈数字
-
-            # === v18.4: 英文条款内容常见开头 ===
-            r'^It\s+is\s+(agreed|hereby|understood)',  # It is agreed..., It is hereby agreed...
-            r'^For\s+the\s+purpose\s+of',  # For the purpose of this Clause...
-            r'^The\s+Insurer',  # The Insurer's liability...
-            r'^Subject\s+to',  # Subject to the terms...
-            r'^Notwithstanding',  # Notwithstanding anything...
-            r'^In\s+the\s+event',  # In the event of...
-            r'^All\s+the\s+terms',  # All the terms and conditions...
-            r'^Where\s+',  # Where the...
-            r'^If\s+the\s+',  # If the insured...
-            r'^Provided\s+that',  # Provided that...
-            r'^WARRANTED',  # WARRANTED:
-            r'^[a-z]\)',  # a) b) c) 小写字母编号
-            r'^[a-z]\s*\)',  # a ) 小写字母编号带空格
-            r'^[ivxIVX]+[\.\)]',  # i. ii. iii. 罗马数字编号
-            r'^Article\s+\d+',  # Article 11, Article 14...
-            r'^By\s+China',  # By China Pacific...
-            r'^China\s+Pacific',  # China Pacific Property Insurance...
-            # 英文保险公司名称
-            r'^.*Insurance\s+(Company|Co\.?)\s*',  # xxx Insurance Company/Co.
         ]
 
         for pattern in content_start_patterns:
@@ -2552,45 +2429,8 @@ class ClauseMatcherLogic:
                 return False
 
         # ===== 其他标题模式（已通过内容排除检查）=====
-        # 全大写英文（可能是英文条款名）- v18.4: 排除保单结构性章节标题
+        # 全大写英文（可能是英文条款名）
         if text.isupper() and len(text) > 5 and re.search(r'[A-Z]{3,}', text):
-            # 排除保单结构性章节标题
-            excluded_upper_titles = [
-                'CHINA PACIFIC PROPERTY INSURANCE COMPANY LIMITED',
-                'PROPERTY ALL RISKS INSURANCE POLICY',
-                'PROPERTY ALL RISKS INSURANCE CLAUSES',
-                'GENERAL PROVISION', 'GENERAL PROVISIONS',
-                'PROPERTY INSURED',
-                'SCOPE OF COVER', 'SCOPE OF COVERAGE',
-                'EXCLUSIONS', 'EXCLUSION',
-                'INSURED VALUE', 'SUM INSURED', 'DEDUCTIBLE',
-                'INSURED VALUE, SUM INSURED, AND DEDUCTIBLE',
-                'PERIOD OF INSURANCE',
-                'OBLIGATIONS OF THE INSURER',
-                'OBLIGATIONS OF THE APPLICANT',
-                'OBLIGATIONS OF THE APPLICANT AND/OR INSURED',
-                'OBLIGATIONS OF THE INSURED',
-                'LOSS SETTLEMENT',
-                'DISPUTE RESOLUTION',
-                'DISPUTE RESOLUTION AND JURISDICTION',
-                'JURISDICTION',
-                'MISCELLANEOUS',
-                'LANGUAGE',
-                'DEFINITIONS',
-                'APPENDIX',
-                'CLAIMS', 'CLAIM',
-                'PREMIUM', 'PREMIUMS',
-                'DEDUCTIBLE', 'DEDUCTIBLES',
-                'CONDITIONS', 'CONDITION',
-                'WARRANTIES', 'WARRANTY',
-                'SCHEDULE',
-            ]
-            text_stripped = text.strip()
-            if text_stripped in excluded_upper_titles:
-                return False
-            # 排除包含 "INSURANCE COMPANY" 或 "INSURANCE CO" 的公司名称
-            if 'INSURANCE COMPANY' in text_stripped or 'INSURANCE CO' in text_stripped:
-                return False
             return True
 
         # 默认不是标题（保守策略）
