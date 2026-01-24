@@ -2321,7 +2321,11 @@ class ClauseMatcherLogic:
                 return True
 
         # 太长的不是标题（v18.3: 英文条款标题可能较长，放宽到150）
-        if len(text) > 150:
+        # v18.4: 如果包含Clause/Extension等关键词，进一步放宽到250
+        max_length = 150
+        if re.search(r'\b(Clause|Extension|Coverage|Endorsement)\b', text, re.IGNORECASE):
+            max_length = 250
+        if len(text) > max_length:
             return False
 
         # 以句号等结尾的通常是内容（但排除 ":" 和 "）"，这些在条款标题中常见）
@@ -2342,6 +2346,24 @@ class ClauseMatcherLogic:
         for kw in special_title_keywords:
             if kw in text:
                 return True
+
+        # ===== v18.4: 英文特殊条款关键词（无Clause/Extension但确实是条款）=====
+        english_special_keywords = [
+            'Burglary', 'Theft', 'Robbery',  # 盗窃抢劫
+            'Strike', 'Riot', 'Civil Commotion',  # 罢工暴动
+            'Works of Arts', 'Work of Art',  # 艺术品
+            'Cancellation by Insurer', 'Cancellation by Insured',  # 注销条款
+            'Notice of Cancellation',  # 注销通知
+            'Property in the Open',  # 露天财产
+            'Unnamed location', 'Unnamed Location',  # 未指定地点
+            'Miscellaneous',  # 杂项（但不在excluded中时）
+        ]
+        # 检查是否包含英文特殊关键词（需要至少匹配一个）
+        for kw in english_special_keywords:
+            if kw.lower() in text.lower():
+                # 额外检查：排除明显是正文的情况
+                if not text.lower().startswith(('the ', 'this ', 'if ', 'when ', 'where ')):
+                    return True
 
         # ===== v17.1: 优先检查是否为标题（"条款"关键词最优先）=====
 
