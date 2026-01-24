@@ -500,19 +500,32 @@ class ClauseMappingDialog(QDialog):
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
-            # 支持两种格式：
-            # 1. 简单格式: {"客户条款": "库内条款", ...}
-            # 2. 导出格式: [{"client_name": "...", "library_name": "..."}, ...]
+            # 支持三种格式：
+            # 1. 完整格式: {"version": "...", "mappings": [...]}
+            # 2. 简单格式: {"客户条款": "库内条款", ...}
+            # 3. 数组格式: [{"client_name": "...", "library_name": "..."}, ...]
             mappings_to_import = []
 
+            # 提取映射数组
+            mappings_array = None
             if isinstance(data, dict):
-                # 简单格式
-                for client, library in data.items():
-                    if client and library and isinstance(client, str) and isinstance(library, str):
-                        mappings_to_import.append((client.strip(), library.strip()))
+                if 'mappings' in data and isinstance(data['mappings'], list):
+                    # 完整格式：有 mappings 字段
+                    mappings_array = data['mappings']
+                else:
+                    # 简单格式：直接是 {客户: 库内} 键值对
+                    for client, library in data.items():
+                        if client and library and isinstance(client, str) and isinstance(library, str):
+                            # 跳过元数据字段
+                            if client not in ('version', 'updated_at', 'description'):
+                                mappings_to_import.append((client.strip(), library.strip()))
             elif isinstance(data, list):
-                # 导出格式（数组）
-                for item in data:
+                # 数组格式
+                mappings_array = data
+
+            # 处理映射数组
+            if mappings_array:
+                for item in mappings_array:
                     if isinstance(item, dict):
                         client = item.get('client_name', '').strip()
                         library = item.get('library_name', '').strip()
