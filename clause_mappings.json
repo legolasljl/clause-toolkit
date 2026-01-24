@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2026-01-24 23:33:45",
+  "updated_at": "2026-01-24 23:54:37",
   "mappings": [
     {
       "client_name": "Automatic Capital Additions (Limit: 15% of sum insured)",
@@ -238,9 +238,9 @@
     },
     {
       "client_name": "Professional Fees Clause (Limit: 10% of sum insured)",
-      "library_name": "企业财产保险附加专业费用条款 (Limit: 10% of sum insured)",
-      "created_at": "2026-01-24 21:31:32",
-      "notes": ""
+      "library_name": "企业财产保险附加专业费用条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
     },
     {
       "client_name": "Reinstatement Value Clause",
@@ -249,10 +249,10 @@
       "notes": ""
     },
     {
-      "client_name": "Removal of Debris (Limit: 10% of sum insured)",
-      "library_name": "企业财产保险附加清理残骸条款 (Limit:10% of sum insured)",
-      "created_at": "2026-01-24 21:31:32",
-      "notes": ""
+      "client_name": "Removal Of Debris (Limit: 10% of sum insured)",
+      "library_name": "企业财产保险附加清理残骸条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
     },
     {
       "client_name": "企业财产保险附加自动喷淋水损条款 (limit of RMB 5,000,000 per occurrence.)",
@@ -2178,6 +2178,96 @@
       "client_name": "Civil Authorities",
       "library_name": "企业财产保险附加政府当局条款（A款）",
       "created_at": "2026-01-24 23:33:45",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Airfreight Clause (Limit: 30% of loss)",
+      "library_name": "企业财产保险附加空运费条款 (Limit: 30% of loss)",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Average Relief Clause (80%)",
+      "library_name": "企业财产保险附加分摊减免条款 (80%)",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Capital Additions Clause(Limit:10% of sum insured)",
+      "library_name": "企业财产保险附加增加资产扩展条款（2025版B款） (Limit:10% of sum insured)",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Cost of Re-erection Clause",
+      "library_name": "企业财产保险附加重新安装费用条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Cost of compiling records and claim preparation Clause (Limit: RMB1,000, 000 per valid claim)",
+      "library_name": "企业财产保险附加恢复记录和准备索赔条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "90 Days Notice Of Cancellation By Insurer",
+      "library_name": "企业财产保险附加注销约定条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Extra Charges Clause (Limit: 25% of loss)",
+      "library_name": "企业财产保险附加额外费用条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Escalation (Limit: 10% of Sum Insured)",
+      "library_name": "企业财产保险附加自动升值条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Fire Extinguishing Expenses Clause (Limit: 15% of total sum insured)",
+      "library_name": "企业财产保险附加灭火费用条款（D款）",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Misdescription Clause",
+      "library_name": "企业财产保险附加错误描述条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Public Utility Extension",
+      "library_name": "企业财产保险附加“三停”损失保险",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Replacement Value Clause",
+      "library_name": "企业财产保险附加重置价值条款（C款）",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Conveyer Belts and Knives Extension Clause传送带,刀具扩展",
+      "library_name": "企业财产保险附加传送带、刀具扩展条款（2025版）",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Strike, Riot & Civil Commotion Clause",
+      "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
+      "created_at": "2026-01-24 23:54:37",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Off Premises Property Clause",
+      "library_name": "企业财产保险附加场所外财产条款N",
+      "created_at": "2026-01-24 23:54:37",
       "notes": "从修正报告导入"
     }
   ]

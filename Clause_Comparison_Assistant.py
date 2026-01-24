@@ -2674,8 +2674,18 @@ class ClauseMatcherLogic:
             # 3. v18.5: 匹配已映射的条款名称
             is_title = self.is_likely_title(line)
 
-            # v18.5: 已映射的条款名称优先识别为标题
-            if not is_title and mapped_client_names:
+            # v18.5: 检查是否在排除列表中（用于后续的 Heading/映射识别）
+            is_excluded = False
+            if HAS_MAPPING_MANAGER:
+                excluded_titles = ClauseMatcherLogic._load_excluded_titles()
+                if excluded_titles:
+                    line_cleaned_for_exclude = ClauseMatcherLogic._remove_leading_number(line)
+                    if line_cleaned_for_exclude.upper() in excluded_titles:
+                        is_excluded = True
+                        logger.debug(f"排除列表跳过: {line[:50]}")
+
+            # v18.5: 已映射的条款名称优先识别为标题（但排除列表优先）
+            if not is_title and not is_excluded and mapped_client_names:
                 # 精确匹配
                 if line in mapped_client_names:
                     is_title = True
@@ -2687,8 +2697,8 @@ class ClauseMatcherLogic:
                         is_title = True
                         logger.debug(f"已映射条款识别为标题(去编号): {line[:50]}")
 
-            # v18.4: Heading 样式的段落优先识别为标题
-            if is_heading and not is_title:
+            # v18.4: Heading 样式的段落优先识别为标题（但排除列表优先）
+            if is_heading and not is_title and not is_excluded:
                 # Heading 样式，但 is_likely_title 返回 False
                 # 检查是否是子编号内容（如 "1.REINSTATEMENT VALUE CLAUSE"）
                 # 子编号格式通常以 "数字.大写" 紧密连接，没有空格
