@@ -2588,13 +2588,8 @@ class ClauseMatcherLogic:
                 # 内容行
                 if current_title is not None:
                     current_content.append(line)
-                else:
-                    # 没有标题的内容，作为独立条款
-                    clauses.append(ClauseItem(
-                        title=line,
-                        content="",
-                        original_title=line
-                    ))
+                # v18.4修复: 在第一个标题之前的内容直接跳过，不再作为独立条款
+                # 这避免了excluded_titles排除标题后，前置内容变成大量"条款"的问题
 
         # 保存最后一个条款
         if current_title is not None:

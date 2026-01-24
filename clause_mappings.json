@@ -1,288 +1,1914 @@
 {
   "version": "1.0",
-  "updated_at": "2026-01-24 19:43:45",
+  "updated_at": "2026-01-24 20:58:55",
   "mappings": [
     {
-      "client_name": "Earthquake and Tsunami Clause (Limit: 100% of sum insured)",
-      "library_name": "企业财产保险附加地震或海啸条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Automatic Capital Additions (Limit: 15% of sum insured)",
+      "library_name": "企业财产保险附加增加资产条款(A款） (Limit: 15% of sum insured)",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Reinstatement Value Clause",
-      "library_name": "企业财产保险附加重置价值条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Automatic Reinstatement of Sum Insured Clause",
+      "client_name": "AUTOMATIC REINSTATEMENT OF SUM INSURED",
       "library_name": "企业财产保险附加自动恢复保险金额条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
     },
     {
-      "client_name": "Professional Fees Clause (10% of loss)",
-      "library_name": "企业财产保险附加专业费用条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Extra Charges Clause (10% of loss)",
-      "library_name": "企业财产保险附加额外费用条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Removal of Debris Clause (10% of loss)",
-      "library_name": "企业财产保险附加清理残骸条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Public Authorities Clause",
-      "library_name": "企业财产保险附加公共当局扩展条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Alteration, Maintenance, Repair and Decoration Clause (total contract value: RMB1,000,000.00)",
+      "client_name": "Alterations, Additions & Repairs Clause (Contract Limit: RMB5,000,000)",
       "library_name": "企业财产保险附加装修、改造条款",
-      "created_at": "2026-01-24 17:51:46",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Strike, Riot & Civil Commotion Extension",
-      "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "All Other Contents (Limit: RMB10, 000 per item)",
+      "library_name": "企业财产保险附加所有其他物品条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Fire Extinguish Expenses Clause (10% of loss)",
-      "library_name": "企业财产保险附加灭火费用条款（D款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Automatic Cover for New Locations (Limit: RMB10, 000,000 subject to 90 days reporting period)",
+      "library_name": "企业财产保险附加自动承保新获取资产、新增地点条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Inland Transit Extension（ RMB 500,000 in total）",
-      "library_name": "企业财产保险附加内陆运输条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Air Freight Extension Clause (Limit: 10% of sum insured)",
+      "library_name": "企业财产保险附加空运费条款 (Limit: 10% of sum insured)",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Temporary Removal Clause (10% of sum insured)",
-      "library_name": "企业财产保险附加临时移动条款（B款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Boiler Explosion Extension",
+      "library_name": "企业财产保险附加锅炉及压力容器爆炸条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Escalation Clause (10%)",
-      "library_name": "企业财产保险附加自动升值条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Breach of Conditions",
+      "library_name": "企业财产保险附加违反保单条件条款（A款）",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Capital Addition Clause (10% of sum insured)",
-      "library_name": "企业财产保险附加资产增加条款（B款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Brand and Trade Mark",
+      "library_name": "企业财产保险附加商标及标签条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Loss Adjuster Clause",
-      "library_name": "企业财产保险附加指定理算人条款（A款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Care, Custody And Control Coverage",
+      "library_name": "企业财产保险附加被保管照顾及管理的财产条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Waiver of Subrogation Clause",
-      "library_name": "企业财产保险附加放弃代位求偿权条款（A款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Co-Insurance Clause",
+      "library_name": "企业财产保险附加共保人条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Cost of Compiling Records and Claim Preparation Clause (Limit: RMB1,000,000 per occurrence)",
+      "library_name": "企业财产保险附加恢复记录和准备索赔条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Cost of Re-Erection (Limit: RMB5, 000,000)",
+      "library_name": "企业财产保险附加重新安装费用条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Contract Price Clause (on stock)",
+      "library_name": "企业财产保险附加合同价格条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
       "client_name": "Designation of Property Clause",
       "library_name": "企业财产保险附加指明财产条款",
-      "created_at": "2026-01-24 17:51:46",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Payment on Account Clause (30%)",
-      "library_name": "企业财产保险附加预付赔款条款（A款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Exhibition/Trade Shows Clause (limit of RMB5,000,000 per occurrence.)",
+      "library_name": "企业财产保险附加展览会、展示会与商业表演条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Boiler & Pressure Vessels Clause",
-      "library_name": "企业财产保险附加锅炉及压力容器爆炸扩展条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Extra Charges (Limit: 25% of loss)",
+      "library_name": "企业财产保险附加特别费用扩展条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Landslide & Subsidence Clause",
-      "library_name": "企业财产保险附加泥石流、崖崩、突发性滑坡保险",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Escalation (Limit: 15% of sum insured)",
+      "library_name": "企业财产保险附加自动升值条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Import Duty Clause",
-      "library_name": "企业财产保险附加关税条款A款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Earthquake & Tsunami as well as its secondary disaster (Limit: 80% of Sum Insured, Excess per occurrence:20% of loss)",
+      "library_name": "企业财产保险附加地震海啸扩展条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Claim & Adjuster’s Expenses Clause (10% of loss)",
-      "library_name": "企业财产保险附加索赔费用条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Malicious Damage",
-      "library_name": "企业财产保险附加恶意破坏扩展条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Inhibition Clause",
-      "library_name": "企业财产保险附加阻止损失条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Laptop Extension Clause (Within premise)",
-      "library_name": "企业财产保险附加便携式电脑扩展条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Burglary Extension Clause",
-      "library_name": "企业财产保险附加盗窃险扩展条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Interruption of Public Supplier Clause",
-      "library_name": "企业财产保险附加“三停”损失保险",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Contract Price Valuation Clause",
-      "library_name": "企业财产保险附加合同价格（仓储物）条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Brand and Label Clause",
-      "library_name": "企业财产保险附加商标及标签条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Non-Average Clause(85%)",
-      "library_name": "企业财产保险附加比例共保条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Sprinkler Leakage Damage Extension Clause",
-      "library_name": "企业财产保险附加自动喷淋水损条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Glass Breakage Clause",
-      "library_name": "企业财产保险附加玻璃破碎扩展条款（B款）",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Time Adjustment Clause (72 hours)",
-      "library_name": "企业财产保险附加时间调整条款",
-      "created_at": "2026-01-24 17:51:46",
-      "notes": "从修正报告导入"
-    },
-    {
-      "client_name": "Errors and Omissions Clause（RMB 100,000.00）",
+      "client_name": "Errors & Omissions",
       "library_name": "企业财产保险附加错误和遗漏条款",
-      "created_at": "2026-01-24 17:51:46",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Fire Extinguishing Expenses (Limit: RMB1,000, 000)",
+      "library_name": "企业财产保险附加灭火费用条款（D款）",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Full Flood Extension",
+      "library_name": "企业财产保险附加洪水条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Full Theft",
+      "library_name": "企业财产保险附加承保全部盗窃条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Inland Transit Clause (Limit: RMB1, 000,000 any one accident within the city in which the risk is domiciled)",
+      "library_name": "企业财产保险附加内陆运输条款 (Limit: RMB1, 000,000 any one accident within the city which the insured domiciles)",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Landslide and Subsidence Clause",
+      "library_name": "企业财产保险附加地面突然下陷下沉扩展条款（2022版)",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Leased Property Clause",
+      "library_name": "企业财产保险附加租赁财产条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Loss Notification Clause",
+      "library_name": "企业财产保险附加损失通知条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Minor Works Clause (Contract Limit: RMB5,000,000) 小型工程条款",
+      "library_name": "企业财产保险附加小型未完成建工项目保障条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Money Insurance (Limit: RMB30,000 per occurrence and in aggregate）",
+      "library_name": "企业财产保险附加现金险保险责任扩展条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Non-Invalidation",
+      "library_name": "企业财产保险附加不予失效条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
       "client_name": "No Control Clause",
       "library_name": "企业财产保险附加不可控制条款",
-      "created_at": "2026-01-24 17:51:46",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Breach of Conditions Clause",
-      "library_name": "企业财产保险附加违反保单条件条款（A款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Nominated Loss Adjuster Clauses (Sedgwick, McLarens Young International or Crawford & Company)",
+      "library_name": "企业财产保险附加指定理算人条款（A款）",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "90 Days Notice of Cancellation Clause",
-      "library_name": "企业财产保险附加提前通知注销保单条款（A款）",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Off Premises Property Clause (Limit: 10% of sum insured, for a period up to 60 days)",
+      "library_name": "企业财产保险附加场所外财产条款N",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Non-Invalidation Clause",
-      "library_name": "企业财产保险附加不予失效条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Outdoor Fixtures and Fittings Extension (limit of RMB 5,000,000 per occurrence.)",
+      "library_name": "企业财产保险附加建筑物外部附属设施扩展条款（A款）",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "All Other Contents Clause (Limit: RMB10,000 per occurrence, RMB50,000 in aggregate)",
-      "library_name": "企业财产保险附加所有其他物品条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "PUBLIC AUTHORITIES",
+      "library_name": "企业财产保险附加公共当局扩展条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Payment on Account",
+      "library_name": "企业财产保险附加预付赔款条款（A款）",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Automatic Cover for New Location (Limit: RMB1,000,000 subject to 90 days reporting period)",
-      "library_name": "企业财产保险附加自动承保新的营业场所条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Premium Payment Clause",
+      "library_name": "企业财产保险附加保费支付条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Portable Computer Extension Clause (World-wide)",
+      "library_name": "企业财产保险附加便携式电脑扩展条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Pairs & Set Clause",
+      "library_name": "企业财产保险附加成对成套条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Professional Fees Clause (Limit: 10% of sum insured)",
+      "library_name": "企业财产保险附加专业费用条款 (Limit: 10% of sum insured)",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Reinstatement Value Clause",
+      "library_name": "企业财产保险附加重置价值条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Removal of Debris (Limit: 10% of sum insured)",
+      "library_name": "企业财产保险附加清理残骸条款 (Limit:10% of sum insured)",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "企业财产保险附加自动喷淋水损条款 (limit of RMB 5,000,000 per occurrence.)",
+      "library_name": "企业财产保险附加自动喷淋水损条款 (limit of RMB 5,000,000 per occurrence.)",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Smoke Damage Clause (limit of RMB 5, 000,000 per occurrence.)",
+      "library_name": "企业财产保险附加烟熏扩展条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Supply Failure Extension Clause供应中断扩展条款D",
+      "library_name": "企业财产保险附加供应中断扩展条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Sue & Labor Clause 抢险施救条款",
+      "library_name": "企业财产保险附加诉讼和劳动条款（A款）",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Temporary Removal (Limit: 10% of sum insured)",
+      "library_name": "企业财产保险附加临时移动条款（B款）",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Temporary Protection Clause (Limit: RMB5,000,000 per occurrence)",
+      "library_name": "企业财产保险附加临时保护费用条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Time Adjustment (72Hours)",
+      "library_name": "企业财产保险附加时间调整条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Terrorism Extension (Limit: RMB 200,000,000 per occurrence and in aggregate combined for PD&BI）",
+      "library_name": "企业财产保险附加恐怖活动扩展条款A",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Undamaged Building Extra Charges Extension Clause建筑物未受损部分额外费用扩展条款",
+      "library_name": "企业财产保险附加建筑物未受损部分额外费用扩展条款（A款）",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
       "client_name": "Vehicle Load Clause",
       "library_name": "企业财产保险附加车辆装载物条款",
-      "created_at": "2026-01-24 17:51:46",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
-      "client_name": "Failure of Public Utilities Extension Clause",
-      "library_name": "企业财产保险附加公众事业设备扩展条款",
-      "created_at": "2026-01-24 17:51:46",
+      "client_name": "Waiver of Subrogation",
+      "library_name": "企业财产保险附加放弃代位求偿权条款（A款）",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Water Tanks, Apparatus and Pipes Clause (Limit: RMB5,000,000 per occurrence)",
+      "library_name": "企业财产保险附加水箱、水管水损扩展条款A",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "80% Average Relief Clause",
+      "library_name": "企业财产保险附加80%共保条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "75% Stock Declaration Clause",
+      "library_name": "企业财产保险附加仓储财产申报条款",
+      "created_at": "2026-01-24 20:57:02",
       "notes": "从修正报告导入"
     },
     {
       "client_name": "Burglary, Theft & Robbery",
       "library_name": "企业财产保险附加盗窃、抢劫保险（2025版）条款",
-      "created_at": "2026-01-24 19:43:45",
-      "notes": "常见英文条款-无Clause关键词"
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
     },
     {
-      "client_name": "Miscellaneous Unnamed location",
+      "client_name": "Miscellaneous Unnamed location (Limit: RMB5, 000,000 per location)",
       "library_name": "企业财产保险附加自动承保新获取资产、新增地点条款",
-      "created_at": "2026-01-24 19:43:45",
-      "notes": "常见英文条款-无Clause关键词"
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
     },
     {
       "client_name": "Strike, Riot & Civil Commotion",
       "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
-      "created_at": "2026-01-24 19:43:45",
-      "notes": "常见英文条款-无Extension关键词"
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
     },
     {
-      "client_name": "Works of Arts",
+      "client_name": "Works of Arts (Limit: RMB100, 000 per article/RMB1,000, 000 in annual aggregate)",
       "library_name": "企业财产保险附加艺术精品条款",
-      "created_at": "2026-01-24 19:43:45",
-      "notes": "常见英文条款-无Clause关键词"
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
     },
     {
-      "client_name": "90 Days' Notice of Cancellation by Insurer",
+      "client_name": "90 Days’ Notice of Cancellation by Insurer (Immediate Notice of Cancellation by Insured, return premium on pro rata daily basis)",
       "library_name": "企业财产保险附加注销约定条款",
-      "created_at": "2026-01-24 19:43:45",
-      "notes": "常见英文条款-无Clause关键词"
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Property in the Open or Simple Building (incl. coverage for Simple Building) Extension Clause（limit: 10% of sum insured or RMB 8,000,000 per occurrence, whichever is higher)",
+      "library_name": "企业财产保险附加露天及简易建筑内存放财产扩展条款",
+      "created_at": "2026-01-24 20:57:02",
+      "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "72小时条款",
+      "library_name": "企业财产保险附加时间调整（72小时）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "85％扩展条款",
+      "library_name": "企业财产保险附加85％扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "80％共保条款",
+      "library_name": "企业财产保险附加80%共保条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "不受控制条款",
+      "library_name": "企业财产保险附加不受控制条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "专业费用及索赔准备费用条款",
+      "library_name": "企业财产保险附加专业费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "临时移动扩展条款",
+      "library_name": "企业财产保险附加临时移动条款（C款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "优先使用原供应商条款",
+      "library_name": "企业财产保险附加优先使用原供应商条款（2025版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "保单取消条款",
+      "library_name": "企业财产保险附加提前通知注销保单条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "保费支付条款",
+      "library_name": "企业财产保险附加保费支付条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "公共当局扩展条款",
+      "library_name": "企业财产保险附加公共当局扩展条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "其他物品条款",
+      "library_name": "企业财产保险附加所有其他物品条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "冷冻、冷藏物品变质条款",
+      "library_name": "企业财产保险附加冷冻、冷藏物品变质条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "加快费用条款",
+      "library_name": "企业财产保险附加特别费用扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "变更和维修条款",
+      "library_name": "企业财产保险附加装修、改造条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "合同价格扩展条款",
+      "library_name": "企业财产保险附加合同价格条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "品牌和商标标识条款",
+      "library_name": "企业财产保险附加商标及标签条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "地震扩展条款",
+      "library_name": "企业财产保险附加地震海啸扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "增加资产条款",
+      "library_name": "企业财产保险附加增加资产条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "仓储财产申报条款（最低保费：预付保费的50% ）",
+      "library_name": "企业财产保险附加仓储财产申报条款（A款） （最低保费：预付保费的50% ）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "建筑物外部附属设施扩展条款",
+      "library_name": "企业财产保险附加建筑物外部附属设施扩展条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "承保全部盗窃条款",
+      "library_name": "企业财产保险附加承保全部盗窃条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "指定公估人条款（名单可根据被保险人的要求变更）",
+      "library_name": "企业财产保险附加指定公估人条款（B款） （名单可根据被保险人的要求变更）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "损失通知条款",
+      "library_name": "企业财产保险附加损失通知条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "未列明地址条款",
+      "library_name": "企业财产保险附加扩展承保中国境内未列明保险地点条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "权益保障条款",
+      "library_name": "企业财产保险附加权益保障条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "清理残骸费用扩展条款",
+      "library_name": "企业财产保险附加清理残骸条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "盗窃、抢劫扩展条款",
+      "library_name": "企业财产保险附加盗窃、抢劫保险（2025版）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "税金约定条款",
+      "library_name": "企业财产保险附加保险金额含税约定条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "罢工、暴动或民众骚乱条款",
+      "library_name": "企业财产保险附加战争、罢工、暴动及民众骚乱条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "自动升值扩展条款（升值率：15%）",
+      "library_name": "企业财产保险附加自动升值条款（升值率） （升值率：15%）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "自动恢复保险金额条款",
+      "library_name": "企业财产保险附加自动恢复保险金额条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "自动扩展承保新增资产、新增公司和新增地址条款（被保险人90天申报）",
+      "library_name": "企业财产保险附加自动承保新获取资产、新增地点条款 （被保险人90天申报）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "被保险财产条款",
+      "library_name": "企业财产保险附加指明财产条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "车辆装载物扩展条款",
+      "library_name": "企业财产保险附加车辆装载物条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "通译和标题条款",
+      "library_name": "企业财产保险附加通译和标题条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "重置价值条款",
+      "library_name": "企业财产保险附加重置价值条款N",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "错误和遗漏条款",
+      "library_name": "企业财产保险附加错误和遗漏条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "免现场查勘条款",
+      "library_name": "企业财产保险附加免检条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "兹经双方同意，责任免除第七条（七）修改为：“保险标的的内在或潜在缺陷、自然磨损、自然损耗、大气（气候或气温）变化、正常水位变化或其他渐变原因，物质本身变化、霉烂、受潮、鼠咬、虫蛀、鸟啄、氧化、锈蚀、渗漏、烘焙。但因此造成其他财产的损失不在此限。”",
+      "library_name": "企业财产保险附加除外责任明晰条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "预付赔偿条款（定损金额的50%）",
+      "library_name": "企业财产保险附加预付赔款条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "露天存放及简易建筑内财产扩展条款",
+      "library_name": "企业财产保险附加露天及简易建筑内存放财产扩展条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "由于供应水、电、气及其他能源设备如供电厂、发电站、变电站、电压器和其它设备（包括传输线路）（无论这些设施设备是否座落于被保险场所内或是否属于被保险人）遭受保险事故致使供应发生故障或中断造成在产品损失，保险人按照本保险合同约定负责赔偿。公共设施当局或被保险人为防止或减少供应系统即将面临的意外中断或故障而有意行使权力停止或限制供应也属于本合同承保范围。",
+      "library_name": "企业财产保险附加“三停”损失保险",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "产权保护条款",
+      "library_name": "企业财产保险附加知识产权保护条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "传送带、链条扩展条款",
+      "library_name": "企业财产保险附加传送带、链条扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "制造商/供应商担保条款",
+      "library_name": "企业财产保险附加供应商和客户条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "清理残骸条款",
+      "library_name": "企业财产保险附加清理残骸条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "物理性爆炸条款",
+      "library_name": "企业财产保险附加物理性爆炸条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "获得新设备条款",
+      "library_name": "企业财产保险附加新机器设备特约条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "设备运行媒介条款",
+      "library_name": "企业财产保险附加媒介物、易损易耗品扩展条款（2022版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "重新启动机器设备费用条款",
+      "library_name": "企业财产保险附加重新启动机器设备费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "重置价值条款（facility措辞）",
+      "library_name": "企业财产保险附加重置价值条款N",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "错误与遗漏条款",
+      "library_name": "企业财产保险附加错误和遗漏条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "60天通知注销保单条款",
+      "library_name": "企业财产保险附加提前通知注销保单条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "其它物品条款",
+      "library_name": "企业财产保险附加所有其它物品条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "自动升值扩展条款",
+      "library_name": "企业财产保险附加自动升值条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "自动扩展承保新增资产、新增公司和新增地址条款",
+      "library_name": "企业财产保险附加自动承保新获取资产、新增地点条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "仓储财产申报条款",
+      "library_name": "企业财产保险附加仓储财产申报条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "地震海啸扩展条款",
+      "library_name": "企业财产保险附加地震海啸扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "公用设施故障条款",
+      "library_name": "企业财产保险附加公共服务设施条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "共同被保险人条款",
+      "library_name": "企业财产保险附加被保险人条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "冷冻、冷藏品条款",
+      "library_name": "企业财产保险附加冷冻、冷藏物品变质条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "指定公估人条款",
+      "library_name": "企业财产保险附加指定公估人条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "便携式设备扩展条款",
+      "library_name": "企业财产保险附加便携式设备扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "玻璃破碎条款",
+      "library_name": "企业财产保险附加玻璃破碎扩展条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "被保险人照料、保管或控制的第三方财产条款",
+      "library_name": "企业财产保险附加被保管照顾及管理的财产条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "抵押权条款",
+      "library_name": "企业财产保险附加抵押承受人条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "水箱、水管爆裂扩展条款",
+      "library_name": "企业财产保险附加水箱、水管爆裂扩展条款（2025版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "自然及渐变损失澄清条款",
+      "library_name": "企业财产保险附加除外责任明晰条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "保险金额分项条款",
+      "library_name": "企业财产保险附加自动恢复保险金额条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "地震、海啸营业中断扩展条款",
+      "library_name": "企业财产保险附加地震或海啸（营业中断）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "遗失欠款帐册条款",
+      "library_name": "企业财产保险附加遗失欠款帐册条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "累积库存条款",
+      "library_name": "企业财产保险附加累积库存条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "产出替代条款",
+      "library_name": "企业财产保险附加产出替代条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "通道堵塞条款",
+      "library_name": "企业财产保险附加通道堵塞条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "额外费用条款",
+      "library_name": "企业财产保险附加额外费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "公共事业设备失灵扩展条款",
+      "library_name": "企业财产保险附加公众事业设备扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "关联扩展条款",
+      "library_name": "企业财产保险附加关联条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "顾客/供应商/承包商条款",
+      "library_name": "企业财产保险附加顾客、供应商、承包商条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "谋杀、自杀、疾病或卫生设施缺陷条款",
+      "library_name": "企业财产保险附加谋杀等条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "新营业条款",
+      "library_name": "企业财产保险附加新营业条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "保费调整条款",
+      "library_name": "企业财产保险附加调整保险费条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "放弃比例分摊条款",
+      "library_name": "企业财产保险附加比例共保条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "专业费用和索赔准备条款",
+      "library_name": "企业财产保险附加恢复记录和准备索赔条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "物质损失放弃免赔条款",
+      "library_name": "企业财产保险附加物质损失放弃免赔条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "锅炉及压力容器爆炸条款",
+      "library_name": "企业财产保险附加锅炉及压力容器爆炸扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "停机及重启损失条款",
+      "library_name": "企业财产保险附加重新启动机器设备费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "媒介物、易损、易耗品扩展条款",
+      "library_name": "企业财产保险附加媒介物、易损易耗品扩展条款（2022版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "INTERPRETATION & HEADINGS",
+      "library_name": "企业财产保险附加通译和标题条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "60 DAYS' NOTICE OF CANCELLATION BY INSURER",
+      "library_name": "企业财产保险附加提前通知注销保单条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "EXPEDITING COSTS",
+      "library_name": "企业财产保险附加特别费用扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "ALL OTHER CONTENTS",
+      "library_name": "企业财产保险附加所有其它物品条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "ALTERATIONS, ADDITIONS AND REPAIRS",
+      "library_name": "企业财产保险附加装修、改造条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "ESCALATION",
+      "library_name": "企业财产保险附加自动升值条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "AUTOMATIC COVER FOR NEW ASSET, OR NEWLY SET UP COMPANIES AND LOCATIONS",
+      "library_name": "企业财产保险附加自动承保新获取资产、新增地点条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "UNNAMED LOCATION CLAUSE",
+      "library_name": "企业财产保险附加扩展承保中国境内未列明保险地点条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "AUTOMATIC CAPITAL ADDITIONS",
+      "library_name": "企业财产保险附加增加资产条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "STOCK DECLARATION & ADJUSTMENT",
+      "library_name": "企业财产保险附加仓储财产申报条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "BRAND OR TRADEMARK",
+      "library_name": "企业财产保险附加商标及标签条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PROFESSIONAL FEES AND CLAIM PRE PARATION COSTS",
+      "library_name": "企业财产保险附加重新启动机器设备费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "TAX CLAUSE",
+      "library_name": "企业财产保险附加保险金额含税约定条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Earthquake and Tsunami Clause",
+      "library_name": "企业财产保险附加地震或海啸条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "ERRORS AND OMISSIONS",
+      "library_name": "企业财产保险附加错误和遗漏条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "THEFT AND ROBBERY",
+      "library_name": "企业财产保险附加盗窃、抢劫保险（2025版）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "FULL THEFT, BURGLARY AND ROBBERY COVER",
+      "library_name": "企业财产保险附加承保全部盗窃条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "DESCRIPTION OF PROPERTY INSURED",
+      "library_name": "企业财产保险附加指明财产条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "LOSS NOTIFICATION",
+      "library_name": "企业财产保险附加损失通知条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "NO CONTROL",
+      "library_name": "企业财产保险附加不受控制条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PUBLIC UTILITY CLAUSE",
+      "library_name": "企业财产保险附加公共服务设施条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "MULTIPLE INSUREDS CLAUSE",
+      "library_name": "企业财产保险附加被保险人条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "FROZEN AND REFRIGERATED PROPERTY CLAUSE",
+      "library_name": "企业财产保险附加冷冻、冷藏物品变质条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "REMOVAL OF DEBRIS",
+      "library_name": "企业财产保险附加清理残骸条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "REINSTATEMENT",
+      "library_name": "企业财产保险附加重置价值条款N",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "STRIKE, RIOT, CIVIL COMMOTION",
+      "library_name": "企业财产保险附加战争、罢工、暴动及民众骚乱条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "TEMPORARY REMOVAL",
+      "library_name": "企业财产保险附加临时移动条款（C款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "TIME ADJUSTMENT",
+      "library_name": "企业财产保险附加时间调整（72小时）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "VEHICLE LOAD",
+      "library_name": "企业财产保险附加车辆装载物条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "80% CO-INSURANCE",
+      "library_name": "企业财产保险附加80%共保条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "OUTSIDE ANCILLIARY DEVICES OF BUILDINGS",
+      "library_name": "企业财产保险附加建筑物外部附属设施扩展条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "CONTRACT PRICE",
+      "library_name": "企业财产保险附加合同价格条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PREFERENCE OF ORIGINAL SUPPLIER",
+      "library_name": "企业财产保险附加优先使用原供应商条款（2025版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "NOMINATED LOSS ADJUSTER CLAUSE",
+      "library_name": "企业财产保险附加指定公估人条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PORTABLE DEVICES EXTENSION CLAUSE",
+      "library_name": "企业财产保险附加便携式设备扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "BREAKAGE OF GLASS EXTENSION CLAUSE",
+      "library_name": "企业财产保险附加玻璃破碎扩展条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PROPERTY UNDER CARE, CUSTODY AND CONTROL CLAUSE",
+      "library_name": "企业财产保险附加被保管照顾及管理的财产条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "MORTGAGE CLAUSE",
+      "library_name": "企业财产保险附加抵押承受人条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "WATER TANK AND WATER PIPE BURST EXTENSION CLAUSE",
+      "library_name": "企业财产保险附加水箱、水管爆裂扩展条款（2025版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "NATURE AND GRADUAL LOSS EXCLUSION",
+      "library_name": "企业财产保险附加除外责任明晰条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "INSURED AMOUNT BREAKDOWN CLAUSE",
+      "library_name": "企业财产保险附加自动恢复保险金额条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "EARTHQUAKE EXTENSION CLAUSE",
+      "library_name": "企业财产保险附加地震或海啸（营业中断）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "LOSS OF BOOK DEBTS CLAUSE",
+      "library_name": "企业财产保险附加遗失欠款帐册条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "ACCUMULATED STOCK CLAUSE",
+      "library_name": "企业财产保险附加累积库存条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "OUTPUT OPTION CLAUSE",
+      "library_name": "企业财产保险附加产出替代条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PREVENTION OF ACCESS CLAUSE",
+      "library_name": "企业财产保险附加通道堵塞条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "EXTRA EXPENSES",
+      "library_name": "企业财产保险附加额外费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "FAILURE OF PUBLIC UTILITIES CLAUSE",
+      "library_name": "企业财产保险附加公众事业设备扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "INTERDEPENDENCY EXTENSION CLAUSE",
+      "library_name": "企业财产保险附加关联条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "SUPPLIERS, CUSTOMERS AND CONTRACTORS’ PREMISES CLAUSE",
+      "library_name": "企业财产保险附加顾客、供应商、承包商条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "MURDER, SUICIDE OR DISEASE OR DEFECTIVE SANITATION CLAUSE",
+      "library_name": "企业财产保险附加谋杀等条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "NEW BUSINESS CLAUSE",
+      "library_name": "企业财产保险附加新营业条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PREMIUM ADJUSTMENT CLAUSE",
+      "library_name": "企业财产保险附加调整保险费条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "WAIVER OF AVERAGE CLAUSE",
+      "library_name": "企业财产保险附加比例共保条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "PROFESSIONAL FEES AND CLAIMS PREPARATION COSTS",
+      "library_name": "企业财产保险附加恢复记录和准备索赔条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "WAIVE DEDUCTIBLE CLAUSE",
+      "library_name": "企业财产保险附加物质损失放弃免赔条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "BOILER AND PRESSURE VESSEL EXPLORSION CLAUSE",
+      "library_name": "企业财产保险附加锅炉及压力容器爆炸扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "MANUFACTURER OR SUPPLIER’S WARRANTIES",
+      "library_name": "企业财产保险附加供应商和客户条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "ACQUISITIONS",
+      "library_name": "企业财产保险附加新机器设备特约条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "SHUTDOWN AND RESTART COST CLAUSE",
+      "library_name": "企业财产保险附加媒介物、易损易耗品扩展条款（2022版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "OPERATING MEDIA, VULNERABLE OR CONSUMABLES PROPERTY EXTENSION",
+      "library_name": "企业财产保险附加清理残骸条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "INTELLECTUAL PROPERTY PROTECTION",
+      "library_name": "企业财产保险附加知识产权保护条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "保单不得注销条款",
+      "library_name": "企业财产保险附加保单不得注销条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "清除残骸费用条款",
+      "library_name": "企业财产保险附加清理残骸费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "专业费用条款",
+      "library_name": "企业财产保险附加专业费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "会计费用及索赔材料准备费用条款",
+      "library_name": "企业财产保险附加恢复记录和准备索赔条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "重制记录及索赔材料准备费用条款",
+      "library_name": "企业财产保险附加重录重写资料费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "特别费用条款",
+      "library_name": "企业财产保险附加特别费用扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "空运费条款",
+      "library_name": "企业财产保险附加空运费条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "预付部分赔款条款",
+      "library_name": "企业财产保险附加预付赔款条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "公估人条款",
+      "library_name": "企业财产保险附加指定公估人条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "安装人或修理人条款",
+      "library_name": "企业财产保险附加修理附加费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "连铸机项目扩展漏钢责任条款",
+      "library_name": "企业财产保险附加液体泄漏条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "码头、吊机、厂内铁路车辆扩展责任条款",
+      "library_name": "企业财产保险附加铁路机车车辆保险条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "关税条款",
+      "library_name": "企业财产保险附加关税条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "场外维修及改造条款",
+      "library_name": "企业财产保险附加场外维修及改造条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "检修扩展条款",
+      "library_name": "企业财产保险附加检修扩展条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "放弃追偿条款",
+      "library_name": "企业财产保险附加放弃追偿权条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "成对或成套设备条款",
+      "library_name": "企业财产保险附加成对成套条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "重新安装费用",
+      "library_name": "企业财产保险附加重新安装费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "非故意延误报案可赔偿条款",
+      "library_name": "企业财产保险附加非故意延误报案可赔偿条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "贵重文件条款",
+      "library_name": "企业财产保险附加贵重文件条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "临时保护费用",
+      "library_name": "企业财产保险附加临时保护费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "烟熏扩展条款",
+      "library_name": "企业财产保险附加烟熏扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "租金损失险条款",
+      "library_name": "企业财产保险附加租金条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "保密条款",
+      "library_name": "企业财产保险附加保密条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "无法控制条款",
+      "library_name": "企业财产保险附加无法控制条款（2025版）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "指定财产条款",
+      "library_name": "企业财产保险附加指明财产条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "指明财产条款",
+      "library_name": "企业财产保险附加指明财产条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "码头、吊机、厂内铁路车辆扩展责任",
+      "library_name": "企业财产保险附加铁路机车车辆保险条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "临时保护费用条款",
+      "library_name": "企业财产保险附加临时保护费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "小额现金扩展条款",
+      "library_name": "企业财产保险附加小额现金扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "先于责任方理赔条款",
+      "library_name": "企业财产保险附加先于责任方理赔条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "租赁财产条款",
+      "library_name": "企业财产保险附加租赁财产条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "罢工、暴乱及民众骚乱扩展条款A",
+      "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "消防队灭火费用扩展条款",
+      "library_name": "企业财产保险附加承保消防队灭火费用扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "罢工、暴乱或民众骚乱扩展条款",
+      "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "恶意破坏扩展条款",
+      "library_name": "企业财产保险附加恶意破坏扩展条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "恢复保险金额条款",
+      "library_name": "企业财产保险附加自动恢复保险金额条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "时间调整条款（72小时条款）",
+      "library_name": "企业财产保险附加时间调整（72小时）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "放弃评估条款",
+      "library_name": "企业财产保险附加放弃评估条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "阻止损失条款",
+      "library_name": "企业财产保险附加阻止损失条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "自动喷淋水损条款",
+      "library_name": "企业财产保险附加自动喷淋水损条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "锅炉爆炸、倒塌保险扩展条款",
+      "library_name": "企业财产保险附加锅炉爆炸及倒塌扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "临时移动条款",
+      "library_name": "企业财产保险附加临时移动条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "建筑物变动条款",
+      "library_name": "企业财产保险附加建筑物变动条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "附加、变动或维修合同条款",
+      "library_name": "企业财产保险附加装修、改建与修复免通知条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "碰撞条款",
+      "library_name": "企业财产保险附加碰撞条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "玻璃破碎扩展条款",
+      "library_name": "企业财产保险附加玻璃破碎扩展条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "铁路车辆装载货物条款",
+      "library_name": "企业财产保险附加车辆装载物条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "雇员个人物品扩展条款",
+      "library_name": "企业财产保险附加雇员、委托人物品条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "码头吊机、铁路车辆第三者责任险",
+      "library_name": "企业财产保险附加铁路机车车辆保险条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "非无效条款",
+      "library_name": "企业财产保险附加不使失效条款（C款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "盗窃险扩展条款",
+      "library_name": "企业财产保险附加盗窃、抢劫保险（2025版）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "违反条件条款",
+      "library_name": "企业财产保险附加违反保单条件条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "现场保护条款",
+      "library_name": "企业财产保险附加现场保护条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "虫蛀鼠咬条款",
+      "library_name": "企业财产保险附加虫蛀鼠咬条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "电路电器设备损失条款",
+      "library_name": "企业财产保险附加电器设备损失条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "广告霓虹灯扩展条款",
+      "library_name": "企业财产保险附加广告牌、告示牌及装饰物扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "附加起重机、运输机扩展条款",
+      "library_name": "企业财产保险附加起重机、运输机扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "流动机械扩展条款",
+      "library_name": "企业财产保险附加流动机械扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "水暖管爆裂保险条款",
+      "library_name": "企业财产保险附加水暖管爆裂保险条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "清理排放管道条款",
+      "library_name": "企业财产保险附加清理排水沟费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "80%扩展条款",
+      "library_name": "企业财产保险附加80%共保条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "提升及改善条款",
+      "library_name": "企业财产保险附加自动升值条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "建筑物外部附属设施扩展条款A",
+      "library_name": "企业财产保险附加建筑物外部附属设施扩展条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "小型安装工程条款",
+      "library_name": "企业财产保险附加建筑、安装工程扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "存货变质条款",
+      "library_name": "企业财产保险附加存货变质条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "地震责任扩展条款",
+      "library_name": "企业财产保险附加地震扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "地震责任扩展条款（80%）",
+      "library_name": "企业财产保险附加地震扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Automatic Reinstatement of Sum Insured Clause",
+      "library_name": "企业财产保险附加自动恢复保险金额条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Public Authorities Clause",
+      "library_name": "企业财产保险附加公共当局扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Alteration, Maintenance, Repair and Decoration Clause (total contract value: RMB1,000,000.00)",
+      "library_name": "企业财产保险附加装修、改造条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Strike, Riot & Civil Commotion Extension",
+      "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Loss Adjuster Clause",
+      "library_name": "企业财产保险附加指定理算人条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Waiver of Subrogation Clause",
+      "library_name": "企业财产保险附加放弃代位求偿权条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Boiler & Pressure Vessels Clause",
+      "library_name": "企业财产保险附加锅炉及压力容器爆炸扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Landslide & Subsidence Clause",
+      "library_name": "企业财产保险附加泥石流、崖崩、突发性滑坡保险",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Import Duty Clause",
+      "library_name": "企业财产保险附加关税条款A款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Malicious Damage",
+      "library_name": "企业财产保险附加恶意破坏扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Inhibition Clause",
+      "library_name": "企业财产保险附加阻止损失条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Laptop Extension Clause (Within premise)",
+      "library_name": "企业财产保险附加便携式电脑扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Burglary Extension Clause",
+      "library_name": "企业财产保险附加盗窃险扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Interruption of Public Supplier Clause",
+      "library_name": "企业财产保险附加“三停”损失保险",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Contract Price Valuation Clause",
+      "library_name": "企业财产保险附加合同价格（仓储物）条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Brand and Label Clause",
+      "library_name": "企业财产保险附加商标及标签条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Non-Average Clause(85%)",
+      "library_name": "企业财产保险附加比例共保条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Sprinkler Leakage Damage Extension Clause",
+      "library_name": "企业财产保险附加自动喷淋水损条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Glass Breakage Clause",
+      "library_name": "企业财产保险附加玻璃破碎扩展条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Breach of Conditions Clause",
+      "library_name": "企业财产保险附加违反保单条件条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "90 Days Notice of Cancellation Clause",
+      "library_name": "企业财产保险附加提前通知注销保单条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Non-Invalidation Clause",
+      "library_name": "企业财产保险附加不予失效条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Failure of Public Utilities Extension Clause",
+      "library_name": "企业财产保险附加公众事业设备扩展条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Professional Fees Clause",
+      "library_name": "企业财产保险附加专业费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Extra Charges Clause",
+      "library_name": "企业财产保险附加额外费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Removal of Debris Clause",
+      "library_name": "企业财产保险附加清理残骸条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Alteration, Maintenance, Repair and Decoration Clause",
+      "library_name": "企业财产保险附加装修、改造条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Fire Extinguish Expenses Clause",
+      "library_name": "企业财产保险附加灭火费用条款（D款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Inland Transit Extension",
+      "library_name": "企业财产保险附加内陆运输条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Temporary Removal Clause",
+      "library_name": "企业财产保险附加临时移动条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Escalation Clause",
+      "library_name": "企业财产保险附加自动升值条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Capital Addition Clause",
+      "library_name": "企业财产保险附加资产增加条款（B款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Payment on Account Clause",
+      "library_name": "企业财产保险附加预付赔款条款（A款）",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Claim & Adjuster’s Expenses Clause",
+      "library_name": "企业财产保险附加索赔费用条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Non-Average Clause",
+      "library_name": "企业财产保险附加比例共保条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Time Adjustment Clause (72 hours)",
+      "library_name": "企业财产保险附加时间调整条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Errors and Omissions Clause",
+      "library_name": "企业财产保险附加错误和遗漏条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "All Other Contents Clause",
+      "library_name": "企业财产保险附加所有其他物品条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
+    },
+    {
+      "client_name": "Automatic Cover for New Location",
+      "library_name": "企业财产保险附加自动承保新的营业场所条款",
+      "created_at": "2026-01-24 20:58:55",
+      "notes": ""
     }
   ]
 }
