@@ -2450,6 +2450,12 @@ class ClauseMatcherLogic:
             if re.match(r'^[ivxIVX]+[\.\)]', text):  # i., ii., iii.
                 return False
 
+            # v18.5 修复8: 排除"数字+点+紧跟大写字母（无空格）"的子编号内容
+            # 如 "1.REINSTATEMENT VALUE CLAUSE" - 这是条款正文的子项，不是独立条款
+            # 特征：数字后面紧跟点号，点号后面紧跟大写字母，中间没有空格
+            if re.match(r'^\d+\.[A-Z]', text):
+                return False
+
             # v18.4 修复5: 排除"数字+点+The/It/In/Any..."开头的子项内容
             # 如 "1. The liability of...", "2. It is agreed that..."
             if re.match(r'^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s', text, re.IGNORECASE):
@@ -2560,8 +2566,21 @@ class ClauseMatcherLogic:
             logger.error(f"文档打开失败: {e}")
             raise ValueError(f"无法打开文档: {e}")
 
-        # 1. 读取普通段落
-        all_lines = [p.text.strip() for p in doc.paragraphs]
+        # 1. 读取普通段落，同时记录样式信息
+        # v18.4: 使用 Heading 样式作为条款标题的强识别信号
+        all_lines = []
+        heading_lines = set()  # 记录哪些行是 Heading 样式
+
+        for i, para in enumerate(doc.paragraphs):
+            text = para.text.strip()
+            all_lines.append(text)
+
+            # 检查是否是 Heading 样式（条款标题通常使用 Heading 样式）
+            if para.style and para.style.name:
+                style_name = para.style.name.lower()
+                if 'heading' in style_name or 'title' in style_name:
+                    if text:  # 只记录非空的 Heading
+                        heading_lines.add(i)
 
         # 2. 智能读取表格内容 - 特别处理"附加条款"列
         table_clauses = []  # 从"附加条款"单元格提取的条款
@@ -2603,26 +2622,47 @@ class ClauseMatcherLogic:
             return clauses, True  # 纯标题模式
 
         # 如果没有提取到条款，使用原来的逻辑
+        # 构建带格式信息的行列表: [(text, is_heading), ...]
+        non_empty_lines_with_info = []
+
+        # 先添加段落内容（保留Heading信息）
+        non_empty_paragraphs = [(line, i in heading_lines) for i, line in enumerate(all_lines) if line]
+
         # 如果表格有内容且段落基本为空，优先使用表格内容
-        non_empty_paragraphs = [l for l in all_lines if l]
         if table_lines and len(non_empty_paragraphs) < len(table_lines):
             logger.info(f"检测到表格内容: {len(table_lines)} 行，优先使用表格")
-            all_lines = table_lines
+            non_empty_lines_with_info = [(line, False) for line in table_lines if line]
         elif table_lines:
             logger.info(f"合并段落({len(non_empty_paragraphs)})和表格({len(table_lines)})内容")
-            all_lines.extend(table_lines)
+            non_empty_lines_with_info = non_empty_paragraphs + [(line, False) for line in table_lines if line]
+        else:
+            non_empty_lines_with_info = non_empty_paragraphs
 
-        # 过滤空行
-        non_empty_lines = [l for l in all_lines if l]
-        logger.info(f"非空行数: {len(non_empty_lines)}")
+        heading_count = sum(1 for _, is_h in non_empty_lines_with_info if is_h)
+        logger.info(f"非空行数: {len(non_empty_lines_with_info)}, Heading行数: {heading_count}")
 
         # 3. 基于标题识别进行分割（不再依赖空行）
+        # v18.4: 使用 Heading 样式作为条款标题的强识别信号
         clauses = []
         current_title = None
         current_content = []
 
-        for line in non_empty_lines:
-            if self.is_likely_title(line):
+        for line, is_heading in non_empty_lines_with_info:
+            # 判断是否是条款标题：
+            # 1. is_likely_title 返回 True，或者
+            # 2. 是 Heading 样式且不是明显的子编号内容
+            is_title = self.is_likely_title(line)
+
+            # v18.4: Heading 样式的段落优先识别为标题
+            if is_heading and not is_title:
+                # Heading 样式，但 is_likely_title 返回 False
+                # 检查是否是子编号内容（如 "1.REINSTATEMENT VALUE CLAUSE"）
+                # 子编号格式通常以 "数字.大写" 紧密连接，没有空格
+                if not re.match(r'^\d+\.[A-Z]', line):
+                    is_title = True
+                    logger.debug(f"Heading样式识别为标题: {line[:50]}")
+
+            if is_title:
                 # 保存前一个条款
                 if current_title is not None:
                     clauses.append(ClauseItem(
