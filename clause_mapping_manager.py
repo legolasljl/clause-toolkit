@@ -368,7 +368,7 @@ class ClauseMappingManager:
         return name
 
     def import_from_corrected_report(self, excel_path: str,
-                                      clean_names: bool = True) -> Tuple[int, int]:
+                                      clean_names: bool = True) -> Tuple[int, int, int, int]:
         """
         从已修正的条款比对报告导入映射
 
@@ -380,7 +380,7 @@ class ClauseMappingManager:
             clean_names: 是否清理条款名称（去除编号、限额等）
 
         Returns:
-            (导入数量, 跳过数量)
+            v18.5: (新增数量, 更新数量, 相同数量, 跳过数量)
         """
         import pandas as pd
 
@@ -423,8 +423,11 @@ class ClauseMappingManager:
 
         logger.info(f"导入列映射: 客户条款='{client_col}', 条款库='{library_col}'")
 
-        imported = 0
-        skipped = 0
+        # v18.5: 更详细的统计
+        new_count = 0       # 新增
+        update_count = 0    # 更新（覆盖已有映射）
+        same_count = 0      # 完全相同（无需更新）
+        skipped = 0         # 跳过（空值或无效）
 
         for _, row in df.iterrows():
             client_name = str(row.get(client_col, '')).strip()
@@ -452,16 +455,30 @@ class ClauseMappingManager:
                 skipped += 1
                 continue
 
-            # 添加映射（使用清理后的名称）
-            if self.add_mapping(client_name_cleaned, library_name_cleaned,
-                               notes=f"从修正报告导入"):
-                imported += 1
-                logger.debug(f"导入映射: '{client_name_cleaned}' -> '{library_name_cleaned}'")
-            else:
-                skipped += 1
+            # v18.5: 检查是否已存在映射
+            key = self._normalize(client_name_cleaned)
+            existing = self._mappings.get(key)
 
-        logger.info(f"从修正报告导入映射: 成功 {imported}, 跳过 {skipped}")
-        return imported, skipped
+            if existing:
+                if existing.library_name == library_name_cleaned:
+                    # 完全相同，无需更新
+                    same_count += 1
+                    continue
+                else:
+                    # 需要更新
+                    update_count += 1
+            else:
+                # 新增
+                new_count += 1
+
+            # 添加/更新映射
+            self.add_mapping(client_name_cleaned, library_name_cleaned,
+                            notes=f"从修正报告导入")
+            logger.debug(f"导入映射: '{client_name_cleaned}' -> '{library_name_cleaned}'")
+
+        logger.info(f"从修正报告导入映射: 新增 {new_count}, 更新 {update_count}, 相同 {same_count}, 跳过 {skipped}")
+        # v18.5: 返回详细统计元组 (new, update, same, skipped)
+        return new_count, update_count, same_count, skipped
 
 
 # 单例模式

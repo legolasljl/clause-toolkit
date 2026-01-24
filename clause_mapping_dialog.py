@@ -446,24 +446,40 @@ class ClauseMappingDialog(QDialog):
             return
 
         try:
-            imported, skipped = self.manager.import_from_corrected_report(
+            # v18.5: 使用详细统计返回值
+            result = self.manager.import_from_corrected_report(
                 file_path,
                 clean_names=True  # 自动清理条款名称
             )
 
-            if imported > 0:
+            # 兼容旧版返回值格式
+            if len(result) == 4:
+                new_count, update_count, same_count, skipped = result
+            else:
+                # 旧版: (imported, skipped)
+                new_count, skipped = result
+                update_count, same_count = 0, 0
+
+            total_imported = new_count + update_count
+
+            if total_imported > 0:
                 self.manager.save()
                 self._load_mappings()
                 self.mappings_changed.emit()
-                QMessageBox.information(
-                    self, "导入成功",
-                    f"成功导入 {imported} 条映射\n跳过 {skipped} 条（空值或无效）"
-                )
+
+            # v18.5: 显示详细统计
+            msg = "导入完成！\n\n"
+            msg += f"• 新增: {new_count} 条\n"
+            msg += f"• 更新: {update_count} 条\n"
+            msg += f"• 相同: {same_count} 条（已存在且相同）\n"
+            msg += f"• 跳过: {skipped} 条（空值或无效）"
+
+            if total_imported > 0:
+                QMessageBox.information(self, "导入成功", msg)
+            elif same_count > 0:
+                QMessageBox.information(self, "提示", f"所有映射已存在且相同，无需导入。\n\n{msg}")
             else:
-                QMessageBox.information(
-                    self, "提示",
-                    f"没有可以导入的映射\n（检查了 {skipped} 条记录）"
-                )
+                QMessageBox.information(self, "提示", f"没有可以导入的映射。\n\n{msg}")
 
         except Exception as e:
             logger.exception("导入报告失败")
