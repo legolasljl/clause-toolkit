@@ -1134,6 +1134,28 @@ def levenshtein_ratio(s1: str, s2: str) -> float:
 class ClauseMatcherLogic:
     """条款匹配核心逻辑 - 优化版"""
 
+    # ===== v18.5: 常量定义 =====
+    # 条款标题最大长度
+    MAX_TITLE_LENGTH_DEFAULT = 150   # 中文条款标题通常较短
+    MAX_TITLE_LENGTH_ENGLISH = 250   # 英文条款标题可能较长，包含完整描述
+
+    # ===== v18.5: 预编译正则表达式（性能优化）=====
+    _RE_CLAUSE_KEYWORDS = re.compile(r'\b(Clause|Extension|Coverage|Endorsement)\b', re.IGNORECASE)
+    _RE_MONEY_PATTERN = re.compile(
+        r'(RMB|CNY|人民币|美元|USD|EUR|HKD|港币)?\s*\d+[\d,\.]*\s*(万元|元|万|亿|千元)',
+        re.IGNORECASE
+    )
+    _RE_SUB_NUMBER = re.compile(r'^\d+\.[A-Z]')  # 子编号格式: 1.REINSTATEMENT
+    _RE_LEADING_NUMBER = re.compile(r'^\d+[\.\s、]+')  # 开头编号
+    _RE_PARENTHESIS_NUMBER = re.compile(r'^[\(（]\s*\d+\s*[\)）]')  # (1), （2）
+    _RE_PARENTHESIS_LETTER = re.compile(r'^[\(（]\s*[a-zA-Z]\s*[\)）]')  # (a), (b)
+    _RE_LETTER_PAREN = re.compile(r'^[a-z]\)')  # a), b)
+    _RE_ROMAN_NUMBER = re.compile(r'^[ivxIVX]+[\.\)]')  # i., ii.
+    _RE_CONTENT_STARTER = re.compile(
+        r'^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s',
+        re.IGNORECASE
+    )
+
     # v18.4: 排除词汇缓存（完全匹配时排除，忽略编号和大小写）
     _excluded_titles: Optional[set] = None
 
@@ -1155,7 +1177,7 @@ class ClauseMatcherLogic:
                     cls._excluded_titles = {t.upper().strip() for t in titles if t}
                     logger.info(f"加载排除词汇 {len(cls._excluded_titles)} 条")
             except Exception as e:
-                logger.warning(f"加载排除词汇失败: {e}")
+                logger.error(f"加载排除词汇失败: {e}")
 
         return cls._excluded_titles
 
@@ -2221,6 +2243,41 @@ class ClauseMatcherLogic:
 
         return results
 
+    def create_user_mapping_result(self, lib_entry: Dict, user_library_name: str) -> MatchResult:
+        """
+        v18.5: 根据用户映射创建匹配结果（提取重复代码）
+
+        Args:
+            lib_entry: 条款库条目
+            user_library_name: 用户映射的条款库名称
+
+        Returns:
+            MatchResult: 匹配结果
+        """
+        if lib_entry:
+            return MatchResult(
+                matched_name=lib_entry.get('条款名称', user_library_name),
+                matched_reg=self.clean_reg_number(lib_entry.get('产品注册号', lib_entry.get('注册号', ''))),
+                matched_content=lib_entry.get('条款内容', ''),
+                score=1.0,
+                match_level=MatchLevel.EXACT,
+                diff_analysis="用户自定义映射",
+                title_score=1.0,
+                content_score=0.0,
+            )
+        else:
+            # 映射的条款在库中不存在
+            return MatchResult(
+                matched_name=user_library_name,
+                matched_reg="",
+                matched_content="",
+                score=1.0,
+                match_level=MatchLevel.EXACT,
+                diff_analysis="用户映射（条款库中未找到）",
+                title_score=1.0,
+                content_score=0.0,
+            )
+
     # ========================================
     # 翻译和差异分析
     # ========================================
@@ -2320,18 +2377,18 @@ class ClauseMatcherLogic:
             if pattern in text:
                 return True
 
-        # 太长的不是标题（v18.3: 英文条款标题可能较长，放宽到150）
-        # v18.4: 如果包含Clause/Extension等关键词，进一步放宽到250
-        max_length = 150
-        if re.search(r'\b(Clause|Extension|Coverage|Endorsement)\b', text, re.IGNORECASE):
-            max_length = 250
+        # 太长的不是标题
+        # v18.5: 使用类常量替代硬编码值
+        max_length = cls.MAX_TITLE_LENGTH_DEFAULT
+        if cls._RE_CLAUSE_KEYWORDS.search(text):
+            max_length = cls.MAX_TITLE_LENGTH_ENGLISH
         if len(text) > max_length:
             return False
 
         # 以句号等结尾的通常是内容（但排除 ":" 和 "）"，这些在条款标题中常见）
         if text.endswith(('。', '；', '.', ';', '，', ',')):
             # 但如果包含条款关键词，可能是标题带了额外说明
-            if not re.search(r'\b(Clause|Extension|Coverage|Endorsement|Insurance)\b', text, re.IGNORECASE):
+            if not cls._RE_CLAUSE_KEYWORDS.search(text):
                 return False
 
         # ===== v18.2: 特殊标题关键词（优先检查）=====
@@ -2440,25 +2497,24 @@ class ClauseMatcherLogic:
                 return False
 
             # v18.4 修复3: 排除编号开头的内容（条款正文的子项）
-            # 如 (1), (2), (a), (b), (c), a), b), c), i., ii.
-            if re.match(r'^[\(（]\s*\d+\s*[\)）]', text):  # (1), (2), （1）
+            # v18.5: 使用预编译正则提升性能
+            if cls._RE_PARENTHESIS_NUMBER.match(text):  # (1), (2), （1）
                 return False
-            if re.match(r'^[\(（]\s*[a-zA-Z]\s*[\)）]', text):  # (a), (b), (c), (A), (B)
+            if cls._RE_PARENTHESIS_LETTER.match(text):  # (a), (b), (c), (A), (B)
                 return False
-            if re.match(r'^[a-z]\)', text):  # a), b), c)
+            if cls._RE_LETTER_PAREN.match(text):  # a), b), c)
                 return False
-            if re.match(r'^[ivxIVX]+[\.\)]', text):  # i., ii., iii.
+            if cls._RE_ROMAN_NUMBER.match(text):  # i., ii., iii.
                 return False
 
             # v18.5 修复8: 排除"数字+点+紧跟大写字母（无空格）"的子编号内容
             # 如 "1.REINSTATEMENT VALUE CLAUSE" - 这是条款正文的子项，不是独立条款
-            # 特征：数字后面紧跟点号，点号后面紧跟大写字母，中间没有空格
-            if re.match(r'^\d+\.[A-Z]', text):
+            if cls._RE_SUB_NUMBER.match(text):
                 return False
 
             # v18.4 修复5: 排除"数字+点+The/It/In/Any..."开头的子项内容
             # 如 "1. The liability of...", "2. It is agreed that..."
-            if re.match(r'^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s', text, re.IGNORECASE):
+            if cls._RE_CONTENT_STARTER.match(text):
                 return False
 
             # v18.4 修复6: 排除以正文开头词开始的内容
@@ -3025,32 +3081,12 @@ class MatchWorker(QThread):
                         user_library_name = mapping_mgr.get_library_name(translated_title)
 
                 # v17.1: 根据是否有用户映射决定匹配策略
+                # v18.5: 使用 create_user_mapping_result 方法减少重复代码
                 match_results = []
                 if user_library_name:
                     # 有用户映射，只返回映射的那一条
                     lib_entry = logic.find_library_entry_by_name(user_library_name, index)
-                    if lib_entry:
-                        mapped_result = MatchResult(
-                            matched_name=lib_entry.get('条款名称', user_library_name),
-                            matched_reg=logic.clean_reg_number(lib_entry.get('产品注册号', lib_entry.get('注册号', ''))),
-                            matched_content=lib_entry.get('条款内容', ''),
-                            score=1.0,
-                            match_level=MatchLevel.EXACT,
-                            diff_analysis="用户自定义映射",
-                            title_score=1.0,
-                            content_score=0.0,
-                        )
-                    else:
-                        mapped_result = MatchResult(
-                            matched_name=user_library_name,
-                            matched_reg="",
-                            matched_content="",
-                            score=1.0,
-                            match_level=MatchLevel.EXACT,
-                            diff_analysis="用户自定义映射（未在库中找到）",
-                            title_score=1.0,
-                            content_score=0.0,
-                        )
+                    mapped_result = logic.create_user_mapping_result(lib_entry, user_library_name)
                     match_results = [mapped_result]
                 else:
                     # 无用户映射，使用多结果匹配（最多3条）
@@ -3199,32 +3235,12 @@ class BatchMatchWorker(QThread):
                                 user_library_name = mapping_mgr.get_library_name(translated_title)
 
                         # v17.1: 根据是否有用户映射决定匹配策略
+                        # v18.5: 使用辅助方法减少重复代码
                         match_results = []
                         if user_library_name:
                             # 有用户映射，只返回映射的那一条
                             lib_entry = logic.find_library_entry_by_name(user_library_name, index)
-                            if lib_entry:
-                                mapped_result = MatchResult(
-                                    matched_name=lib_entry.get('条款名称', user_library_name),
-                                    matched_reg=logic.clean_reg_number(lib_entry.get('产品注册号', lib_entry.get('注册号', ''))),
-                                    matched_content=lib_entry.get('条款内容', ''),
-                                    score=1.0,
-                                    match_level=MatchLevel.EXACT,
-                                    diff_analysis="用户自定义映射",
-                                    title_score=1.0,
-                                    content_score=0.0,
-                                )
-                            else:
-                                mapped_result = MatchResult(
-                                    matched_name=user_library_name,
-                                    matched_reg="",
-                                    matched_content="",
-                                    score=1.0,
-                                    match_level=MatchLevel.EXACT,
-                                    diff_analysis="用户自定义映射（未在库中找到）",
-                                    title_score=1.0,
-                                    content_score=0.0,
-                                )
+                            mapped_result = logic.create_user_mapping_result(lib_entry, user_library_name)
                             match_results = [mapped_result]
                         else:
                             # 无用户映射，使用多结果匹配（最多3条）

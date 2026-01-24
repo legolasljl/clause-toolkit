@@ -278,7 +278,7 @@ class ClauseMappingDialog(QDialog):
 
         layout.addLayout(bottom_layout)
 
-    def _load_mappings(self):
+    def _load_mappings(self) -> None:
         """加载映射到表格"""
         mappings = self.manager.get_all_mappings()
         self.table.setRowCount(len(mappings))
@@ -339,7 +339,7 @@ class ClauseMappingDialog(QDialog):
 
         self.list_group.setTitle(f"已保存的映射 ({len(mappings)} 条)")
 
-    def _filter_mappings(self, text: str):
+    def _filter_mappings(self, text: str) -> None:
         """筛选映射"""
         text = text.lower()
         for i in range(self.table.rowCount()):
@@ -348,7 +348,7 @@ class ClauseMappingDialog(QDialog):
             match = text in client or text in library
             self.table.setRowHidden(i, not match)
 
-    def _add_mapping(self):
+    def _add_mapping(self) -> None:
         """添加映射"""
         client = self.client_input.text().strip()
         library = self.library_input.text().strip()
@@ -390,7 +390,7 @@ class ClauseMappingDialog(QDialog):
                 self.mappings_changed.emit()
                 QMessageBox.information(self, "成功", f"已修改映射:\n{client_name}\n→\n{new_library}")
 
-    def _delete_mapping(self, client_name: str):
+    def _delete_mapping(self, client_name: str) -> None:
         """删除映射"""
         reply = QMessageBox.question(
             self, "确认删除",
