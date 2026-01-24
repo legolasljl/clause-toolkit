@@ -2756,6 +2756,15 @@ class MatchWorker(QThread):
         self.output_path = output_path
         self.sheet_name = sheet_name  # 指定的Sheet名称
         self.match_mode = match_mode  # v18.3: 匹配模式 (auto/title/content)
+        self._cancelled = False  # v18.4: 取消标志
+
+    def cancel(self):
+        """v18.4: 取消比对"""
+        self._cancelled = True
+
+    def is_cancelled(self) -> bool:
+        """v18.4: 检查是否已取消"""
+        return self._cancelled
 
     def run(self):
         try:
@@ -2798,6 +2807,12 @@ class MatchWorker(QThread):
             stats = {'exact': 0, 'semantic': 0, 'keyword': 0, 'fuzzy': 0, 'none': 0}
 
             for idx, clause in enumerate(clauses, 1):
+                # v18.4: 检查取消
+                if self._cancelled:
+                    self.log_signal.emit("⛔ 用户取消了比对操作", "warning")
+                    self.finished_signal.emit(False, "用户取消")
+                    return
+
                 self.progress_signal.emit(idx, len(clauses))
 
                 # 翻译
@@ -2924,6 +2939,11 @@ class BatchMatchWorker(QThread):
         self.output_dir = output_dir
         self.sheet_name = sheet_name  # 指定的Sheet名称
         self.match_mode = match_mode  # v18.3: 匹配模式 (auto/title/content)
+        self._cancelled = False  # v18.4: 取消标志
+
+    def cancel(self):
+        """v18.4: 取消批量处理"""
+        self._cancelled = True
 
     def run(self):
         try:
@@ -2943,6 +2963,12 @@ class BatchMatchWorker(QThread):
             total = len(self.doc_paths)
 
             for file_idx, doc_path in enumerate(self.doc_paths, 1):
+                # v18.4: 检查取消
+                if self._cancelled:
+                    self.log_signal.emit("⛔ 用户取消了批量处理", "warning")
+                    self.finished_signal.emit(False, "用户取消", success_count, file_idx - 1)
+                    return
+
                 file_name = Path(doc_path).name
                 self.batch_progress_signal.emit(file_idx, total, file_name)
                 self.log_signal.emit(f"\n📄 [{file_idx}/{total}] {file_name}", "info")
@@ -6100,11 +6126,50 @@ class ClauseComparisonAssistant(QMainWindow):
 
     def _set_ui_state(self, enabled: bool):
         self.start_btn.setEnabled(enabled)
-        self.batch_btn.setEnabled(enabled)
         self.start_btn.setText("🚀 开始比对" if enabled else "⏳ 处理中...")
         self.progress_bar.setVisible(not enabled)
-        if not enabled:
+
+        # v18.4: 处理中时，批量处理按钮变为取消按钮
+        if enabled:
+            self.batch_btn.setText("📦 批量处理")
+            self.batch_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: transparent; color: {AnthropicColors.TEXT_PRIMARY};
+                    font-size: 14px; font-weight: 500;
+                    border-radius: 8px; border: 1px solid {AnthropicColors.BG_DARK};
+                }}
+                QPushButton:hover {{ background: {AnthropicColors.BG_DARK}; color: {AnthropicColors.TEXT_LIGHT}; }}
+            """)
+            try:
+                self.batch_btn.clicked.disconnect()
+            except:
+                pass
+            self.batch_btn.clicked.connect(self._show_batch_dialog)
+        else:
+            self.batch_btn.setText("⛔ 取消比对")
+            self.batch_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: transparent; color: #e74c3c;
+                    font-size: 14px; font-weight: 500;
+                    border-radius: 8px; border: 1px solid #e74c3c;
+                }}
+                QPushButton:hover {{ background: #e74c3c; color: white; }}
+            """)
+            try:
+                self.batch_btn.clicked.disconnect()
+            except:
+                pass
+            self.batch_btn.clicked.connect(self._cancel_process)
             self.progress_bar.setValue(0)
+
+    def _cancel_process(self):
+        """v18.4: 取消比对操作"""
+        if hasattr(self, 'worker') and self.worker and self.worker.isRunning():
+            self.worker.cancel()
+            self._append_log("⏳ 正在取消...", "warning")
+        elif hasattr(self, 'batch_worker') and self.batch_worker and self.batch_worker.isRunning():
+            self.batch_worker.cancel()
+            self._append_log("⏳ 正在取消批量处理...", "warning")
 
     def _on_finished(self, success: bool, msg: str):
         self._set_ui_state(True)
