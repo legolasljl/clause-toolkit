@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2026-01-24 17:51:46",
+  "updated_at": "2026-01-24 19:43:45",
   "mappings": [
     {
       "client_name": "Earthquake and Tsunami Clause (Limit: 100% of sum insured)",
@@ -253,6 +253,36 @@
       "library_name": "企业财产保险附加公众事业设备扩展条款",
       "created_at": "2026-01-24 17:51:46",
       "notes": "从修正报告导入"
+    },
+    {
+      "client_name": "Burglary, Theft & Robbery",
+      "library_name": "企业财产保险附加盗窃、抢劫保险（2025版）条款",
+      "created_at": "2026-01-24 19:43:45",
+      "notes": "常见英文条款-无Clause关键词"
+    },
+    {
+      "client_name": "Miscellaneous Unnamed location",
+      "library_name": "企业财产保险附加自动承保新获取资产、新增地点条款",
+      "created_at": "2026-01-24 19:43:45",
+      "notes": "常见英文条款-无Clause关键词"
+    },
+    {
+      "client_name": "Strike, Riot & Civil Commotion",
+      "library_name": "企业财产保险附加罢工、暴动、民众骚乱条款",
+      "created_at": "2026-01-24 19:43:45",
+      "notes": "常见英文条款-无Extension关键词"
+    },
+    {
+      "client_name": "Works of Arts",
+      "library_name": "企业财产保险附加艺术精品条款",
+      "created_at": "2026-01-24 19:43:45",
+      "notes": "常见英文条款-无Clause关键词"
+    },
+    {
+      "client_name": "90 Days' Notice of Cancellation by Insurer",
+      "library_name": "企业财产保险附加注销约定条款",
+      "created_at": "2026-01-24 19:43:45",
+      "notes": "常见英文条款-无Clause关键词"
     }
   ]
 }
