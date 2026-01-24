@@ -248,9 +248,15 @@ class ClauseMappingDialog(QDialog):
         self.import_btn.clicked.connect(self._import_from_corrected_report)
         batch_layout.addWidget(self.import_btn)
 
-        self.export_btn = QPushButton("导出映射")
+        self.export_btn = QPushButton("📤 导出映射")
         self.export_btn.clicked.connect(self._export_mappings)
         batch_layout.addWidget(self.export_btn)
+
+        # v18.4: 导入JSON映射按钮
+        self.import_json_btn = QPushButton("📥 导入映射")
+        self.import_json_btn.setToolTip("从JSON文件导入映射（与导出格式相同）")
+        self.import_json_btn.clicked.connect(self._import_mappings_json)
+        batch_layout.addWidget(self.import_json_btn)
 
         batch_layout.addStretch()
 
@@ -479,6 +485,77 @@ class ClauseMappingDialog(QDialog):
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             QMessageBox.information(self, "成功", f"已导出 {len(data)} 条映射")
+
+    def _import_mappings_json(self):
+        """v18.4: 从JSON文件导入映射"""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "导入映射", "",
+            "JSON Files (*.json)"
+        )
+        if not file_path:
+            return
+
+        try:
+            import json
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            # 支持两种格式：
+            # 1. 简单格式: {"客户条款": "库内条款", ...}
+            # 2. 导出格式: [{"client_name": "...", "library_name": "..."}, ...]
+            mappings_to_import = []
+
+            if isinstance(data, dict):
+                # 简单格式
+                for client, library in data.items():
+                    if client and library and isinstance(client, str) and isinstance(library, str):
+                        mappings_to_import.append((client.strip(), library.strip()))
+            elif isinstance(data, list):
+                # 导出格式（数组）
+                for item in data:
+                    if isinstance(item, dict):
+                        client = item.get('client_name', '').strip()
+                        library = item.get('library_name', '').strip()
+                        if client and library:
+                            mappings_to_import.append((client, library))
+
+            if not mappings_to_import:
+                QMessageBox.warning(self, "提示", "JSON文件中没有找到有效的映射数据")
+                return
+
+            # 确认导入
+            reply = QMessageBox.question(
+                self, "确认导入",
+                f"将导入 {len(mappings_to_import)} 条映射。\n\n"
+                "如果已存在相同的客户条款名称，将被覆盖。\n\n"
+                "是否继续？",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+
+            if reply != QMessageBox.Yes:
+                return
+
+            # 执行导入
+            imported_count = 0
+            for client, library in mappings_to_import:
+                self.manager.add_mapping(client, library)
+                imported_count += 1
+
+            self.manager.save()
+            self._load_mappings()
+            self.mappings_changed.emit()
+
+            QMessageBox.information(
+                self, "导入成功",
+                f"成功导入 {imported_count} 条映射"
+            )
+
+        except json.JSONDecodeError as e:
+            QMessageBox.critical(self, "错误", f"JSON格式错误: {e}")
+        except Exception as e:
+            logger.exception("导入JSON映射失败")
+            QMessageBox.critical(self, "错误", f"导入失败: {e}")
 
 
 class ImportPreviewDialog(QDialog):
