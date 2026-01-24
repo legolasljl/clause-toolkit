@@ -2362,8 +2362,14 @@ class ClauseMatcherLogic:
         for kw in english_special_keywords:
             if kw.lower() in text.lower():
                 # 额外检查：排除明显是正文的情况
-                if not text.lower().startswith(('the ', 'this ', 'if ', 'when ', 'where ')):
-                    return True
+                content_starts = ('the ', 'this ', 'if ', 'when ', 'where ', 'by ', 'and ', 'or ',
+                                  'provided ', 'subject ', 'in ', 'for ', 'any ', 'all ', 'such ')
+                if text.lower().startswith(content_starts):
+                    continue  # 跳过这个关键词，继续检查其他
+                # 额外检查：以小写字母开头的通常是正文
+                if text[0].islower():
+                    continue
+                return True
 
         # ===== v17.1: 优先检查是否为标题（"条款"关键词最优先）=====
 
@@ -2429,13 +2435,15 @@ class ClauseMatcherLogic:
                 return False
 
             # v18.4 修复2: 排除 "this/the + 关键词" 形式（条款正文内容）
-            # 如 "this Clause", "the Policy", "this extension", "the Insurance"
-            if re.search(r'\b(this|the|such|that)\s+(Clause|Extension|Policy|Insurance|Cover)\b', text, re.IGNORECASE):
+            # 如 "this Clause", "the Policy", "this extension", "this Endorsement"
+            if re.search(r'\b(this|the|such|that)\s+(Clause|Extension|Policy|Insurance|Cover|Endorsement)\b', text, re.IGNORECASE):
                 return False
 
             # v18.4 修复3: 排除编号开头的内容（条款正文的子项）
-            # 如 (1), (2), a), b), c), i., ii.
+            # 如 (1), (2), (a), (b), (c), a), b), c), i., ii.
             if re.match(r'^[\(（]\s*\d+\s*[\)）]', text):  # (1), (2), （1）
+                return False
+            if re.match(r'^[\(（]\s*[a-zA-Z]\s*[\)）]', text):  # (a), (b), (c), (A), (B)
                 return False
             if re.match(r'^[a-z]\)', text):  # a), b), c)
                 return False
@@ -2445,6 +2453,20 @@ class ClauseMatcherLogic:
             # v18.4 修复5: 排除"数字+点+The/It/In/Any..."开头的子项内容
             # 如 "1. The liability of...", "2. It is agreed that..."
             if re.match(r'^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s', text, re.IGNORECASE):
+                return False
+
+            # v18.4 修复6: 排除以正文开头词开始的内容
+            # 如 "Provided that...", "If the sum...", "by fire caused..."
+            content_starters = (
+                'Provided ', 'If ', 'Where ', 'When ', 'Unless ', 'Subject to ',
+                'In the event ', 'In respect ', 'For the purpose ', 'Notwithstanding ',
+                'by ', 'and ', 'or ', 'but ', 'that ', 'which ', 'who ', 'whose ',
+            )
+            if text.startswith(content_starters):
+                return False
+
+            # v18.4 修复7: 以小写字母开头的通常是正文内容
+            if text[0].islower():
                 return False
 
             # v18.4 修复4: 排除以冒号结尾的全大写文本（如 WARRANTED:）
