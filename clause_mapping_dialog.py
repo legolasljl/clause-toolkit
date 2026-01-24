@@ -536,12 +536,36 @@ class ClauseMappingDialog(QDialog):
                 QMessageBox.warning(self, "提示", "JSON文件中没有找到有效的映射数据")
                 return
 
-            # 确认导入
+            # 检查重复
+            existing_mappings = {m.client_name: m.library_name for m in self.manager.get_all_mappings()}
+            new_count = 0
+            update_count = 0
+            same_count = 0
+
+            for client, library in mappings_to_import:
+                if client in existing_mappings:
+                    if existing_mappings[client] == library:
+                        same_count += 1  # 完全相同，无需更新
+                    else:
+                        update_count += 1  # 需要更新
+                else:
+                    new_count += 1  # 新增
+
+            # 确认导入（显示详细统计）
+            msg = f"文件中共有 {len(mappings_to_import)} 条映射：\n\n"
+            msg += f"  • 新增: {new_count} 条\n"
+            msg += f"  • 更新: {update_count} 条（覆盖已有映射）\n"
+            msg += f"  • 相同: {same_count} 条（无需更新）\n\n"
+
+            if new_count + update_count == 0:
+                QMessageBox.information(self, "提示", "所有映射已存在且相同，无需导入。")
+                return
+
+            msg += "是否继续导入？"
+
             reply = QMessageBox.question(
                 self, "确认导入",
-                f"将导入 {len(mappings_to_import)} 条映射。\n\n"
-                "如果已存在相同的客户条款名称，将被覆盖。\n\n"
-                "是否继续？",
+                msg,
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.Yes
             )
@@ -549,11 +573,17 @@ class ClauseMappingDialog(QDialog):
             if reply != QMessageBox.Yes:
                 return
 
-            # 执行导入
-            imported_count = 0
+            # 执行导入（跳过完全相同的）
+            imported_new = 0
+            imported_update = 0
             for client, library in mappings_to_import:
+                if client in existing_mappings and existing_mappings[client] == library:
+                    continue  # 跳过完全相同的
                 self.manager.add_mapping(client, library)
-                imported_count += 1
+                if client in existing_mappings:
+                    imported_update += 1
+                else:
+                    imported_new += 1
 
             self.manager.save()
             self._load_mappings()
@@ -561,7 +591,7 @@ class ClauseMappingDialog(QDialog):
 
             QMessageBox.information(
                 self, "导入成功",
-                f"成功导入 {imported_count} 条映射"
+                f"导入完成！\n\n• 新增: {imported_new} 条\n• 更新: {imported_update} 条"
             )
 
         except json.JSONDecodeError as e:
