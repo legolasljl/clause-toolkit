@@ -2362,6 +2362,19 @@ class ClauseMatcherLogic:
             if re.search(r'\b(this|the|such|that)\s+(Clause|Extension|Policy|Insurance|Cover)\b', text, re.IGNORECASE):
                 return False
 
+            # v18.4 修复3: 排除编号开头的内容（条款正文的子项）
+            # 如 (1), (2), a), b), c), i., ii.
+            if re.match(r'^[\(（]\s*\d+\s*[\)）]', text):  # (1), (2), （1）
+                return False
+            if re.match(r'^[a-z]\)', text):  # a), b), c)
+                return False
+            if re.match(r'^[ivxIVX]+[\.\)]', text):  # i., ii., iii.
+                return False
+
+            # v18.4 修复4: 排除以冒号结尾的全大写文本（如 WARRANTED:）
+            if text.isupper() and text.rstrip().endswith(':'):
+                return False
+
             # 排除其他明显不是标题的情况
             if not text.startswith(('All the terms',)):
                 return True
@@ -2431,6 +2444,9 @@ class ClauseMatcherLogic:
         # ===== 其他标题模式（已通过内容排除检查）=====
         # 全大写英文（可能是英文条款名）
         if text.isupper() and len(text) > 5 and re.search(r'[A-Z]{3,}', text):
+            # v18.4: 排除以冒号结尾的（如 WARRANTED:）
+            if text.rstrip().endswith(':'):
+                return False
             return True
 
         # 默认不是标题（保守策略）
