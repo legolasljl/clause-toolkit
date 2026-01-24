@@ -1,6 +1,6 @@
 # Clause Comparison Assistant
 
-## 智能条款比对工具 使用说明书 v18.3
+## 智能条款比对工具 使用说明书 v18.5
 
 ---
 
@@ -13,7 +13,7 @@
 5. [界面概览](#界面概览)
 6. [基本操作流程](#基本操作流程)
 7. [高级功能](#高级功能)
-8. [v18.3 新功能](#v183-新功能)
+8. [v18.5 新功能](#v185-新功能)
 9. [映射管理](#映射管理)
 10. [比对报告说明](#比对报告说明)
 11. [常见问题](#常见问题)
@@ -64,6 +64,7 @@
 |--------|------|------|
 | `Clause_Comparison_Assistant.py` | Python | 主程序（macOS桌面版） |
 | `clause_mappings.json` | JSON | 条款映射数据存储文件 |
+| `excluded_titles.json` | JSON | 排除词汇列表（v18.4+，不被识别为条款的标题） |
 | `clause_toolkit_integrated.html` | HTML | 网页版工具（独立运行，无需Python环境） |
 
 ### 辅助模块
@@ -105,7 +106,8 @@ clause_comparison_package/
 │   ├── clause_mapping_dialog.py            ← 被主程序导入
 │   └── clause_mapping_manager.py           ← 被主程序导入
 ├── 数据文件
-│   └── clause_mappings.json                ← 运行时读写
+│   ├── clause_mappings.json                ← 运行时读写（用户映射）
+│   └── excluded_titles.json                ← 排除词汇列表（v18.4+）
 ├── 配置文件（可选）
 │   ├── customer_config.json
 │   └── customer_config.py
@@ -326,41 +328,100 @@ python3 Clause_Comparison_Assistant.py
 
 ---
 
-## v18.3 新功能
+## v18.5 新功能
 
-### 匹配模式选择
+### 排除列表功能（v18.4+）
 
-用户可以手动指定匹配模式，而不是仅依赖自动检测。
+通过 `excluded_titles.json` 配置不应被识别为条款标题的内容。
 
-**三种模式：**
+**配置文件格式：**
+```json
+{
+  "titles": [
+    "EXCLUSIONS",
+    "GENERAL PROVISION",
+    "机器损坏保险条款",
+    "财产一切险条款"
+  ]
+}
+```
+
+**优先级最高**：即使是 Heading 样式或包含"条款"关键词，在排除列表中的内容也不会被识别为标题。
+
+### 已映射条款优先识别（v18.5）
+
+在 `clause_mappings.json` 中已建立映射的客户条款名称，会被优先识别为标题。
+
+**使用场景：**
+- 条款名称不含"条款"、"Clause"等关键词
+- 条款名称较短，不符合常规识别规则
+- 例如：`Waiver of Excess`、`Extra Expense`、`Civil Authorities`
+
+**操作方式：**
+1. 先通过映射管理添加映射
+2. 再次解析文档时，这些条款会被自动识别
+
+### Heading 样式识别（v18.4+）
+
+Word 文档中使用 Heading 1/2/3 样式的段落会被优先识别为条款标题。
+
+**适用场景：**
+- 条款名称不含关键词
+- 文档作者已使用 Heading 样式标记条款
+
+### 英文特殊条款关键词（v18.4+）
+
+以下英文条款即使不含"Clause"、"Extension"等关键词，也会被正确识别：
+
+| 关键词 | 说明 |
+|-------|------|
+| Burglary, Theft, Robbery | 盗窃抢劫 |
+| Strike, Riot, Civil Commotion | 罢工暴动 |
+| Malicious Damage, Terrorism | 恶意破坏/恐怖 |
+| Flood, Earthquake, Typhoon | 自然灾害 |
+| Automatic Reinstatement, Escalation | 自动恢复/递增 |
+| Payment on Account | 预付款 |
+| Waiver of Excess, Extra Expense | 免赔/额外费用 |
+| Civil Authorities | 政府当局 |
+
+### 条款识别优先级
+
+```
+1. ❌ 排除列表 (excluded_titles.json) - 最高优先级，一律跳过
+2. ✅ is_likely_title 规则（条款/Clause等关键词）
+3. ✅ 已映射条款名称（clause_mappings.json）
+4. ✅ Heading 样式段落
+5. ✅ 英文特殊条款关键词
+```
+
+### 从报告导入详细统计（v18.5）
+
+从报告导入映射时，显示详细的导入统计：
+
+```
+导入完成！
+
+• 新增: 15 条
+• 更新: 3 条（覆盖已有映射）
+• 相同: 42 条（已存在且相同）
+• 跳过: 5 条（空值或无效）
+```
+
+### v18.3 功能回顾
+
+**匹配模式选择：**
 
 | 模式 | 效果 |
 |------|------|
-| 🔄 自动检测 | 系统根据文档结构自动判断是纯标题还是完整内容 |
-| 📝 纯标题模式 | 强制只按条款标题进行匹配，忽略正文内容 |
-| 📄 完整内容模式 | 强制同时考虑标题和正文进行匹配 |
+| 🔄 自动检测 | 系统根据文档结构自动判断 |
+| 📝 纯标题模式 | 只按条款标题匹配 |
+| 📄 完整内容模式 | 同时考虑标题和正文 |
 
-**使用场景：**
-
-- 自动检测结果不准确时，手动选择正确模式
-- 文档有正文但只想按标题匹配时，选择"纯标题模式"
-- 系统判断为纯标题但实际有内容时，选择"完整内容模式"
-
-### 特殊长条款识别
-
-系统现在可以识别以下特殊长条款：
-
+**特殊长条款识别：**
 ```
 兹经双方同意，责任免除第七条（七）修改为...
 由于供应水、电、气及其他能源设备...
 ```
-
-这些条款虽然看起来像正文内容，但会被正确识别为条款标题。
-
-### 网页版性能优化
-
-- 异步批量处理，避免大文件导致浏览器卡顿
-- 每批处理10条条款，保持UI响应
 
 ---
 
@@ -400,7 +461,24 @@ python3 Clause_Comparison_Assistant.py
 
 1. 点击【📥 从报告导入】按钮
 2. 选择已修正的比对报告Excel文件
-3. 确认导入
+3. 查看导入统计，确认导入
+
+**v18.5 导入统计（新功能）：**
+
+导入完成后会显示详细统计：
+- **新增**：新导入的映射数量
+- **更新**：覆盖已有映射的数量
+- **相同**：已存在且完全相同的数量（无需更新）
+- **跳过**：空值或无效的条目数量
+
+```
+导入完成！
+
+• 新增: 15 条
+• 更新: 3 条
+• 相同: 42 条（已存在且相同）
+• 跳过: 5 条（空值或无效）
+```
 
 **自动清理功能：**
 
@@ -1034,12 +1112,28 @@ def _calculate_combined_score(self, title_score, content_score, is_title_only):
 
 ### 附录E：配置文件格式
 
-**clause_mappings.json**
+**clause_mappings.json**（用户映射）
 ```json
 {
   "72小时条款": "企业财产保险附加时间调整（72小时）条款",
   "罢工": "企业财产保险附加罢工、暴动、民众骚乱条款",
   "地震": "企业财产保险附加地震扩展条款"
+}
+```
+
+**excluded_titles.json**（排除词汇列表，v18.4+）
+```json
+{
+  "version": "1.0",
+  "description": "排除词汇列表 - 这些词汇不会被识别为条款标题",
+  "titles": [
+    "EXCLUSIONS",
+    "GENERAL PROVISION",
+    "SCOPE OF COVER",
+    "机器损坏保险条款",
+    "财产一切险条款",
+    "营业中断保险条款"
+  ]
 }
 ```
 
@@ -1059,6 +1153,8 @@ def _calculate_combined_score(self, title_score, content_score, is_title_only):
 
 | 版本 | 日期 | 更新内容 |
 |------|------|---------|
+| v18.5 | 2026-01-25 | 已映射条款优先识别、排除列表优先级修复、导入详细统计 |
+| v18.4 | 2026-01-24 | 排除列表功能、Heading样式识别、英文特殊条款关键词 |
 | v18.3 | 2026-01-24 | 匹配模式选择（自动/纯标题/完整内容） |
 | v18.2 | 2026-01-23 | 特殊长条款识别、网页版异步处理优化 |
 | v18.1 | 2026-01-22 | 特殊规则匹配（三停损失、责任免除修改等） |
@@ -1072,6 +1168,6 @@ def _calculate_combined_score(self, title_score, content_score, is_title_only):
 **Clause Comparison Assistant** - 让条款比对更智能
 
 *Author: Dachi Yijin*
-*Version: 18.3*
+*Version: 18.5*
 *Main Script: Clause_Comparison_Assistant.py*
 *Web Version: clause_toolkit_integrated.html*
