@@ -5810,30 +5810,43 @@ class ClauseComparisonAssistant(QMainWindow):
         """)
         self.start_btn.clicked.connect(self._start_process)
 
-        self.batch_btn = QPushButton("📦 批量处理")
-        self.batch_btn.setCursor(Qt.PointingHandCursor)
-        self.batch_btn.setMinimumHeight(52)
-        self.batch_btn.setStyleSheet(f"""
+        # v18.4: 取消比对按钮（替代原批量处理按钮）
+        self.cancel_btn = QPushButton("⛔ 取消比对")
+        self.cancel_btn.setCursor(Qt.PointingHandCursor)
+        self.cancel_btn.setMinimumHeight(52)
+        self.cancel_btn.setEnabled(False)  # 默认禁用
+        self.cancel_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent; color: #e74c3c;
+                font-size: 14px; font-weight: 500;
+                border-radius: 8px; border: 1px solid #e74c3c;
+            }}
+            QPushButton:hover {{ background: #e74c3c; color: white; }}
+            QPushButton:disabled {{ color: {AnthropicColors.BORDER}; border-color: {AnthropicColors.BORDER}; }}
+        """)
+        self.cancel_btn.clicked.connect(self._cancel_process)
+
+        # 普通按钮样式
+        normal_btn_style = f"""
             QPushButton {{
                 background: transparent; color: {AnthropicColors.TEXT_PRIMARY};
                 font-size: 14px; font-weight: 500;
                 border-radius: 8px; border: 1px solid {AnthropicColors.BG_DARK};
             }}
             QPushButton:hover {{ background: {AnthropicColors.BG_DARK}; color: {AnthropicColors.TEXT_LIGHT}; }}
-        """)
-        self.batch_btn.clicked.connect(self._show_batch_dialog)
+        """
 
         self.add_btn = QPushButton("🔧 映射设置")
         self.add_btn.setCursor(Qt.PointingHandCursor)
         self.add_btn.setMinimumHeight(52)
-        self.add_btn.setStyleSheet(self.batch_btn.styleSheet())
+        self.add_btn.setStyleSheet(normal_btn_style)
         self.add_btn.clicked.connect(self._show_add_mapping_dialog)
 
         # v17.1: 条款查询按钮
         self.query_btn = QPushButton("🔍 条款查询")
         self.query_btn.setCursor(Qt.PointingHandCursor)
         self.query_btn.setMinimumHeight(52)
-        self.query_btn.setStyleSheet(self.batch_btn.styleSheet())
+        self.query_btn.setStyleSheet(normal_btn_style)
         self.query_btn.clicked.connect(self._show_query_dialog)
 
         self.open_btn = QPushButton("📂 打开目录")
@@ -5852,7 +5865,7 @@ class ClauseComparisonAssistant(QMainWindow):
         self.open_btn.clicked.connect(self._open_output_folder)
 
         btn_layout.addWidget(self.start_btn, 3)
-        btn_layout.addWidget(self.batch_btn, 1)
+        btn_layout.addWidget(self.cancel_btn, 1)
         btn_layout.addWidget(self.add_btn, 1)
         btn_layout.addWidget(self.query_btn, 1)  # v17.1: 条款查询
         btn_layout.addWidget(self.open_btn, 1)
@@ -6129,37 +6142,9 @@ class ClauseComparisonAssistant(QMainWindow):
         self.start_btn.setText("🚀 开始比对" if enabled else "⏳ 处理中...")
         self.progress_bar.setVisible(not enabled)
 
-        # v18.4: 处理中时，批量处理按钮变为取消按钮
-        if enabled:
-            self.batch_btn.setText("📦 批量处理")
-            self.batch_btn.setStyleSheet(f"""
-                QPushButton {{
-                    background: transparent; color: {AnthropicColors.TEXT_PRIMARY};
-                    font-size: 14px; font-weight: 500;
-                    border-radius: 8px; border: 1px solid {AnthropicColors.BG_DARK};
-                }}
-                QPushButton:hover {{ background: {AnthropicColors.BG_DARK}; color: {AnthropicColors.TEXT_LIGHT}; }}
-            """)
-            try:
-                self.batch_btn.clicked.disconnect()
-            except:
-                pass
-            self.batch_btn.clicked.connect(self._show_batch_dialog)
-        else:
-            self.batch_btn.setText("⛔ 取消比对")
-            self.batch_btn.setStyleSheet(f"""
-                QPushButton {{
-                    background: transparent; color: #e74c3c;
-                    font-size: 14px; font-weight: 500;
-                    border-radius: 8px; border: 1px solid #e74c3c;
-                }}
-                QPushButton:hover {{ background: #e74c3c; color: white; }}
-            """)
-            try:
-                self.batch_btn.clicked.disconnect()
-            except:
-                pass
-            self.batch_btn.clicked.connect(self._cancel_process)
+        # v18.4: 取消按钮 - 空闲时禁用，处理中时启用
+        self.cancel_btn.setEnabled(not enabled)
+        if not enabled:
             self.progress_bar.setValue(0)
 
     def _cancel_process(self):
