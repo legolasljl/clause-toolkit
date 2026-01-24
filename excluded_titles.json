@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "description": "排除词汇列表 - 这些词汇（忽略编号和大小写后完全匹配）不会被识别为条款标题",
   "usage": "添加新词汇时，直接在 titles 数组中添加即可，不区分大小写",
   "titles": [
@@ -44,20 +44,7 @@
     "PROPERTY ALL RISKS INSURANCE POLICY",
     "（ORIGINAL）",
     "PROPERTY ALL RISKS INSURANCE CLAUSES",
-    "GENERAL PROVISION",
-    "PROPERTY INSURED",
-    "SCOPE OF COVER",
-    "EXCLUSIONS",
     "INSURED VALUE, SUM INSURED, AND DEDUCTIBLE",
-    "PERIOD OF INSURANCE",
-    "OBLIGATIONS OF THE INSURER",
-    "OBLIGATIONS OF THE APPLICANT AND/OR INSURED",
-    "LOSS SETTLEMENT",
-    "DISPUTE RESOLUTION AND JURISDICTION",
-    "MISCELLANEOUS",
-    "LANGUAGE",
-    "DEFINITIONS",
-    "APPENDIX",
     "财产一切险条款",
     "BUSINESS INTERRUPTION INSURANCE",
     "FOLLOWING PROPERTY ALL RISKS INSURANCE POLICY",
@@ -72,7 +59,7 @@
     "MACHINERY BREAKDOWN INSURANCE CLAUSES",
     "SUM INSURED AND DEDUCTIBLE(S)",
     "保单文本中列明的除外条款",
-    " McLarens Man Yee Insurance Adjusters Co., Ltd.深圳市万宜麦理伦保险公估有限公司",
+    "McLarens Man Yee Insurance Adjusters Co., Ltd.深圳市万宜麦理伦保险公估有限公司",
     "机器损坏保险条款"
   ]
 }

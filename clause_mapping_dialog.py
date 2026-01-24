@@ -446,19 +446,11 @@ class ClauseMappingDialog(QDialog):
             return
 
         try:
-            # v18.5: 使用详细统计返回值
-            result = self.manager.import_from_corrected_report(
+            # v18.5: 返回详细统计 (new_count, update_count, same_count, skipped)
+            new_count, update_count, same_count, skipped = self.manager.import_from_corrected_report(
                 file_path,
                 clean_names=True  # 自动清理条款名称
             )
-
-            # 兼容旧版返回值格式
-            if len(result) == 4:
-                new_count, update_count, same_count, skipped = result
-            else:
-                # 旧版: (imported, skipped)
-                new_count, skipped = result
-                update_count, same_count = 0, 0
 
             total_imported = new_count + update_count
 

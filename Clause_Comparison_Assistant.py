@@ -2367,7 +2367,7 @@ class ClauseMatcherLogic:
                 if text.lower().startswith(content_starts):
                     continue  # 跳过这个关键词，继续检查其他
                 # 额外检查：以小写字母开头的通常是正文
-                if text[0].islower():
+                if text and text[0].islower():
                     continue
                 return True
 
@@ -2472,7 +2472,7 @@ class ClauseMatcherLogic:
                 return False
 
             # v18.4 修复7: 以小写字母开头的通常是正文内容
-            if text[0].islower():
+            if text and text[0].islower():
                 return False
 
             # v18.4 修复4: 排除以冒号结尾的全大写文本（如 WARRANTED:）

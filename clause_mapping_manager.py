@@ -388,7 +388,7 @@ class ClauseMappingManager:
             df = pd.read_excel(excel_path)
         except Exception as e:
             logger.error(f"读取报告Excel失败: {e}")
-            return 0, 0
+            return 0, 0, 0, 0  # v18.5: 修复返回值数量
 
         # 查找列名 (v18.3: 支持多种格式)
         client_col = None
@@ -419,7 +419,7 @@ class ClauseMappingManager:
 
         if not client_col or not library_col:
             logger.error(f"无法识别报告列名，需要'客户条款(原/译)'和'匹配条款库名称/匹配1_条款名称'列")
-            return 0, 0
+            return 0, 0, 0, 0  # v18.5: 修复返回值数量
 
         logger.info(f"导入列映射: 客户条款='{client_col}', 条款库='{library_col}'")
 
