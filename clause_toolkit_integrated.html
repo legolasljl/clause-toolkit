@@ -1586,6 +1586,16 @@
         .mc-control-bar button:hover {
             opacity: 0.9;
         }
+        .mc-select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .mc-select-group label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
         .mc-input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -2188,17 +2198,26 @@
             <div class="card">
                 <div class="card-title">🏢 主险费率计算器</div>
                 <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">
-                    选择费率版本和承保参数，计算雇主责任保险主险保费，并可将结果传入附加险计算。
+                    选择险种和费率版本，设置承保参数，计算主险保费，并可将结果传入附加险计算。支持 JSON/docx 导入新险种费率方案。
                 </p>
 
                 <!-- 顶部控制栏 -->
                 <div class="mc-control-bar">
-                    <select id="mc_versionSelect" onchange="mc_onVersionChange()">
-                        <option value="original">原版费率</option>
-                        <option value="v2026">2026版费率</option>
-                    </select>
-                    <button onclick="mc_triggerJsonImport()">📂 导入费率JSON</button>
-                    <input type="file" id="mc_jsonInput" class="hidden" accept=".json" onchange="mc_handleJsonImport(event)">
+                    <div class="mc-select-group">
+                        <label>险种</label>
+                        <select id="mc_productSelect" onchange="mc_onProductChange()">
+                            <option value="employerLiability">雇主责任险</option>
+                        </select>
+                    </div>
+                    <div class="mc-select-group">
+                        <label>费率版本</label>
+                        <select id="mc_versionSelect" onchange="mc_onVersionChange()">
+                            <option value="original">雇主责任险费率</option>
+                            <option value="v2026">雇主责任险（2026版）费率</option>
+                        </select>
+                    </div>
+                    <button onclick="mc_triggerImport()">📂 导入费率方案</button>
+                    <input type="file" id="mc_fileInput" class="hidden" accept=".json,.docx" onchange="mc_handleImport(event)">
                 </div>
 
                 <!-- 基本参数 -->
@@ -9713,9 +9732,12 @@ ${fileList}
         // type: 'fixed' = 固定值, 'range' = 区间值(需滑块选择)
         // range 区间: min/max, minExclusive/maxExclusive 标记开/闭区间
         // 注: 支持线性插值的表已在 note 中标注
-        const MC_RATE_PLANS = {
-            original: {
-                label: '原版费率',
+        const MC_PRODUCTS = {
+            employerLiability: {
+                productName: '雇主责任险',
+                versions: {
+                    original: {
+                        label: '雇主责任险费率',
                 baseRates: {
                     fixed:  { class1: 0.0011, class2: 0.0017, class3: 0.0029 },
                     salary: { class1: 0.0033, class2: 0.0051, class3: 0.0085 }
@@ -9881,9 +9903,9 @@ ${fileList}
                         ]
                     }
                 ]
-            },
-            v2026: {
-                label: '2026版费率',
+                    },
+                    v2026: {
+                        label: '雇主责任险（2026版）费率',
                 baseRates: {
                     fixed:  { class1: 0.0012, class2: 0.0017, class3: 0.0029 },
                     salary: { class1: 0.0035, class2: 0.0051, class3: 0.0085 }
@@ -10066,16 +10088,18 @@ ${fileList}
                             { parameter: '未投保工伤保险', value: 1.2, type: 'fixed' }
                         ]
                     }
-                ]
+                    ]
+                    }
+                }
             }
         };
 
         // --- 主险计算器状态 ---
+        let mc_selectedProduct = 'employerLiability';
         let mc_selectedVersion = 'original';
-        let mc_currentPlan = MC_RATE_PLANS.original;
+        let mc_currentPlan = MC_PRODUCTS.employerLiability.versions.original;
         let mc_coeffSelections = {};
         let mc_result = null;
-        let mc_customPlans = {};
 
         // --- 工具函数 ---
         function mc_escHtml(str) {
@@ -10125,15 +10149,20 @@ ${fileList}
             }, 3000);
         }
 
+        // --- 险种切换 ---
+        function mc_onProductChange() {
+            const sel = document.getElementById('mc_productSelect');
+            mc_selectedProduct = sel.value;
+            mc_refreshVersionSelect();
+            mc_onVersionChange();
+            mc_log('切换险种: ' + MC_PRODUCTS[mc_selectedProduct].productName, 'info');
+        }
+
         // --- 版本切换 ---
         function mc_onVersionChange() {
             const sel = document.getElementById('mc_versionSelect');
             mc_selectedVersion = sel.value;
-            if (mc_customPlans[mc_selectedVersion]) {
-                mc_currentPlan = mc_customPlans[mc_selectedVersion];
-            } else {
-                mc_currentPlan = MC_RATE_PLANS[mc_selectedVersion];
-            }
+            mc_currentPlan = MC_PRODUCTS[mc_selectedProduct].versions[mc_selectedVersion];
             mc_coeffSelections = {};
             mc_result = null;
             document.getElementById('mc_resultArea').innerHTML = '';
@@ -10142,45 +10171,395 @@ ${fileList}
             mc_log('切换费率版本: ' + mc_currentPlan.label, 'info');
         }
 
-        // --- JSON 导入 ---
-        function mc_triggerJsonImport() {
-            document.getElementById('mc_jsonInput').click();
+        // --- 刷新险种下拉 ---
+        function mc_refreshProductSelect(selectProductId) {
+            const select = document.getElementById('mc_productSelect');
+            select.innerHTML = '';
+            Object.keys(MC_PRODUCTS).forEach(function (pid) {
+                const opt = document.createElement('option');
+                opt.value = pid;
+                opt.textContent = MC_PRODUCTS[pid].productName;
+                select.appendChild(opt);
+            });
+            if (selectProductId && MC_PRODUCTS[selectProductId]) {
+                select.value = selectProductId;
+                mc_selectedProduct = selectProductId;
+            } else {
+                mc_selectedProduct = select.value;
+            }
         }
 
-        function mc_handleJsonImport(event) {
+        // --- 刷新版本下拉 ---
+        function mc_refreshVersionSelect(selectVersionId) {
+            const select = document.getElementById('mc_versionSelect');
+            select.innerHTML = '';
+            const product = MC_PRODUCTS[mc_selectedProduct];
+            if (!product) return;
+            Object.keys(product.versions).forEach(function (vid) {
+                const opt = document.createElement('option');
+                opt.value = vid;
+                opt.textContent = product.versions[vid].label;
+                select.appendChild(opt);
+            });
+            if (selectVersionId && product.versions[selectVersionId]) {
+                select.value = selectVersionId;
+                mc_selectedVersion = selectVersionId;
+            } else {
+                mc_selectedVersion = select.value;
+            }
+        }
+
+        // --- 统一导入入口 ---
+        function mc_triggerImport() {
+            document.getElementById('mc_fileInput').click();
+        }
+
+        function mc_handleImport(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (file.name.endsWith('.json')) {
+                mc_importJson(file);
+            } else if (file.name.endsWith('.docx')) {
+                mc_importDocx(file);
+            } else {
+                mc_showToast('不支持的文件格式，请使用 .json 或 .docx', 'error');
+            }
+            event.target.value = '';
+        }
+
+        // --- JSON 导入 ---
+        function mc_importJson(file) {
             const reader = new FileReader();
             reader.onload = function (e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (!data.label || !data.baseRates || !data.coefficients) {
-                        throw new Error('JSON 缺少必要字段: label, baseRates, coefficients');
-                    }
-                    if (!data.baseRates.fixed || !data.baseRates.salary) {
-                        throw new Error('baseRates 需包含 fixed 和 salary');
-                    }
-                    const planId = 'custom_' + Date.now();
-                    mc_customPlans[planId] = data;
-                    const select = document.getElementById('mc_versionSelect');
-                    const option = document.createElement('option');
-                    option.value = planId;
-                    option.textContent = data.label + '（自定义）';
-                    select.appendChild(option);
-                    select.value = planId;
-                    mc_selectedVersion = planId;
-                    mc_currentPlan = data;
-                    mc_coeffSelections = {};
-                    mc_renderCoefficients();
-                    mc_log('导入自定义费率: ' + data.label + '，包含 ' + data.coefficients.length + ' 个系数表', 'success');
-                    mc_showToast('导入成功: ' + data.label, 'success');
+                    mc_processImportedData(data);
                 } catch (err) {
                     mc_log('JSON 导入失败: ' + err.message, 'error');
                     mc_showToast('导入失败: ' + err.message, 'error');
                 }
             };
             reader.readAsText(file);
-            event.target.value = '';
+        }
+
+        // --- 处理导入数据（新旧格式兼容） ---
+        function mc_processImportedData(data) {
+            var productId, productName, versions;
+
+            if (data.productName) {
+                // 新格式：含 productName
+                productId = data.productId || ('custom_' + Date.now());
+                productName = data.productName;
+                versions = {};
+                if (Array.isArray(data.versions)) {
+                    data.versions.forEach(function (v, idx) {
+                        var vid = v.versionId || ('v' + (idx + 1));
+                        if (!v.label || !v.baseRates || !v.coefficients) {
+                            throw new Error('版本 ' + vid + ' 缺少必要字段: label, baseRates, coefficients');
+                        }
+                        versions[vid] = {
+                            label: v.label,
+                            baseRates: v.baseRates,
+                            coefficients: v.coefficients
+                        };
+                    });
+                } else {
+                    throw new Error('新格式 JSON 需包含 versions 数组');
+                }
+            } else {
+                // 旧格式：单个费率方案，兼容包装
+                if (!data.label || !data.baseRates || !data.coefficients) {
+                    throw new Error('JSON 缺少必要字段: label, baseRates, coefficients');
+                }
+                if (!data.baseRates.fixed || !data.baseRates.salary) {
+                    throw new Error('baseRates 需包含 fixed 和 salary');
+                }
+                productId = 'custom_' + Date.now();
+                productName = data.label;
+                versions = {};
+                versions['v1'] = {
+                    label: data.label,
+                    baseRates: data.baseRates,
+                    coefficients: data.coefficients
+                };
+            }
+
+            // 合并或新增到 MC_PRODUCTS
+            var firstNewVersion;
+            if (MC_PRODUCTS[productId]) {
+                // 已存在的险种：追加版本
+                var existing = MC_PRODUCTS[productId];
+                Object.keys(versions).forEach(function (vid) {
+                    var finalVid = vid;
+                    if (existing.versions[vid]) {
+                        finalVid = vid + '_' + Date.now();
+                    }
+                    existing.versions[finalVid] = versions[vid];
+                    if (!firstNewVersion) firstNewVersion = finalVid;
+                });
+                mc_log('向险种 [' + existing.productName + '] 追加了 ' + Object.keys(versions).length + ' 个新版本', 'success');
+            } else {
+                // 新险种
+                MC_PRODUCTS[productId] = {
+                    productName: productName,
+                    versions: versions
+                };
+                firstNewVersion = Object.keys(versions)[0];
+                mc_log('导入新险种: ' + productName + '，包含 ' + Object.keys(versions).length + ' 个版本', 'success');
+            }
+
+            // 刷新下拉并选中
+            mc_refreshProductSelect(productId);
+            mc_refreshVersionSelect(firstNewVersion);
+            mc_onVersionChange();
+            mc_showToast('导入成功: ' + productName, 'success');
+        }
+
+        // --- Docx 导入 ---
+        function mc_importDocx(file) {
+            mc_log('正在解析 docx 文件: ' + file.name, 'info');
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                var arrayBuffer = e.target.result;
+                if (typeof mammoth === 'undefined') {
+                    mc_log('mammoth.js 未加载，无法解析 docx', 'error');
+                    mc_showToast('docx 解析库未加载，请使用 JSON 格式', 'error');
+                    return;
+                }
+                mammoth.extractRawText({ arrayBuffer: arrayBuffer }).then(function (result) {
+                    var text = result.value;
+                    if (!text || text.trim().length === 0) {
+                        mc_log('docx 文件内容为空', 'error');
+                        mc_showToast('docx 文件内容为空', 'error');
+                        return;
+                    }
+                    try {
+                        var parsed = mc_parseRatePlanText(text);
+                        mc_showDocxConfirmDialog(parsed, file.name);
+                    } catch (err) {
+                        mc_log('docx 解析失败: ' + err.message, 'error');
+                        mc_showToast('docx 解析失败，请改用 JSON 格式导入', 'error');
+                    }
+                }).catch(function (err) {
+                    mc_log('docx 读取失败: ' + err.message, 'error');
+                    mc_showToast('docx 读取失败: ' + err.message, 'error');
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- 文本解析器：从费率方案文本提取结构化数据 ---
+        function mc_parseRatePlanText(text) {
+            var lines = text.split('\n').map(function (l) { return l.trim(); }).filter(function (l) { return l.length > 0; });
+            if (lines.length < 5) throw new Error('文本行数过少，无法解析');
+
+            // 1. 提取险种名称（从第一行或标题行）
+            var productName = '未知险种';
+            for (var i = 0; i < Math.min(5, lines.length); i++) {
+                if (lines[i].indexOf('费率') !== -1 || lines[i].indexOf('保险') !== -1) {
+                    productName = lines[i].replace(/费率方案|费率表|附件[:：]?\s*/g, '').trim();
+                    if (productName.length > 20) productName = productName.substring(0, 20);
+                    break;
+                }
+            }
+
+            // 2. 提取基准费率
+            var baseRates = { fixed: {}, salary: {} };
+            var ratePattern = /[第]?([一二三1-3])[类].*?(\d+\.?\d*)\s*[%‰％]/g;
+            var classMap = { '一': 'class1', '二': 'class2', '三': 'class3', '1': 'class1', '2': 'class2', '3': 'class3' };
+            var fullText = lines.join('\n');
+
+            // 查找固定限额费率段
+            var fixedSection = fullText.match(/固定[赔偿]*限额[\s\S]*?(?=工资|$)/i);
+            if (fixedSection) {
+                var match;
+                while ((match = ratePattern.exec(fixedSection[0])) !== null) {
+                    var cls = classMap[match[1]];
+                    if (cls) {
+                        var val = parseFloat(match[2]);
+                        baseRates.fixed[cls] = match[0].indexOf('‰') !== -1 ? val / 1000 : val / 100;
+                    }
+                }
+            }
+            ratePattern.lastIndex = 0;
+
+            // 查找工资收入费率段
+            var salarySection = fullText.match(/工资[收入]*[\s\S]*?(?=费率调整|调整系数|$)/i);
+            if (salarySection) {
+                var match2;
+                while ((match2 = ratePattern.exec(salarySection[0])) !== null) {
+                    var cls2 = classMap[match2[1]];
+                    if (cls2) {
+                        var val2 = parseFloat(match2[2]);
+                        baseRates.salary[cls2] = match2[0].indexOf('‰') !== -1 ? val2 / 1000 : val2 / 100;
+                    }
+                }
+            }
+
+            // 验证至少有一种计费方式的费率
+            var hasFixed = Object.keys(baseRates.fixed).length > 0;
+            var hasSalary = Object.keys(baseRates.salary).length > 0;
+            if (!hasFixed && !hasSalary) {
+                throw new Error('未能从文本中提取到基准费率数据');
+            }
+            // 如果只有一种，复制到另一种作为备用
+            if (!hasFixed) baseRates.fixed = Object.assign({}, baseRates.salary);
+            if (!hasSalary) baseRates.salary = Object.assign({}, baseRates.fixed);
+
+            // 3. 提取系数表
+            var coefficients = [];
+            // 按编号段落分割
+            var coeffPattern = /(?:（[一二三四五六七八九十]+）|\d+[、.．])\s*(.+?)(?:调整系数|系数)/g;
+            var coeffMatch;
+            var coeffPositions = [];
+            while ((coeffMatch = coeffPattern.exec(fullText)) !== null) {
+                coeffPositions.push({
+                    name: coeffMatch[1].trim() + '调整系数',
+                    index: coeffMatch.index
+                });
+            }
+
+            coeffPositions.forEach(function (cp, idx) {
+                var endIdx = idx < coeffPositions.length - 1 ? coeffPositions[idx + 1].index : fullText.length;
+                var section = fullText.substring(cp.index, endIdx);
+
+                var rows = [];
+                // 匹配参数行：参数描述 + 数字值
+                var rowPattern = /([^\d\n]+?)\s+([\d.]+)\s*$/gm;
+                var rangePattern = /([^\d\n]+?)\s+\[([\d.]+)\s*[,，]\s*([\d.]+)\]/gm;
+                var rowMatch;
+
+                // 先匹配区间值
+                while ((rowMatch = rangePattern.exec(section)) !== null) {
+                    rows.push({
+                        parameter: rowMatch[1].trim(),
+                        min: parseFloat(rowMatch[2]),
+                        max: parseFloat(rowMatch[3]),
+                        type: 'range'
+                    });
+                }
+
+                // 再匹配固定值
+                while ((rowMatch = rowPattern.exec(section)) !== null) {
+                    var param = rowMatch[1].trim();
+                    if (param.length > 0 && param.length < 50) {
+                        var isDuplicate = rows.some(function (r) { return r.parameter === param; });
+                        if (!isDuplicate) {
+                            rows.push({
+                                parameter: param,
+                                value: parseFloat(rowMatch[2]),
+                                type: 'fixed'
+                            });
+                        }
+                    }
+                }
+
+                if (rows.length > 0) {
+                    coefficients.push({
+                        id: 'imported_' + idx,
+                        name: cp.name,
+                        applicableTo: ['fixed', 'salary'],
+                        rows: rows
+                    });
+                }
+            });
+
+            return {
+                productName: productName,
+                label: productName + '费率',
+                baseRates: baseRates,
+                coefficients: coefficients
+            };
+        }
+
+        // --- Docx 导入确认对话框 ---
+        function mc_showDocxConfirmDialog(parsed, fileName) {
+            var resultArea = document.getElementById('mc_resultArea');
+            var html = '<div class="card" style="border: 2px solid var(--warning-color);">';
+            html += '<div class="card-title">📄 Docx 解析结果确认</div>';
+            html += '<p style="margin-bottom:12px;color:var(--text-secondary);">文件: ' + mc_escHtml(fileName) + '</p>';
+
+            html += '<div class="mc-input-group" style="margin-bottom:12px;">';
+            html += '<label>险种名称</label>';
+            html += '<input type="text" id="mc_docxProductName" value="' + mc_escHtml(parsed.productName) + '" style="height:36px;border-radius:8px;border:1px solid var(--border-color);padding:0 12px;font-size:13px;">';
+            html += '</div>';
+
+            // 基准费率摘要
+            html += '<div style="margin-bottom:12px;">';
+            html += '<strong>基准费率：</strong><br>';
+            var fixedKeys = Object.keys(parsed.baseRates.fixed);
+            var salaryKeys = Object.keys(parsed.baseRates.salary);
+            if (fixedKeys.length > 0) {
+                html += '固定限额 — ';
+                fixedKeys.forEach(function (k) {
+                    html += k + ': ' + (parsed.baseRates.fixed[k] * 100).toFixed(4) + '%  ';
+                });
+                html += '<br>';
+            }
+            if (salaryKeys.length > 0) {
+                html += '工资收入 — ';
+                salaryKeys.forEach(function (k) {
+                    html += k + ': ' + (parsed.baseRates.salary[k] * 100).toFixed(4) + '%  ';
+                });
+                html += '<br>';
+            }
+            html += '</div>';
+
+            // 系数表摘要
+            html += '<div style="margin-bottom:16px;">';
+            html += '<strong>系数表（' + parsed.coefficients.length + ' 个）：</strong><br>';
+            parsed.coefficients.forEach(function (c) {
+                html += '• ' + mc_escHtml(c.name) + '（' + c.rows.length + ' 行）<br>';
+            });
+            if (parsed.coefficients.length === 0) {
+                html += '<span style="color:var(--warning-color);">⚠ 未检测到系数表，可能需要手动补充</span>';
+            }
+            html += '</div>';
+
+            html += '<div style="display:flex;gap:12px;">';
+            html += '<button class="btn btn-primary" onclick="mc_confirmDocxImport()">✅ 确认导入</button>';
+            html += '<button class="btn" onclick="mc_cancelDocxImport()">❌ 取消</button>';
+            html += '</div>';
+            html += '</div>';
+
+            // 将解析数据存储在临时变量
+            window._mc_pendingDocxData = parsed;
+            resultArea.innerHTML = html;
+        }
+
+        function mc_confirmDocxImport() {
+            var parsed = window._mc_pendingDocxData;
+            if (!parsed) return;
+            var nameInput = document.getElementById('mc_docxProductName');
+            if (nameInput && nameInput.value.trim()) {
+                parsed.productName = nameInput.value.trim();
+                parsed.label = parsed.productName + '费率';
+            }
+
+            var importData = {
+                productName: parsed.productName,
+                productId: 'docx_' + Date.now(),
+                versions: [{
+                    versionId: 'v1',
+                    label: parsed.label,
+                    baseRates: parsed.baseRates,
+                    coefficients: parsed.coefficients
+                }]
+            };
+
+            try {
+                mc_processImportedData(importData);
+            } catch (err) {
+                mc_log('Docx 导入处理失败: ' + err.message, 'error');
+                mc_showToast('导入处理失败: ' + err.message, 'error');
+            }
+            delete window._mc_pendingDocxData;
+        }
+
+        function mc_cancelDocxImport() {
+            delete window._mc_pendingDocxData;
+            document.getElementById('mc_resultArea').innerHTML = '';
+            mc_log('已取消 docx 导入', 'info');
         }
 
         // --- 计费方式切换 ---
@@ -10536,7 +10915,7 @@ ${fileList}
             mc_showToast('已将主险保费 ' + mc_fmtCurrency(mc_result.totalPremium) + ' 传入附加险计算', 'success');
         }
 
-        // --- 重置 ---
+        // --- 重置（保持险种/版本选择不变） ---
         function mc_reset() {
             mc_coeffSelections = {};
             mc_result = null;
@@ -10553,7 +10932,7 @@ ${fileList}
             document.getElementById('mc_annualSalaryGroup').style.display = 'none';
             document.getElementById('mc_daysGroup').style.display = 'none';
             mc_renderCoefficients();
-            mc_log('已重置所有参数', 'info');
+            mc_log('已重置参数和系数选择（险种/版本不变）', 'info');
         }
 
     </script>
