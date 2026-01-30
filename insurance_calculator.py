@@ -623,3 +623,664 @@ def make_success_button(text):
         }}
     """)
     return btn
+
+
+# =============================================
+# MainInsuranceTab — 主险计算器
+# =============================================
+
+class MainInsuranceTab(QWidget):
+    """主险计算器 Tab"""
+    premium_calculated = pyqtSignal(float, float)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.selected_product = "employerLiability"
+        self.selected_version = "original"
+        self.current_plan = MC_PRODUCTS["employerLiability"]["versions"]["original"]
+        self.coeff_selections = {}
+        self.selected_disability_table = "none"
+        self.selected_disability_option = -1
+        self.result = None
+        self._setup_ui()
+
+    def _setup_ui(self):
+        self.setStyleSheet(get_common_styles())
+        main_layout = QVBoxLayout(self)
+        main_layout.setSpacing(12)
+        main_layout.setContentsMargins(15, 10, 15, 10)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll_widget = QWidget()
+        self.scroll_layout = QVBoxLayout(scroll_widget)
+        self.scroll_layout.setSpacing(12)
+        scroll.setWidget(scroll_widget)
+        main_layout.addWidget(scroll, 1)
+
+        self._build_control_bar()
+        self._build_params_section()
+        self._build_disability_section()
+        self._build_coeff_section()
+        self._build_action_buttons()
+        self._build_result_section()
+        self._build_log_section()
+        self.scroll_layout.addStretch()
+
+    def _build_control_bar(self):
+        card = GlassCard()
+        layout = QHBoxLayout(card)
+        layout.setContentsMargins(16, 12, 16, 12)
+        layout.addWidget(QLabel("险种:"))
+        self.product_combo = QComboBox()
+        for pid, pdata in MC_PRODUCTS.items():
+            self.product_combo.addItem(pdata["productName"], pid)
+        self.product_combo.currentIndexChanged.connect(self._on_product_change)
+        layout.addWidget(self.product_combo)
+        layout.addWidget(QLabel("版本:"))
+        self.version_combo = QComboBox()
+        self._refresh_version_combo()
+        self.version_combo.currentIndexChanged.connect(self._on_version_change)
+        layout.addWidget(self.version_combo)
+        layout.addStretch()
+        import_btn = QPushButton("📂 导入费率方案")
+        import_btn.setCursor(Qt.PointingHandCursor)
+        import_btn.clicked.connect(self._import_rate_plan)
+        layout.addWidget(import_btn)
+        self.scroll_layout.addWidget(card)
+
+    def _refresh_version_combo(self, select_version=None):
+        self.version_combo.blockSignals(True)
+        self.version_combo.clear()
+        product = MC_PRODUCTS.get(self.selected_product)
+        if product:
+            for vid, vdata in product["versions"].items():
+                self.version_combo.addItem(vdata["label"], vid)
+        if select_version:
+            idx = self.version_combo.findData(select_version)
+            if idx >= 0:
+                self.version_combo.setCurrentIndex(idx)
+        self.version_combo.blockSignals(False)
+        self.selected_version = self.version_combo.currentData() or "original"
+        self.current_plan = MC_PRODUCTS.get(self.selected_product, {}).get("versions", {}).get(self.selected_version, {})
+
+    def _on_product_change(self):
+        self.selected_product = self.product_combo.currentData()
+        self._refresh_version_combo()
+        self._on_version_change()
+        self._log(f"切换险种: {MC_PRODUCTS[self.selected_product]['productName']}")
+
+    def _on_version_change(self):
+        self.selected_version = self.version_combo.currentData() or "original"
+        product = MC_PRODUCTS.get(self.selected_product, {})
+        self.current_plan = product.get("versions", {}).get(self.selected_version, {})
+        self.coeff_selections = {}
+        self.result = None
+        self._clear_result()
+        self._render_coefficients()
+        if self.current_plan:
+            self._log(f"切换版本: {self.current_plan.get('label', '')}")
+
+    def _build_params_section(self):
+        card = GlassCard()
+        grid = QGridLayout(card)
+        grid.setContentsMargins(16, 12, 16, 12)
+        grid.setSpacing(10)
+
+        grid.addWidget(QLabel("行业类别:"), 0, 0)
+        self.industry_combo = QComboBox()
+        self.industry_combo.addItem("一类行业", "class1")
+        self.industry_combo.addItem("二类行业", "class2")
+        self.industry_combo.addItem("三类行业", "class3")
+        grid.addWidget(self.industry_combo, 0, 1)
+
+        grid.addWidget(QLabel("计费方式:"), 0, 2)
+        self.method_combo = QComboBox()
+        self.method_combo.addItem("固定限额", "fixed")
+        self.method_combo.addItem("工资总额", "salary")
+        self.method_combo.currentIndexChanged.connect(self._on_method_change)
+        grid.addWidget(self.method_combo, 0, 3)
+
+        self.limit_label = QLabel("每人限额(万元):")
+        grid.addWidget(self.limit_label, 1, 0)
+        self.limit_spin = QDoubleSpinBox()
+        self.limit_spin.setRange(1, 10000)
+        self.limit_spin.setValue(50)
+        self.limit_spin.setDecimals(2)
+        self.limit_spin.setSuffix(" 万元")
+        grid.addWidget(self.limit_spin, 1, 1)
+
+        self.salary_label = QLabel("年度工资总额(元):")
+        grid.addWidget(self.salary_label, 1, 2)
+        self.salary_spin = QDoubleSpinBox()
+        self.salary_spin.setRange(0, 999999999999)
+        self.salary_spin.setValue(5000000)
+        self.salary_spin.setDecimals(2)
+        self.salary_spin.setSuffix(" 元")
+        grid.addWidget(self.salary_spin, 1, 3)
+        self.salary_label.hide()
+        self.salary_spin.hide()
+
+        grid.addWidget(QLabel("承保人数:"), 2, 0)
+        self.count_spin = QSpinBox()
+        self.count_spin.setRange(1, 999999)
+        self.count_spin.setValue(100)
+        self.count_spin.setSuffix(" 人")
+        grid.addWidget(self.count_spin, 2, 1)
+
+        grid.addWidget(QLabel("保险期间:"), 2, 2)
+        self.term_combo = QComboBox()
+        self.term_combo.addItem("年度", "annual")
+        self.term_combo.addItem("短期", "short")
+        self.term_combo.currentIndexChanged.connect(self._on_term_change)
+        grid.addWidget(self.term_combo, 2, 3)
+
+        self.days_label = QLabel("保险天数:")
+        grid.addWidget(self.days_label, 3, 0)
+        self.days_spin = QSpinBox()
+        self.days_spin.setRange(1, 365)
+        self.days_spin.setValue(180)
+        self.days_spin.setSuffix(" 天")
+        grid.addWidget(self.days_spin, 3, 1)
+        self.days_label.hide()
+        self.days_spin.hide()
+        self.scroll_layout.addWidget(card)
+
+    def _on_method_change(self):
+        is_fixed = self.method_combo.currentData() == "fixed"
+        self.limit_label.setVisible(is_fixed)
+        self.limit_spin.setVisible(is_fixed)
+        self.salary_label.setVisible(not is_fixed)
+        self.salary_spin.setVisible(not is_fixed)
+        self.coeff_selections = {}
+        self._render_coefficients()
+        self._log(f"切换计费方式: {'固定限额' if is_fixed else '工资总额'}")
+
+    def _on_term_change(self):
+        is_short = self.term_combo.currentData() == "short"
+        self.days_label.setVisible(is_short)
+        self.days_spin.setVisible(is_short)
+
+    def _build_disability_section(self):
+        card = GlassCard()
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(16, 12, 16, 12)
+        row = QHBoxLayout()
+        row.addWidget(QLabel("伤残赔偿比例附表:"))
+        self.disability_combo = QComboBox()
+        self.disability_combo.addItem("不使用", "none")
+        for tid, tdata in MC_DISABILITY_TABLES.items():
+            self.disability_combo.addItem(tdata["label"], tid)
+        self.disability_combo.currentIndexChanged.connect(self._on_disability_table_change)
+        row.addWidget(self.disability_combo)
+        row.addStretch()
+        layout.addLayout(row)
+
+        self.disability_display = QLabel("")
+        self.disability_display.setWordWrap(True)
+        self.disability_display.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
+        self.disability_display.hide()
+        layout.addWidget(self.disability_display)
+
+        self.disability_options_area = QWidget()
+        self.disability_options_layout = QVBoxLayout(self.disability_options_area)
+        self.disability_options_layout.setContentsMargins(0, 0, 0, 0)
+        self.disability_options_area.hide()
+        layout.addWidget(self.disability_options_area)
+        self.scroll_layout.addWidget(card)
+
+    def _on_disability_table_change(self):
+        self.selected_disability_table = self.disability_combo.currentData()
+        self.selected_disability_option = -1
+        if self.selected_disability_table == "none":
+            self.disability_display.hide()
+            self.disability_options_area.hide()
+            self._render_coefficients()
+            self._log("已关闭伤残赔偿比例附表")
+            return
+        tbl = MC_DISABILITY_TABLES[self.selected_disability_table]
+        lines = [f"📋 {tbl['label']} 伤残赔偿比例:"]
+        for r in tbl["ratios"]:
+            lines.append(f"  {r['level']}: {r['pct']}%")
+        self.disability_display.setText("\n".join(lines))
+        self.disability_display.show()
+        self._render_disability_options()
+        self.disability_options_area.show()
+        self._render_coefficients()
+        self._log(f"选择伤残赔偿比例: {tbl['label']}")
+
+    def _render_disability_options(self):
+        while self.disability_options_layout.count():
+            item = self.disability_options_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        if self.selected_disability_table == "none":
+            return
+        title = QLabel("附加伤残赔偿金赔偿限额比例调整系数")
+        title.setStyleSheet(f"font-weight: 600; color: {AnthropicColors.ACCENT}; font-size: 14px;")
+        self.disability_options_layout.addWidget(title)
+        for group_name in ["A", "B", "C"]:
+            group_label = QLabel(f"{group_name}组 · 一级100% {MC_DISABILITY_GROUP_DESC[group_name]}")
+            group_label.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_SECONDARY}; margin-top: 8px;")
+            self.disability_options_layout.addWidget(group_label)
+            for idx, opt in enumerate(MC_DISABILITY_ADDON_OPTIONS):
+                if opt["group"] != group_name:
+                    continue
+                coeff_val = opt["coeff"][self.selected_disability_table]
+                is_selected = self.selected_disability_option == idx
+                btn = QPushButton(f"九级{opt['p9']}% 十级{opt['p10']}%  →  系数 {fmt_num(coeff_val, 3)}")
+                btn.setCursor(Qt.PointingHandCursor)
+                bg = AnthropicColors.ACCENT if is_selected else AnthropicColors.BG_PRIMARY
+                fg = AnthropicColors.TEXT_LIGHT if is_selected else AnthropicColors.TEXT_PRIMARY
+                btn.setStyleSheet(f"""
+                    QPushButton {{ background: {bg}; color: {fg}; border: 1px solid {AnthropicColors.BORDER};
+                        border-radius: 6px; padding: 6px 12px; font-size: 12px; text-align: left; }}
+                    QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; }}
+                """)
+                btn.clicked.connect(lambda checked, i=idx: self._select_disability_option(i))
+                self.disability_options_layout.addWidget(btn)
+
+    def _select_disability_option(self, idx):
+        self.selected_disability_option = idx
+        self._render_disability_options()
+        self._render_coefficients()
+        opt = MC_DISABILITY_ADDON_OPTIONS[idx]
+        self._log(f"选择伤残方案: {opt['label']} → 系数 {fmt_num(opt['coeff'][self.selected_disability_table], 3)}")
+
+    def _build_coeff_section(self):
+        self.coeff_container = QWidget()
+        self.coeff_layout = QVBoxLayout(self.coeff_container)
+        self.coeff_layout.setContentsMargins(0, 0, 0, 0)
+        self.coeff_layout.setSpacing(8)
+        self.scroll_layout.addWidget(self.coeff_container)
+        self._render_coefficients()
+
+    def _render_coefficients(self):
+        while self.coeff_layout.count():
+            item = self.coeff_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        if not self.current_plan:
+            return
+        method = self.method_combo.currentData()
+        applicable = [c for c in self.current_plan.get("coefficients", []) if method in c.get("applicableTo", [])]
+        if not applicable and self.selected_disability_table == "none":
+            lbl = QLabel("当前计费方式无可用系数表")
+            lbl.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; padding: 16px;")
+            self.coeff_layout.addWidget(lbl)
+            return
+        for coeff in applicable:
+            card = self._create_coeff_card(coeff)
+            self.coeff_layout.addWidget(card)
+
+    def _create_coeff_card(self, coeff):
+        card = GlassCard()
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(16, 12, 16, 12)
+        layout.setSpacing(6)
+        sel = self.coeff_selections.get(coeff["id"])
+        sel_value = sel["value"] if sel else None
+        title_text = coeff["name"]
+        title_text += f"  [{fmt_num(sel_value, 4)}]" if sel_value is not None else "  [未选]"
+        title = QLabel(title_text)
+        title.setStyleSheet(f"font-weight: 600; font-size: 13px; color: {AnthropicColors.TEXT_PRIMARY};")
+        layout.addWidget(title)
+        if coeff.get("note"):
+            note = QLabel(f"注: {coeff['note']}")
+            note.setWordWrap(True)
+            note.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_TERTIARY};")
+            layout.addWidget(note)
+        for ri, row in enumerate(coeff["rows"]):
+            is_selected = sel and sel.get("rowIndex") == ri
+            if row["type"] == "range":
+                bl = "(" if row.get("minExclusive") else "["
+                br = ")" if row.get("maxExclusive") else "]"
+                val_text = f"{bl}{fmt_num(row['min'], 2)}, {fmt_num(row['max'], 2)}{br}"
+            else:
+                val_text = fmt_num(row["value"], 2)
+            btn = QPushButton(f"{row['parameter']}    {val_text}")
+            btn.setCursor(Qt.PointingHandCursor)
+            bg = AnthropicColors.ACCENT if is_selected else AnthropicColors.BG_PRIMARY
+            fg = AnthropicColors.TEXT_LIGHT if is_selected else AnthropicColors.TEXT_PRIMARY
+            btn.setStyleSheet(f"""
+                QPushButton {{ background: {bg}; color: {fg}; border: 1px solid {AnthropicColors.BORDER};
+                    border-radius: 6px; padding: 6px 12px; font-size: 12px; text-align: left; }}
+                QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; }}
+            """)
+            click_value = row["min"] if row["type"] == "range" else row["value"]
+            btn.clicked.connect(lambda checked, cid=coeff["id"], ridx=ri, cv=click_value: self._select_coeff_row(cid, ridx, cv))
+            layout.addWidget(btn)
+        if sel and sel.get("rowIndex") is not None:
+            row = coeff["rows"][sel["rowIndex"]]
+            if row["type"] == "range":
+                slider_layout = QHBoxLayout()
+                slider_layout.addWidget(QLabel("精确系数: "))
+                slider_label = QLabel(fmt_num(sel["value"], 4))
+                slider_label.setStyleSheet(f"font-weight: 600; color: {AnthropicColors.ACCENT};")
+                slider_layout.addWidget(slider_label)
+                slider = QSlider(Qt.Horizontal)
+                slider.setMinimum(int(row["min"] * 10000))
+                slider.setMaximum(int(row["max"] * 10000))
+                slider.setValue(int(sel["value"] * 10000))
+                slider.setSingleStep(100)
+                cid = coeff["id"]
+                slider.valueChanged.connect(lambda v, c=cid, lr=slider_label: self._on_slider_change(c, v, lr))
+                slider_layout.addWidget(slider, 1)
+                range_info = QLabel(f"[{fmt_num(row['min'], 2)}, {fmt_num(row['max'], 2)}]")
+                range_info.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_TERTIARY};")
+                slider_layout.addWidget(range_info)
+                layout.addLayout(slider_layout)
+        return card
+
+    def _select_coeff_row(self, coeff_id, row_index, value):
+        self.coeff_selections[coeff_id] = {"rowIndex": row_index, "value": value}
+        self._render_coefficients()
+
+    def _on_slider_change(self, coeff_id, int_value, label_widget):
+        value = int_value / 10000.0
+        if coeff_id in self.coeff_selections:
+            self.coeff_selections[coeff_id]["value"] = value
+        label_widget.setText(fmt_num(value, 4))
+
+    def _build_action_buttons(self):
+        row = QHBoxLayout()
+        calc_btn = make_accent_button("🧮 计算保费")
+        calc_btn.clicked.connect(self.calculate)
+        row.addWidget(calc_btn)
+        reset_btn = QPushButton("🔄 重置参数")
+        reset_btn.setCursor(Qt.PointingHandCursor)
+        reset_btn.clicked.connect(self._reset)
+        row.addWidget(reset_btn)
+        self.send_btn = make_success_button("📤 传入附加险计算")
+        self.send_btn.clicked.connect(self._send_to_addon)
+        self.send_btn.hide()
+        row.addWidget(self.send_btn)
+        row.addStretch()
+        self.scroll_layout.addLayout(row)
+
+    def _build_result_section(self):
+        self.result_display = QTextEdit()
+        self.result_display.setReadOnly(True)
+        self.result_display.setMaximumHeight(300)
+        self.result_display.hide()
+        self.scroll_layout.addWidget(self.result_display)
+
+    def _clear_result(self):
+        self.result_display.clear()
+        self.result_display.hide()
+        self.send_btn.hide()
+
+    def _build_log_section(self):
+        self.log_display = QTextEdit()
+        self.log_display.setReadOnly(True)
+        self.log_display.setMaximumHeight(150)
+        self.log_display.setStyleSheet(f"""
+            QTextEdit {{ background: {AnthropicColors.BG_DARK}; color: {AnthropicColors.TEXT_LIGHT};
+                border-radius: 8px; padding: 8px; font-size: 11px; font-family: monospace; }}
+        """)
+        self.scroll_layout.addWidget(self.log_display)
+
+    def _log(self, msg, level="info"):
+        from datetime import datetime
+        time_str = datetime.now().strftime("%H:%M:%S")
+        prefix = {"error": "❌", "warn": "⚠️", "success": "✅"}.get(level, "ℹ️")
+        self.log_display.append(f"[{time_str}] {prefix} {msg}")
+
+    def calculate(self):
+        method = self.method_combo.currentData()
+        industry_class = self.industry_combo.currentData()
+        employee_count = self.count_spin.value()
+        term_type = self.term_combo.currentData()
+        days = self.days_spin.value() if term_type == "short" else 365
+        if employee_count <= 0:
+            self._log("计算失败: 承保人数无效", "error")
+            return
+        base_rates = self.current_plan.get("baseRates", {}).get(method, {})
+        base_rate = base_rates.get(industry_class)
+        if not base_rate:
+            self._log(f"计算失败: 基准费率不存在 method={method} class={industry_class}", "error")
+            return
+        self._log("--- 开始计算 ---")
+        self._log(f"版本: {self.current_plan.get('label', '')} | 计费: {'固定限额' if method == 'fixed' else '工资总额'} | 行业: {industry_class}")
+        self._log(f"基准费率: {base_rate * 100:.4f}%")
+        applicable = [c for c in self.current_plan.get("coefficients", []) if method in c.get("applicableTo", [])]
+        coeff_product = 1.0
+        coeff_details = []
+        unselected_count = 0
+        for coeff in applicable:
+            sel = self.coeff_selections.get(coeff["id"])
+            if sel:
+                coeff_product *= sel["value"]
+                coeff_details.append({"name": coeff["name"], "value": sel["value"]})
+                self._log(f"  系数 [{coeff['name']}] = {fmt_num(sel['value'], 4)}")
+            else:
+                coeff_details.append({"name": coeff["name"], "value": 1.0, "unselected": True})
+                unselected_count += 1
+        if unselected_count > 0:
+            self._log(f"  注意: {unselected_count} 个系数未选择，按基准 1.0 计算", "warn")
+        self._log(f"系数乘积: {fmt_num(coeff_product, 6)}")
+        adjusted_rate = base_rate * coeff_product
+        is_capped = False
+        if adjusted_rate > 0.70:
+            self._log(f"调整后费率 {adjusted_rate * 100:.4f}% 超过70%封顶", "warn")
+            adjusted_rate = 0.70
+            is_capped = True
+        self._log(f"调整后费率: {adjusted_rate * 100:.4f}%{'（封顶）' if is_capped else ''}")
+        per_person_premium = 0.0
+        total_premium = 0.0
+        formula = ""
+        if method == "fixed":
+            limit_yuan = self.limit_spin.value() * 10000
+            per_person_premium = limit_yuan * adjusted_rate
+            if term_type == "short":
+                per_person_premium *= (days / 365)
+            total_premium = per_person_premium * employee_count
+            formula = f"每人保费 = {fmt_currency(limit_yuan)} × {adjusted_rate * 100:.4f}%"
+            if term_type == "short":
+                formula += f" × ({days}/365)"
+            formula += f" = {fmt_currency(per_person_premium)}"
+            formula += f"\n总保费 = {fmt_currency(per_person_premium)} × {employee_count}人 = {fmt_currency(total_premium)}"
+        else:
+            salary_yuan = self.salary_spin.value()
+            total_premium = salary_yuan * adjusted_rate
+            if term_type == "short":
+                total_premium *= (days / 365)
+            per_person_premium = total_premium / employee_count if employee_count > 0 else 0
+            formula = f"年保费 = {fmt_currency(salary_yuan)} × {adjusted_rate * 100:.4f}%"
+            if term_type == "short":
+                formula += f" × ({days}/365)"
+            formula += f" = {fmt_currency(total_premium)}"
+            formula += f"\n每人均摊: {fmt_currency(total_premium)} / {employee_count}人 = {fmt_currency(per_person_premium)}"
+        disability_coeff = 1.0
+        disability_desc = ""
+        if self.selected_disability_table != "none" and self.selected_disability_option >= 0:
+            d_opt = MC_DISABILITY_ADDON_OPTIONS[self.selected_disability_option]
+            disability_coeff = d_opt["coeff"][self.selected_disability_table]
+            before_premium = total_premium
+            total_premium *= disability_coeff
+            per_person_premium *= disability_coeff
+            tbl_label = MC_DISABILITY_TABLES[self.selected_disability_table]["label"]
+            disability_desc = f"附加伤残赔偿比例({tbl_label} · {d_opt['label']})"
+            formula += f"\n\n扩展伤残赔偿比例: {fmt_currency(before_premium)} × {fmt_num(disability_coeff, 3)} = {fmt_currency(total_premium)}"
+            self._log(f"伤残赔偿比例调整: × {fmt_num(disability_coeff, 3)} ({disability_desc})")
+        self._log(f"总保费: {fmt_currency(total_premium)}", "success")
+        self._log("--- 计算完成 ---", "success")
+        self.result = {
+            "version": self.current_plan.get("label", ""), "method": method, "industryClass": industry_class,
+            "baseRate": base_rate, "coeffProduct": coeff_product, "disabilityCoeff": disability_coeff,
+            "disabilityDesc": disability_desc, "adjustedRate": adjusted_rate, "isCapped": is_capped,
+            "perPersonPremium": per_person_premium, "totalPremium": total_premium,
+            "employeeCount": employee_count, "termType": term_type, "days": days,
+            "formulaBreakdown": formula, "coeffDetails": coeff_details
+        }
+        self._render_result()
+        self.send_btn.show()
+
+    def _render_result(self):
+        if not self.result:
+            return
+        r = self.result
+        lines = [
+            "═══════════════ 📊 计算结果 ═══════════════", "",
+            f"  总保费:     {fmt_currency(r['totalPremium'])}",
+            f"  每人保费:   {fmt_currency(r['perPersonPremium'])}", "",
+            "─────────── 公式分解 ───────────",
+            r["formulaBreakdown"], "",
+            "─────────── 参数明细 ───────────",
+            f"  费率版本: {r['version']}",
+            f"  计费方式: {'固定限额' if r['method'] == 'fixed' else '工资总额'}",
+            f"  行业类别: {r['industryClass']}",
+            f"  基准费率: {r['baseRate'] * 100:.4f}%",
+            f"  系数乘积: {fmt_num(r['coeffProduct'], 6)}",
+            f"  调整后费率: {r['adjustedRate'] * 100:.4f}%{' (封顶)' if r['isCapped'] else ''}",
+            f"  承保人数: {r['employeeCount']}人",
+            f"  保险期间: {'年度' if r['termType'] == 'annual' else str(r['days']) + '天'}",
+        ]
+        if r["disabilityCoeff"] != 1.0:
+            lines.append(f"  伤残赔偿比例系数: {fmt_num(r['disabilityCoeff'], 3)}")
+            lines.append(f"  {r['disabilityDesc']}")
+        lines.extend(["", "─────────── 系数明细 ───────────"])
+        for d in r["coeffDetails"]:
+            suffix = "（未选，默认）" if d.get("unselected") else ""
+            lines.append(f"  {d['name']}: {fmt_num(d['value'], 4)}{suffix}")
+        self.result_display.setText("\n".join(lines))
+        self.result_display.show()
+
+    def _reset(self):
+        self.coeff_selections = {}
+        self.result = None
+        self.industry_combo.setCurrentIndex(0)
+        self.method_combo.setCurrentIndex(0)
+        self.limit_spin.setValue(50)
+        self.salary_spin.setValue(5000000)
+        self.count_spin.setValue(100)
+        self.term_combo.setCurrentIndex(0)
+        self.days_spin.setValue(180)
+        self.selected_disability_table = "none"
+        self.selected_disability_option = -1
+        self.disability_combo.setCurrentIndex(0)
+        self._clear_result()
+        self._render_coefficients()
+        self._log("已重置参数和系数选择（险种/版本不变）")
+
+    def _send_to_addon(self):
+        if not self.result:
+            return
+        self.premium_calculated.emit(self.result["totalPremium"], self.result["perPersonPremium"])
+        self._log(f"已将主险保费 {fmt_currency(self.result['totalPremium'])}、每人保费 {fmt_currency(self.result['perPersonPremium'])} 传入附加险计算", "success")
+
+    def _import_rate_plan(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "导入费率方案", "", "费率方案文件 (*.json *.docx);;JSON (*.json);;Word (*.docx)")
+        if not file_path:
+            return
+        if file_path.endswith(".json"):
+            self._import_json(file_path)
+        elif file_path.endswith(".docx"):
+            self._import_docx(file_path)
+
+    def _import_json(self, file_path):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self._process_imported_data(data)
+        except Exception as e:
+            self._log(f"JSON 导入失败: {e}", "error")
+
+    def _process_imported_data(self, data):
+        if data.get("productName"):
+            product_id = data.get("productId", f"custom_{id(data)}")
+            product_name = data["productName"]
+            versions = {}
+            if isinstance(data.get("versions"), list):
+                for idx, v in enumerate(data["versions"]):
+                    vid = v.get("versionId", f"v{idx + 1}")
+                    if not all(k in v for k in ("label", "baseRates", "coefficients")):
+                        raise ValueError(f"版本 {vid} 缺少必要字段")
+                    versions[vid] = {"label": v["label"], "baseRates": v["baseRates"], "coefficients": v["coefficients"]}
+            else:
+                raise ValueError("新格式 JSON 需包含 versions 数组")
+        else:
+            if not all(k in data for k in ("label", "baseRates", "coefficients")):
+                raise ValueError("JSON 缺少必要字段: label, baseRates, coefficients")
+            product_id = f"custom_{id(data)}"
+            product_name = data["label"]
+            versions = {"v1": {"label": data["label"], "baseRates": data["baseRates"], "coefficients": data["coefficients"]}}
+        first_version = None
+        if product_id in MC_PRODUCTS:
+            existing = MC_PRODUCTS[product_id]
+            for vid, vdata in versions.items():
+                final_vid = vid if vid not in existing["versions"] else f"{vid}_{id(vdata)}"
+                existing["versions"][final_vid] = vdata
+                if not first_version:
+                    first_version = final_vid
+            self._log(f"向险种 [{existing['productName']}] 追加了 {len(versions)} 个新版本", "success")
+        else:
+            MC_PRODUCTS[product_id] = {"productName": product_name, "versions": versions}
+            first_version = list(versions.keys())[0]
+            self._log(f"导入新险种: {product_name}，包含 {len(versions)} 个版本", "success")
+        self.product_combo.blockSignals(True)
+        self.product_combo.clear()
+        for pid, pdata in MC_PRODUCTS.items():
+            self.product_combo.addItem(pdata["productName"], pid)
+        idx = self.product_combo.findData(product_id)
+        if idx >= 0:
+            self.product_combo.setCurrentIndex(idx)
+        self.product_combo.blockSignals(False)
+        self.selected_product = product_id
+        self._refresh_version_combo(first_version)
+        self._on_version_change()
+
+    def _import_docx(self, file_path):
+        try:
+            from docx import Document
+        except ImportError:
+            self._log("python-docx 未安装，请运行: pip install python-docx", "error")
+            return
+        try:
+            doc = Document(file_path)
+            text = "\n".join([p.text.strip() for p in doc.paragraphs if p.text.strip()])
+            parsed = self._parse_rate_plan_text(text)
+            reply = QMessageBox.question(
+                self, "Docx 导入确认",
+                f"险种名称: {parsed['productName']}\n基准费率: {len(parsed['baseRates'].get('fixed', {}))} 个固定 + {len(parsed['baseRates'].get('salary', {}))} 个工资\n系数表: {len(parsed['coefficients'])} 个\n\n确认导入?",
+                QMessageBox.Yes | QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                import_data = {"productName": parsed["productName"], "productId": f"docx_{id(parsed)}",
+                               "versions": [{"versionId": "v1", "label": parsed["label"], "baseRates": parsed["baseRates"], "coefficients": parsed["coefficients"]}]}
+                self._process_imported_data(import_data)
+        except Exception as e:
+            self._log(f"Docx 解析失败: {e}", "error")
+
+    def _parse_rate_plan_text(self, text):
+        lines = [l.strip() for l in text.split("\n") if l.strip()]
+        product_name = "未知险种"
+        for line in lines[:5]:
+            if "费率" in line or "保险" in line:
+                product_name = re.sub(r"费率方案|费率表|附件[:：]?\s*", "", line).strip()[:20]
+                break
+        base_rates = {"fixed": {}, "salary": {}}
+        class_map = {"一": "class1", "二": "class2", "三": "class3", "1": "class1", "2": "class2", "3": "class3"}
+        full_text = "\n".join(lines)
+        rate_pattern = re.compile(r"[第]?([一二三1-3])[类].*?(\d+\.?\d*)\s*[%‰％]")
+        fixed_section = re.search(r"固定[赔偿]*限额[\s\S]*?(?=工资|$)", full_text, re.IGNORECASE)
+        if fixed_section:
+            for m in rate_pattern.finditer(fixed_section.group()):
+                cls = class_map.get(m.group(1))
+                if cls:
+                    val = float(m.group(2))
+                    base_rates["fixed"][cls] = val / 1000 if "‰" in m.group() else val / 100
+        salary_section = re.search(r"工资[收入]*[\s\S]*?(?=费率调整|调整系数|$)", full_text, re.IGNORECASE)
+        if salary_section:
+            for m in rate_pattern.finditer(salary_section.group()):
+                cls = class_map.get(m.group(1))
+                if cls:
+                    val = float(m.group(2))
+                    base_rates["salary"][cls] = val / 1000 if "‰" in m.group() else val / 100
+        if not base_rates["fixed"] and not base_rates["salary"]:
+            raise ValueError("未能从文本中提取到基准费率数据")
+        if not base_rates["fixed"]:
+            base_rates["fixed"] = dict(base_rates["salary"])
+        if not base_rates["salary"]:
+            base_rates["salary"] = dict(base_rates["fixed"])
+        return {"productName": product_name, "label": f"{product_name}费率", "baseRates": base_rates, "coefficients": []}
