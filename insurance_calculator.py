@@ -1959,7 +1959,8 @@ class AddonInsuranceTab(QWidget):
         for ti in range(table_count):
             sel = self.coeff_selections.get(ti)
             if not sel:
-                raise ValueError(f"请选择"{entry['coefficientTables'][ti]['name']}"的系数值")
+                table_name = entry['coefficientTables'][ti]['name']
+                raise ValueError(f"请选择「{table_name}」的系数值")
             product *= sel["value"]
             coeff_details.append({"table": entry["coefficientTables"][ti]["name"], "parameter": sel["parameter"], "value": sel["value"]})
         premium = base_premium * product
