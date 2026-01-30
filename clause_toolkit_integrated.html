@@ -9816,9 +9816,9 @@ ${fileList}
             }
 
             var html = '';
-            var total = 0;
+            var addonTotal = 0;
             rc_premiumItems.forEach(function (item) {
-                total += item.premium;
+                addonTotal += item.premium;
                 var sign = item.premium >= 0 ? '' : '-';
                 var absVal = Math.abs(item.premium);
                 html += '<div class="rc-premium-item">' +
@@ -9830,13 +9830,98 @@ ${fileList}
                     '</div>';
             });
 
-            // 合计
+            // 附加险合计
             html += '<div class="rc-premium-total">' +
                 '<div class="rc-premium-total-label">附加险保费合计</div>' +
-                '<div class="rc-premium-total-amount">' + (total >= 0 ? '' : '-') + '¥' + rc_formatNumber(Math.abs(total)) + '</div>' +
+                '<div class="rc-premium-total-amount">' + (addonTotal >= 0 ? '' : '-') + '¥' + rc_formatNumber(Math.abs(addonTotal)) + '</div>' +
                 '</div>';
 
+            // 保单年保费合计（主险 + 附加险）
+            html += '<div style="margin-top:12px;padding:12px;background:var(--success-bg);border-radius:8px;">';
+            var mainPremVal = parseFloat(document.getElementById('rc_mainPremiumInput').value) || 0;
+            var annualTotal = mainPremVal + addonTotal;
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+                '<span style="font-size:11px;color:var(--text-tertiary);">主险保费</span>' +
+                '<span style="font-size:12px;">¥' + rc_formatNumber(mainPremVal) + '</span></div>';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+                '<span style="font-size:11px;color:var(--text-tertiary);">+ 附加险合计</span>' +
+                '<span style="font-size:12px;">' + (addonTotal >= 0 ? '' : '-') + '¥' + rc_formatNumber(Math.abs(addonTotal)) + '</span></div>';
+            html += '<div style="border-top:2px solid var(--success-color);padding-top:8px;margin-top:8px;">' +
+                '<div style="font-size:12px;color:var(--success-color);font-weight:500;">保单预估年保费</div>' +
+                '<div style="font-size:22px;font-weight:700;color:var(--success-color);">' + (annualTotal >= 0 ? '' : '-') + '¥' + rc_formatNumber(Math.abs(annualTotal)) + '</div>' +
+                '</div>';
+            html += '</div>';
+
+            // 短期保费计算
+            html += '<div style="margin-top:12px;padding:12px;background:var(--bg-secondary);border-radius:8px;">';
+            html += '<div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">📅 短期保费计算</div>';
+            html += '<div style="display:flex;flex-direction:column;gap:6px;">';
+            html += '<div style="display:flex;align-items:center;gap:6px;">' +
+                '<label style="font-size:11px;color:var(--text-secondary);white-space:nowrap;">起保日</label>' +
+                '<input type="date" id="rc_shortStartDate" onchange="rc_calcShortTermPremium()" ' +
+                'style="flex:1;height:30px;border:1px solid var(--border-color);border-radius:6px;padding:0 6px;font-size:12px;">' +
+                '</div>';
+            html += '<div style="display:flex;align-items:center;gap:6px;">' +
+                '<label style="font-size:11px;color:var(--text-secondary);white-space:nowrap;">终止日</label>' +
+                '<input type="date" id="rc_shortEndDate" onchange="rc_calcShortTermPremium()" ' +
+                'style="flex:1;height:30px;border:1px solid var(--border-color);border-radius:6px;padding:0 6px;font-size:12px;">' +
+                '</div>';
+            html += '<div id="rc_shortTermResult"></div>';
+            html += '</div></div>';
+
             container.innerHTML = html;
+        }
+
+        // --- 短期保费计算（考虑闰年） ---
+        function rc_isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+
+        function rc_calcShortTermPremium() {
+            var startInput = document.getElementById('rc_shortStartDate');
+            var endInput = document.getElementById('rc_shortEndDate');
+            var resultDiv = document.getElementById('rc_shortTermResult');
+            if (!startInput || !endInput || !resultDiv) return;
+            if (!startInput.value || !endInput.value) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+
+            var startDate = new Date(startInput.value);
+            var endDate = new Date(endInput.value);
+
+            if (endDate <= startDate) {
+                resultDiv.innerHTML = '<div style="color:var(--error-color);font-size:11px;margin-top:4px;">终止日须晚于起保日</div>';
+                return;
+            }
+
+            // 计算保险天数（终止日 - 起保日）
+            var diffMs = endDate.getTime() - startDate.getTime();
+            var insuranceDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+            // 确定年天数：以起保日所在年份判断是否闰年
+            var startYear = startDate.getFullYear();
+            var yearDays = rc_isLeapYear(startYear) ? 366 : 365;
+
+            // 年保费 = 主险 + 附加险合计
+            var mainPremVal = parseFloat(document.getElementById('rc_mainPremiumInput').value) || 0;
+            var addonTotal = 0;
+            rc_premiumItems.forEach(function (item) { addonTotal += item.premium; });
+            var annualTotal = mainPremVal + addonTotal;
+
+            // 短期保费 = 年保费 / 年天数 × 保险天数
+            var shortTermPremium = annualTotal / yearDays * insuranceDays;
+
+            var html = '<div style="margin-top:8px;padding:8px;background:white;border-radius:6px;border:1px solid var(--border-color);">';
+            html += '<div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px;">' +
+                '保险天数: ' + insuranceDays + ' 天 · ' + startYear + '年' + (rc_isLeapYear(startYear) ? '（闰年 366天）' : '（平年 365天）') + '</div>';
+            html += '<div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px;">' +
+                '¥' + rc_formatNumber(Math.abs(annualTotal)) + ' ÷ ' + yearDays + ' × ' + insuranceDays + '</div>';
+            html += '<div style="font-size:16px;font-weight:700;color:var(--accent-primary);">' +
+                '短期保费: ' + (shortTermPremium >= 0 ? '' : '-') + '¥' + rc_formatNumber(Math.abs(shortTermPremium)) + '</div>';
+            html += '</div>';
+
+            resultDiv.innerHTML = html;
         }
 
         // --- Excel Export ---
