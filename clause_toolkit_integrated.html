@@ -2356,7 +2356,19 @@
                         <label>保险天数</label>
                         <input type="number" id="mc_days" value="180" min="1" max="364">
                     </div>
+                    <div class="mc-input-group">
+                        <label>伤残赔偿比例附表</label>
+                        <select id="mc_disabilityTable" onchange="mc_onDisabilityTableChange()">
+                            <option value="none">不启用</option>
+                            <option value="table1">附表1</option>
+                            <option value="table2">附表2</option>
+                            <option value="table3">附表3</option>
+                        </select>
+                    </div>
                 </div>
+
+                <!-- 伤残赔偿比例表展示区 -->
+                <div id="mc_disabilityTableDisplay" style="max-height:0;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s ease;opacity:0;"></div>
             </div>
 
             <!-- 系数调整 -->
@@ -10719,6 +10731,88 @@ ${fileList}
             }
         };
 
+        // --- 伤残赔偿比例附表数据 ---
+        const MC_DISABILITY_TABLES = {
+            table1: {
+                label: '附表1',
+                ratios: [
+                    { level: '一级伤残', pct: 100 },
+                    { level: '二级伤残', pct: 80 },
+                    { level: '三级伤残', pct: 70 },
+                    { level: '四级伤残', pct: 60 },
+                    { level: '五级伤残', pct: 50 },
+                    { level: '六级伤残', pct: 40 },
+                    { level: '七级伤残', pct: 30 },
+                    { level: '八级伤残', pct: 20 },
+                    { level: '九级伤残', pct: 10 },
+                    { level: '十级伤残', pct: 5 }
+                ]
+            },
+            table2: {
+                label: '附表2',
+                ratios: [
+                    { level: '一级伤残', pct: 100 },
+                    { level: '二级伤残', pct: 80 },
+                    { level: '三级伤残', pct: 65 },
+                    { level: '四级伤残', pct: 55 },
+                    { level: '五级伤残', pct: 45 },
+                    { level: '六级伤残', pct: 25 },
+                    { level: '七级伤残', pct: 15 },
+                    { level: '八级伤残', pct: 10 },
+                    { level: '九级伤残', pct: 4 },
+                    { level: '十级伤残', pct: 1 }
+                ]
+            },
+            table3: {
+                label: '附表3',
+                ratios: [
+                    { level: '一级伤残', pct: 100 },
+                    { level: '二级伤残', pct: 90 },
+                    { level: '三级伤残', pct: 80 },
+                    { level: '四级伤残', pct: 70 },
+                    { level: '五级伤残', pct: 60 },
+                    { level: '六级伤残', pct: 50 },
+                    { level: '七级伤残', pct: 40 },
+                    { level: '八级伤残', pct: 30 },
+                    { level: '九级伤残', pct: 20 },
+                    { level: '十级伤残', pct: 10 }
+                ]
+            }
+        };
+
+        // 附加伤残赔偿比例调整系数表（15种方案 × 3个附表）
+        // 每个方案由九级/十级比例和所属组（A/B/C）标识
+        const MC_DISABILITY_ADDON_OPTIONS = [
+            // A组: 二~八级 = 80/70/60/50/40/30/20
+            { group: 'A', label: 'A组: 九级10% 十级5%', p9: 10, p10: 5, coeff: { table1: 1.000, table2: 1.077, table3: 0.924 } },
+            { group: 'A', label: 'A组: 九级8% 十级5%',  p9: 8,  p10: 5, coeff: { table1: 0.996, table2: 1.073, table3: 0.921 } },
+            { group: 'A', label: 'A组: 九级15% 十级5%', p9: 15, p10: 5, coeff: { table1: 1.009, table2: 1.087, table3: 0.933 } },
+            { group: 'A', label: 'A组: 九级10% 十级3%', p9: 10, p10: 3, coeff: { table1: 0.995, table2: 1.072, table3: 0.919 } },
+            { group: 'A', label: 'A组: 九级15% 十级3%', p9: 15, p10: 3, coeff: { table1: 1.004, table2: 1.082, table3: 0.928 } },
+            // B组: 二~八级 = 80/65/55/45/25/15/10
+            { group: 'B', label: 'B组: 九级4% 十级1%', p9: 4, p10: 1, coeff: { table1: 0.928, table2: 1.000, table3: 0.858 } },
+            { group: 'B', label: 'B组: 九级2% 十级1%', p9: 2, p10: 1, coeff: { table1: 0.924, table2: 0.996, table3: 0.854 } },
+            { group: 'B', label: 'B组: 九级3% 十级1%', p9: 3, p10: 1, coeff: { table1: 0.926, table2: 0.998, table3: 0.856 } },
+            { group: 'B', label: 'B组: 九级3% 十级2%', p9: 3, p10: 2, coeff: { table1: 0.929, table2: 1.001, table3: 0.858 } },
+            { group: 'B', label: 'B组: 九级4% 十级2%', p9: 4, p10: 2, coeff: { table1: 0.931, table2: 1.003, table3: 0.860 } },
+            // C组: 二~八级 = 90/80/70/60/50/40/30
+            { group: 'C', label: 'C组: 九级20% 十级10%', p9: 20, p10: 10, coeff: { table1: 1.082, table2: 1.166, table3: 1.000 } },
+            { group: 'C', label: 'C组: 九级15% 十级8%',  p9: 15, p10: 8,  coeff: { table1: 1.068, table2: 1.151, table3: 0.987 } },
+            { group: 'C', label: 'C组: 九级20% 十级8%',  p9: 20, p10: 8,  coeff: { table1: 1.077, table2: 1.161, table3: 0.995 } },
+            { group: 'C', label: 'C组: 九级15% 十级6%',  p9: 15, p10: 6,  coeff: { table1: 1.063, table2: 1.145, table3: 0.982 } },
+            { group: 'C', label: 'C组: 九级20% 十级6%',  p9: 20, p10: 6,  coeff: { table1: 1.072, table2: 1.155, table3: 0.991 } }
+        ];
+
+        // 各组的二~八级伤残比例描述
+        const MC_DISABILITY_GROUP_DESC = {
+            A: '二级80% 三级70% 四级60% 五级50% 六级40% 七级30% 八级20%',
+            B: '二级80% 三级65% 四级55% 五级45% 六级25% 七级15% 八级10%',
+            C: '二级90% 三级80% 四级70% 五级60% 六级50% 七级40% 八级30%'
+        };
+
+        let mc_selectedDisabilityTable = 'none';
+        let mc_selectedDisabilityOption = -1; // index in MC_DISABILITY_ADDON_OPTIONS
+
         // --- 主险计算器状态 ---
         let mc_selectedProduct = 'employerLiability';
         let mc_selectedVersion = 'original';
@@ -11203,6 +11297,94 @@ ${fileList}
             document.getElementById('mc_daysGroup').style.display = termType === 'short' ? '' : 'none';
         }
 
+        // --- 伤残赔偿比例附表切换 ---
+        function mc_onDisabilityTableChange() {
+            var sel = document.getElementById('mc_disabilityTable');
+            mc_selectedDisabilityTable = sel.value;
+            mc_selectedDisabilityOption = -1;
+            var display = document.getElementById('mc_disabilityTableDisplay');
+
+            if (mc_selectedDisabilityTable === 'none') {
+                display.style.maxHeight = '0';
+                display.style.opacity = '0';
+                display.style.marginTop = '0';
+                mc_renderCoefficients();
+                mc_log('已关闭伤残赔偿比例附表', 'info');
+                return;
+            }
+
+            var tbl = MC_DISABILITY_TABLES[mc_selectedDisabilityTable];
+            var html = '<div style="margin-top:16px;padding:16px;background:var(--info-bg);border-radius:10px;border:1px solid var(--info-color);">';
+            html += '<div style="font-size:14px;font-weight:600;color:var(--info-color);margin-bottom:10px;">📋 主险伤残赔偿比例 · ' + mc_escHtml(tbl.label) + '</div>';
+            html += '<table class="mc-coeff-table" style="margin:0;"><thead><tr><th>伤残等级</th><th>赔偿比例</th></tr></thead><tbody>';
+            tbl.ratios.forEach(function (r) {
+                html += '<tr><td>' + r.level + '</td><td>' + r.pct + '%</td></tr>';
+            });
+            html += '</tbody></table></div>';
+
+            display.innerHTML = html;
+            // 触发动画
+            requestAnimationFrame(function () {
+                display.style.maxHeight = '500px';
+                display.style.opacity = '1';
+                display.style.marginTop = '12px';
+            });
+
+            mc_renderCoefficients();
+            mc_log('选择伤残赔偿比例: ' + tbl.label, 'info');
+        }
+
+        // --- 渲染伤残赔偿比例调整系数选择 ---
+        function mc_renderDisabilityCoeffSection() {
+            if (mc_selectedDisabilityTable === 'none') return '';
+
+            var html = '<div class="mc-coeff-section" style="border:2px solid var(--info-color);border-radius:10px;padding:16px;margin-bottom:16px;background:var(--info-bg);">';
+            html += '<h4 style="color:var(--info-color);">附加伤残赔偿金赔偿限额比例调整系数';
+            if (mc_selectedDisabilityOption >= 0) {
+                var opt = MC_DISABILITY_ADDON_OPTIONS[mc_selectedDisabilityOption];
+                html += ' <span class="mc-coeff-badge">' + mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3) + '</span>';
+            } else {
+                html += ' <span class="mc-coeff-badge" style="background:var(--bg-tertiary);color:var(--text-tertiary);">未选</span>';
+            }
+            html += '</h4>';
+            html += '<p style="font-size:12px;color:var(--text-tertiary);margin:4px 0 8px;line-height:1.5;">公式: 扩展后主险保费 = 原主险保费 × 调整系数（基于' + MC_DISABILITY_TABLES[mc_selectedDisabilityTable].label + '）</p>';
+
+            // 分组渲染
+            var groups = ['A', 'B', 'C'];
+            groups.forEach(function (g) {
+                var groupOpts = [];
+                MC_DISABILITY_ADDON_OPTIONS.forEach(function (opt, idx) {
+                    if (opt.group === g) groupOpts.push({ opt: opt, idx: idx });
+                });
+
+                html += '<div style="margin-bottom:10px;">';
+                html += '<div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">' + g + '组 · 一级100% ' + mc_escHtml(MC_DISABILITY_GROUP_DESC[g]) + '</div>';
+                html += '<table class="mc-coeff-table"><thead><tr><th>方案</th><th>调整系数</th></tr></thead><tbody>';
+
+                groupOpts.forEach(function (item) {
+                    var isSelected = mc_selectedDisabilityOption === item.idx;
+                    var coeffVal = item.opt.coeff[mc_selectedDisabilityTable];
+                    html += '<tr class="' + (isSelected ? 'mc-selected' : '') + '" ' +
+                        'onclick="mc_selectDisabilityOption(' + item.idx + ')" style="cursor:pointer;">';
+                    html += '<td>九级' + item.opt.p9 + '% 十级' + item.opt.p10 + '%</td>';
+                    html += '<td>' + mc_fmtNum(coeffVal, 3) + '</td>';
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table></div>';
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        function mc_selectDisabilityOption(idx) {
+            mc_selectedDisabilityOption = idx;
+            mc_renderCoefficients();
+            var opt = MC_DISABILITY_ADDON_OPTIONS[idx];
+            mc_log('选择伤残赔偿比例方案: ' + opt.label + ' → 系数 ' + mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3), 'info');
+        }
+
         // --- 渲染系数表 ---
         function mc_renderCoefficients() {
             const container = document.getElementById('mc_coeffContainer');
@@ -11212,12 +11394,14 @@ ${fileList}
                 return c.applicableTo.indexOf(method) !== -1;
             });
 
-            if (applicable.length === 0) {
+            if (applicable.length === 0 && mc_selectedDisabilityTable === 'none') {
                 container.innerHTML = '<p style="color:var(--text-secondary);padding:16px;">当前计费方式无可用系数表</p>';
                 return;
             }
 
             let html = '';
+            // 伤残赔偿比例调整系数（如已启用）
+            html += mc_renderDisabilityCoeffSection();
             applicable.forEach(function (coeff, idx) {
                 html += mc_renderSingleCoeffTable(coeff, idx);
             });
@@ -11437,6 +11621,20 @@ ${fileList}
                 mc_log('年度工资总额: ' + mc_fmtCurrency(salaryYuan), 'info');
             }
 
+            // 伤残赔偿比例附加系数
+            let disabilityCoeff = 1.0;
+            let disabilityDesc = '';
+            if (mc_selectedDisabilityTable !== 'none' && mc_selectedDisabilityOption >= 0) {
+                var dOpt = MC_DISABILITY_ADDON_OPTIONS[mc_selectedDisabilityOption];
+                disabilityCoeff = dOpt.coeff[mc_selectedDisabilityTable];
+                var beforePremium = totalPremium;
+                totalPremium = totalPremium * disabilityCoeff;
+                perPersonPremium = perPersonPremium * disabilityCoeff;
+                disabilityDesc = '附加伤残赔偿比例(' + MC_DISABILITY_TABLES[mc_selectedDisabilityTable].label + ' · ' + dOpt.label + ')';
+                formulaBreakdown += '\n\n扩展伤残赔偿比例: ' + mc_fmtCurrency(beforePremium) + ' × ' + mc_fmtNum(disabilityCoeff, 3) + ' = ' + mc_fmtCurrency(totalPremium);
+                mc_log('伤残赔偿比例调整: × ' + mc_fmtNum(disabilityCoeff, 3) + ' (' + disabilityDesc + ')', 'info');
+            }
+
             mc_log('总保费: ' + mc_fmtCurrency(totalPremium), 'success');
             mc_log('--- 计算完成 ---', 'success');
 
@@ -11447,6 +11645,8 @@ ${fileList}
                 industryClass: industryClass,
                 baseRate: baseRate,
                 coeffProduct: coeffProduct,
+                disabilityCoeff: disabilityCoeff,
+                disabilityDesc: disabilityDesc,
                 adjustedRate: adjustedRate,
                 isCapped: isCapped,
                 perPersonPremium: perPersonPremium,
@@ -11498,6 +11698,10 @@ ${fileList}
             html += '<tr><td>调整后费率</td><td>' + (r.adjustedRate * 100).toFixed(4) + '%' + (r.isCapped ? ' (封顶)' : '') + '</td></tr>';
             html += '<tr><td>承保人数</td><td>' + r.employeeCount + '人</td></tr>';
             html += '<tr><td>保险期间</td><td>' + (r.termType === 'annual' ? '年度' : r.days + '天') + '</td></tr>';
+            if (r.disabilityCoeff !== 1.0 && r.disabilityDesc) {
+                html += '<tr style="color:var(--info-color);font-weight:500;"><td>伤残赔偿比例系数</td><td>' + mc_fmtNum(r.disabilityCoeff, 3) + '</td></tr>';
+                html += '<tr style="color:var(--info-color);"><td colspan="2" style="font-size:11px;">' + mc_escHtml(r.disabilityDesc) + '</td></tr>';
+            }
             html += '</tbody></table>';
 
             // 系数明细
@@ -11559,6 +11763,14 @@ ${fileList}
             document.getElementById('mc_perPersonLimitGroup').style.display = '';
             document.getElementById('mc_annualSalaryGroup').style.display = 'none';
             document.getElementById('mc_daysGroup').style.display = 'none';
+            // 重置伤残赔偿比例
+            mc_selectedDisabilityTable = 'none';
+            mc_selectedDisabilityOption = -1;
+            document.getElementById('mc_disabilityTable').value = 'none';
+            var disDisplay = document.getElementById('mc_disabilityTableDisplay');
+            disDisplay.style.maxHeight = '0';
+            disDisplay.style.opacity = '0';
+            disDisplay.style.marginTop = '0';
             mc_renderCoefficients();
             mc_log('已重置参数和系数选择（险种/版本不变）', 'info');
         }
