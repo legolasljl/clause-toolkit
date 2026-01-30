@@ -1284,3 +1284,922 @@ class MainInsuranceTab(QWidget):
         if not base_rates["salary"]:
             base_rates["salary"] = dict(base_rates["fixed"])
         return {"productName": product_name, "label": f"{product_name}费率", "baseRates": base_rates, "coefficients": []}
+
+
+# =============================================
+# AddonInsuranceTab — 附加险计算器
+# =============================================
+
+class AddonInsuranceTab(QWidget):
+    """附加险计算器 Tab"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.rate_data = None
+        self.filtered_entries = []
+        self.selected_entry = None
+        self.coeff_selections = {}
+        self.main_premium = 0.0
+        self.per_person_premium = 0.0
+        self.premium_items = []
+        self._setup_ui()
+
+    def _setup_ui(self):
+        self.setStyleSheet(get_common_styles())
+        main_layout = QVBoxLayout(self)
+        main_layout.setSpacing(8)
+        main_layout.setContentsMargins(10, 8, 10, 8)
+
+        # 顶栏: 主险保费 + 每人保费
+        top_bar = GlassCard()
+        top_layout = QHBoxLayout(top_bar)
+        top_layout.setContentsMargins(16, 10, 16, 10)
+
+        top_layout.addWidget(QLabel("主险保费(元):"))
+        self.main_premium_input = QDoubleSpinBox()
+        self.main_premium_input.setRange(0, 999999999999)
+        self.main_premium_input.setDecimals(2)
+        self.main_premium_input.setSuffix(" 元")
+        self.main_premium_input.valueChanged.connect(lambda v: setattr(self, 'main_premium', v))
+        top_layout.addWidget(self.main_premium_input)
+
+        top_layout.addWidget(QLabel("每人保费(元):"))
+        self.per_person_input = QDoubleSpinBox()
+        self.per_person_input.setRange(0, 999999999999)
+        self.per_person_input.setDecimals(2)
+        self.per_person_input.setSuffix(" 元")
+        self.per_person_input.valueChanged.connect(lambda v: setattr(self, 'per_person_premium', v))
+        top_layout.addWidget(self.per_person_input)
+
+        top_layout.addStretch()
+
+        json_btn = QPushButton("📂 导入JSON")
+        json_btn.setCursor(Qt.PointingHandCursor)
+        json_btn.clicked.connect(self._load_json)
+        top_layout.addWidget(json_btn)
+
+        folder_btn = QPushButton("📁 导入文件夹")
+        folder_btn.setCursor(Qt.PointingHandCursor)
+        folder_btn.clicked.connect(self._load_folder)
+        top_layout.addWidget(folder_btn)
+
+        inquiry_btn = QPushButton("📋 导入询价")
+        inquiry_btn.setCursor(Qt.PointingHandCursor)
+        inquiry_btn.clicked.connect(self._handle_inquiry_import)
+        top_layout.addWidget(inquiry_btn)
+
+        main_layout.addWidget(top_bar)
+
+        # 三列布局
+        content = QHBoxLayout()
+        content.setSpacing(8)
+
+        # 左列: 搜索 + 条款列表
+        left_panel = QWidget()
+        left_panel.setFixedWidth(340)
+        left_layout = QVBoxLayout(left_panel)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(6)
+
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("🔍 搜索条款名称...")
+        self.search_input.textChanged.connect(self._filter_entries)
+        left_layout.addWidget(self.search_input)
+
+        self.load_status = QLabel("未加载费率数据")
+        self.load_status.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_TERTIARY};")
+        left_layout.addWidget(self.load_status)
+
+        self.clause_list = QListWidget()
+        self.clause_list.setStyleSheet(f"""
+            QListWidget {{
+                background: {AnthropicColors.BG_PRIMARY};
+                border: 1px solid {AnthropicColors.BORDER};
+                border-radius: 8px;
+                font-size: 12px;
+            }}
+            QListWidget::item {{
+                padding: 8px 12px;
+                border-bottom: 1px solid {AnthropicColors.BORDER};
+            }}
+            QListWidget::item:selected {{
+                background: {AnthropicColors.ACCENT};
+                color: {AnthropicColors.TEXT_LIGHT};
+            }}
+            QListWidget::item:hover:!selected {{
+                background: {AnthropicColors.BG_CARD};
+            }}
+        """)
+        self.clause_list.currentRowChanged.connect(self._on_clause_selected)
+        left_layout.addWidget(self.clause_list, 1)
+
+        # 询价匹配结果
+        self.inquiry_status = QLabel("")
+        self.inquiry_status.setWordWrap(True)
+        self.inquiry_status.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_TERTIARY};")
+        left_layout.addWidget(self.inquiry_status)
+
+        self.batch_calc_btn = make_accent_button("⚡ 一键批量计算")
+        self.batch_calc_btn.clicked.connect(self._batch_calculate)
+        self.batch_calc_btn.hide()
+        left_layout.addWidget(self.batch_calc_btn)
+
+        content.addWidget(left_panel)
+
+        # 中列: 详情 + 计算
+        mid_scroll = QScrollArea()
+        mid_scroll.setWidgetResizable(True)
+        mid_scroll.setFrameShape(QFrame.NoFrame)
+        self.detail_widget = QWidget()
+        self.detail_layout = QVBoxLayout(self.detail_widget)
+        self.detail_layout.setContentsMargins(8, 0, 8, 0)
+        self.detail_layout.setSpacing(8)
+        mid_scroll.setWidget(self.detail_widget)
+
+        # 默认占位
+        self.detail_placeholder = QLabel("📊 请从左侧选择一个费率方案")
+        self.detail_placeholder.setAlignment(Qt.AlignCenter)
+        self.detail_placeholder.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 16px; padding: 60px;")
+        self.detail_layout.addWidget(self.detail_placeholder)
+        self.detail_layout.addStretch()
+
+        content.addWidget(mid_scroll, 1)
+
+        # 右列: 保费汇总
+        right_panel = QWidget()
+        right_panel.setFixedWidth(280)
+        right_layout = QVBoxLayout(right_panel)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(6)
+
+        summary_title = QLabel("💰 保费汇总")
+        summary_title.setStyleSheet(f"font-weight: 600; font-size: 14px; color: {AnthropicColors.TEXT_PRIMARY};")
+        right_layout.addWidget(summary_title)
+
+        self.premium_list_area = QScrollArea()
+        self.premium_list_area.setWidgetResizable(True)
+        self.premium_list_area.setFrameShape(QFrame.NoFrame)
+        self.premium_list_widget = QWidget()
+        self.premium_list_layout = QVBoxLayout(self.premium_list_widget)
+        self.premium_list_layout.setContentsMargins(0, 0, 0, 0)
+        self.premium_list_layout.setSpacing(4)
+        self.premium_list_area.setWidget(self.premium_list_widget)
+        right_layout.addWidget(self.premium_list_area, 1)
+
+        self.premium_empty_label = QLabel("计算附加险保费后\n将自动添加到此列表")
+        self.premium_empty_label.setAlignment(Qt.AlignCenter)
+        self.premium_empty_label.setStyleSheet(f"color: {AnthropicColors.TEXT_TERTIARY}; font-size: 12px; padding: 20px;")
+        self.premium_list_layout.addWidget(self.premium_empty_label)
+
+        # 附加险合计
+        self.addon_total_label = QLabel("附加险合计: ¥0.00")
+        self.addon_total_label.setStyleSheet(f"font-weight: 600; font-size: 13px; color: {AnthropicColors.ACCENT}; padding: 8px;")
+        right_layout.addWidget(self.addon_total_label)
+
+        # 保单年保费
+        self.annual_total_label = QLabel("保单预估年保费: ¥0.00")
+        self.annual_total_label.setStyleSheet(f"font-weight: 700; font-size: 15px; color: #10b981; padding: 8px; background: #ecfdf5; border-radius: 8px;")
+        right_layout.addWidget(self.annual_total_label)
+
+        # 短期保费计算
+        short_card = GlassCard()
+        short_layout = QVBoxLayout(short_card)
+        short_layout.setContentsMargins(12, 10, 12, 10)
+        short_layout.setSpacing(6)
+        short_layout.addWidget(QLabel("📅 短期保费计算"))
+
+        date_row1 = QHBoxLayout()
+        date_row1.addWidget(QLabel("起保日:"))
+        self.start_date = QDateEdit()
+        self.start_date.setCalendarPopup(True)
+        self.start_date.setDate(QDate.currentDate())
+        self.start_date.dateChanged.connect(self._calc_short_term)
+        date_row1.addWidget(self.start_date)
+        short_layout.addLayout(date_row1)
+
+        date_row2 = QHBoxLayout()
+        date_row2.addWidget(QLabel("终止日:"))
+        self.end_date = QDateEdit()
+        self.end_date.setCalendarPopup(True)
+        self.end_date.setDate(QDate.currentDate().addYears(1))
+        self.end_date.dateChanged.connect(self._calc_short_term)
+        date_row2.addWidget(self.end_date)
+        short_layout.addLayout(date_row2)
+
+        self.short_term_result = QLabel("")
+        self.short_term_result.setWordWrap(True)
+        self.short_term_result.setStyleSheet(f"font-size: 12px; color: {AnthropicColors.TEXT_PRIMARY};")
+        short_layout.addWidget(self.short_term_result)
+        right_layout.addWidget(short_card)
+
+        content.addWidget(right_panel)
+        main_layout.addLayout(content, 1)
+
+        # 底部日志
+        self.log_display = QTextEdit()
+        self.log_display.setReadOnly(True)
+        self.log_display.setMaximumHeight(100)
+        self.log_display.setStyleSheet(f"""
+            QTextEdit {{ background: {AnthropicColors.BG_DARK}; color: {AnthropicColors.TEXT_LIGHT};
+                border-radius: 8px; padding: 6px; font-size: 11px; font-family: monospace; }}
+        """)
+        main_layout.addWidget(self.log_display)
+
+    # ---------- 信号接收 ----------
+    def receive_main_premium(self, total, per_person):
+        self.main_premium = total
+        self.per_person_premium = per_person
+        self.main_premium_input.setValue(total)
+        self.per_person_input.setValue(per_person)
+        self._log(f"收到主险保费: {fmt_currency(total)}，每人: {fmt_currency(per_person)}", "success")
+
+    # ---------- 日志 ----------
+    def _log(self, msg, level="info"):
+        from datetime import datetime
+        time_str = datetime.now().strftime("%H:%M:%S")
+        prefix = {"error": "❌", "warn": "⚠️", "success": "✅"}.get(level, "ℹ️")
+        self.log_display.append(f"[{time_str}] {prefix} {msg}")
+
+    # ---------- 数据加载 ----------
+    def _load_json(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "加载费率数据", "", "JSON (*.json)")
+        if not file_path:
+            return
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data.get("entries"), list):
+                raise ValueError("JSON 格式无效: 缺少 entries 数组")
+            self.rate_data = data
+            self.filtered_entries = list(data["entries"])
+            self.load_status.setText(f"已加载 {len(data['entries'])} 条 ({os.path.basename(file_path)})")
+            self._render_clause_list()
+            self._log(f"加载成功: {len(data['entries'])} 个费率方案", "success")
+        except Exception as e:
+            self._log(f"JSON 加载失败: {e}", "error")
+
+    def _load_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "选择费率方案文件夹")
+        if not folder:
+            return
+        try:
+            from docx import Document as DocxDocument
+        except ImportError:
+            self._log("python-docx 未安装", "error")
+            return
+        entries = []
+        docx_files = [f for f in os.listdir(folder) if "费率方案" in f and f.endswith(".docx")]
+        if not docx_files:
+            self._log("未找到费率方案 docx 文件", "warn")
+            return
+        self._log(f"发现 {len(docx_files)} 个费率方案文件，开始解析...")
+        for fname in docx_files:
+            try:
+                fpath = os.path.join(folder, fname)
+                doc = DocxDocument(fpath)
+                paragraphs = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+                tables = []
+                for tbl in doc.tables:
+                    rows = []
+                    for row in tbl.rows:
+                        cells = [cell.text.strip() for cell in row.cells]
+                        rows.append(cells)
+                    if rows:
+                        tables.append(rows)
+                entry = self._classify_entry(fname, paragraphs, tables)
+                if entry:
+                    entries.append(entry)
+            except Exception as e:
+                self._log(f"解析失败: {fname} - {e}", "warn")
+        self.rate_data = {"entries": entries}
+        self.filtered_entries = list(entries)
+        self.load_status.setText(f"已加载 {len(entries)} 条 (文件夹)")
+        self._render_clause_list()
+        self._log(f"解析完成: {len(entries)} 个费率方案", "success")
+
+    def _classify_entry(self, filename, paragraphs, tables):
+        name = filename.replace(".docx", "").replace("中国太平洋财产保险股份有限公司", "")
+        clause_name = name.replace("费率方案", "").strip()
+        m = re.match(r"附加(.+?)(?:条款|保险)?$", clause_name)
+        if m:
+            clause_name = "附加" + m.group(1)
+        entry = {"clauseName": clause_name, "fullName": filename.replace(".docx", ""), "industry": "雇主责任保险", "sourceFile": filename}
+        full_text = " ".join(paragraphs)
+        substantive = [p for p in paragraphs if "中国太平洋财产保险股份有限公司" not in p and not (p.endswith("费率方案") and len(p) < 100)]
+        reg_keywords = ["不涉及保险费的调整", "属于规范类", "不涉及费率", "不另收保险费"]
+        is_regulatory = (not tables and substantive and
+                         all(any(kw in p for kw in reg_keywords) or "保单最终保险费" in p or "工资总额" in p for p in substantive))
+        if is_regulatory:
+            return {**entry, "rateType": "regulatory", "description": substantive[0] if substantive else ""}
+
+        if tables:
+            coeff_tables = []
+            for raw_table in tables:
+                if len(raw_table) < 2:
+                    continue
+                header = raw_table[0]
+                rows = []
+                for i in range(1, len(raw_table)):
+                    if len(raw_table[i]) < 2:
+                        continue
+                    param, coeff = raw_table[i][0], raw_table[i][1]
+                    if not param or not coeff:
+                        continue
+                    rows.append({"parameter": param, "coefficient": coeff, "parsedValue": self._parse_coeff_value(coeff)})
+                if rows:
+                    coeff_tables.append({
+                        "name": header[0] if header else "调整系数",
+                        "headerRow": header,
+                        "supportsInterpolation": "线性插值" in full_text or "插值" in full_text,
+                        "rows": rows
+                    })
+            if coeff_tables:
+                base_premium = {"description": "未找到基准保险费描述"}
+                for p in paragraphs:
+                    pct_m = re.search(r"([\d.]+)\s*[%％]", p)
+                    if pct_m and ("基准保险费" in p or "主险保险费的" in p):
+                        base_premium = {"description": p, "percentage": float(pct_m.group(1))}
+                        break
+                    mult_m = re.search(r"主险保险费的\s*([\d.]+)\s*倍", p)
+                    if mult_m:
+                        base_premium = {"description": p, "multiplier": float(mult_m.group(1))}
+                        break
+                formula = "保险费 = 基准保险费 × 各项费率调整系数的乘积"
+                for p in paragraphs:
+                    if "保险费" in p and ("×" in p or "＝" in p or "乘积" in p):
+                        formula = p
+                        break
+                return {**entry, "rateType": "table_coefficient", "basePremium": base_premium,
+                        "coefficientTables": coeff_tables, "formula": formula, "description": substantive[0] if substantive else ""}
+
+        has_condition = any("若" in p or "如果" in p for p in substantive)
+        has_formula = any("＝" in p or "×" in p for p in substantive)
+        if has_condition or has_formula:
+            conditions = []
+            for p in substantive:
+                if ("若" in p or "如果" in p) and any(k in p for k in ("＝", "×", "%", "减收", "加收", "减少")):
+                    conditions.append({"condition": p, "formula": p, "fullText": p})
+                elif "不涉及保险费的调整" in p or "则不涉及" in p:
+                    conditions.append({"condition": p, "formula": "不调整", "fullText": p})
+            base_rate = None
+            for p in paragraphs:
+                pct_m = re.search(r"([\d.]+)\s*[%％]", p)
+                if pct_m:
+                    base_rate = float(pct_m.group(1))
+                    break
+            return {**entry, "rateType": "formula_conditional", "baseRatePercent": base_rate,
+                    "conditions": conditions, "description": substantive[0] if substantive else ""}
+
+        for p in paragraphs:
+            pct_m = re.search(r"([\d.]+)\s*[%％]", p)
+            if pct_m:
+                return {**entry, "rateType": "simple_percentage", "percentage": float(pct_m.group(1)), "description": p}
+            mult_m = re.search(r"主险保险费的\s*([\d.]+)\s*倍", p)
+            if mult_m:
+                mult = float(mult_m.group(1))
+                return {**entry, "rateType": "simple_percentage", "percentage": mult * 100, "multiplier": mult, "description": p}
+
+        return {**entry, "rateType": "regulatory", "description": full_text[:200]}
+
+    def _parse_coeff_value(self, text):
+        text = text.strip().replace("，", ",").replace("（", "(").replace("）", ")")
+        range_m = re.match(r"[\[(]?\s*([\d.]+)\s*[,]\s*([\d.]+)\s*[\])]?", text)
+        if range_m:
+            return {"type": "range", "min": float(range_m.group(1)), "max": float(range_m.group(2)), "display": text}
+        num_m = re.match(r"^([\d.]+)$", text)
+        if num_m:
+            return {"type": "fixed", "value": float(num_m.group(1)), "display": text}
+        return {"type": "text", "display": text}
+
+    # ---------- 搜索/筛选 ----------
+    def _filter_entries(self, keyword=""):
+        if not self.rate_data:
+            return
+        query = keyword.strip().lower()
+        self.filtered_entries = [e for e in self.rate_data["entries"]
+                                 if not query or query in e.get("clauseName", "").lower() or query in e.get("fullName", "").lower()]
+        self._render_clause_list()
+
+    def _render_clause_list(self):
+        self.clause_list.clear()
+        type_labels = {"simple_percentage": "百分比", "formula_conditional": "条件公式", "table_coefficient": "系数表", "regulatory": "规范类"}
+        for entry in self.filtered_entries:
+            label = type_labels.get(entry.get("rateType"), entry.get("rateType", ""))
+            item = QListWidgetItem(f"{entry['clauseName']}  [{label}]")
+            item.setData(Qt.UserRole, entry)
+            self.clause_list.addItem(item)
+
+    def _on_clause_selected(self, row):
+        if row < 0 or row >= len(self.filtered_entries):
+            return
+        self.selected_entry = self.filtered_entries[row]
+        self.coeff_selections = {}
+        self._render_detail()
+        self._log(f"选中: {self.selected_entry['clauseName']} [{self.selected_entry.get('rateType', '')}]")
+
+    # ---------- 详情渲染 ----------
+    def _render_detail(self):
+        # 清空
+        while self.detail_layout.count():
+            item = self.detail_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        entry = self.selected_entry
+        if not entry:
+            placeholder = QLabel("📊 请从左侧选择一个费率方案")
+            placeholder.setAlignment(Qt.AlignCenter)
+            placeholder.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 16px; padding: 60px;")
+            self.detail_layout.addWidget(placeholder)
+            self.detail_layout.addStretch()
+            return
+
+        # 条款名称
+        name_label = QLabel(entry["clauseName"])
+        name_label.setStyleSheet(f"font-weight: 700; font-size: 16px; color: {AnthropicColors.TEXT_PRIMARY};")
+        self.detail_layout.addWidget(name_label)
+
+        # 描述
+        if entry.get("description"):
+            desc = QLabel(entry["description"])
+            desc.setWordWrap(True)
+            desc.setStyleSheet(f"font-size: 12px; color: {AnthropicColors.TEXT_SECONDARY};")
+            self.detail_layout.addWidget(desc)
+
+        rate_type = entry.get("rateType", "")
+
+        if rate_type == "regulatory":
+            reg_label = QLabel("📋 规范类条款\n本条款不涉及保险费的调整")
+            reg_label.setAlignment(Qt.AlignCenter)
+            reg_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 14px; padding: 30px;")
+            self.detail_layout.addWidget(reg_label)
+            self.detail_layout.addStretch()
+            return
+
+        if rate_type == "simple_percentage":
+            info = QLabel(f"费率: 主险保险费的 {entry.get('multiplier', '')}倍" if entry.get("multiplier")
+                          else f"费率: 主险保险费的 {entry.get('percentage', 0)}%")
+            info.setStyleSheet(f"padding: 12px; background: #eff6ff; border-radius: 8px; font-size: 13px;")
+            self.detail_layout.addWidget(info)
+
+        if rate_type == "formula_conditional":
+            for cond in entry.get("conditions", []):
+                cond_label = QLabel(cond.get("fullText", cond.get("condition", "")))
+                cond_label.setWordWrap(True)
+                cond_label.setStyleSheet(f"padding: 8px; background: #fefce8; border-radius: 6px; font-size: 12px; border: 1px solid #fbbf24;")
+                self.detail_layout.addWidget(cond_label)
+            # 输入框
+            self.cond_limit_input = QDoubleSpinBox()
+            self.cond_limit_input.setRange(0, 999999999)
+            self.cond_limit_input.setDecimals(2)
+            self.cond_limit_input.setPrefix("附加险限额: ")
+            self.cond_limit_input.setSuffix(" 元")
+            self.detail_layout.addWidget(self.cond_limit_input)
+            self.main_limit_input = QDoubleSpinBox()
+            self.main_limit_input.setRange(0, 999999999)
+            self.main_limit_input.setDecimals(2)
+            self.main_limit_input.setPrefix("主险限额: ")
+            self.main_limit_input.setSuffix(" 元")
+            self.detail_layout.addWidget(self.main_limit_input)
+
+        if rate_type == "table_coefficient":
+            if entry.get("basePremium"):
+                bp = entry["basePremium"]
+                bp_label = QLabel(f"基准保险费: {bp.get('description', '')}")
+                bp_label.setWordWrap(True)
+                bp_label.setStyleSheet(f"padding: 10px; background: #eff6ff; border-radius: 8px; font-size: 12px;")
+                self.detail_layout.addWidget(bp_label)
+            for ti, table in enumerate(entry.get("coefficientTables", [])):
+                self._render_addon_coeff_table(table, ti)
+            if entry.get("formula"):
+                formula_label = QLabel(f"公式: {entry['formula']}")
+                formula_label.setWordWrap(True)
+                formula_label.setStyleSheet(f"padding: 8px; background: {AnthropicColors.BG_CARD}; border-radius: 6px; font-size: 12px;")
+                self.detail_layout.addWidget(formula_label)
+
+        # 计算按钮
+        calc_btn = make_accent_button("🧮 计算保险费")
+        calc_btn.clicked.connect(self._calculate)
+        self.detail_layout.addWidget(calc_btn)
+
+        # 结果区
+        self.addon_result_label = QLabel("")
+        self.addon_result_label.setWordWrap(True)
+        self.addon_result_label.setStyleSheet(f"font-size: 13px; padding: 10px;")
+        self.addon_result_label.hide()
+        self.detail_layout.addWidget(self.addon_result_label)
+
+        # 核保经验计费
+        manual_card = GlassCard()
+        manual_layout = QVBoxLayout(manual_card)
+        manual_layout.setContentsMargins(12, 10, 12, 10)
+        manual_layout.addWidget(QLabel("✏️ 核保经验计费"))
+        manual_hint = QLabel("手动输入附加险保费。若同时存在公式计算结果，以核保经验计费为准。")
+        manual_hint.setWordWrap(True)
+        manual_hint.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_TERTIARY};")
+        manual_layout.addWidget(manual_hint)
+        manual_row = QHBoxLayout()
+        self.manual_input = QDoubleSpinBox()
+        self.manual_input.setRange(-999999999, 999999999)
+        self.manual_input.setDecimals(2)
+        self.manual_input.setSuffix(" 元")
+        manual_row.addWidget(self.manual_input, 1)
+        manual_btn = QPushButton("确认计入")
+        manual_btn.setCursor(Qt.PointingHandCursor)
+        manual_btn.setStyleSheet(f"QPushButton {{ background: #f59e0b; color: white; border: none; border-radius: 6px; padding: 8px 14px; }}")
+        manual_btn.clicked.connect(self._add_manual_premium)
+        manual_row.addWidget(manual_btn)
+        manual_layout.addLayout(manual_row)
+        self.detail_layout.addWidget(manual_card)
+
+        self.detail_layout.addStretch()
+
+    def _render_addon_coeff_table(self, table, table_idx):
+        card = GlassCard()
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(4)
+        title = QLabel(table.get("name", "调整系数"))
+        title.setStyleSheet(f"font-weight: 600; font-size: 13px;")
+        layout.addWidget(title)
+        if table.get("supportsInterpolation"):
+            interp = QLabel("支持线性插值")
+            interp.setStyleSheet(f"font-size: 11px; color: #3b82f6;")
+            layout.addWidget(interp)
+        for ri, row in enumerate(table.get("rows", [])):
+            sel = self.coeff_selections.get(table_idx)
+            is_selected = sel and sel.get("rowIdx") == ri
+            btn = QPushButton(f"{row['parameter']}    {row['coefficient']}")
+            btn.setCursor(Qt.PointingHandCursor)
+            bg = AnthropicColors.ACCENT if is_selected else AnthropicColors.BG_PRIMARY
+            fg = AnthropicColors.TEXT_LIGHT if is_selected else AnthropicColors.TEXT_PRIMARY
+            btn.setStyleSheet(f"""
+                QPushButton {{ background: {bg}; color: {fg}; border: 1px solid {AnthropicColors.BORDER};
+                    border-radius: 6px; padding: 5px 10px; font-size: 12px; text-align: left; }}
+                QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; }}
+            """)
+            btn.clicked.connect(lambda checked, ti=table_idx, r=ri: self._select_addon_coeff_row(ti, r))
+            layout.addWidget(btn)
+        # 滑块
+        sel = self.coeff_selections.get(table_idx)
+        if sel and sel.get("parsedValue", {}).get("type") == "range":
+            pv = sel["parsedValue"]
+            current_val = sel.get("value", pv["min"])
+            slider_layout = QHBoxLayout()
+            slider_label = QLabel(f"{current_val:.2f}")
+            slider_label.setStyleSheet(f"font-weight: 600; color: {AnthropicColors.ACCENT};")
+            slider_layout.addWidget(QLabel("精确系数:"))
+            slider_layout.addWidget(slider_label)
+            slider = QSlider(Qt.Horizontal)
+            slider.setMinimum(int(pv["min"] * 100))
+            slider.setMaximum(int(pv["max"] * 100))
+            slider.setValue(int(current_val * 100))
+            ti_ref = table_idx
+            slider.valueChanged.connect(lambda v, ti=ti_ref, lbl=slider_label: self._on_addon_slider_change(ti, v, lbl))
+            slider_layout.addWidget(slider, 1)
+            layout.addLayout(slider_layout)
+        self.detail_layout.addWidget(card)
+
+    def _select_addon_coeff_row(self, table_idx, row_idx):
+        entry = self.selected_entry
+        if not entry or not entry.get("coefficientTables"):
+            return
+        table = entry["coefficientTables"][table_idx]
+        row = table["rows"][row_idx]
+        pv = row["parsedValue"]
+        value = pv.get("value", pv.get("min", 1.0)) if pv["type"] != "text" else 1.0
+        self.coeff_selections[table_idx] = {"rowIdx": row_idx, "value": value, "parsedValue": pv,
+                                            "parameter": row["parameter"], "coefficient": row["coefficient"]}
+        self._render_detail()
+
+    def _on_addon_slider_change(self, table_idx, int_value, label_widget):
+        value = int_value / 100.0
+        if table_idx in self.coeff_selections:
+            self.coeff_selections[table_idx]["value"] = value
+        label_widget.setText(f"{value:.2f}")
+
+    # ---------- 计算引擎 ----------
+    def _calculate(self):
+        entry = self.selected_entry
+        if not entry:
+            self._log("请先选择费率方案", "warn")
+            return
+        self.main_premium = self.main_premium_input.value()
+        if self.main_premium <= 0 and entry.get("rateType") != "regulatory":
+            self._log("请输入有效的主险保险费", "warn")
+            return
+        rate_type = entry.get("rateType", "")
+        try:
+            if rate_type == "simple_percentage":
+                result = self._calc_simple(entry)
+            elif rate_type == "formula_conditional":
+                result = self._calc_formula(entry)
+            elif rate_type == "table_coefficient":
+                result = self._calc_table(entry)
+            else:
+                self._log("规范类条款不涉及保险费计算")
+                return
+        except Exception as e:
+            self._log(f"计算错误: {e}", "error")
+            return
+        self.addon_result_label.setText(f"✅ {result['formulaDisplay']}\n保费: {fmt_currency(result['premium'])}")
+        self.addon_result_label.setStyleSheet(f"font-size: 13px; padding: 12px; background: #ecfdf5; border-radius: 8px; color: #065f46;")
+        self.addon_result_label.show()
+        self._add_premium_item(entry["clauseName"], result["premium"], result["formulaDisplay"])
+        self._log(f"计算完成: {fmt_currency(result['premium'])}", "success")
+
+    def _calc_simple(self, entry):
+        rate = entry.get("multiplier", entry.get("percentage", 0) / 100)
+        if not entry.get("multiplier"):
+            rate = entry.get("percentage", 0) / 100
+        premium = self.main_premium * rate
+        if entry.get("multiplier"):
+            formula_str = f"{fmt_currency(self.main_premium)} × {entry['multiplier']} = {fmt_currency(premium)}"
+        else:
+            formula_str = f"{fmt_currency(self.main_premium)} × {entry.get('percentage', 0)}% = {fmt_currency(premium)}"
+        return {"type": "simple_percentage", "premium": premium, "formulaDisplay": formula_str}
+
+    def _calc_formula(self, entry):
+        cond_limit = getattr(self, 'cond_limit_input', None)
+        main_limit = getattr(self, 'main_limit_input', None)
+        cond_val = cond_limit.value() if cond_limit else 0
+        main_val = main_limit.value() if main_limit else 0
+        if entry.get("percentage") and not cond_val and not main_val:
+            premium = self.main_premium * (entry["percentage"] / 100)
+            return {"type": "formula_conditional", "premium": premium,
+                    "formulaDisplay": f"{fmt_currency(self.main_premium)} × {entry['percentage']}% = {fmt_currency(premium)}"}
+        if entry.get("baseRatePercent") and cond_val > 0 and main_val > 0:
+            base_rate = entry["baseRatePercent"] / 100
+            ratio = cond_val / main_val
+            if cond_val < main_val:
+                premium = -(self.main_premium * base_rate * (1 - ratio))
+                desc = f"减收 {fmt_currency(abs(premium))}"
+            elif cond_val > main_val:
+                premium = self.main_premium * base_rate * (ratio - 1)
+                desc = f"加收 {fmt_currency(premium)}"
+            else:
+                premium = 0
+                desc = "不调整"
+            return {"type": "formula_conditional", "premium": premium, "formulaDisplay": f"{desc} (比例={ratio:.4f})"}
+        pct = entry.get("baseRatePercent") or entry.get("percentage") or 0
+        premium = self.main_premium * (pct / 100)
+        return {"type": "formula_conditional", "premium": premium,
+                "formulaDisplay": f"按基准费率 {pct}% 计算 = {fmt_currency(premium)}"}
+
+    def _calc_table(self, entry):
+        base_premium = self.main_premium
+        bp = entry.get("basePremium", {})
+        if bp.get("multiplier"):
+            base_premium = self.main_premium * bp["multiplier"]
+        elif bp.get("percentage"):
+            base_premium = self.main_premium * (bp["percentage"] / 100)
+        product = 1.0
+        coeff_details = []
+        table_count = len(entry.get("coefficientTables", []))
+        for ti in range(table_count):
+            sel = self.coeff_selections.get(ti)
+            if not sel:
+                raise ValueError(f"请选择"{entry['coefficientTables'][ti]['name']}"的系数值")
+            product *= sel["value"]
+            coeff_details.append({"table": entry["coefficientTables"][ti]["name"], "parameter": sel["parameter"], "value": sel["value"]})
+        premium = base_premium * product
+        base_str = (f"{fmt_currency(self.main_premium)} × {bp['multiplier']}" if bp.get("multiplier")
+                    else f"{fmt_currency(self.main_premium)} × {bp['percentage']}%" if bp.get("percentage")
+                    else fmt_currency(self.main_premium))
+        coeff_str = " × ".join(f"{c['value']:.4f}" for c in coeff_details)
+        return {"type": "table_coefficient", "premium": premium,
+                "formulaDisplay": f"基准 {base_str} = {fmt_currency(base_premium)} × 系数 ({coeff_str}) = {fmt_currency(premium)}"}
+
+    # ---------- 保费汇总管理 ----------
+    def _add_premium_item(self, clause_name, premium, formula):
+        existing_idx = next((i for i, item in enumerate(self.premium_items) if item["clauseName"] == clause_name), -1)
+        new_item = {"id": id(formula), "clauseName": clause_name, "premium": premium, "formula": formula}
+        if existing_idx >= 0:
+            self.premium_items[existing_idx] = new_item
+            self._log(f"已更新: {clause_name} 的保费")
+        else:
+            self.premium_items.append(new_item)
+        self._render_premium_summary()
+
+    def _remove_premium_item(self, item_id):
+        self.premium_items = [item for item in self.premium_items if item["id"] != item_id]
+        self._render_premium_summary()
+        self._log("已移除一项附加险保费")
+
+    def _render_premium_summary(self):
+        while self.premium_list_layout.count():
+            item = self.premium_list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        if not self.premium_items:
+            empty = QLabel("计算附加险保费后\n将自动添加到此列表")
+            empty.setAlignment(Qt.AlignCenter)
+            empty.setStyleSheet(f"color: {AnthropicColors.TEXT_TERTIARY}; font-size: 12px; padding: 20px;")
+            self.premium_list_layout.addWidget(empty)
+            self.addon_total_label.setText("附加险合计: ¥0.00")
+            self.annual_total_label.setText("保单预估年保费: ¥0.00")
+            return
+
+        addon_total = 0.0
+        for item in self.premium_items:
+            addon_total += item["premium"]
+            row_widget = QWidget()
+            row_layout = QHBoxLayout(row_widget)
+            row_layout.setContentsMargins(8, 4, 8, 4)
+            info_layout = QVBoxLayout()
+            name_lbl = QLabel(item["clauseName"])
+            name_lbl.setStyleSheet(f"font-size: 12px; font-weight: 500;")
+            info_layout.addWidget(name_lbl)
+            amount_lbl = QLabel(f"{'−' if item['premium'] < 0 else ''}{fmt_currency(item['premium'])}")
+            amount_lbl.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.ACCENT};")
+            info_layout.addWidget(amount_lbl)
+            row_layout.addLayout(info_layout, 1)
+            del_btn = QPushButton("×")
+            del_btn.setFixedSize(24, 24)
+            del_btn.setCursor(Qt.PointingHandCursor)
+            del_btn.setStyleSheet(f"QPushButton {{ background: transparent; color: {AnthropicColors.TEXT_TERTIARY}; border: none; font-size: 16px; }} QPushButton:hover {{ color: #ef4444; }}")
+            item_id = item["id"]
+            del_btn.clicked.connect(lambda checked, iid=item_id: self._remove_premium_item(iid))
+            row_layout.addWidget(del_btn)
+            row_widget.setStyleSheet(f"background: {AnthropicColors.BG_CARD}; border-radius: 6px;")
+            self.premium_list_layout.addWidget(row_widget)
+
+        self.addon_total_label.setText(f"附加险合计: {'−' if addon_total < 0 else ''}{fmt_currency(addon_total)}")
+        main_val = self.main_premium_input.value()
+        annual_total = main_val + addon_total
+        self.annual_total_label.setText(f"保单预估年保费: {'−' if annual_total < 0 else ''}{fmt_currency(annual_total)}")
+        self._calc_short_term()
+
+    # ---------- 短期保费计算 ----------
+    def _calc_short_term(self):
+        start = self.start_date.date()
+        end = self.end_date.date()
+        if end <= start:
+            self.short_term_result.setText("终止日须晚于起保日")
+            self.short_term_result.setStyleSheet(f"color: #ef4444; font-size: 11px;")
+            return
+        insurance_days = start.daysTo(end)
+        start_year = start.year()
+        year_days = 366 if is_leap_year(start_year) else 365
+        main_val = self.main_premium_input.value()
+        addon_total = sum(item["premium"] for item in self.premium_items)
+        annual_total = main_val + addon_total
+        short_premium = annual_total / year_days * insurance_days
+        leap_text = f"（闰年 {year_days}天）" if year_days == 366 else f"（平年 {year_days}天）"
+        self.short_term_result.setText(
+            f"保险天数: {insurance_days} 天 · {start_year}年{leap_text}\n"
+            f"{fmt_currency(abs(annual_total))} ÷ {year_days} × {insurance_days}\n"
+            f"短期保费: {'−' if short_premium < 0 else ''}{fmt_currency(short_premium)}")
+        self.short_term_result.setStyleSheet(f"font-size: 12px; color: {AnthropicColors.ACCENT}; font-weight: 600;")
+
+    # ---------- 核保经验计费 ----------
+    def _add_manual_premium(self):
+        if not self.selected_entry:
+            self._log("请先选择条款", "warn")
+            return
+        manual_val = self.manual_input.value()
+        self._add_premium_item(self.selected_entry["clauseName"], manual_val, f"核保经验计费: {fmt_currency(manual_val)}")
+        self._log(f"核保经验计费: {self.selected_entry['clauseName']} → {fmt_currency(manual_val)}", "success")
+
+    # ---------- 询价导入 ----------
+    def _handle_inquiry_import(self):
+        if not self.rate_data or not self.rate_data.get("entries"):
+            self._log("请先加载费率方案数据", "warn")
+            return
+        file_path, _ = QFileDialog.getOpenFileName(self, "导入询价文件", "", "询价文件 (*.xlsx *.docx);;Excel (*.xlsx);;Word (*.docx)")
+        if not file_path:
+            return
+        if file_path.endswith(".xlsx"):
+            self._parse_inquiry_excel(file_path)
+        elif file_path.endswith(".docx"):
+            self._parse_inquiry_docx(file_path)
+
+    def _parse_inquiry_excel(self, file_path):
+        try:
+            from openpyxl import load_workbook
+        except ImportError:
+            self._log("openpyxl 未安装，请运行: pip install openpyxl", "error")
+            return
+        try:
+            wb = load_workbook(file_path, read_only=True)
+            ws = wb.active
+            clause_names = []
+            for row in ws.iter_rows():
+                if len(row) > 5 and row[5].value:
+                    val = str(row[5].value).strip()
+                    if len(val) > 2 and val not in ("附加条款", "条款名称") and "附加" in val:
+                        clause_names.append(val)
+            if not clause_names:
+                for row in ws.iter_rows():
+                    for cell in row:
+                        val = str(cell.value or "").strip()
+                        if len(val) > 4 and "附加" in val and val not in clause_names:
+                            clause_names.append(val)
+            wb.close()
+            self._match_inquiry_clauses(clause_names, os.path.basename(file_path))
+        except Exception as e:
+            self._log(f"Excel 解析失败: {e}", "error")
+
+    def _parse_inquiry_docx(self, file_path):
+        try:
+            from docx import Document
+        except ImportError:
+            self._log("python-docx 未安装", "error")
+            return
+        try:
+            doc = Document(file_path)
+            clause_names = []
+            for p in doc.paragraphs:
+                for run in p.runs:
+                    if run.font.color and run.font.color.rgb:
+                        rgb = str(run.font.color.rgb)
+                        if rgb.startswith("0000") or rgb.lower() in ("0000ff", "0000cd", "0000ee"):
+                            text = run.text.strip()
+                            if len(text) > 2:
+                                clause_names.append(text)
+            if not clause_names:
+                for p in doc.paragraphs:
+                    text = p.text.strip()
+                    if "附加" in text and 4 < len(text) < 60:
+                        clause_names.append(text)
+            self._match_inquiry_clauses(clause_names, os.path.basename(file_path))
+        except Exception as e:
+            self._log(f"Docx 解析失败: {e}", "error")
+
+    def _match_clause_name(self, imported_name, entries):
+        normalized = imported_name.replace(" ", "").replace("（", "(").replace("）", ")")
+        for e in entries:
+            entry_norm = e["clauseName"].replace(" ", "").replace("（", "(").replace("）", ")")
+            if entry_norm == normalized:
+                return e
+        for e in entries:
+            entry_norm = e["clauseName"].replace(" ", "").replace("（", "(").replace("）", ")")
+            if normalized in entry_norm or entry_norm in normalized:
+                return e
+        core = re.sub(r"^附加", "", normalized)
+        core = re.sub(r"条款$|扩展$", "", core)
+        if len(core) < 3:
+            return None
+        for e in entries:
+            entry_core = re.sub(r"^附加", "", e["clauseName"].replace(" ", ""))
+            entry_core = re.sub(r"条款$|扩展$", "", entry_core)
+            if core in entry_core or entry_core in core:
+                return e
+        return None
+
+    def _match_inquiry_clauses(self, clause_names, file_name):
+        if not clause_names:
+            self.inquiry_status.setText("未识别到条款名称")
+            return
+        entries = self.rate_data["entries"]
+        matched = []
+        unmatched = []
+        seen = set()
+        for name in clause_names:
+            entry = self._match_clause_name(name, entries)
+            if entry and entry["sourceFile"] not in seen:
+                matched.append({"importedName": name, "entry": entry})
+                seen.add(entry["sourceFile"])
+            elif not entry:
+                unmatched.append(name)
+        self.inquiry_status.setText(f"{file_name} → 识别 {len(clause_names)} 条，匹配 {len(matched)} 条")
+        if matched:
+            self.batch_calc_btn.show()
+            self.batch_calc_btn.setText(f"⚡ 一键计算全部（{len(matched)} 条）")
+            self._batch_matched = matched
+        else:
+            self.batch_calc_btn.hide()
+        self._log(f"导入 {file_name}：识别 {len(clause_names)} 条，匹配 {len(matched)} 条")
+
+    def _batch_calculate(self):
+        matched = getattr(self, '_batch_matched', [])
+        if not matched:
+            self._log("无匹配条款可计算", "warn")
+            return
+        self.main_premium = self.main_premium_input.value()
+        if self.main_premium <= 0:
+            self._log("请先输入主险保险费", "warn")
+            return
+        calc_count = 0
+        skip_count = 0
+        for item in matched:
+            entry = item["entry"]
+            if entry["rateType"] == "regulatory":
+                skip_count += 1
+                continue
+            if entry["rateType"] == "simple_percentage":
+                rate = entry.get("multiplier", entry.get("percentage", 0) / 100)
+                if not entry.get("multiplier"):
+                    rate = entry.get("percentage", 0) / 100
+                premium = self.main_premium * rate
+                if entry.get("multiplier"):
+                    formula_str = f"{fmt_currency(self.main_premium)} × {entry['multiplier']} = {fmt_currency(premium)}"
+                else:
+                    formula_str = f"{fmt_currency(self.main_premium)} × {entry.get('percentage', 0)}% = {fmt_currency(premium)}"
+                self._add_premium_item(entry["clauseName"], premium, formula_str)
+                calc_count += 1
+            else:
+                self._add_premium_item(entry["clauseName"], 0, "需手动计算或核保经验计费")
+                skip_count += 1
+        self._log(f"批量计算完成: {calc_count} 条已计算, {skip_count} 条需手动处理", "success")
