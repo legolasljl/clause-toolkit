@@ -2415,7 +2415,27 @@
                 </div>
             </div>
 
-            <!-- 主内容区：左列表 + 右详情 -->
+            <!-- 主险保费信息栏 -->
+            <div class="card" id="rc_mainPremiumBar" style="display:none;">
+                <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+                    <div class="mc-input-group" style="flex:1;min-width:200px;">
+                        <label style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">主险保险费（元）</label>
+                        <input type="number" id="rc_mainPremiumInput" value="" step="0.01"
+                               placeholder="请输入主险保险费金额" oninput="rc_mainPremium=parseFloat(this.value)||0"
+                               style="height:40px;border-radius:8px;border:1px solid var(--border-color);padding:0 12px;font-size:15px;font-weight:600;width:100%;">
+                    </div>
+                    <div class="mc-input-group" style="flex:1;min-width:200px;">
+                        <label style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">每人保费（元）（个别附加险有需要）</label>
+                        <input type="number" id="rc_perPersonPremiumInput" value="" step="0.01"
+                               placeholder="每人保费金额" oninput="rc_perPersonPremium=parseFloat(this.value)||0"
+                               style="height:40px;border-radius:8px;border:1px solid var(--border-color);padding:0 12px;font-size:15px;font-weight:600;width:100%;">
+                    </div>
+                    <div id="rc_mainPremiumDisplay" style="flex:1;min-width:200px;display:flex;gap:12px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区：左列表 + 中详情 + 右汇总 -->
             <div class="rc-main-layout" id="rc_mainLayout" style="display:none;">
                 <!-- 条款列表 -->
                 <div class="rc-clause-list-panel">
@@ -9353,6 +9373,7 @@ ${fileList}
         // --- UI Init ---
         function rc_initUI() {
             document.getElementById('rc_searchCard').style.display = '';
+            document.getElementById('rc_mainPremiumBar').style.display = '';
             document.getElementById('rc_mainLayout').style.display = '';
 
             // Populate industry filter
@@ -9448,20 +9469,6 @@ ${fileList}
                 panel.innerHTML = html;
                 return;
             }
-
-            // Main premium input
-            html += '<div class="rc-input-group">' +
-                '<label>主险保险费 (元)</label>' +
-                '<input type="number" id="rc_mainPremiumInput" value="' + (rc_mainPremium || '') + '" ' +
-                'placeholder="请输入主险保险费金额" oninput="rc_mainPremium=parseFloat(this.value)||0">' +
-                '</div>';
-
-            // Per-person premium input (for certain additional insurances)
-            html += '<div class="rc-input-group">' +
-                '<label>每人保费（元）（个别附加险有需要）</label>' +
-                '<input type="number" id="rc_perPersonPremiumInput" value="' + (rc_perPersonPremium || '') + '" ' +
-                'placeholder="每人保费金额" oninput="rc_perPersonPremium=parseFloat(this.value)||0">' +
-                '</div>';
 
             if (e.rateType === 'simple_percentage') {
                 html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;">' +
