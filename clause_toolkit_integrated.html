@@ -10668,10 +10668,9 @@ ${fileList}
             return html;
         }
 
-        // 计算 range 类型的默认值（区间中点，考虑开闭区间）
+        // 计算 range 类型的默认值（区间最小值）
         function mc_rangeDefault(row) {
-            var mid = (row.min + row.max) / 2;
-            return Math.round(mid * 100) / 100;
+            return row.min;
         }
 
         // 计算滑块步长
