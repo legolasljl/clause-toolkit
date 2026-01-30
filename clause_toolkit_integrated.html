@@ -9525,6 +9525,17 @@ ${fileList}
             // Result placeholder
             html += '<div id="rc_resultArea"></div>';
 
+            // 核保经验计费（手动输入）
+            html += '<div style="margin-top:16px;padding:12px;background:var(--warning-bg);border:1px dashed var(--warning-color);border-radius:8px;">';
+            html += '<div style="font-size:13px;font-weight:600;color:var(--warning-color);margin-bottom:8px;">✏️ 核保经验计费</div>';
+            html += '<div style="font-size:11px;color:var(--text-tertiary);margin-bottom:8px;">手动输入附加险保费。若同时存在公式计算结果，以核保经验计费为准。</div>';
+            html += '<div style="display:flex;gap:8px;align-items:center;">';
+            html += '<input type="number" id="rc_manualPremiumInput" step="0.01" placeholder="手动输入保费金额（元）" ' +
+                'style="flex:1;height:34px;border:1px solid var(--warning-color);border-radius:6px;padding:0 10px;font-size:13px;">';
+            html += '<button class="btn" onclick="rc_addManualPremium()" ' +
+                'style="height:34px;padding:0 14px;font-size:12px;background:var(--warning-color);color:#fff;border:none;white-space:nowrap;">确认计入</button>';
+            html += '</div></div>';
+
             panel.innerHTML = html;
         }
 
@@ -9768,6 +9779,38 @@ ${fileList}
                 '<div class="rc-result-amount">' + sign + '¥ ' + rc_formatNumber(absVal) + '</div>' +
                 (result.premium < 0 ? '<div class="rc-result-details" style="color:var(--info-color);">负值表示减收保险费</div>' : '') +
                 '</div>';
+        }
+
+        // --- 核保经验计费 ---
+        function rc_addManualPremium() {
+            var e = rc_selectedEntry;
+            if (!e) {
+                rc_log('⚠️ 请先选择条款', 'warning');
+                return;
+            }
+            var input = document.getElementById('rc_manualPremiumInput');
+            if (!input || !input.value) {
+                rc_log('⚠️ 请输入核保经验保费金额', 'warning');
+                return;
+            }
+            var manualPremium = parseFloat(input.value);
+            if (isNaN(manualPremium)) {
+                rc_log('⚠️ 请输入有效数字', 'warning');
+                return;
+            }
+
+            // 添加到累加列表（会自动覆盖同名条款的公式计算结果）
+            rc_addPremiumItem(e.clauseName, manualPremium, '核保经验计费: ¥' + rc_formatNumber(Math.abs(manualPremium)));
+            rc_log('✅ 核保经验计费: ' + e.clauseName + ' → ¥' + rc_formatNumber(Math.abs(manualPremium)), 'success');
+
+            // 更新结果区域
+            var area = document.getElementById('rc_resultArea');
+            if (area) {
+                area.innerHTML = '<div class="rc-result-panel success">' +
+                    '<div class="rc-result-formula">核保经验计费（覆盖公式计算）</div>' +
+                    '<div class="rc-result-amount">¥ ' + rc_formatNumber(Math.abs(manualPremium)) + '</div>' +
+                    '</div>';
+            }
         }
 
         // --- 附加险保费累加管理 ---
