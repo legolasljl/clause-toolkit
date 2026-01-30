@@ -1302,7 +1302,7 @@
         }
         .rc-main-layout {
             display: grid;
-            grid-template-columns: 340px 1fr;
+            grid-template-columns: 340px 1fr 260px;
             gap: 16px;
             margin-bottom: 16px;
         }
@@ -1368,6 +1368,90 @@
             border-radius: 12px;
             padding: 20px;
             min-height: 500px;
+        }
+        .rc-premium-summary-panel {
+            background: white;
+            border: 2px solid var(--error-color);
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 700px;
+            overflow-y: auto;
+        }
+        .rc-premium-summary-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .rc-premium-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bg-tertiary);
+            gap: 8px;
+        }
+        .rc-premium-item:last-child {
+            border-bottom: none;
+        }
+        .rc-premium-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .rc-premium-item-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        .rc-premium-item-amount {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--success-color);
+            margin-top: 2px;
+        }
+        .rc-premium-item-delete {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: var(--error-bg);
+            color: var(--error-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: center;
+            transition: all 0.15s;
+        }
+        .rc-premium-item-delete:hover {
+            background: var(--error-color);
+            color: white;
+        }
+        .rc-premium-total {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid var(--text-primary);
+            text-align: right;
+        }
+        .rc-premium-total-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .rc-premium-total-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--error-color);
+        }
+        .rc-premium-empty {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            padding: 40px 12px;
+            line-height: 1.6;
         }
         .rc-detail-placeholder {
             display: flex;
@@ -1549,6 +1633,14 @@
             font-family: var(--font-mono);
         }
 
+        @media (max-width: 1100px) {
+            .rc-main-layout {
+                grid-template-columns: 340px 1fr;
+            }
+            .rc-premium-summary-panel {
+                grid-column: 1 / -1;
+            }
+        }
         @media (max-width: 800px) {
             .rc-main-layout {
                 grid-template-columns: 1fr;
@@ -2335,6 +2427,14 @@
                     <div class="rc-detail-placeholder">
                         <span style="font-size:48px;">📊</span>
                         <p>请从左侧选择一个费率方案</p>
+                    </div>
+                </div>
+
+                <!-- 附加险保费累加面板 -->
+                <div class="rc-premium-summary-panel" id="rc_premiumSummaryPanel">
+                    <div class="rc-premium-summary-title">📋 附加险保费汇总</div>
+                    <div id="rc_premiumItemList">
+                        <div class="rc-premium-empty">计算附加险保费后<br>将自动添加到此列表</div>
                     </div>
                 </div>
             </div>
@@ -8958,7 +9058,9 @@ ${fileList}
         let rc_selectedEntry = null;
         let rc_coeffSelections = {};
         let rc_mainPremium = 0;
+        let rc_perPersonPremium = 0;
         let rc_lastResult = null;
+        let rc_premiumItems = [];
 
         // --- 日志 ---
         function rc_log(msg, level) {
@@ -9354,6 +9456,13 @@ ${fileList}
                 'placeholder="请输入主险保险费金额" oninput="rc_mainPremium=parseFloat(this.value)||0">' +
                 '</div>';
 
+            // Per-person premium input (for certain additional insurances)
+            html += '<div class="rc-input-group">' +
+                '<label>每人保费（元）（个别附加险有需要）</label>' +
+                '<input type="number" id="rc_perPersonPremiumInput" value="' + (rc_perPersonPremium || '') + '" ' +
+                'placeholder="每人保费金额" oninput="rc_perPersonPremium=parseFloat(this.value)||0">' +
+                '</div>';
+
             if (e.rateType === 'simple_percentage') {
                 html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;">' +
                     '<strong>费率: </strong>';
@@ -9517,6 +9626,10 @@ ${fileList}
 
             rc_lastResult = result;
             rc_renderResult(result);
+
+            // 自动添加到保费累加列表
+            rc_addPremiumItem(e.clauseName, result.premium, result.formulaDisplay);
+
             rc_log('✅ 计算完成: ' + rc_formatCurrency(result.premium), 'success');
         }
 
@@ -9648,6 +9761,75 @@ ${fileList}
                 '<div class="rc-result-amount">' + sign + '¥ ' + rc_formatNumber(absVal) + '</div>' +
                 (result.premium < 0 ? '<div class="rc-result-details" style="color:var(--info-color);">负值表示减收保险费</div>' : '') +
                 '</div>';
+        }
+
+        // --- 附加险保费累加管理 ---
+        function rc_addPremiumItem(clauseName, premium, formula) {
+            // 检查是否已存在同名条款，若存在则更新
+            var existingIdx = -1;
+            for (var i = 0; i < rc_premiumItems.length; i++) {
+                if (rc_premiumItems[i].clauseName === clauseName) {
+                    existingIdx = i;
+                    break;
+                }
+            }
+
+            var item = {
+                id: Date.now(),
+                clauseName: clauseName,
+                premium: premium,
+                formula: formula
+            };
+
+            if (existingIdx >= 0) {
+                rc_premiumItems[existingIdx] = item;
+                rc_log('🔄 已更新: ' + clauseName + ' 的保费', 'info');
+            } else {
+                rc_premiumItems.push(item);
+            }
+
+            rc_renderPremiumSummary();
+        }
+
+        function rc_removePremiumItem(id) {
+            rc_premiumItems = rc_premiumItems.filter(function (item) {
+                return item.id !== id;
+            });
+            rc_renderPremiumSummary();
+            rc_log('🗑️ 已移除一项附加险保费', 'info');
+        }
+
+        function rc_renderPremiumSummary() {
+            var container = document.getElementById('rc_premiumItemList');
+            if (!container) return;
+
+            if (rc_premiumItems.length === 0) {
+                container.innerHTML = '<div class="rc-premium-empty">计算附加险保费后<br>将自动添加到此列表</div>';
+                return;
+            }
+
+            var html = '';
+            var total = 0;
+            rc_premiumItems.forEach(function (item) {
+                total += item.premium;
+                var sign = item.premium >= 0 ? '' : '-';
+                var absVal = Math.abs(item.premium);
+                html += '<div class="rc-premium-item">' +
+                    '<div class="rc-premium-item-info">' +
+                    '<div class="rc-premium-item-name">' + rc_escHtml(item.clauseName) + '</div>' +
+                    '<div class="rc-premium-item-amount">' + sign + '¥' + rc_formatNumber(absVal) + '</div>' +
+                    '</div>' +
+                    '<button class="rc-premium-item-delete" onclick="rc_removePremiumItem(' + item.id + ')" title="移除">×</button>' +
+                    '</div>';
+            });
+
+            // 合计
+            html += '<div class="rc-premium-total">' +
+                '<div class="rc-premium-total-label">附加险保费合计</div>' +
+                '<div class="rc-premium-total-amount">' + (total >= 0 ? '' : '-') + '¥' + rc_formatNumber(Math.abs(total)) + '</div>' +
+                '</div>';
+
+            container.innerHTML = html;
         }
 
         // --- Excel Export ---
@@ -10900,18 +11082,23 @@ ${fileList}
 
             // 设置全局变量
             rc_mainPremium = mc_result.totalPremium;
+            rc_perPersonPremium = mc_result.perPersonPremium;
 
             // 更新附加险输入框
             const input = document.getElementById('rc_mainPremiumInput');
             if (input) {
                 input.value = mc_result.totalPremium.toFixed(2);
             }
+            const perInput = document.getElementById('rc_perPersonPremiumInput');
+            if (perInput) {
+                perInput.value = mc_result.perPersonPremium.toFixed(2);
+            }
 
             // 切换到附加险 Tab
             switchMainTab('rateCalc', null);
 
-            mc_log('已将主险保费 ' + mc_fmtCurrency(mc_result.totalPremium) + ' 传入附加险计算', 'success');
-            mc_showToast('已将主险保费 ' + mc_fmtCurrency(mc_result.totalPremium) + ' 传入附加险计算', 'success');
+            mc_log('已将主险保费 ' + mc_fmtCurrency(mc_result.totalPremium) + '、每人保费 ' + mc_fmtCurrency(mc_result.perPersonPremium) + ' 传入附加险计算', 'success');
+            mc_showToast('已将主险保费和每人保费传入附加险计算', 'success');
         }
 
         // --- 重置（保持险种/版本选择不变） ---
