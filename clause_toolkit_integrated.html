@@ -1335,6 +1335,10 @@
             background: var(--warning-bg);
             box-shadow: var(--shadow-md);
         }
+        .rc-clause-card.multi-selected {
+            border-color: var(--info-color);
+            background: var(--info-bg);
+        }
         .rc-clause-card-name {
             font-size: 13px;
             font-weight: 600;
@@ -2413,6 +2417,23 @@
                     </select>
                     <span class="rc-result-count" id="rc_resultCount"></span>
                 </div>
+            </div>
+
+            <!-- 导入询价条款 -->
+            <div class="card" id="rc_importInquiryCard" style="display:none;">
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);">📄 导入询价条款</div>
+                    <button class="btn" onclick="document.getElementById('rc_inquiryFileInput').click()" style="height:32px;font-size:12px;padding:0 12px;">
+                        导入 Excel / Word
+                    </button>
+                    <input type="file" id="rc_inquiryFileInput" class="hidden" accept=".xlsx,.xls,.docx" onchange="rc_handleInquiryImport(event)">
+                    <span id="rc_inquiryStatus" style="font-size:12px;color:var(--text-tertiary);"></span>
+                    <button class="btn btn-primary" id="rc_batchCalcBtn" style="display:none;height:32px;font-size:12px;padding:0 14px;margin-left:auto;" onclick="rc_batchCalculate()">
+                        ⚡ 一键计算全部
+                    </button>
+                </div>
+                <!-- 匹配结果 -->
+                <div id="rc_inquiryMatchResult" style="margin-top:8px;"></div>
             </div>
 
             <!-- 主险保费信息栏 -->
@@ -9081,6 +9102,7 @@ ${fileList}
         let rc_perPersonPremium = 0;
         let rc_lastResult = null;
         let rc_premiumItems = [];
+        let rc_multiSelectedEntries = [];  // 多选的条款（导入询价时使用）
 
         // --- 日志 ---
         function rc_log(msg, level) {
@@ -9373,6 +9395,7 @@ ${fileList}
         // --- UI Init ---
         function rc_initUI() {
             document.getElementById('rc_searchCard').style.display = '';
+            document.getElementById('rc_importInquiryCard').style.display = '';
             document.getElementById('rc_mainPremiumBar').style.display = '';
             document.getElementById('rc_mainLayout').style.display = '';
 
@@ -9422,9 +9445,11 @@ ${fileList}
             let html = '';
             for (let i = 0; i < rc_filteredEntries.length; i++) {
                 const e = rc_filteredEntries[i];
-                const selected = rc_selectedEntry && rc_selectedEntry.sourceFile === e.sourceFile ? ' selected' : '';
-                html += '<div class="rc-clause-card' + selected + '" onclick="rc_selectEntry(' + i + ')">' +
-                    '<div class="rc-clause-card-name">' + rc_escHtml(e.clauseName) + '</div>' +
+                const isCurrent = rc_selectedEntry && rc_selectedEntry.sourceFile === e.sourceFile;
+                const isMulti = rc_multiSelectedEntries.some(function (m) { return m.sourceFile === e.sourceFile; });
+                const cardClass = isCurrent ? ' selected' : (isMulti ? ' multi-selected' : '');
+                html += '<div class="rc-clause-card' + cardClass + '" onclick="rc_selectEntry(' + i + ')">' +
+                    '<div class="rc-clause-card-name">' + (isMulti ? '☑ ' : '') + rc_escHtml(e.clauseName) + '</div>' +
                     '<div class="rc-clause-card-meta">' +
                     '<span class="rc-type-badge ' + e.rateType + '">' + (typeLabels[e.rateType] || e.rateType) + '</span>' +
                     '<span class="rc-industry-tag">' + rc_escHtml(e.industry) + '</span>' +
@@ -9965,6 +9990,289 @@ ${fileList}
             html += '</div>';
 
             resultDiv.innerHTML = html;
+        }
+
+        // --- 导入询价条款 ---
+        function rc_handleInquiryImport(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            event.target.value = '';
+
+            if (!rc_rateData || !rc_rateData.entries || rc_rateData.entries.length === 0) {
+                rc_log('⚠️ 请先加载费率方案数据', 'warning');
+                return;
+            }
+
+            var statusEl = document.getElementById('rc_inquiryStatus');
+            statusEl.textContent = '正在解析...';
+
+            if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                rc_parseInquiryExcel(file);
+            } else if (file.name.endsWith('.docx')) {
+                rc_parseInquiryDocx(file);
+            } else {
+                statusEl.textContent = '不支持的文件格式';
+            }
+        }
+
+        function rc_parseInquiryExcel(file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    var sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    // 从F列（index 5）提取条款名称
+                    var clauseNames = [];
+                    for (var r = 0; r < jsonData.length; r++) {
+                        var row = jsonData[r];
+                        if (row && row.length > 5 && row[5]) {
+                            var cellVal = String(row[5]).trim();
+                            // 过滤标题行和空值
+                            if (cellVal.length > 2 && cellVal !== '附加条款' && cellVal !== '条款名称'
+                                && cellVal.indexOf('附加') !== -1) {
+                                clauseNames.push(cellVal);
+                            }
+                        }
+                    }
+
+                    if (clauseNames.length === 0) {
+                        // 尝试搜索所有列中含"附加"的单元格
+                        for (var r2 = 0; r2 < jsonData.length; r2++) {
+                            var row2 = jsonData[r2];
+                            if (!row2) continue;
+                            for (var c = 0; c < row2.length; c++) {
+                                var val = String(row2[c] || '').trim();
+                                if (val.length > 4 && val.indexOf('附加') !== -1 && clauseNames.indexOf(val) === -1) {
+                                    clauseNames.push(val);
+                                }
+                            }
+                        }
+                    }
+
+                    rc_matchInquiryClauses(clauseNames, file.name);
+                } catch (err) {
+                    rc_log('❌ Excel解析失败: ' + err.message, 'error');
+                    document.getElementById('rc_inquiryStatus').textContent = '解析失败';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function rc_parseInquiryDocx(file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var arrayBuffer = e.target.result;
+                if (typeof mammoth === 'undefined') {
+                    rc_log('❌ mammoth.js 未加载', 'error');
+                    document.getElementById('rc_inquiryStatus').textContent = '解析库未加载';
+                    return;
+                }
+
+                // 使用 convertToHtml 以便识别蓝色字体
+                mammoth.convertToHtml({ arrayBuffer: arrayBuffer }).then(function (result) {
+                    var htmlContent = result.value;
+                    var clauseNames = [];
+
+                    // 提取蓝色字体的文本（style中含color:blue / color:#0000ff等）
+                    var bluePattern = /<[^>]*style="[^"]*color\s*:\s*(?:#0000[0-9a-fA-F]{2}|blue|#00f|rgb\(0\s*,\s*0\s*,\s*(?:1[2-9]\d|2[0-5]\d|255)\))[^"]*"[^>]*>([^<]+)<\/[^>]+>/gi;
+                    var match;
+                    while ((match = bluePattern.exec(htmlContent)) !== null) {
+                        var text = match[1].trim();
+                        if (text.length > 2) {
+                            clauseNames.push(text);
+                        }
+                    }
+
+                    // 如果蓝色未匹配到，尝试提取含"附加"的文本
+                    if (clauseNames.length === 0) {
+                        // 回退：提取纯文本中的附加条款
+                        mammoth.extractRawText({ arrayBuffer: arrayBuffer }).then(function (textResult) {
+                            var lines = textResult.value.split('\n');
+                            for (var i = 0; i < lines.length; i++) {
+                                var line = lines[i].trim();
+                                if (line.indexOf('附加') !== -1 && line.length > 4 && line.length < 60) {
+                                    clauseNames.push(line);
+                                }
+                            }
+                            rc_matchInquiryClauses(clauseNames, file.name);
+                        });
+                        return;
+                    }
+
+                    rc_matchInquiryClauses(clauseNames, file.name);
+                }).catch(function (err) {
+                    rc_log('❌ Docx解析失败: ' + err.message, 'error');
+                    document.getElementById('rc_inquiryStatus').textContent = '解析失败';
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- 条款名称模糊匹配 ---
+        function rc_matchClauseName(importedName, entries) {
+            var normalized = importedName.replace(/\s+/g, '').replace(/（/g, '(').replace(/）/g, ')');
+
+            // 精确匹配
+            for (var i = 0; i < entries.length; i++) {
+                var entryNorm = entries[i].clauseName.replace(/\s+/g, '').replace(/（/g, '(').replace(/）/g, ')');
+                if (entryNorm === normalized) return entries[i];
+            }
+
+            // 包含匹配（导入名称包含条款名称，或反之）
+            for (var j = 0; j < entries.length; j++) {
+                var entryNorm2 = entries[j].clauseName.replace(/\s+/g, '').replace(/（/g, '(').replace(/）/g, ')');
+                if (normalized.indexOf(entryNorm2) !== -1 || entryNorm2.indexOf(normalized) !== -1) {
+                    return entries[j];
+                }
+            }
+
+            // 关键词匹配：去掉"附加"前缀后匹配核心词
+            var coreImported = normalized.replace(/^附加/, '').replace(/条款$/, '').replace(/扩展$/, '');
+            if (coreImported.length < 3) return null;
+            for (var k = 0; k < entries.length; k++) {
+                var coreEntry = entries[k].clauseName.replace(/\s+/g, '').replace(/^附加/, '').replace(/条款$/, '').replace(/扩展$/, '');
+                if (coreEntry.indexOf(coreImported) !== -1 || coreImported.indexOf(coreEntry) !== -1) {
+                    return entries[k];
+                }
+            }
+
+            return null;
+        }
+
+        // --- 匹配结果展示 ---
+        function rc_matchInquiryClauses(clauseNames, fileName) {
+            var statusEl = document.getElementById('rc_inquiryStatus');
+            var resultEl = document.getElementById('rc_inquiryMatchResult');
+
+            if (clauseNames.length === 0) {
+                statusEl.textContent = '未识别到条款名称';
+                resultEl.innerHTML = '';
+                return;
+            }
+
+            var matched = [];
+            var unmatched = [];
+            var entries = rc_rateData.entries;
+
+            clauseNames.forEach(function (name) {
+                var entry = rc_matchClauseName(name, entries);
+                if (entry) {
+                    // 避免重复
+                    var isDup = matched.some(function (m) { return m.entry.sourceFile === entry.sourceFile; });
+                    if (!isDup) {
+                        matched.push({ importedName: name, entry: entry });
+                    }
+                } else {
+                    unmatched.push(name);
+                }
+            });
+
+            // 设置多选
+            rc_multiSelectedEntries = matched.map(function (m) { return m.entry; });
+            rc_renderClauseList();
+
+            statusEl.textContent = fileName + ' → 识别 ' + clauseNames.length + ' 条，匹配 ' + matched.length + ' 条';
+
+            // 显示匹配结果
+            var html = '<div style="margin-top:8px;max-height:150px;overflow-y:auto;">';
+
+            if (matched.length > 0) {
+                html += '<div style="font-size:12px;color:var(--success-color);margin-bottom:4px;">✅ 已匹配 ' + matched.length + ' 条：</div>';
+                matched.forEach(function (m) {
+                    html += '<div style="font-size:11px;padding:2px 0;color:var(--text-secondary);">' +
+                        '• ' + rc_escHtml(m.entry.clauseName);
+                    if (m.importedName !== m.entry.clauseName) {
+                        html += ' <span style="color:var(--text-tertiary);">← ' + rc_escHtml(m.importedName) + '</span>';
+                    }
+                    html += '</div>';
+                });
+            }
+
+            if (unmatched.length > 0) {
+                html += '<div style="font-size:12px;color:var(--warning-color);margin-top:6px;margin-bottom:4px;">⚠ 未匹配 ' + unmatched.length + ' 条：</div>';
+                unmatched.forEach(function (name) {
+                    html += '<div style="font-size:11px;padding:2px 0;color:var(--text-tertiary);">• ' + rc_escHtml(name) + '</div>';
+                });
+            }
+
+            html += '</div>';
+            resultEl.innerHTML = html;
+
+            // 显示一键计算按钮
+            var batchBtn = document.getElementById('rc_batchCalcBtn');
+            if (matched.length > 0) {
+                batchBtn.style.display = '';
+                batchBtn.textContent = '⚡ 一键计算全部（' + matched.length + ' 条）';
+            } else {
+                batchBtn.style.display = 'none';
+            }
+
+            rc_log('📄 导入 ' + fileName + '：识别 ' + clauseNames.length + ' 条条款，匹配 ' + matched.length + ' 条', 'info');
+        }
+
+        // --- 一键批量计算 ---
+        function rc_batchCalculate() {
+            if (rc_multiSelectedEntries.length === 0) {
+                rc_log('⚠️ 无匹配条款可计算', 'warning');
+                return;
+            }
+
+            rc_mainPremium = parseFloat(document.getElementById('rc_mainPremiumInput').value) || 0;
+            if (rc_mainPremium <= 0) {
+                rc_log('⚠️ 请先输入主险保险费', 'warning');
+                rc_showToast_rc('请先在上方输入主险保险费');
+                return;
+            }
+
+            var calcCount = 0;
+            var skipCount = 0;
+
+            rc_multiSelectedEntries.forEach(function (entry) {
+                // 只计算非规范类且为简单百分比的条款（最常见的自动计算场景）
+                if (entry.rateType === 'regulatory') {
+                    skipCount++;
+                    return;
+                }
+
+                var premium = 0;
+                var formulaStr = '';
+
+                if (entry.rateType === 'simple_percentage') {
+                    var rate = entry.multiplier ? entry.multiplier : (entry.percentage / 100);
+                    premium = rc_mainPremium * rate;
+                    formulaStr = entry.multiplier
+                        ? rc_formatCurrency(rc_mainPremium) + ' × ' + entry.multiplier + ' = ' + rc_formatCurrency(premium)
+                        : rc_formatCurrency(rc_mainPremium) + ' × ' + entry.percentage + '% = ' + rc_formatCurrency(premium);
+                    rc_addPremiumItem(entry.clauseName, premium, formulaStr);
+                    calcCount++;
+                } else {
+                    // 复杂类型（条件公式/系数表）标记为需手动计算
+                    rc_addPremiumItem(entry.clauseName, 0, '需手动计算或核保经验计费');
+                    skipCount++;
+                }
+            });
+
+            rc_log('⚡ 批量计算完成: ' + calcCount + ' 条已计算, ' + skipCount + ' 条需手动处理', 'success');
+            rc_showToast_rc('批量计算完成: ' + calcCount + ' 条已计算');
+        }
+
+        function rc_showToast_rc(msg) {
+            var toast = document.createElement('div');
+            toast.className = 'mc-toast mc-toast-info';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            requestAnimationFrame(function () {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            setTimeout(function () {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(-20px)';
+                setTimeout(function () { toast.remove(); }, 300);
+            }, 3000);
         }
 
         // --- Excel Export ---
