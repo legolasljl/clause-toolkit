@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Clause Comparison Assistant V18.5 (Enhanced Recognition Edition)
+Clause Comparison Assistant V18.8 (Precise Recognition Edition)
 智能条款工具箱
 - [性能] 预处理索引加速匹配 5-10x
 - [算法] 编辑距离容错 + 混合相似度
@@ -43,10 +43,12 @@ Clause Comparison Assistant V18.5 (Enhanced Recognition Edition)
 - [V18.5] 已映射条款名称优先识别为标题
 - [V18.5] 修复排除列表对 Heading 样式的优先级问题
 - [V18.5] 代码质量优化（预编译正则、常量定义、类型注解、辅助方法）
+- [V18.8] 精准识别模式：勾选后仅提取蓝色字体的条款，适用于干扰项多的文档
+- [V18.9] 加粗格式保留：条款库中的加粗文本在比对报告、Word输出、录单版全流程保留
 
 Author: Dachi Yijin
 Date: 2025-12-23
-Updated: 2026-01-25 (V18.5 Enhanced Recognition Edition)
+Updated: 2026-01-27 (V18.9 Bold Format Preservation)
 """
 
 import sys
@@ -174,6 +176,12 @@ try:
     HAS_TRANSLATOR = True
 except ImportError:
     HAS_TRANSLATOR = False
+
+try:
+    from insurance_calculator import MainInsuranceTab, AddonInsuranceTab
+    HAS_INSURANCE_CALC = True
+except ImportError:
+    HAS_INSURANCE_CALC = False
 
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
@@ -346,6 +354,7 @@ class ExcelColumns:
     CLIENT_ORIG = '客户条款(原)'
     CLIENT_TRANS = '客户条款(译)'
     CLIENT_CONTENT = '客户原始内容'
+    LIMIT_INFO = '约定的限额'  # v18.15: 提取的限额/约定信息
 
     # 多结果匹配列 (v17.1)
     # 匹配1
@@ -451,7 +460,6 @@ class DefaultConfig:
         "time adjustment": "72小时条款",
         "50/50 clause": "50/50条款",
         "85% co-insurance": "85％扩展条款",
-        "co-insurance extension clause": "85％扩展条款",
 
         # === 索赔与控制 ===
         "claims control clause": "理赔控制条款",
@@ -807,6 +815,157 @@ class DefaultConfig:
         # === 通用简写 ===
         "interpretation & headings": "通译和标题条款",
         "year 2000 problem exclusion clause": "财产险2000年问题除外责任条款",
+
+        # === 基本风险术语 (来自史带财产保险条款) ===
+        "fire": "火灾",
+        "lightning": "闪电",
+        "explosion": "爆炸",
+        "aircraft": "飞机",
+        "aircraft damage": "飞机损坏",
+
+        # === 特别列明风险 (SPECIAL PERILS) ===
+        "volcanic eruption": "火山爆发",
+        "subterranean fire": "地下火",
+        "cyclone": "飓风",
+        "windstorm": "风暴",
+        "bursting or overflowing": "爆裂或溢出",
+        "leakage from fire extinguishing appliance": "灭火设备渗漏",
+        "impact by vehicle": "车辆撞击",
+        "impact by animal": "动物撞击",
+        "smoke": "烟熏",
+        "frost": "霜冻",
+        "weight of snow or ice": "积雪积冰",
+        "avalanche": "雪崩",
+        "falling trees": "树木倒塌",
+        "falling trees or parts thereof": "树木或其部分倒塌",
+        "riot and strike": "暴动及罢工",
+
+        # === 理赔基础术语 (BASIS OF INDEMNIFICATION) ===
+        "reinstatement": "重置",
+        "actual cash value": "实际现金价值",
+        "feedstock": "原料",
+        "catalysts": "催化剂",
+        "sum insured": "保险金额",
+        "indemnified": "赔偿",
+        "indemnification": "赔偿",
+        "basis of indemnification": "理赔基础",
+
+        # === 除外财产术语 (PROPERTY EXCLUDED) ===
+        "cash": "现金",
+        "bank notes": "钞票",
+        "securities": "有价证券",
+        "deeds": "契约",
+        "bonds": "债券",
+        "bills of exchange": "汇票",
+        "promissory notes": "本票",
+        "cheques": "支票",
+        "jewellery": "珠宝",
+        "precious stones": "宝石",
+        "curiosities": "古玩",
+        "rare books": "珍本书籍",
+        "works of art": "艺术品",
+        "livestock": "牲畜",
+        "growing crops": "生长中的农作物",
+        "standing timber": "活立木",
+        "motor vehicles": "机动车辆",
+        "watercraft": "船舶",
+        "railway locomotives": "铁路机车",
+        "rolling stock": "机车车辆",
+        "mining property": "采矿财产",
+        "dams": "堤坝",
+        "dikes": "河堤",
+        "reservoirs": "蓄水池",
+        "property excluded": "除外财产",
+
+        # === 通用除外条款 (GENERAL EXCEPTED CAUSES) ===
+        "wilful act": "故意行为",
+        "gross negligence": "重大过失",
+        "wear and tear": "自然磨损",
+        "gradual deterioration": "逐渐老化",
+        "rust": "锈蚀",
+        "oxidisation": "氧化",
+        "oxidization": "氧化",
+        "mould": "霉变",
+        "mold": "霉变",
+        "contamination": "污染",
+        "inherent vice": "内在缺陷",
+        "latent defect": "潜在缺陷",
+        "mechanical breakdown": "机械故障",
+        "electrical breakdown": "电气故障",
+        "war": "战争",
+        "invasion": "入侵",
+        "civil war": "内战",
+        "rebellion": "暴动",
+        "revolution": "革命",
+        "insurrection": "起义",
+        "military power": "军事力量",
+        "usurped power": "篡权",
+        "confiscation": "没收",
+        "nationalisation": "国有化",
+        "nationalization": "国有化",
+        "requisition": "征用",
+        "destruction by order of government": "政府命令销毁",
+        "nuclear reaction": "核反应",
+        "nuclear radiation": "核辐射",
+        "radioactive contamination": "放射性污染",
+        "faulty design": "设计缺陷",
+        "faulty workmanship": "工艺缺陷",
+        "shortage of inventory": "盘点短缺",
+        "unexplained disappearance": "不明原因失踪",
+        "cessation of work": "停工",
+        "general excepted causes": "通用除外条款",
+        "excluded causes": "除外责任",
+
+        # === 通用条款术语 (GENERAL CONDITIONS) ===
+        "misrepresentation": "错误陈述",
+        "non-disclosure": "隐瞒",
+        "fraud": "欺诈",
+        "breach of warranty": "保证条款违反",
+        "notification of loss": "损失通知",
+        "claim": "索赔",
+        "particulars": "详情",
+        "evidence": "证据",
+        "abandonment": "委付",
+        "salvage": "救助",
+        "contribution": "分摊",
+        "arbitration": "仲裁",
+        "observance of terms": "遵守条款",
+        "rights of insurer": "保险人权利",
+        "other insurances": "其他保险",
+        "reasonable precautions": "合理预防措施",
+        "cancellation": "取消",
+        "subrogation": "代位追偿",
+        "premium": "保险费",
+        "general conditions": "通用条款",
+
+        # === 特别规定术语 (SPECIAL PROVISIONS) ===
+        "immediate repairs": "即时修复",
+        "interests of other parties": "其他方保险利益",
+        "interests of mortgagees": "抵押权人保险利益",
+        "premium payment warranty": "保费支付保证",
+        "premium payment": "保费支付",
+        "policy": "保单",
+        "insured": "被保险人",
+        "insurer": "保险人",
+        "schedule": "明细表",
+        "endorsement": "批单",
+        "special provisions": "特别规定",
+
+        # === 保险条款结构术语 ===
+        "insuring clause": "保险条款",
+        "preamble": "序言",
+        "definitions": "定义",
+        "coverage": "承保范围",
+        "perils insured": "承保风险",
+        "exclusions": "除外责任",
+        "conditions": "条款条件",
+        "memorandum": "备忘录",
+        "warranties": "保证条款",
+        "limit of liability": "责任限额",
+        "deductible": "免赔额",
+        "excess": "免赔额",
+        "period of insurance": "保险期间",
+        "territorial limits": "地域范围",
     }
 
     # ========================================
@@ -1186,6 +1345,68 @@ class ClauseMatcherLogic:
         return cls._excluded_titles
 
     @staticmethod
+    def _is_blue_text(run) -> bool:
+        """
+        v18.9: 检测文字是否为蓝色（用于精准识别模式）
+        支持多种蓝色格式：纯蓝色、深蓝、浅蓝等
+        """
+        try:
+            from docx.shared import RGBColor
+
+            # 检查 run 的字体颜色
+            if run.font and run.font.color:
+                color = run.font.color
+
+                # 方式1: RGB 颜色
+                if color.rgb:
+                    r, g, b = color.rgb[0], color.rgb[1], color.rgb[2]
+                    # 判断是否为蓝色系：B分量明显大于R和G
+                    # 宽松匹配：B > 100 且 B > R 且 B > G
+                    if b > 100 and b > r and b > g:
+                        return True
+                    # 也支持深蓝色 (0, 0, 128) 等
+                    if b >= 128 and r < 100 and g < 100:
+                        return True
+
+                # 方式2: 主题颜色（如 MSO_THEME_COLOR.ACCENT_1 等）
+                # Word 中的蓝色主题通常是 ACCENT_1 或 ACCENT_5
+                if color.theme_color is not None:
+                    # 主题颜色索引：1, 5 通常是蓝色系
+                    # 但这取决于文档主题，保守处理
+                    pass
+
+            return False
+        except Exception as e:
+            logger.debug(f"检测蓝色文字失败: {e}")
+            return False
+
+    @staticmethod
+    def _extract_blue_text_from_paragraph(para) -> str:
+        """
+        v18.9: 从段落中提取蓝色文字
+        返回所有蓝色run的文本拼接
+        """
+        blue_texts = []
+        for run in para.runs:
+            if ClauseMatcherLogic._is_blue_text(run):
+                text = run.text.strip()
+                if text:
+                    blue_texts.append(text)
+        return ''.join(blue_texts).strip()
+
+    @staticmethod
+    def _extract_blue_text_from_cell(cell) -> str:
+        """
+        v18.9: 从表格单元格中提取蓝色文字
+        """
+        blue_texts = []
+        for para in cell.paragraphs:
+            text = ClauseMatcherLogic._extract_blue_text_from_paragraph(para)
+            if text:
+                blue_texts.append(text)
+        return '\n'.join(blue_texts).strip()
+
+    @staticmethod
     def _remove_leading_number(text: str) -> str:
         """去除开头的编号，如 '1.', '（一）', '(1)' 等"""
         text = text.strip()
@@ -1199,6 +1420,95 @@ class ClauseMatcherLogic:
         for pattern in patterns:
             text = re.sub(pattern, '', text)
         return text.strip()
+
+    @staticmethod
+    def _is_valid_clause_line(text: str) -> bool:
+        """
+        v18.6: 宽松的条款行验证（用于从表格条款区域提取）
+        已经确定在"附加条款/Extension"区域，只需排除明显不是条款的内容
+        """
+        if not text or len(text) < 3:
+            return False
+
+        # 排除太长的行（可能是正文内容）
+        # v18.6: 但如果以条款关键词开头，放宽到300字符
+        max_len = 200
+        if re.search(r'\b(CLAUSE|EXTENSION|COVER|INSURANCE|条款)\b', text, re.IGNORECASE):
+            max_len = 300  # 条款标题可能包含 Limit 说明，放宽限制
+        if len(text) > max_len:
+            return False
+
+        # 排除以句号结尾的长句（正文内容）
+        if text.endswith(('。', '；')) and len(text) > 50:
+            return False
+
+        # 排除以小写字母开头的英文句子（正文内容）
+        if text and text[0].islower() and len(text) > 30:
+            return False
+
+        # 排除明显的正文开头
+        content_starts = (
+            '本条款', '本保险', '本附加', '保险人', '被保险人', '投保人',
+            '如果', '若', '当', '在', '对于', '经双方', '兹经', '因履行',
+            '但', '无论', '特别条件', '重置价值是指', '交付日期', '每次事故免赔额',
+            '被保险财产若', '中华人民共和国法律',
+            'The insurer', 'The insured', 'If ', 'When ', 'Where ',
+            'Subject to', 'Provided that', 'It is agreed', 'It is further',
+            'It is hereby', 'It is understood', 'The limit', 'The deductible',
+            'The amount', 'All the terms', 'Any breach', 'Any disputes',
+            'Limit of indemnity', 'Headings have', 'Sedgwick', 'McLarens', 'Charles Taylor',
+        )
+        if text.startswith(content_starts):
+            return False
+
+        # v18.7.2: 排除以中文分号结尾的内容（正文句子）
+        if text.endswith('；'):
+            return False
+
+        # v18.7: 排除以英文句号结尾的长句（条款内容）
+        if text.endswith('.') and len(text) > 80:
+            return False
+
+        # v18.7.2: 排除以冒号结尾的定义行
+        if text.endswith(('：', ':')):
+            return False
+
+        # 排除纯数字或金额
+        if re.match(r'^[\d,\.\s]+$', text):
+            return False
+        if re.match(r'^(RMB|CNY|USD|EUR)\s*[\d,\.]+', text, re.IGNORECASE):
+            return False
+
+        # v18.7.3: 排除中文编号开头的子项（但保留包含"条款"关键词的）
+        # "（1）.", "(一）", "①", "1、"
+        has_clause_keyword = '条款' in text or 'clause' in text.lower() or 'extension' in text.lower()
+        if re.match(r'^[\(（]\s*[\d一二三四五六七八九十]+\s*[\)）][\.\s、]?', text) and not has_clause_keyword:
+            return False
+        if re.match(r'^[①②③④⑤⑥⑦⑧⑨⑩]', text) and not has_clause_keyword:
+            return False
+        if re.match(r'^\d+[、]', text) and not has_clause_keyword:  # "1、保单文本..." - 移除\s*
+            return False
+
+        # 排除编号开头的子项（如 "1. xxx", "(a) xxx", "1)xxx", "1.1 xxx"）
+        if re.match(r'^\d+\.\s+[a-z]', text):  # "1. the liability..."
+            return False
+        if re.match(r'^[\(（]\s*[a-zA-Z\d]+\s*[\)）]\s+[a-z]', text):  # "(a) the..."
+            return False
+        if re.match(r'^\d+\)\s*[a-z]', text):  # "1)theft..."
+            return False
+        if re.match(r'^\d+\.\d+\s', text):  # "1.1 Damage..."
+            return False
+
+        # v18.7: 排除括号编号后跟"The said"等内容
+        if re.match(r'^[\(（]\s*[a-zA-Z]\s*[\)）]\s+(The said|In the event)', text):
+            return False
+
+        # v18.7.3: 排除公司名（含 Ltd/Co./有限公司）
+        # 只过滤主要是公司名的行，保留包含条款关键词的行
+        if ('Ltd' in text or 'Co.' in text or '有限公司' in text) and '条款' not in text and 'clause' not in text.lower():
+            return False
+
+        return True
 
     # 条款库中的常见样板内容（这些内容不影响匹配度计算）
     BOILERPLATE_PHRASES = [
@@ -1376,14 +1686,28 @@ class ClauseMatcherLogic:
         return text
 
     def clean_title(self, text: str) -> str:
-        """清理标题"""
+        """清理标题
+
+        v18.9: 保留版本标识符（如A款、B款等），避免索引冲突
+        例如: "企业财产保险附加公共当局扩展条款（A款）" -> "企业财产保险附加公共当局扩展条款a款"
+        """
         if not isinstance(text, str):
             return ""
+        # 提取版本标识符（A款、B款、C款等）
+        version_match = re.search(r'[（(]([A-Za-z]款)[）)]', text)
+        version_suffix = version_match.group(1).lower() if version_match else ""
+
+        # 移除所有括号内容
         text = re.sub(r'[\(（].*?[\)）]', '', text)
         for w in self._get_noise_words():
             text = text.replace(w, "").replace(w.lower(), "")
         text = re.sub(r'[0-9\s]+', '', text)
-        return text.strip()
+
+        # 重新添加版本标识
+        result = text.strip()
+        if version_suffix:
+            result = result + version_suffix
+        return result
 
     @classmethod
     def clean_content(cls, text: str) -> str:
@@ -1997,6 +2321,82 @@ class ClauseMatcherLogic:
             # 返回多条结果
             return candidates[:max_results]
 
+    def extract_limit_info(self, clause_name: str) -> tuple:
+        """v18.15: 提取条款名称末尾的限额/约定信息
+
+        返回: (去除限额后的名称, 限额信息)
+
+        保留的括号格式（不作为限额提取）:
+        - (A款), (B款), (2025版), (简易版), (通用), (甲类), (乙类)
+
+        提取的限额格式:
+        - (Limit: xxx), (Contract Limit: xxx)
+        - (72Hours), (48小时)
+        - (80%), (15% of xxx)
+        - (RMB xxx), (USD xxx)
+        - (per occurrence), (per accident)
+        - (on stock), (World-wide)
+        - (limit of xxx)
+        """
+        if not clause_name:
+            return ('', '')
+
+        # 保留模式 - 这些括号内容不作为限额提取
+        preserve_patterns = [
+            r'[（\(]\s*[A-Z甲乙丙丁]\s*款\s*[）\)]',  # (A款), (甲款)
+            r'[（\(]\s*\d{4}\s*版?\s*[）\)]',  # (2025版), (2025)
+            r'[（\(]\s*简易版?\s*[）\)]',  # (简易版)
+            r'[（\(]\s*通用\s*[）\)]',  # (通用)
+            r'[（\(]\s*[甲乙丙丁]类\s*[）\)]',  # (甲类)
+            r'[（\(]\s*标准版?\s*[）\)]',  # (标准版)
+        ]
+
+        # 检查末尾是否是需要保留的括号
+        for pattern in preserve_patterns:
+            if re.search(pattern + r'\s*$', clause_name, re.IGNORECASE):
+                return (clause_name, '')
+
+        # 限额提取模式
+        limit_patterns = [
+            # Limit 相关
+            r'\s*[（\(]\s*(?:Contract\s+)?Limit[：:\s]*[^）\)]+[）\)]\s*$',
+            r'\s*[（\(]\s*limit\s+of[^）\)]+[）\)]\s*$',
+            # 时间限制
+            r'\s*[（\(]\s*\d+\s*[Hh]ours?\s*[）\)]\s*$',
+            r'\s*[（\(]\s*\d+\s*小时\s*[）\)]\s*$',
+            r'\s*[（\(]\s*\d+\s*[Dd]ays?\s*[）\)]\s*$',
+            r'\s*[（\(]\s*\d+\s*天\s*[）\)]\s*$',
+            # 百分比
+            r'\s*[（\(]\s*\d+\.?\d*\s*%(?:\s*of[^）\)]*)?[）\)]\s*$',
+            # 金额
+            r'\s*[（\(]\s*(?:RMB|CNY|USD|EUR|HKD|人民币|美元)[\s\d,\.万亿元]+[^）\)]*[）\)]\s*$',
+            # per occurrence/accident
+            r'\s*[（\(]\s*per\s+(?:occurrence|accident|event|loss|claim)[^）\)]*[）\)]\s*$',
+            # on stock, World-wide 等
+            r'\s*[（\(]\s*on\s+stock[^）\)]*[）\)]\s*$',
+            r'\s*[（\(]\s*[Ww]orld-?\s*wide[^）\)]*[）\)]\s*$',
+            # 每次/每年
+            r'\s*[（\(]\s*每[次年月][^）\)]*[）\)]\s*$',
+            # 最高/最低
+            r'\s*[（\(]\s*最[高低][^）\)]*[）\)]\s*$',
+            # 免赔
+            r'\s*[（\(]\s*免赔[^）\)]*[）\)]\s*$',
+            r'\s*[（\(]\s*[Dd]eductible[^）\)]*[）\)]\s*$',
+        ]
+
+        # 尝试匹配并提取限额
+        for pattern in limit_patterns:
+            match = re.search(pattern, clause_name, re.IGNORECASE)
+            if match:
+                limit_info = match.group(0).strip()
+                # 清理限额信息中的括号
+                limit_info = re.sub(r'^[（\(]\s*', '', limit_info)
+                limit_info = re.sub(r'\s*[）\)]\s*$', '', limit_info)
+                base_name = clause_name[:match.start()].strip()
+                return (base_name, limit_info)
+
+        return (clause_name, '')
+
     def match_clause(self, clause: ClauseItem, index: LibraryIndex,
                      is_title_only: bool) -> MatchResult:
         """
@@ -2350,8 +2750,8 @@ class ClauseMatcherLogic:
     # 文档解析
     # ========================================
 
-    @staticmethod
-    def is_likely_title(text: str) -> bool:
+    @classmethod
+    def is_likely_title(cls, text: str) -> bool:
         """
         判断是否像标题（严格模式）
         只有明确符合标题特征的才返回True
@@ -2616,15 +3016,28 @@ class ClauseMatcherLogic:
         # 默认不是标题（保守策略）
         return False
 
-    def parse_docx(self, doc_path: str) -> Tuple[List[ClauseItem], bool]:
-        """解析Word文档 - 智能识别表格中的条款列表"""
-        logger.info(f"解析文档: {doc_path}")
+    def parse_docx(self, doc_path: str, precise_mode: bool = False) -> Tuple[List[ClauseItem], bool]:
+        """
+        解析Word文档 - 智能识别表格中的条款列表
+
+        Args:
+            doc_path: Word文档路径
+            precise_mode: v18.9 精准识别模式 - 只提取蓝色字体的条款
+
+        Returns:
+            (条款列表, 是否为纯标题模式)
+        """
+        logger.info(f"解析文档: {doc_path}, 精准模式: {precise_mode}")
 
         try:
             doc = Document(doc_path)
         except Exception as e:
             logger.error(f"文档打开失败: {e}")
             raise ValueError(f"无法打开文档: {e}")
+
+        # ===== v18.9: 精准识别模式 - 只提取蓝色文字 =====
+        if precise_mode:
+            return self._parse_docx_precise_mode(doc)
 
         # 1. 读取普通段落，同时记录样式信息
         # v18.4: 使用 Heading 样式作为条款标题的强识别信号
@@ -2646,29 +3059,187 @@ class ClauseMatcherLogic:
         table_clauses = []  # 从"附加条款"单元格提取的条款
         table_lines = []    # 其他表格内容
 
-        # 定义条款列的关键词
-        clause_row_keywords = ['附加条款', '除外条款', '特别条款', '扩展条款']
+        # v18.8: 预加载已映射的客户条款名称（用于表格条款提取时的优先识别）
+        mapped_client_names_for_table = set()
+        try:
+            if HAS_MAPPING_MANAGER:
+                mapping_mgr = get_mapping_manager()
+                if mapping_mgr:
+                    for mapping in mapping_mgr.get_all_mappings():
+                        if mapping.client_name:
+                            mapped_client_names_for_table.add(mapping.client_name.strip())
+                            # 也添加去除编号后的名称
+                            cleaned = re.sub(r'^[\d\(\)（）]+[\.\s、]*', '', mapping.client_name).strip()
+                            if cleaned:
+                                mapped_client_names_for_table.add(cleaned)
+                    if mapped_client_names_for_table:
+                        logger.info(f"表格提取: 已加载 {len(mapped_client_names_for_table)} 个已映射条款名称")
+        except Exception as e:
+            logger.warning(f"加载映射条款名称失败: {e}")
+
+        def is_mapped_clause(line: str) -> bool:
+            """检查是否是已映射的条款（优先识别）"""
+            if not mapped_client_names_for_table:
+                return False
+            # 精确匹配
+            if line in mapped_client_names_for_table:
+                return True
+            # 去除编号后匹配
+            cleaned = re.sub(r'^[\d\(\)（）]+[\.\s、]*', '', line).strip()
+            if cleaned and cleaned in mapped_client_names_for_table:
+                return True
+            return False
+
+        # 定义条款列的关键词（中英文，不区分大小写）
+        # v18.6: 扩展英文关键词支持
+        clause_row_keywords_cn = ['附加条款', '除外条款', '特别条款', '扩展条款', '承保条款', '特别约定']
+        # v18.7: 移除 coverage/coverages，太宽泛会误匹配"保障范围"
+        clause_row_keywords_en = ['extension', 'extensions', 'exclusion', 'exclusions',
+                                   'special provisions', 'special provision',
+                                   'conditions', 'condition']
+
+        # v18.9: 检测"纯条款列表表格"（每行都是条款标题，没有区域标记）
+        def is_clause_list_table(table) -> bool:
+            """检测表格是否是纯条款列表（每行一个条款）"""
+            if len(table.rows) < 5:  # 至少5行才考虑
+                return False
+            if len(table.columns) > 3:  # 最多3列（英文|中文|备注）
+                return False
+
+            clause_suffix_count = 0
+            total_rows = 0
+
+            for row in table.rows:
+                # 获取主要内容（优先取中文列）
+                cells = [c.text.strip() for c in row.cells if c.text.strip()]
+                if not cells:
+                    continue
+
+                # 选择最后一个有内容的单元格（通常是中文）
+                text = cells[-1] if len(cells) > 1 else cells[0]
+                if not text or len(text) < 3:
+                    continue
+
+                total_rows += 1
+
+                # 检查是否以条款相关关键词结尾
+                clause_suffixes = ('条款', '扩展', '除外', '责任', '保障', '保险', '险',
+                                   'clause', 'extension', 'exclusion', 'coverage')
+                if any(text.lower().endswith(suffix) for suffix in clause_suffixes):
+                    clause_suffix_count += 1
+                # 或者包含条款关键词
+                elif '条款' in text or 'clause' in text.lower():
+                    clause_suffix_count += 1
+
+            # 如果超过60%的行以条款关键词结尾，认为是纯条款列表
+            if total_rows > 0 and clause_suffix_count / total_rows > 0.6:
+                return True
+            return False
+
+        def extract_from_clause_list_table(table) -> List[str]:
+            """从纯条款列表表格中提取所有条款"""
+            clauses = []
+            for row in table.rows:
+                cells = [c.text.strip() for c in row.cells if c.text.strip()]
+                if not cells:
+                    continue
+
+                # 如果是双列表格（英文|中文），取中文列
+                if len(cells) >= 2:
+                    # 检查是否是英中对照
+                    if re.search(r'[a-zA-Z]', cells[0]) and re.search(r'[\u4e00-\u9fff]', cells[-1]):
+                        text = cells[-1]  # 取中文
+                    else:
+                        text = cells[0]
+                else:
+                    text = cells[0]
+
+                if text and len(text) >= 3 and len(text) <= 200:
+                    # 基本过滤
+                    if not text.startswith(('备注', 'Note', 'Remark', '说明')):
+                        clauses.append(text)
+            return clauses
+
+        # v18.9: 先检测是否有纯条款列表表格
+        for table in doc.tables:
+            if is_clause_list_table(table):
+                extracted = extract_from_clause_list_table(table)
+                if extracted:
+                    logger.info(f"检测到纯条款列表表格，提取到 {len(extracted)} 个条款")
+                    table_clauses.extend(extracted)
+
+        # 如果从纯条款列表表格中提取到了条款，直接返回
+        if table_clauses:
+            clauses = [ClauseItem(title=t, content="", original_title=t) for t in table_clauses]
+            return clauses, True
 
         for table in doc.tables:
+            in_clause_region = False  # v18.6: 标记是否在条款区域内
+            clause_content_col = -1   # v18.7: 记录条款内容所在的列索引
+
             for row in table.rows:
                 first_cell_text = row.cells[0].text.strip()
 
-                # 检查是否是条款列表行
-                is_clause_row = any(kw in first_cell_text for kw in clause_row_keywords)
+                # 检查是否是条款列表行（中英文关键词匹配）
+                first_cell_lower = first_cell_text.lower()
+                is_clause_row = (
+                    any(kw in first_cell_text for kw in clause_row_keywords_cn) or
+                    any(kw in first_cell_lower for kw in clause_row_keywords_en)
+                )
 
                 if is_clause_row:
-                    # 查找包含条款列表的单元格（通常是最后一个非空单元格）
-                    for cell in reversed(row.cells):
-                        cell_text = cell.text.strip()
+                    in_clause_region = True  # 进入条款区域
+                    # v18.7: 查找包含条款的列（从后往前找第一个有内容且不是标签的列）
+                    for col_idx in range(len(row.cells) - 1, -1, -1):
+                        cell_text = row.cells[col_idx].text.strip()
                         # 跳过标签单元格和分隔符
                         if cell_text and cell_text != first_cell_text and cell_text not in ['：', ':', '']:
-                            # 按换行分割
+                            clause_content_col = col_idx  # 记录条款内容列
+                            # 按换行分割，提取所有条款
                             lines = [l.strip() for l in cell_text.split('\n') if l.strip()]
                             for line in lines:
-                                # 使用 is_likely_title 判断是否是条款标题
-                                if self.is_likely_title(line):
+                                # v18.8: 已映射的条款优先识别，跳过常规验证
+                                if is_mapped_clause(line) or self._is_valid_clause_line(line):
                                     table_clauses.append(line)
-                            break  # 找到条款单元格后停止
+                            break
+
+                elif in_clause_region:
+                    # v18.7: 检查是否遇到新的区域标记（退出条款区域）
+                    exit_keywords = ['备注', 'remark', 'note', '免赔', 'deductible', 'excess',
+                                     '费率', 'rate', '保费', 'premium']
+                    if any(kw in first_cell_lower for kw in exit_keywords):
+                        in_clause_region = False
+                        clause_content_col = -1
+                        continue
+
+                    # v18.7: 在条款区域内，处理"每行一个条款"的结构
+                    content_found = False
+
+                    # 方案1: 使用已知的条款内容列
+                    if clause_content_col > 0 and clause_content_col < len(row.cells):
+                        cell_text = row.cells[clause_content_col].text.strip()
+                        if cell_text:
+                            lines = [l.strip() for l in cell_text.split('\n') if l.strip()]
+                            for line in lines:
+                                # v18.8: 已映射的条款优先识别，跳过常规验证
+                                if is_mapped_clause(line) or self._is_valid_clause_line(line):
+                                    table_clauses.append(line)
+                                    content_found = True
+
+                    # 方案2: 如果已知列没有内容，从后往前找有内容的列
+                    if not content_found:
+                        for col_idx in range(len(row.cells) - 1, 0, -1):
+                            cell_text = row.cells[col_idx].text.strip()
+                            if cell_text and len(cell_text) > 3:
+                                lines = [l.strip() for l in cell_text.split('\n') if l.strip()]
+                                for line in lines:
+                                    # v18.8: 已映射的条款优先识别，跳过常规验证
+                                    if is_mapped_clause(line) or self._is_valid_clause_line(line):
+                                        table_clauses.append(line)
+                                        content_found = True
+                                if content_found:
+                                    break
+
                 else:
                     # 其他行正常处理
                     row_text = ' '.join(cell.text.strip() for cell in row.cells if cell.text.strip())
@@ -2797,6 +3368,63 @@ class ClauseMatcherLogic:
 
         return clauses, is_title_only
 
+    def _parse_docx_precise_mode(self, doc) -> Tuple[List[ClauseItem], bool]:
+        """
+        v18.9: 精准识别模式 - 只提取蓝色字体的文字作为条款
+
+        用户将条款内容标记为蓝色，以便在干扰项较多的文档中精准提取。
+        每个蓝色文本块被视为一个独立的条款标题。
+        """
+        logger.info("使用精准识别模式（仅蓝色文字）")
+
+        blue_clauses = []
+
+        # 1. 从段落中提取蓝色文字
+        for para in doc.paragraphs:
+            blue_text = self._extract_blue_text_from_paragraph(para)
+            if blue_text:
+                # 按换行分割，每行可能是一个条款
+                lines = [line.strip() for line in blue_text.split('\n') if line.strip()]
+                for line in lines:
+                    # 基本验证：长度合理
+                    if 3 <= len(line) <= 300:
+                        blue_clauses.append(line)
+
+        # 2. 从表格中提取蓝色文字
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    blue_text = self._extract_blue_text_from_cell(cell)
+                    if blue_text:
+                        lines = [line.strip() for line in blue_text.split('\n') if line.strip()]
+                        for line in lines:
+                            if 3 <= len(line) <= 300:
+                                # 避免重复（表格单元格可能合并导致重复读取）
+                                if line not in blue_clauses:
+                                    blue_clauses.append(line)
+
+        # 去重并保持顺序
+        seen = set()
+        unique_clauses = []
+        for clause in blue_clauses:
+            if clause not in seen:
+                seen.add(clause)
+                unique_clauses.append(clause)
+
+        logger.info(f"精准模式提取到 {len(unique_clauses)} 条蓝色文字条款")
+
+        if not unique_clauses:
+            logger.warning("未找到蓝色文字，请确认文档中已将条款标记为蓝色")
+
+        # 转换为ClauseItem列表
+        clauses = [
+            ClauseItem(title=title, content="", original_title=title)
+            for title in unique_clauses
+        ]
+
+        # 精准模式下始终是纯标题模式
+        return clauses, True
+
 
 # ==========================================
 # 条款库加载器
@@ -2817,9 +3445,37 @@ class LibraryLoader:
             return []
 
     @staticmethod
+    def _extract_rich_text(cell) -> str:
+        """v18.15: 从Excel单元格提取富文本，保留加粗格式
+
+        使用 <b>...</b> 标记加粗文本
+        """
+        if cell.value is None:
+            return ''
+
+        # 检查是否有富文本
+        try:
+            from openpyxl.cell.rich_text import CellRichText
+            if isinstance(cell.value, CellRichText):
+                result = []
+                for block in cell.value:
+                    if hasattr(block, 'font') and block.font and block.font.b:
+                        # 加粗文本
+                        result.append(f'<b>{block.text}</b>')
+                    elif hasattr(block, 'text'):
+                        result.append(block.text)
+                    else:
+                        result.append(str(block))
+                return ''.join(result)
+        except (ImportError, AttributeError):
+            pass
+
+        return str(cell.value) if cell.value else ''
+
+    @staticmethod
     def load_excel(excel_path: str, header_row: int = None, sheet_name: str = None) -> List[Dict]:
         """
-        加载Excel条款库
+        加载Excel条款库 - v18.15: 保留加粗格式
         自动识别列名和表头行
 
         Args:
@@ -2830,71 +3486,85 @@ class LibraryLoader:
         logger.info(f"加载条款库: {excel_path}, Sheet: {sheet_name or '默认'}")
 
         try:
-            # 自动检测表头行
-            read_params = {'header': None, 'nrows': 5}
-            if sheet_name:
-                read_params['sheet_name'] = sheet_name
+            # 使用 openpyxl 直接读取以保留富文本格式
+            wb = openpyxl.load_workbook(excel_path, rich_text=True)
+            ws = wb[sheet_name] if sheet_name and sheet_name in wb.sheetnames else wb.active
 
+            # 获取所有行数据
+            rows = list(ws.iter_rows())
+            if not rows:
+                wb.close()
+                return []
+
+            # 自动检测表头行
             if header_row is None:
-                # 先读取前几行检测表头
-                df_test = pd.read_excel(excel_path, **read_params)
-                header_row = 0  # 默认第0行
-                for i in range(min(3, len(df_test))):
-                    row_values = [str(v).lower() if pd.notna(v) else '' for v in df_test.iloc[i]]
-                    # 检查是否包含表头关键词
+                header_row = 0
+                for i in range(min(3, len(rows))):
+                    row_values = [str(cell.value).lower() if cell.value else '' for cell in rows[i]]
                     if any('条款' in v or 'name' in v or '名称' in v for v in row_values):
                         header_row = i
                         break
                 logger.info(f"自动检测表头行: {header_row}")
 
-            read_params = {'header': header_row}
-            if sheet_name:
-                read_params['sheet_name'] = sheet_name
-            df = pd.read_excel(excel_path, **read_params)
+            # 获取表头
+            header_cells = rows[header_row]
+            columns = [str(cell.value).strip() if cell.value else f'Col{i}' for i, cell in enumerate(header_cells)]
+
         except FileNotFoundError:
             raise ValueError(f"文件不存在: {excel_path}")
         except Exception as e:
             raise ValueError(f"Excel读取失败: {e}")
 
-        df.columns = [str(c).strip() for c in df.columns]
-
         # 自动识别列名
-        name_col = None
-        content_col = None
-        reg_col = None
+        name_col_idx = None
+        content_col_idx = None
+        reg_col_idx = None
 
-        for col in df.columns:
+        for i, col in enumerate(columns):
             col_lower = col.lower()
-            if name_col is None and ('条款名称' in col or '名称' in col or 'name' in col_lower):
-                name_col = col
-            elif content_col is None and ('条款内容' in col or '内容' in col or 'content' in col_lower):
-                content_col = col
-            elif reg_col is None and ('注册号' in col or '产品' in col or 'reg' in col_lower):
-                reg_col = col
+            if name_col_idx is None and ('条款名称' in col or '名称' in col or 'name' in col_lower):
+                name_col_idx = i
+            elif content_col_idx is None and ('条款内容' in col or '内容' in col or 'content' in col_lower):
+                content_col_idx = i
+            elif reg_col_idx is None and ('注册号' in col or '产品' in col or 'reg' in col_lower):
+                reg_col_idx = i
 
         # 回退到位置
-        if not name_col and len(df.columns) > 0:
-            name_col = df.columns[0]
-        if not content_col and len(df.columns) > 2:
-            content_col = df.columns[2]
-        if not reg_col and len(df.columns) > 1:
-            reg_col = df.columns[1]
+        if name_col_idx is None and len(columns) > 0:
+            name_col_idx = 0
+        if content_col_idx is None and len(columns) > 2:
+            content_col_idx = 2
+        if reg_col_idx is None and len(columns) > 1:
+            reg_col_idx = 1
 
-        logger.info(f"列名识别: 名称={name_col}, 内容={content_col}, 注册号={reg_col}")
+        logger.info(f"列索引识别: 名称={name_col_idx}, 内容={content_col_idx}, 注册号={reg_col_idx}")
 
-        # 构建数据
+        # 构建数据（从表头下一行开始）
         lib_data = []
-        for _, row in df.iterrows():
-            name = str(row.get(name_col, '')) if pd.notna(row.get(name_col)) else ''
+        for row in rows[header_row + 1:]:
+            if name_col_idx is not None and name_col_idx < len(row):
+                name = LibraryLoader._extract_rich_text(row[name_col_idx])
+            else:
+                name = ''
+
             if not name.strip():
                 continue
 
+            content = ''
+            if content_col_idx is not None and content_col_idx < len(row):
+                content = LibraryLoader._extract_rich_text(row[content_col_idx])
+
+            reg_no = ''
+            if reg_col_idx is not None and reg_col_idx < len(row):
+                reg_no = LibraryLoader._extract_rich_text(row[reg_col_idx])
+
             lib_data.append({
                 '条款名称': name,
-                '条款内容': str(row.get(content_col, '')) if content_col and pd.notna(row.get(content_col)) else '',
-                '产品注册号': str(row.get(reg_col, '')) if reg_col and pd.notna(row.get(reg_col)) else '',
+                '条款内容': content,
+                '产品注册号': reg_no,
             })
 
+        wb.close()
         logger.info(f"加载完成: {len(lib_data)} 条有效记录")
         return lib_data
 
@@ -2920,18 +3590,80 @@ class ExcelStyler:
         bottom=Side(style='thin', color='CCCCCC')
     )
 
-    # v17.1: 新格式列宽（支持3组匹配结果）
-    # A=序号, B=客户条款(原), C=客户条款(译), D=客户原始内容
-    # E-I=匹配1, J-N=匹配2, O-S=匹配3
+    # v18.15: 新格式列宽（支持3组匹配结果 + 约定的限额）
+    # A=序号, B=客户条款(原), C=客户条款(译), D=客户原始内容, E=约定的限额
+    # F-J=匹配1, K-O=匹配2, P-T=匹配3
     WIDTHS = {
-        'A': 6, 'B': 35, 'C': 30, 'D': 45,
+        'A': 6, 'B': 35, 'C': 30, 'D': 45, 'E': 35,  # E=约定的限额
         # 匹配1
-        'E': 40, 'F': 25, 'G': 50, 'H': 10, 'I': 12,
+        'F': 40, 'G': 25, 'H': 50, 'I': 10, 'J': 12,
         # 匹配2
-        'J': 40, 'K': 25, 'L': 50, 'M': 10, 'N': 12,
+        'K': 40, 'L': 25, 'M': 50, 'N': 10, 'O': 12,
         # 匹配3
-        'O': 40, 'P': 25, 'Q': 50, 'R': 10, 'S': 12,
+        'P': 40, 'Q': 25, 'R': 50, 'S': 10, 'T': 12,
     }
+
+    # v18.15: 内容列索引（需要处理富文本的列）
+    # D=4=客户原始内容, H=8=匹配1内容, M=13=匹配2内容, R=18=匹配3内容
+    CONTENT_COLS = {4, 8, 13, 18}
+
+    @staticmethod
+    def _convert_to_rich_text(text: str):
+        """v18.9: 将含<b>标记的文本转为CellRichText
+
+        优化：将换行符合并到相邻文本块中，避免Excel不渲染单独的换行块
+        """
+        if not text or '<b>' not in str(text):
+            return text
+
+        try:
+            from openpyxl.cell.rich_text import CellRichText, TextBlock
+            from openpyxl.cell.text import InlineFont
+
+            text = str(text)
+            rich_text = CellRichText()
+            pattern = re.compile(r'<b>(.*?)</b>', re.DOTALL)
+            last_end = 0
+            pending_whitespace = ''  # 待处理的空白/换行
+
+            for match in pattern.finditer(text):
+                # 处理当前匹配之前的非加粗部分
+                if match.start() > last_end:
+                    normal_text = text[last_end:match.start()]
+                    if normal_text:
+                        # 如果只是空白/换行，先保存待后续处理
+                        if normal_text.strip() == '':
+                            pending_whitespace = normal_text
+                        else:
+                            # 有实际内容的非加粗文本
+                            rich_text.append(pending_whitespace + normal_text)
+                            pending_whitespace = ''
+
+                # 添加加粗部分（包含前置的换行）
+                bold_text = match.group(1)
+                if bold_text:
+                    full_bold = pending_whitespace + bold_text
+                    rich_text.append(TextBlock(InlineFont(b=True), full_bold))
+                    pending_whitespace = ''
+
+                last_end = match.end()
+
+            # 添加最后的非加粗部分
+            if last_end < len(text):
+                remaining = text[last_end:]
+                if remaining:
+                    rich_text.append(pending_whitespace + remaining)
+                    pending_whitespace = ''
+
+            # 处理末尾剩余的空白
+            if pending_whitespace:
+                rich_text.append(pending_whitespace)
+
+            return rich_text if rich_text else text
+
+        except ImportError:
+            # 不支持富文本时，返回去除标记的纯文本
+            return re.sub(r'</?b>', '', text)
 
     @classmethod
     def apply_styles(cls, output_path: str):
@@ -2951,12 +3683,12 @@ class ExcelStyler:
             ws.column_dimensions[col].width = width
 
         # 数据行
-        # v17.1: 新格式匹配度和匹配级别列索引
-        # 匹配1: H(8)=匹配度, I(9)=级别
-        # 匹配2: M(13)=匹配度, N(14)=级别
-        # 匹配3: R(18)=匹配度, S(19)=级别
-        score_cols = {8, 13, 18}  # 匹配度列索引
-        level_cols = {9, 14, 19}  # 匹配级别列索引
+        # v18.15: 新格式匹配度和匹配级别列索引（增加了E列约定的限额）
+        # 匹配1: I(9)=匹配度, J(10)=级别
+        # 匹配2: N(14)=匹配度, O(15)=级别
+        # 匹配3: S(19)=匹配度, T(20)=级别
+        score_cols = {9, 14, 19}  # 匹配度列索引
+        level_cols = {10, 15, 20}  # 匹配级别列索引
 
         for row in ws.iter_rows(min_row=2):
             for cell in row:
@@ -2986,6 +3718,12 @@ class ExcelStyler:
                     elif "关键词" in val:
                         cell.fill = cls.FILLS['yellow']
 
+                # v18.15: 内容列转换为富文本（保留加粗格式）
+                if cell.col_idx in cls.CONTENT_COLS and cell.value:
+                    rich_value = cls._convert_to_rich_text(cell.value)
+                    if rich_value != cell.value:
+                        cell.value = rich_value
+
         # 冻结首行
         ws.freeze_panes = 'A2'
 
@@ -3002,13 +3740,15 @@ class MatchWorker(QThread):
     progress_signal = pyqtSignal(int, int)
     finished_signal = pyqtSignal(bool, str)
 
-    def __init__(self, doc_path: str, excel_path: str, output_path: str, sheet_name: str = None, match_mode: str = "auto"):
+    def __init__(self, doc_path: str, excel_path: str, output_path: str, sheet_name: str = None,
+                 match_mode: str = "auto", precise_mode: bool = False):
         super().__init__()
         self.doc_path = doc_path
         self.excel_path = excel_path
         self.output_path = output_path
         self.sheet_name = sheet_name  # 指定的Sheet名称
         self.match_mode = match_mode  # v18.3: 匹配模式 (auto/title/content)
+        self.precise_mode = precise_mode  # v18.9: 精准识别模式（仅蓝色文字）
         self._cancelled = False  # v18.4: 取消标志
 
     def cancel(self):
@@ -3026,9 +3766,13 @@ class MatchWorker(QThread):
             # 状态信息
             self.log_signal.emit(f"📊 配置: 外部={logic._use_external_config}, 翻译={HAS_TRANSLATOR}", "info")
 
+            # v18.9: 精准识别模式提示
+            if self.precise_mode:
+                self.log_signal.emit("🎯 精准识别模式: 仅提取蓝色文字", "info")
+
             # 解析文档
             self.log_signal.emit("⏳ 正在解析文档...", "info")
-            clauses, auto_detected_mode = logic.parse_docx(self.doc_path)
+            clauses, auto_detected_mode = logic.parse_docx(self.doc_path, precise_mode=self.precise_mode)
 
             # v18.3: 根据用户选择的模式决定 is_title_only
             if self.match_mode == "auto":
@@ -3055,7 +3799,7 @@ class MatchWorker(QThread):
             self.log_signal.emit(f"✓ 索引完成", "success")
 
             # 开始匹配 (v17.1 多结果匹配)
-            self.log_signal.emit("🧠 开始智能匹配（v17.1 多结果模式）...", "info")
+            self.log_signal.emit("🧠 开始智能匹配（v18.8 多结果模式）...", "info")
             results = []
             stats = {'exact': 0, 'semantic': 0, 'keyword': 0, 'fuzzy': 0, 'none': 0}
 
@@ -3109,19 +3853,30 @@ class MatchWorker(QThread):
                 else:
                     stats['none'] += 1
 
+                # v18.15: 提取限额信息
+                limit_info = ''
+                # 优先从客户条款原名提取
+                _, limit_info = logic.extract_limit_info(original_title)
+                # 如果客户条款没有，再从匹配结果提取
+                if not limit_info and match_results and match_results[0].matched_name:
+                    _, limit_info = logic.extract_limit_info(match_results[0].matched_name)
+
                 # v17.1: 构建多结果行
                 row = {
                     ExcelColumns.SEQ: idx,
                     ExcelColumns.CLIENT_ORIG: original_title,
                     ExcelColumns.CLIENT_TRANS: translated_title if was_translated else "",
                     ExcelColumns.CLIENT_CONTENT: clause.content[:500] if clause.content else "",
+                    ExcelColumns.LIMIT_INFO: limit_info,  # v18.15: 约定的限额
                 }
 
                 # 填充最多3条匹配结果
                 for match_num in range(1, 4):
                     if match_num <= len(match_results):
                         mr = match_results[match_num - 1]
-                        row[f'匹配{match_num}_条款名称'] = mr.matched_name or ""
+                        # v18.15: 显示时去掉限额后缀
+                        display_name, _ = logic.extract_limit_info(mr.matched_name or "")
+                        row[f'匹配{match_num}_条款名称'] = display_name
                         row[f'匹配{match_num}_注册号'] = logic.clean_reg_number(mr.matched_reg)
                         row[f'匹配{match_num}_条款内容'] = mr.matched_content[:500] if mr.matched_content else ""
                         row[f'匹配{match_num}_匹配度'] = round(mr.score, 3)
@@ -3165,13 +3920,15 @@ class BatchMatchWorker(QThread):
     batch_progress_signal = pyqtSignal(int, int, str)  # 当前文件, 总数, 文件名
     finished_signal = pyqtSignal(bool, str, int, int)  # 成功, 消息, 成功数, 总数
 
-    def __init__(self, doc_paths: List[str], excel_path: str, output_dir: str, sheet_name: str = None, match_mode: str = "auto"):
+    def __init__(self, doc_paths: List[str], excel_path: str, output_dir: str, sheet_name: str = None,
+                 match_mode: str = "auto", precise_mode: bool = False):
         super().__init__()
         self.doc_paths = doc_paths
         self.excel_path = excel_path
         self.output_dir = output_dir
         self.sheet_name = sheet_name  # 指定的Sheet名称
         self.match_mode = match_mode  # v18.3: 匹配模式 (auto/title/content)
+        self.precise_mode = precise_mode  # v18.9: 精准识别模式（仅蓝色文字）
         self._cancelled = False  # v18.4: 取消标志
 
     def cancel(self):
@@ -3208,7 +3965,7 @@ class BatchMatchWorker(QThread):
 
                 try:
                     # 解析文档
-                    clauses, auto_detected_mode = logic.parse_docx(doc_path)
+                    clauses, auto_detected_mode = logic.parse_docx(doc_path, precise_mode=self.precise_mode)
 
                     # v18.3: 根据用户选择的模式决定 is_title_only
                     if self.match_mode == "auto":
@@ -3218,7 +3975,8 @@ class BatchMatchWorker(QThread):
                     else:  # content
                         is_title_only = False
 
-                    self.log_signal.emit(f"   提取 {len(clauses)} 条款", "info")
+                    mode_hint = " (精准模式)" if self.precise_mode else ""
+                    self.log_signal.emit(f"   提取 {len(clauses)} 条款{mode_hint}", "info")
 
                     # 匹配 (v17.1 多结果匹配)
                     results = []
@@ -4198,7 +4956,11 @@ class ClauseExtractorTab(QWidget):
             if files:
                 self._handle_files(files)
         else:
-            folder = QFileDialog.getExistingDirectory(self, "选择文件夹")
+            # macOS 需要 ShowDirsOnly 选项才能正确选择文件夹
+            folder = QFileDialog.getExistingDirectory(
+                self, "选择文件夹", "",
+                QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            )
             if folder:
                 self._handle_folder(folder)
 
@@ -4467,26 +5229,31 @@ class ClauseExtractorTab(QWidget):
 
             try:
                 if platform.system() == 'Darwin':
-                    # macOS: 使用 textutil 或 soffice
-                    result = subprocess.run(
-                        ['textutil', '-convert', 'docx', doc_path, '-output', docx_path],
-                        capture_output=True, text=True, timeout=60
-                    )
-                    if result.returncode != 0:
-                        # 尝试使用 LibreOffice
-                        soffice_paths = [
-                            '/Applications/LibreOffice.app/Contents/MacOS/soffice',
-                            '/usr/local/bin/soffice'
-                        ]
-                        for soffice in soffice_paths:
-                            if os.path.exists(soffice):
-                                output_dir = os.path.dirname(doc_path)
-                                result = subprocess.run(
-                                    [soffice, '--headless', '--convert-to', 'docx', '--outdir', output_dir, doc_path],
-                                    capture_output=True, text=True, timeout=120
-                                )
-                                if result.returncode == 0:
-                                    break
+                    # macOS: 优先使用 LibreOffice（能正确处理页眉页脚），再用 textutil
+                    converted_ok = False
+                    soffice_paths = [
+                        '/Applications/LibreOffice.app/Contents/MacOS/soffice',
+                        '/usr/local/bin/soffice'
+                    ]
+                    for soffice in soffice_paths:
+                        if os.path.exists(soffice):
+                            output_dir = os.path.dirname(doc_path)
+                            result = subprocess.run(
+                                [soffice, '--headless', '--convert-to', 'docx', '--outdir', output_dir, doc_path],
+                                capture_output=True, text=True, timeout=120
+                            )
+                            if result.returncode == 0 and os.path.exists(docx_path):
+                                converted_ok = True
+                                break
+
+                    # LibreOffice不可用或失败时，使用 textutil（注意：可能包含页眉页脚内容）
+                    if not converted_ok:
+                        result = subprocess.run(
+                            ['textutil', '-convert', 'docx', doc_path, '-output', docx_path],
+                            capture_output=True, text=True, timeout=60
+                        )
+                        if result.returncode == 0:
+                            self._log(f"  ⚠️ {doc_name} 使用textutil转换（页眉页脚可能变为正文）", "warning")
                 else:
                     # Windows/Linux: 使用 LibreOffice
                     soffice = 'soffice' if platform.system() == 'Linux' else 'soffice.exe'
@@ -4617,7 +5384,8 @@ class ClauseExtractorTab(QWidget):
                 result['Error'] = '文档内容为空'
                 return [result]
 
-            # 提取注册号
+            # 提取注册号 - v18.16: 智能判断第三行是否为注册号
+            reg_no_idx = -1  # 记录注册号所在的段落索引
             for i, para in enumerate(paragraphs[:8]):
                 if '注册号' in para or re.search(r'[A-Z]\d{10,}', para):
                     match = re.search(r'[（\(]([^）\)]+)[）\)]', para)
@@ -4625,11 +5393,25 @@ class ClauseExtractorTab(QWidget):
                         result['RegistrationNo'] = match.group(1)
                     else:
                         result['RegistrationNo'] = re.sub(r'(产品)?注册号[:：]?', '', para).strip()
+                    reg_no_idx = i
                     break
 
-            # 提取正文（跳过标题和注册号部分）
+            # 提取正文 - v18.16: 智能确定起始位置
+            # 只跳过：公司名（段落0）、条款名（段落1）、注册号（如果存在）
             content_lines = []
-            start_idx = 3 if len(paragraphs) >= 4 else 0
+
+            # 判断应该从哪里开始提取内容
+            if len(paragraphs) >= 3:
+                # 检查段落2是否为注册号（已在上面识别）
+                if reg_no_idx == 2:
+                    # 段落2是注册号，从段落3开始
+                    start_idx = 3
+                else:
+                    # 段落2不是注册号，从段落2开始（它是正文内容）
+                    start_idx = 2
+            else:
+                start_idx = 0
+
             for para in paragraphs[start_idx:]:
                 clean = para.strip()
                 if clean and clean != clause_name and not self._is_noise_line(clean):
@@ -4643,14 +5425,123 @@ class ClauseExtractorTab(QWidget):
             return [result]
 
     def _parse_docx(self, file_path: str) -> list:
-        """解析Word文档"""
+        """解析Word文档 - v18.17: 支持表格提取
+
+        使用 <b>...</b> 标记加粗文本，便于后续导出时保留格式
+        优化：合并同一段落中连续的加粗run，避免产生</b><b>
+        新增：提取文档中的表格，转换为可读的文本格式
+        """
         doc = Document(file_path)
         paragraphs = []
-        for para in doc.paragraphs:
-            text = para.text.strip()
-            if text:
-                paragraphs.append(text)
+
+        # 构建元素顺序映射，以便按文档顺序处理段落和表格
+        # Word文档的body中包含段落(p)和表格(tbl)，需要按顺序处理
+        from docx.oxml.ns import qn
+
+        body = doc.element.body
+        para_idx = 0
+        table_idx = 0
+
+        for child in body:
+            if child.tag == qn('w:p'):
+                # 这是一个段落
+                if para_idx < len(doc.paragraphs):
+                    para = doc.paragraphs[para_idx]
+                    para_idx += 1
+
+                    # 检查段落是否有内容
+                    if not para.text.strip():
+                        continue
+
+                    # 构建带格式标记的文本，合并连续的加粗run
+                    formatted_parts = []
+                    current_bold_text = []
+
+                    for run in para.runs:
+                        text = run.text
+                        if not text:
+                            continue
+
+                        if run.bold:
+                            current_bold_text.append(text)
+                        else:
+                            if current_bold_text:
+                                formatted_parts.append(f'<b>{"".join(current_bold_text)}</b>')
+                                current_bold_text = []
+                            formatted_parts.append(text)
+
+                    if current_bold_text:
+                        formatted_parts.append(f'<b>{"".join(current_bold_text)}</b>')
+
+                    formatted_text = ''.join(formatted_parts).strip()
+                    if formatted_text:
+                        paragraphs.append(formatted_text)
+
+            elif child.tag == qn('w:tbl'):
+                # 这是一个表格
+                if table_idx < len(doc.tables):
+                    table = doc.tables[table_idx]
+                    table_idx += 1
+
+                    # 将表格转换为文本格式
+                    table_text = self._table_to_text(table)
+                    if table_text:
+                        paragraphs.append(table_text)
+
         return paragraphs
+
+    def _table_to_text(self, table) -> str:
+        """将Word表格转换为可读的文本格式 - v18.17
+
+        使用管道符和横线创建类似Markdown的表格格式
+        """
+        if not table.rows:
+            return ''
+
+        rows_data = []
+        col_widths = []
+
+        # 收集所有单元格数据并计算列宽
+        for row in table.rows:
+            row_cells = []
+            for idx, cell in enumerate(row.cells):
+                cell_text = cell.text.strip().replace('\n', ' ')
+                row_cells.append(cell_text)
+                # 更新列宽（考虑中文字符宽度）
+                text_width = sum(2 if ord(c) > 127 else 1 for c in cell_text)
+                if idx >= len(col_widths):
+                    col_widths.append(text_width)
+                else:
+                    col_widths[idx] = max(col_widths[idx], text_width)
+            rows_data.append(row_cells)
+
+        # 确保最小列宽
+        col_widths = [max(w, 4) for w in col_widths]
+
+        # 生成表格文本
+        lines = []
+        lines.append('<table>')  # 表格开始标记
+
+        for row_idx, row_cells in enumerate(rows_data):
+            # 格式化每个单元格
+            formatted_cells = []
+            for idx, cell_text in enumerate(row_cells):
+                width = col_widths[idx] if idx < len(col_widths) else 10
+                # 计算实际需要的填充（考虑中文）
+                text_width = sum(2 if ord(c) > 127 else 1 for c in cell_text)
+                padding = width - text_width
+                formatted_cells.append(cell_text + ' ' * max(0, padding))
+
+            line = '| ' + ' | '.join(formatted_cells) + ' |'
+            lines.append(line)
+
+            # 在表头后添加分隔线
+            if row_idx == 0:
+                separator = '|' + '|'.join(['-' * (w + 2) for w in col_widths[:len(row_cells)]]) + '|'
+                lines.append(separator)
+
+        lines.append('</table>')  # 表格结束标记
+        return '\n'.join(lines)
 
     def _parse_pdf(self, file_path: str) -> list:
         """解析PDF文档"""
@@ -4677,17 +5568,34 @@ class ClauseExtractorTab(QWidget):
         return paragraphs
 
     def _is_noise_line(self, text: str) -> bool:
-        """判断是否为噪声行"""
+        """判断是否为噪声行（页码、网址等明显非内容行）"""
+        # 先清理文本（去除<b>标记以便正确匹配）
+        clean_text = re.sub(r'</?b>', '', text).strip()
+        if not clean_text:
+            return True
+
+        # 噪声正则模式（只过滤明显的非内容行）
         noise_patterns = [
-            r'^第?\s*\d+\s*页',
-            r'^Page\s*\d+',
-            r'^\d{4}[-/]\d{1,2}[-/]\d{1,2}$',
+            # 页码格式
+            r'^第?\s*\d+\s*页\s*$',                      # 第1页
+            r'^Page\s*\d+\s*$',                          # Page 1
+            r'^第\s*\d+\s*页\s*共\s*\d+\s*页\s*$',       # 第1页共10页
+            r'^\d+\s*/\s*\d+\s*$',                       # 1/10 页码格式
+            r'^[-—]\s*\d+\s*[-—]\s*$',                   # -1- 页码格式
+            # Word域代码（textutil转换产生）
+            r'PAGE\s*\\?\*?\s*MERGEFORMAT',              # PAGE \* MERGEFORMAT
+            r'NUMPAGES',                                  # NUMPAGES 域代码
+            # 日期格式
+            r'^\d{4}[-/]\d{1,2}[-/]\d{1,2}\s*$',
+            # 网址
             r'^www\.',
             r'^http',
         ]
+
         for pattern in noise_patterns:
-            if re.match(pattern, text, re.IGNORECASE):
+            if re.search(pattern, clean_text, re.IGNORECASE):
                 return True
+
         return False
 
     def _get_category(self, filename: str, title: str) -> str:
@@ -4731,8 +5639,67 @@ class ClauseExtractorTab(QWidget):
         except Exception as e:
             self._log(f"❌ ZIP生成失败: {sanitize_error_message(e)}", "error")
 
+    def _parse_rich_text(self, text: str):
+        """v18.9: 解析带 <b> 标记的文本，返回富文本对象
+
+        返回: CellRichText 对象（如果有格式标记）或普通字符串
+
+        优化：将换行符合并到相邻文本块中，避免Excel不渲染单独的换行块
+        """
+        if not text or '<b>' not in text:
+            return text
+
+        try:
+            from openpyxl.cell.rich_text import CellRichText, TextBlock
+            from openpyxl.cell.text import InlineFont
+
+            rich_text = CellRichText()
+            pattern = re.compile(r'<b>(.*?)</b>', re.DOTALL)
+            last_end = 0
+            pending_whitespace = ''  # 待处理的空白/换行
+
+            for match in pattern.finditer(text):
+                # 处理当前匹配之前的非加粗部分
+                if match.start() > last_end:
+                    normal_text = text[last_end:match.start()]
+                    if normal_text:
+                        # 如果只是空白/换行，先保存待后续处理
+                        if normal_text.strip() == '':
+                            pending_whitespace = normal_text
+                        else:
+                            # 有实际内容的非加粗文本
+                            rich_text.append(pending_whitespace + normal_text)
+                            pending_whitespace = ''
+
+                # 添加加粗部分（包含前置的换行）
+                bold_text = match.group(1)
+                if bold_text:
+                    # 将待处理的空白合并到加粗文本开头
+                    full_bold = pending_whitespace + bold_text
+                    rich_text.append(TextBlock(InlineFont(b=True), full_bold))
+                    pending_whitespace = ''
+
+                last_end = match.end()
+
+            # 添加最后的非加粗部分
+            if last_end < len(text):
+                remaining = text[last_end:]
+                if remaining:
+                    rich_text.append(pending_whitespace + remaining)
+                    pending_whitespace = ''
+
+            # 处理末尾剩余的空白
+            if pending_whitespace:
+                rich_text.append(pending_whitespace)
+
+            return rich_text if rich_text else text
+
+        except ImportError:
+            # 如果不支持富文本，返回去除标记的纯文本
+            return re.sub(r'</?b>', '', text)
+
     def _download_excel_report(self):
-        """下载Excel报告 - Anthropic风格"""
+        """下载Excel报告 - Anthropic风格，v18.15支持保留加粗格式"""
         if not self.extracted_data:
             self._log("⚠️ 没有可导出的数据", "warning")
             return
@@ -4786,14 +5753,19 @@ class ClauseExtractorTab(QWidget):
 
                 # 数据
                 for row_idx, item in enumerate(items, start=2):
-                    ws.append([
-                        item['ClauseName'],
-                        item['RegistrationNo'],
-                        item['Content'][:30000] if item['Content'] else '',
-                        item['FileName'],
-                        item['AddDate'],
-                        f"失败: {item['Error']}" if item.get('Error') else '成功'
-                    ])
+                    # 先添加基本数据（除内容列外）
+                    ws.cell(row=row_idx, column=1, value=item['ClauseName'])
+                    ws.cell(row=row_idx, column=2, value=item['RegistrationNo'])
+
+                    # v18.15: 内容列使用富文本保留加粗格式
+                    content = item['Content'][:30000] if item['Content'] else ''
+                    content_cell = ws.cell(row=row_idx, column=3)
+                    rich_content = self._parse_rich_text(content)
+                    content_cell.value = rich_content
+
+                    ws.cell(row=row_idx, column=4, value=item['FileName'])
+                    ws.cell(row=row_idx, column=5, value=item['AddDate'])
+                    ws.cell(row=row_idx, column=6, value=f"失败: {item['Error']}" if item.get('Error') else '成功')
 
                     # 数据行样式
                     for col in range(1, 7):
@@ -4890,6 +5862,7 @@ class ClauseOutputTab(QWidget):
         self.parent_window = parent
         self.report_data = []  # 存储读取的条款数据
         self.selected_clauses = []  # 用户选中的条款
+        self.source_excel_path = None  # v18.15: 源Excel路径，用于录单增强模式
         self._setup_ui()
 
     def _setup_ui(self):
@@ -4956,6 +5929,7 @@ class ClauseOutputTab(QWidget):
 
         self.from_extract_btn = QPushButton("📄 从条款提取获取")
         self.from_extract_btn.setCursor(Qt.PointingHandCursor)
+        self.from_extract_btn.setMinimumWidth(160)
         self.from_extract_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {AnthropicColors.BG_PRIMARY};
@@ -4964,6 +5938,7 @@ class ClauseOutputTab(QWidget):
                 padding: 12px 20px;
                 color: {AnthropicColors.TEXT_PRIMARY};
                 font-weight: 500;
+                min-width: 160px;
             }}
             QPushButton:hover {{
                 border-color: {AnthropicColors.ACCENT};
@@ -4974,6 +5949,7 @@ class ClauseOutputTab(QWidget):
 
         self.from_file_btn = QPushButton("📁 从Excel文件加载")
         self.from_file_btn.setCursor(Qt.PointingHandCursor)
+        self.from_file_btn.setMinimumWidth(160)
         self.from_file_btn.setStyleSheet(self.from_extract_btn.styleSheet())
         self.from_file_btn.clicked.connect(self._load_from_excel)
 
@@ -5050,9 +6026,15 @@ class ClauseOutputTab(QWidget):
 
         layout.addWidget(preview_card)
 
-        # Word样式设置卡片
-        style_card = GlassCard()
-        style_layout = QVBoxLayout(style_card)
+        # v18.17: Word样式设置 + 录单增强模式 合并为一个卡片，左右并排
+        settings_card = GlassCard()
+        settings_main_layout = QHBoxLayout(settings_card)
+        settings_main_layout.setSpacing(20)
+
+        # 左侧: Word样式设置
+        style_section = QWidget()
+        style_layout = QVBoxLayout(style_section)
+        style_layout.setContentsMargins(0, 0, 0, 0)
         style_layout.setSpacing(10)
 
         style_title = QLabel("🎨 Word样式设置")
@@ -5060,6 +6042,7 @@ class ClauseOutputTab(QWidget):
         style_layout.addWidget(style_title)
 
         style_grid = QHBoxLayout()
+        style_grid.setSpacing(15)
 
         # 标签通用样式
         label_style = f"color: {AnthropicColors.TEXT_PRIMARY}; font-size: 13px; font-weight: 500;"
@@ -5071,6 +6054,7 @@ class ClauseOutputTab(QWidget):
                 padding: 8px;
                 color: {AnthropicColors.TEXT_PRIMARY};
                 font-size: 13px;
+                min-width: 60px;
             }}
             QSpinBox:focus, QDoubleSpinBox:focus {{
                 border-color: {AnthropicColors.ACCENT};
@@ -5116,7 +6100,7 @@ class ClauseOutputTab(QWidget):
 
         # 包含注册号
         include_reg_layout = QVBoxLayout()
-        reg_label = QLabel("包含注册号")
+        reg_label = QLabel("注册号")
         reg_label.setStyleSheet(label_style)
         include_reg_layout.addWidget(reg_label)
         self.include_reg_check = QCheckBox("显示")
@@ -5125,10 +6109,68 @@ class ClauseOutputTab(QWidget):
         include_reg_layout.addWidget(self.include_reg_check)
         style_grid.addLayout(include_reg_layout)
 
-        style_grid.addStretch()
         style_layout.addLayout(style_grid)
+        style_layout.addStretch()
+        settings_main_layout.addWidget(style_section)
 
-        layout.addWidget(style_card)
+        # 分隔线
+        separator = QFrame()
+        separator.setFrameShape(QFrame.VLine)
+        separator.setStyleSheet(f"background-color: {AnthropicColors.BORDER};")
+        separator.setFixedWidth(1)
+        settings_main_layout.addWidget(separator)
+
+        # 右侧: 录单增强模式
+        enhanced_section = QWidget()
+        enhanced_layout = QVBoxLayout(enhanced_section)
+        enhanced_layout.setContentsMargins(0, 0, 0, 0)
+        enhanced_layout.setSpacing(8)
+
+        self.enhanced_mode_check = QCheckBox("📋 录单增强模式")
+        self.enhanced_mode_check.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-size: 14px; font-weight: 600;")
+        self.enhanced_mode_check.toggled.connect(self._toggle_enhanced_mode)
+        enhanced_layout.addWidget(self.enhanced_mode_check)
+
+        enhanced_desc = QLabel("在条款名称前添加保险公司名称")
+        enhanced_desc.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
+        enhanced_layout.addWidget(enhanced_desc)
+
+        self.enhanced_options = QWidget()
+        enhanced_options_layout = QVBoxLayout(self.enhanced_options)
+        enhanced_options_layout.setContentsMargins(0, 5, 0, 0)
+        enhanced_options_layout.setSpacing(5)
+
+        self.company_prefix_edit = QLineEdit()
+        self.company_prefix_edit.setPlaceholderText("输入公司名称前缀...")
+        self.company_prefix_edit.setStyleSheet(f"""
+            QLineEdit {{
+                background: {AnthropicColors.BG_PRIMARY};
+                border: 1px solid {AnthropicColors.BORDER};
+                border-radius: 6px;
+                padding: 8px 10px;
+                color: {AnthropicColors.TEXT_PRIMARY};
+                font-size: 13px;
+            }}
+            QLineEdit:focus {{ border-color: {AnthropicColors.ACCENT}; }}
+        """)
+        enhanced_options_layout.addWidget(self.company_prefix_edit)
+
+        hint_label = QLabel("💡 输出: Excel + Word")
+        hint_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 11px;")
+        enhanced_options_layout.addWidget(hint_label)
+
+        self.enhanced_options.setVisible(False)
+        enhanced_layout.addWidget(self.enhanced_options)
+        enhanced_layout.addStretch()
+
+        settings_main_layout.addWidget(enhanced_section)
+
+        # 设置左右两侧的比例 (左侧稍宽)
+        settings_main_layout.setStretch(0, 3)  # Word样式
+        settings_main_layout.setStretch(1, 0)  # 分隔线
+        settings_main_layout.setStretch(2, 2)  # 录单增强
+
+        layout.addWidget(settings_card)
 
         # 操作按钮行
         btn_layout = QHBoxLayout()
@@ -5244,7 +6286,7 @@ class ClauseOutputTab(QWidget):
             self._log(f"❌ 加载失败: {sanitize_error_message(e)}", "error")
 
     def _load_from_excel(self):
-        """从Excel文件加载数据"""
+        """从Excel文件加载数据 - v18.9: 支持富文本格式（加粗）"""
         file_path, _ = QFileDialog.getOpenFileName(
             self, "选择Excel文件", "",
             "Excel文件 (*.xlsx);;所有文件 (*.*)"
@@ -5254,16 +6296,22 @@ class ClauseOutputTab(QWidget):
 
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(10)
+        self.source_excel_path = file_path  # v18.15: 保存源文件路径
 
         try:
             self._log(f"📖 读取文件: {os.path.basename(file_path)}", "info")
 
-            wb = openpyxl.load_workbook(file_path, read_only=True)
+            # v18.9: 使用 rich_text=True 以保留加粗格式
+            wb = openpyxl.load_workbook(file_path, rich_text=True)
             self.report_data = []
 
             for sheet_name in wb.sheetnames:
                 ws = wb[sheet_name]
-                headers = [cell.value for cell in ws[1]] if ws[1] else []
+                rows = list(ws.iter_rows())
+                if not rows:
+                    continue
+
+                headers = [str(cell.value) if cell.value else '' for cell in rows[0]]
 
                 # 智能识别列
                 col_map = self._detect_columns(headers)
@@ -5273,20 +6321,20 @@ class ClauseOutputTab(QWidget):
 
                 self.progress_bar.setValue(30)
 
-                for row in ws.iter_rows(min_row=2, values_only=True):
-                    if not row or not any(row):
+                for row in rows[1:]:
+                    if not row or not any(cell.value for cell in row):
                         continue
 
-                    name = self._safe_get(row, col_map.get('name'))
+                    name = self._extract_cell_text(row, col_map.get('name'))
                     if not name:
                         continue
 
                     self.report_data.append({
                         'name': name,
-                        'regNo': self._safe_get(row, col_map.get('regNo')),
-                        'content': self._safe_get(row, col_map.get('content')),
+                        'regNo': self._extract_cell_text(row, col_map.get('regNo')),
+                        'content': self._extract_cell_text(row, col_map.get('content')),
                         'category': sheet_name if sheet_name != 'Sheet' else '条款',
-                        'filename': self._safe_get(row, col_map.get('filename'))
+                        'filename': self._extract_cell_text(row, col_map.get('filename'))
                     })
 
             wb.close()
@@ -5348,6 +6396,34 @@ class ClauseOutputTab(QWidget):
         if index is None or index >= len(row):
             return ''
         return str(row[index] or '').strip()
+
+    def _extract_cell_text(self, row, index: int) -> str:
+        """v18.9: 从单元格提取文本，保留加粗格式（使用<b>标记）"""
+        if index is None or index >= len(row):
+            return ''
+
+        cell = row[index]
+        if cell.value is None:
+            return ''
+
+        # 检查是否为富文本
+        try:
+            from openpyxl.cell.rich_text import CellRichText
+            if isinstance(cell.value, CellRichText):
+                result = []
+                for block in cell.value:
+                    if hasattr(block, 'font') and block.font and block.font.b:
+                        # 加粗文本
+                        result.append(f'<b>{block.text}</b>')
+                    elif hasattr(block, 'text'):
+                        result.append(block.text)
+                    else:
+                        result.append(str(block))
+                return ''.join(result).strip()
+        except (ImportError, AttributeError):
+            pass
+
+        return str(cell.value).strip() if cell.value else ''
 
     def _update_clause_list(self):
         """更新条款列表显示"""
@@ -5412,6 +6488,128 @@ class ClauseOutputTab(QWidget):
 
         QMessageBox.information(self, "输出预览", preview_text)
 
+
+    def _toggle_enhanced_mode(self, checked):
+        """v18.15: 切换录单增强模式"""
+        self.enhanced_options.setVisible(checked)
+        if checked:
+            self.generate_btn.setText("📄 生成文档（Excel + Word）")
+        else:
+            self.generate_btn.setText("📄 生成Word文档")
+
+
+    def _generate_enhanced_documents(self, clauses: list, company_prefix: str):
+        """v18.16: 录单增强模式 - 复制原Excel并在F列(匹配1_条款名称)添加前缀，保留富文本"""
+        from datetime import datetime
+        from copy import copy
+        from openpyxl.cell.rich_text import CellRichText, TextBlock
+        from openpyxl.cell.text import InlineFont
+
+        # 检查源文件
+        if not self.source_excel_path or not os.path.exists(self.source_excel_path):
+            self._log("⚠️ 请先从Excel文件加载数据（录单增强模式需要原始Excel文件）", "warning")
+            return
+
+        # 选择保存目录
+        output_dir = QFileDialog.getExistingDirectory(
+                self, "选择输出目录", "",
+                QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            )
+        if not output_dir:
+            return
+
+        self.progress_bar.setVisible(True)
+        self._log(f"🏢 录单增强模式: 添加前缀 '{company_prefix}'", "info")
+
+        try:
+            # 1. 复制原Excel并修改F列
+            self.progress_bar.setValue(20)
+            self._log("📊 生成增强版Excel（保持原格式+富文本）...", "info")
+
+            # v18.16: 加载原文件（保留样式+富文本）
+            wb = openpyxl.load_workbook(self.source_excel_path, rich_text=True)
+
+            for ws in wb.worksheets:
+                # 找到 匹配1_条款名称 列 (通常是F列)
+                name_col = None
+                headers = [cell.value for cell in ws[1]] if ws[1] else []
+
+                for i, h in enumerate(headers):
+                    h_str = str(h) if h else ''
+                    if '匹配1_条款名称' in h_str:
+                        name_col = i + 1  # openpyxl 列从1开始
+                        break
+
+                if not name_col:
+                    # 如果没找到，尝试找普通的条款名称列
+                    for i, h in enumerate(headers):
+                        h_str = str(h) if h else ''
+                        if '条款名称' in h_str or 'MATCH' in h_str.upper():
+                            name_col = i + 1
+                            break
+
+                if not name_col:
+                    self._log(f"⚠️ 工作表 '{ws.title}' 未找到条款名称列，跳过", "warning")
+                    continue
+
+                self._log(f"   处理工作表 '{ws.title}': 条款名称在第 {name_col} 列", "info")
+
+                # v18.16: 在条款名称前添加前缀（跳过表头），保留富文本
+                for row_idx in range(2, ws.max_row + 1):
+                    cell = ws.cell(row=row_idx, column=name_col)
+                    if cell.value:
+                        # 处理富文本 - 在最前面添加前缀
+                        if isinstance(cell.value, CellRichText):
+                            # 创建新的富文本，前缀不加粗
+                            new_blocks = [TextBlock(InlineFont(), company_prefix)]
+                            for block in cell.value:
+                                new_blocks.append(block)
+                            cell.value = CellRichText(*new_blocks)
+                        else:
+                            cell.value = company_prefix + str(cell.value)
+
+            self.progress_bar.setValue(50)
+
+            # 保存增强版Excel
+            date_str = datetime.now().strftime("%Y%m%d_%H%M")
+            excel_path = os.path.join(output_dir, f"条款比对报告_录单版_{date_str}.xlsx")
+            wb.save(excel_path)
+            wb.close()
+
+            self._log(f"✓ Excel已保存: {os.path.basename(excel_path)}", "success")
+            self.progress_bar.setValue(70)
+
+            # 2. 生成Word文档（使用增强后的名称）
+            self._log("📄 生成Word文档...", "info")
+
+            enhanced_clauses = []
+            for clause in clauses:
+                enhanced_clauses.append({
+                    'name': company_prefix + clause.get('name', ''),
+                    'regNo': clause.get('regNo', ''),
+                    'content': clause.get('content', ''),
+                    'category': clause.get('category', '其他'),
+                })
+
+            word_path = os.path.join(output_dir, f"条款清单_录单版_{date_str}.docx")
+            self._generate_combined_doc(enhanced_clauses, word_path)
+
+            self.progress_bar.setValue(100)
+            self._log(f"✓ Word已保存: {os.path.basename(word_path)}", "success")
+            self._log(f"🎉 录单增强模式完成！已生成 Excel + Word 两个文件", "success")
+
+            # 打开输出目录
+            if sys.platform == 'darwin':
+                subprocess.run(['open', output_dir], check=False)
+            elif sys.platform == 'win32':
+                os.startfile(output_dir)
+
+        except Exception as e:
+            logger.exception("录单增强模式生成失败")
+            self._log(f"❌ 生成失败: {str(e)}", "error")
+        finally:
+            self.progress_bar.setVisible(False)
+
     def _generate_word(self):
         """生成Word文档"""
         selected = self._get_selected_clauses()
@@ -5419,18 +6617,34 @@ class ClauseOutputTab(QWidget):
             self._log("⚠️ 请至少选择一条条款", "warning")
             return
 
+        # v18.15: 检查录单增强模式
+        if self.enhanced_mode_check.isChecked():
+            company_prefix = self.company_prefix_edit.text().strip()
+            if not company_prefix:
+                self._log("⚠️ 请输入保险公司名称前缀", "warning")
+                self.company_prefix_edit.setFocus()
+                return
+            self._generate_enhanced_documents(selected, company_prefix)
+            return
+
         output_mode = self.mode_combo.currentIndex()
 
         if output_mode == 0:
             # 按条款逐个输出 - 选择输出目录
-            output_dir = QFileDialog.getExistingDirectory(self, "选择输出目录")
+            output_dir = QFileDialog.getExistingDirectory(
+                self, "选择输出目录", "",
+                QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            )
             if not output_dir:
                 return
             self._generate_individual_docs(selected, output_dir)
 
         elif output_mode == 1:
             # 按分类合并输出 - 选择输出目录
-            output_dir = QFileDialog.getExistingDirectory(self, "选择输出目录")
+            output_dir = QFileDialog.getExistingDirectory(
+                self, "选择输出目录", "",
+                QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            )
             if not output_dir:
                 return
             self._generate_category_docs(selected, output_dir)
@@ -5515,8 +6729,11 @@ class ClauseOutputTab(QWidget):
         if sys.platform == 'darwin':
             subprocess.run(['open', output_dir], check=False)
 
-    def _set_run_font(self, run, size_pt: int, bold: bool = False, color_rgb=None):
-        """设置run的字体：宋体(中文) + Times New Roman(英文)"""
+    def _set_run_font(self, run, size_pt: float, bold: bool = False, color_rgb=None):
+        """设置run的字体：宋体(中文) + Times New Roman(英文)
+
+        v18.15: 支持float类型字号（如10.5pt = 5号字）
+        """
         from docx.shared import Pt, RGBColor
         from docx.oxml.ns import qn
 
@@ -5530,8 +6747,80 @@ class ClauseOutputTab(QWidget):
         if color_rgb:
             run.font.color.rgb = color_rgb
 
+    def _add_formatted_text_to_paragraph(self, para, text: str, size_pt: float, base_bold: bool = False, color_rgb=None):
+        """v18.16: 向段落添加带格式的文本，解析<b>标记应用加粗
+
+        支持处理不完整的<b>标签（当加粗文本跨越换行被分割时）:
+        - 文本以 </b> 开头：开头部分应加粗
+        - 文本以 <b> 结尾无配对 </b>：结尾部分应加粗
+
+        Args:
+            para: Word段落对象
+            text: 可能包含<b>标记的文本
+            size_pt: 字号
+            base_bold: 基础是否加粗（<b>标记外的文本）
+            color_rgb: 颜色
+        """
+        if not text:
+            return
+
+        # v18.16: 处理不完整的标签
+        # 步骤1: 检查是否以 </b> 开头（orphan closing tag）
+        orphan_close_match = re.match(r'^(.*?)</b>', text, re.DOTALL)
+        orphan_close_text = None
+        if orphan_close_match:
+            # 确保这不是完整标签对的一部分
+            before_close = text[:orphan_close_match.end()]
+            if '<b>' not in before_close:
+                orphan_close_text = orphan_close_match.group(1)
+                text = text[orphan_close_match.end():]
+
+        # 步骤2: 检查是否以 <b> 结尾无配对（orphan opening tag）
+        orphan_open_match = re.search(r'<b>([^<]*)$', text, re.DOTALL)
+        orphan_open_text = None
+        if orphan_open_match:
+            orphan_open_text = orphan_open_match.group(1)
+            text = text[:orphan_open_match.start()]
+
+        # 步骤3: 添加开头的孤立加粗部分
+        if orphan_close_text:
+            run = para.add_run(orphan_close_text)
+            self._set_run_font(run, size_pt, bold=True, color_rgb=color_rgb)
+
+        # 步骤4: 处理中间的完整 <b>...</b> 标记
+        pattern = re.compile(r'<b>(.*?)</b>', re.DOTALL)
+        last_end = 0
+
+        for match in pattern.finditer(text):
+            # 添加非加粗部分
+            if match.start() > last_end:
+                normal_text = text[last_end:match.start()]
+                if normal_text:
+                    run = para.add_run(normal_text)
+                    self._set_run_font(run, size_pt, bold=base_bold, color_rgb=color_rgb)
+
+            # 添加加粗部分
+            bold_text = match.group(1)
+            if bold_text:
+                run = para.add_run(bold_text)
+                self._set_run_font(run, size_pt, bold=True, color_rgb=color_rgb)
+
+            last_end = match.end()
+
+        # 添加最后的非加粗部分（在孤立开头标签之前）
+        if last_end < len(text):
+            remaining = text[last_end:]
+            if remaining:
+                run = para.add_run(remaining)
+                self._set_run_font(run, size_pt, bold=base_bold, color_rgb=color_rgb)
+
+        # 步骤5: 添加结尾的孤立加粗部分
+        if orphan_open_text:
+            run = para.add_run(orphan_open_text)
+            self._set_run_font(run, size_pt, bold=True, color_rgb=color_rgb)
+
     def _generate_combined_doc(self, clauses: list, save_path: str):
-        """生成合并的Word文档 - 使用宋体+Times New Roman"""
+        """生成合并的Word文档 - v18.15格式：宋体+Times New Roman, 5号字, 两端对齐, 单倍行距, 段后0.5行"""
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(20)
 
@@ -5540,23 +6829,28 @@ class ClauseOutputTab(QWidget):
 
             doc = Document()
 
-            from docx.shared import Pt, RGBColor
-            from docx.enum.text import WD_ALIGN_PARAGRAPH
+            from docx.shared import Pt, RGBColor, Twips
+            from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
             from docx.oxml.ns import qn
+
+            # v18.15: 固定格式参数 - 5号字=10.5pt, 两端对齐, 单倍行距, 段后0.5行≈120twips
+            BODY_SIZE = 10.5  # 5号字
+            TITLE_SIZE = 10.5  # 标题也用5号字
+            SPACE_AFTER_HALF_LINE = 120  # 0.5行 (twips)
 
             # 文档标题
             title_para = doc.add_paragraph()
             title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
             title_run = title_para.add_run('条款汇总清单')
-            self._set_run_font(title_run, self.title_size_spin.value() + 4, bold=True)
+            self._set_run_font(title_run, 16, bold=True)  # 三号字
+            title_para.paragraph_format.space_after = Twips(400)
 
             # 生成日期
             date_para = doc.add_paragraph()
             date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
             date_run = date_para.add_run(f"生成日期: {datetime.now():%Y年%m月%d日}")
             self._set_run_font(date_run, 10, color_rgb=RGBColor(128, 128, 128))
-
-            doc.add_paragraph()
+            date_para.paragraph_format.space_after = Twips(200)
 
             self.progress_bar.setValue(40)
 
@@ -5570,32 +6864,49 @@ class ClauseOutputTab(QWidget):
             for category, cat_clauses in categorized.items():
                 # 分类标题
                 cat_para = doc.add_paragraph()
+                cat_para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
                 cat_run = cat_para.add_run(f"【{category}】")
-                self._set_run_font(cat_run, self.title_size_spin.value(), bold=True, color_rgb=RGBColor(217, 119, 87))
+                self._set_run_font(cat_run, TITLE_SIZE, bold=True, color_rgb=RGBColor(217, 119, 87))
+                cat_para.paragraph_format.space_after = Twips(SPACE_AFTER_HALF_LINE)
 
                 for clause in cat_clauses:
-                    # 条款名称
-                    name_para = doc.add_paragraph()
-                    name_run = name_para.add_run(f"{clause_num}. {clause['name']}")
-                    self._set_run_font(name_run, self.title_size_spin.value(), bold=True)
+                    # 条款前空行（除第一条外）
+                    if clause_num > 1:
+                        blank_para = doc.add_paragraph()
+                        blank_para.paragraph_format.space_after = Twips(SPACE_AFTER_HALF_LINE)
 
-                    # 注册号
+                    # 条款名称（加粗，无下划线）
+                    name_para = doc.add_paragraph()
+                    name_para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                    name_run = name_para.add_run(f"{clause_num}. {clause['name']}")
+                    self._set_run_font(name_run, TITLE_SIZE, bold=True)
+                    name_para.paragraph_format.space_after = Twips(60)
+                    name_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+
+                    # 注册号 - v18.15: 直接输出，不添加额外前缀（数据已包含"注册号"或"产品注册号"）
                     if self.include_reg_check.isChecked() and clause.get('regNo'):
                         reg_para = doc.add_paragraph()
-                        reg_run = reg_para.add_run(f"注册号: {clause['regNo']}")
-                        self._set_run_font(reg_run, self.body_size_spin.value(), color_rgb=RGBColor(100, 100, 100))
+                        reg_para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                        reg_run = reg_para.add_run(clause['regNo'])  # 直接输出，不加前缀
+                        self._set_run_font(reg_run, BODY_SIZE)
+                        reg_para.paragraph_format.space_after = Twips(60)
+                        reg_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
-                    # 条款内容
+                    # 条款内容 - v18.15: 支持<b>标记保留加粗格式
                     if clause.get('content'):
-                        for para_text in clause['content'].split('\n'):
+                        content_lines = clause['content'].split('\n')
+                        for i, para_text in enumerate(content_lines):
                             para_text = para_text.strip()
                             if para_text:
                                 content_para = doc.add_paragraph()
-                                content_run = content_para.add_run(para_text)
-                                self._set_run_font(content_run, self.body_size_spin.value())
-                                content_para.paragraph_format.line_spacing = self.line_spacing_spin.value()
+                                content_para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                                # 使用格式化方法处理可能包含<b>标记的文本
+                                self._add_formatted_text_to_paragraph(content_para, para_text, BODY_SIZE)
+                                # 最后一行段后0.5行，其他行无段后
+                                is_last_line = (i == len(content_lines) - 1)
+                                content_para.paragraph_format.space_after = Twips(SPACE_AFTER_HALF_LINE if is_last_line else 0)
+                                content_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
-                    doc.add_paragraph()
                     clause_num += 1
 
             self.progress_bar.setValue(80)
@@ -5617,80 +6928,111 @@ class ClauseOutputTab(QWidget):
             self.progress_bar.setVisible(False)
 
     def _create_clause_document(self, clause: dict) -> Document:
-        """创建单个条款的Word文档 - 使用宋体+Times New Roman"""
-        from docx.shared import RGBColor
-        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        """创建单个条款的Word文档 - v18.15格式：宋体+Times New Roman, 5号字, 两端对齐, 单倍行距"""
+        from docx.shared import RGBColor, Twips
+        from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 
         doc = Document()
 
-        # 条款名称
+        # v18.15: 固定格式参数
+        BODY_SIZE = 10.5  # 5号字
+        TITLE_SIZE = 10.5
+        SPACE_AFTER_HALF_LINE = 120  # 0.5行
+
+        # 条款名称（居中，加粗）
         title_para = doc.add_paragraph()
         title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         title_run = title_para.add_run(clause['name'])
-        self._set_run_font(title_run, self.title_size_spin.value(), bold=True)
+        self._set_run_font(title_run, TITLE_SIZE, bold=True)
+        title_para.paragraph_format.space_after = Twips(60)
+        title_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
-        # 注册号
+        # 注册号 - 直接输出，不添加额外前缀
         if self.include_reg_check.isChecked() and clause.get('regNo'):
             reg_para = doc.add_paragraph()
             reg_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
             reg_run = reg_para.add_run(clause['regNo'])
-            self._set_run_font(reg_run, self.body_size_spin.value(), color_rgb=RGBColor(100, 100, 100))
+            self._set_run_font(reg_run, BODY_SIZE)
+            reg_para.paragraph_format.space_after = Twips(SPACE_AFTER_HALF_LINE)
+            reg_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
-        doc.add_paragraph()
-
-        # 条款内容
+        # 条款内容 - v18.15: 支持<b>标记保留加粗格式
         if clause.get('content'):
-            for line in clause['content'].split('\n'):
+            content_lines = clause['content'].split('\n')
+            for i, line in enumerate(content_lines):
                 line = line.strip()
                 if line:
                     para = doc.add_paragraph()
-                    run = para.add_run(line)
-                    self._set_run_font(run, self.body_size_spin.value())
-                    para.paragraph_format.line_spacing = self.line_spacing_spin.value()
+                    para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                    # 使用格式化方法处理可能包含<b>标记的文本
+                    self._add_formatted_text_to_paragraph(para, line, BODY_SIZE)
+                    is_last_line = (i == len(content_lines) - 1)
+                    para.paragraph_format.space_after = Twips(SPACE_AFTER_HALF_LINE if is_last_line else 0)
+                    para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
         return doc
 
     def _create_category_document(self, category: str, clauses: list) -> Document:
-        """创建分类条款文档 - 使用宋体+Times New Roman"""
-        from docx.shared import RGBColor
-        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        """创建分类条款文档 - v18.15格式：宋体+Times New Roman, 5号字, 两端对齐, 单倍行距"""
+        from docx.shared import RGBColor, Twips
+        from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 
         doc = Document()
+
+        # v18.15: 固定格式参数
+        BODY_SIZE = 10.5  # 5号字
+        TITLE_SIZE = 10.5
+        SPACE_AFTER_HALF_LINE = 120  # 0.5行
 
         # 分类标题
         title_para = doc.add_paragraph()
         title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         title_run = title_para.add_run(f"【{category}】条款汇总")
-        self._set_run_font(title_run, self.title_size_spin.value() + 2, bold=True)
+        self._set_run_font(title_run, 14, bold=True)  # 标题稍大
+        title_para.paragraph_format.space_after = Twips(200)
 
         date_para = doc.add_paragraph()
         date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         date_run = date_para.add_run(f"共 {len(clauses)} 条 · {datetime.now():%Y-%m-%d}")
         self._set_run_font(date_run, 10, color_rgb=RGBColor(128, 128, 128))
-
-        doc.add_paragraph()
+        date_para.paragraph_format.space_after = Twips(200)
 
         for i, clause in enumerate(clauses, 1):
-            # 条款名称
-            name_para = doc.add_paragraph()
-            name_run = name_para.add_run(f"{i}. {clause['name']}")
-            self._set_run_font(name_run, self.title_size_spin.value(), bold=True)
+            # 条款前空行（除第一条外）
+            if i > 1:
+                blank_para = doc.add_paragraph()
+                blank_para.paragraph_format.space_after = Twips(SPACE_AFTER_HALF_LINE)
 
+            # 条款名称（加粗，无下划线）
+            name_para = doc.add_paragraph()
+            name_para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+            name_run = name_para.add_run(f"{i}. {clause['name']}")
+            self._set_run_font(name_run, TITLE_SIZE, bold=True)
+            name_para.paragraph_format.space_after = Twips(60)
+            name_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+
+            # 注册号 - 直接输出，不添加额外前缀
             if self.include_reg_check.isChecked() and clause.get('regNo'):
                 reg_para = doc.add_paragraph()
-                reg_run = reg_para.add_run(f"注册号: {clause['regNo']}")
-                self._set_run_font(reg_run, self.body_size_spin.value(), color_rgb=RGBColor(100, 100, 100))
+                reg_para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                reg_run = reg_para.add_run(clause['regNo'])
+                self._set_run_font(reg_run, BODY_SIZE)
+                reg_para.paragraph_format.space_after = Twips(60)
+                reg_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
+            # 条款内容 - v18.15: 支持<b>标记保留加粗格式
             if clause.get('content'):
-                for line in clause['content'].split('\n'):
+                content_lines = clause['content'].split('\n')
+                for j, line in enumerate(content_lines):
                     line = line.strip()
                     if line:
                         para = doc.add_paragraph()
-                        run = para.add_run(line)
-                        self._set_run_font(run, self.body_size_spin.value())
-                        para.paragraph_format.line_spacing = self.line_spacing_spin.value()
-
-            doc.add_paragraph()
+                        para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                        # 使用格式化方法处理可能包含<b>标记的文本
+                        self._add_formatted_text_to_paragraph(para, line, BODY_SIZE)
+                        is_last_line = (j == len(content_lines) - 1)
+                        para.paragraph_format.space_after = Twips(SPACE_AFTER_HALF_LINE if is_last_line else 0)
+                        para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
         return doc
 
@@ -5753,7 +7095,7 @@ class ClauseComparisonAssistant(QMainWindow):
         header_layout.addStretch()
 
         # 版本信息
-        subtitle = QLabel("V18.5 · 条款提取 · 条款比对 · 条款输出")
+        subtitle = QLabel("V18.9 · 条款提取 · 条款比对 · 条款输出 · 保险计算")
         subtitle.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
         header_layout.addWidget(subtitle)
 
@@ -5835,10 +7177,23 @@ class ClauseComparisonAssistant(QMainWindow):
         self.output_tab = ClauseOutputTab(self)
         self.main_tabs.addTab(self.output_tab, "📝 条款输出")
 
+        # Tab 4 & 5: 保险计算器（如已安装）
+        if HAS_INSURANCE_CALC:
+            self.main_insurance_tab = MainInsuranceTab(self)
+            self.main_tabs.addTab(self.main_insurance_tab, "🧮 主险计算")
+
+            self.addon_insurance_tab = AddonInsuranceTab(self)
+            self.main_tabs.addTab(self.addon_insurance_tab, "📋 附加险计算")
+
+            # 连接信号：主险计算结果 → 附加险
+            self.main_insurance_tab.premium_calculated.connect(
+                self.addon_insurance_tab.receive_main_premium
+            )
+
         layout.addWidget(self.main_tabs, 1)
 
         # 版本信息
-        version = QLabel("V18.5 Enhanced Recognition Edition · Made with ❤️ by Dachi Yijin")
+        version = QLabel("V18.9 Insurance Calculator Edition · Made with ❤️ by Dachi Yijin")
         version.setAlignment(Qt.AlignCenter)
         version.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 11px;")
         layout.addWidget(version)
@@ -5856,7 +7211,7 @@ class ClauseComparisonAssistant(QMainWindow):
             user_mappings = self._mapping_manager.get_mapping_count() if self._mapping_manager else 0
             stats_text = f"📊 {stats['client_mappings']} 映射 | {user_mappings} 自定义 | {stats['semantic_aliases']} 别名"
         else:
-            stats_text = "📊 使用内置配置"
+            stats_text = "📊 使用DCYJIN智能AI配置"
         self.stats_label = QLabel(stats_text)
         self.stats_label.setAlignment(Qt.AlignCenter)
         self.stats_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 11px;")
@@ -6007,9 +7362,40 @@ class ClauseComparisonAssistant(QMainWindow):
         self.mode_hint_label = QLabel("")
         self.mode_hint_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 12px;")
 
+        # v18.9: 精准识别模式勾选框
+        self.precise_mode_checkbox = QCheckBox("🎯 精准识别")
+        self.precise_mode_checkbox.setToolTip("仅提取蓝色字体的条款\n适用于干扰项较多的文档")
+        self.precise_mode_checkbox.setCursor(Qt.PointingHandCursor)
+        self.precise_mode_checkbox.setStyleSheet(f"""
+            QCheckBox {{
+                color: {AnthropicColors.TEXT_PRIMARY};
+                font-size: 14px;
+                spacing: 8px;
+            }}
+            QCheckBox::indicator {{
+                width: 18px;
+                height: 18px;
+                border: 2px solid {AnthropicColors.BORDER};
+                border-radius: 4px;
+                background: white;
+            }}
+            QCheckBox::indicator:hover {{
+                border-color: {AnthropicColors.ACCENT};
+            }}
+            QCheckBox::indicator:checked {{
+                background: {AnthropicColors.ACCENT};
+                border-color: {AnthropicColors.ACCENT};
+            }}
+            QCheckBox::indicator:checked::after {{
+                content: "✓";
+            }}
+        """)
+
         mode_layout.addWidget(mode_label)
         mode_layout.addWidget(self.match_mode_combo)
         mode_layout.addWidget(self.mode_hint_label)
+        mode_layout.addSpacing(20)
+        mode_layout.addWidget(self.precise_mode_checkbox)
         mode_layout.addStretch()
         layout.addLayout(mode_layout)
 
@@ -6147,10 +7533,14 @@ class ClauseComparisonAssistant(QMainWindow):
         if f:
             line_edit.setText(f)
             if line_edit == self.doc_input and not self.out_input.text():
-                self.out_input.setText(os.path.join(os.path.dirname(f), "条款比对报告.xlsx"))
+                # v18.9: 文件名加上日期，避免覆盖
+                date_str = datetime.now().strftime("%Y%m%d")
+                self.out_input.setText(os.path.join(os.path.dirname(f), f"条款比对报告_{date_str}.xlsx"))
 
     def _browse_save(self):
-        f, _ = QFileDialog.getSaveFileName(self, "保存结果", "条款比对报告.xlsx", "Excel Files (*.xlsx)")
+        # v18.9: 文件名加上日期，避免覆盖
+        date_str = datetime.now().strftime("%Y%m%d")
+        f, _ = QFileDialog.getSaveFileName(self, "保存结果", f"条款比对报告_{date_str}.xlsx", "Excel Files (*.xlsx)")
         if f:
             self.out_input.setText(f)
 
@@ -6267,7 +7657,10 @@ class ClauseComparisonAssistant(QMainWindow):
             if not files:
                 return
 
-            output_dir = QFileDialog.getExistingDirectory(self, "选择输出目录")
+            output_dir = QFileDialog.getExistingDirectory(
+                self, "选择输出目录", "",
+                QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            )
             if not output_dir:
                 return
 
@@ -6301,7 +7694,10 @@ class ClauseComparisonAssistant(QMainWindow):
         # v18.3: 获取选择的匹配模式
         match_mode = self._get_match_mode()
 
-        self.worker = MatchWorker(doc, excel, out, sheet_name, match_mode)
+        # v18.9: 获取精准识别模式
+        precise_mode = self.precise_mode_checkbox.isChecked()
+
+        self.worker = MatchWorker(doc, excel, out, sheet_name, match_mode, precise_mode)
         self.worker.log_signal.connect(self._append_log)
         self.worker.progress_signal.connect(lambda c, t: self.progress_bar.setValue(int(c/t*100)))
         self.worker.finished_signal.connect(self._on_finished)
@@ -6317,7 +7713,10 @@ class ClauseComparisonAssistant(QMainWindow):
         # v18.3: 获取选择的匹配模式
         match_mode = self._get_match_mode()
 
-        self.batch_worker = BatchMatchWorker(files, self.lib_input.text(), output_dir, sheet_name, match_mode)
+        # v18.9: 获取精准识别模式
+        precise_mode = self.precise_mode_checkbox.isChecked()
+
+        self.batch_worker = BatchMatchWorker(files, self.lib_input.text(), output_dir, sheet_name, match_mode, precise_mode)
         self.batch_worker.log_signal.connect(self._append_log)
         self.batch_worker.batch_progress_signal.connect(
             lambda c, t, n: self.progress_bar.setValue(int(c/t*100))
@@ -6405,6 +7804,61 @@ class ClauseComparisonAssistant(QMainWindow):
             QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.dirname(path)))
 
 
+def run_clause_test(doc_paths: List[Tuple[str, Optional[int], str]]):
+    """
+    运行条款识别回归测试
+    doc_paths: [(文件路径, 期望条款数, 名称), ...]
+    """
+    print('=' * 60)
+    print('条款识别回归测试 (主脚本)')
+    print('=' * 60)
+
+    # 使用ClauseMatcherLogic类来测试（parse_docx是它的方法）
+    extractor = ClauseMatcherLogic()
+
+    all_passed = True
+
+    for doc_path, expected, name in doc_paths:
+        if not os.path.exists(doc_path):
+            print(f'{name}: ⚠️ 文件不存在 - {doc_path}')
+            continue
+
+        try:
+            clauses, _ = extractor.parse_docx(doc_path)
+            count = len(clauses)
+
+            if expected is not None:
+                status = '✅ PASS' if count == expected else f'❌ FAIL (期望{expected})'
+                if count != expected:
+                    all_passed = False
+            else:
+                status = '📊 检查中'
+
+            print(f'{name}: {count}条 {status}')
+
+            # 如果测试失败或是检查文档，显示部分条款
+            if (expected and count != expected) or expected is None:
+                print(f'  前15条条款:')
+                for i, c in enumerate(clauses[:15]):
+                    title_display = c.title[:60] + '...' if len(c.title) > 60 else c.title
+                    print(f'    {i+1}. {title_display}')
+                if count > 15:
+                    print(f'    ... 共{count}条')
+
+        except Exception as e:
+            print(f'{name}: ❌ 错误 - {e}')
+            import traceback
+            traceback.print_exc()
+            all_passed = False
+
+    print('=' * 60)
+    if all_passed:
+        print('✅ 所有测试通过!')
+    else:
+        print('❌ 部分测试失败，请检查')
+    print('=' * 60)
+
+
 def main():
     if hasattr(Qt, 'AA_EnableHighDpiScaling'):
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -6420,4 +7874,51 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # 支持命令行测试模式
+    if len(sys.argv) > 1 and sys.argv[1] == '--test':
+        import glob as glob_module
+        # 创建最小化的QApplication（某些类可能需要）
+        app = QApplication(sys.argv)
+
+        # 使用glob查找文件（处理特殊空格字符）
+        def find_file(pattern):
+            matches = glob_module.glob(pattern)
+            return matches[0] if matches else pattern
+
+        test_docs = [
+            (find_file('/Volumes/4TB-Samsung/works/Trammo*Quote*.docx'), 27, 'Trammo'),
+            (find_file('/Volumes/4TB-Samsung/works/广州天河林和君Hilton*.docx'), 128, 'Hilton'),
+            (find_file('/Volumes/4TB-Samsung/works/马勒投资*PAR.docx'), 63, '马勒PAR'),
+            (find_file('/Volumes/4TB-Samsung/works/*梅花*Quotation*.docx'), None, '梅花'),
+        ]
+        run_clause_test(test_docs)
+    elif len(sys.argv) > 1 and sys.argv[1] == '--parse':
+        # 解析指定文件
+        import glob as glob_module
+        app = QApplication(sys.argv)
+
+        if len(sys.argv) < 3:
+            print('用法: python Clause_Comparison_Assistant.py --parse <文件路径>')
+            sys.exit(1)
+
+        file_path = sys.argv[2]
+        # 处理glob模式
+        if '*' in file_path:
+            matches = glob_module.glob(file_path)
+            if matches:
+                file_path = matches[0]
+
+        matcher = ClauseMatcherLogic()
+        try:
+            clauses, is_title_only = matcher.parse_docx(file_path)
+            print(f'\n文件: {file_path}')
+            print(f'识别到 {len(clauses)} 条条款 (仅标题模式: {is_title_only})')
+            print('-' * 60)
+            for i, c in enumerate(clauses):
+                print(f'{i+1}. {c.title}')
+        except Exception as e:
+            print(f'错误: {e}')
+            import traceback
+            traceback.print_exc()
+    else:
+        main()
