@@ -12742,6 +12742,319 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            commercialBuilding: {
+                productName: '商业楼宇财产一切险',
+                productType: 'multiRiskSum',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: 0.50,
+                formulaText: '年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)',
+                formulaNote: '各费率调整系数乘积不应低于0.50',
+                versions: {
+                    original: {
+                        label: '商业楼宇财产一切险费率',
+                        risks: [
+                            {
+                                id: 'fireExplosion', name: '火灾、爆炸',
+                                baseRateTable: {
+                                    type: 'industryBuilding',
+                                    buildingTypes: [
+                                        { id: 'fireproof', name: '防火建筑' },
+                                        { id: 'nonflammable', name: '不可燃建筑' },
+                                        { id: 'combustible', name: '可燃建筑' },
+                                        { id: 'flammable', name: '易燃建筑' }
+                                    ],
+                                    labels: {
+                                        'J6800': 'J6800 银行业', 'J700': 'J700 保险业', 'J6900': 'J6900 证券业', 'J7100': 'J7100 其他金融活动',
+                                        'L7300': 'L7300 租赁业', 'L7400': 'L7400 商务服务', 'L7410': 'L7410 企业管理服务', 'L7420': 'L7420 法律服务',
+                                        'L7430': 'L7430 咨询与调查', 'L7439': 'L7439 其他专业咨询', 'L7440': 'L7440 广告业', 'L7450': 'L7450 知识产权服务',
+                                        'L7460': 'L7460 职业中介服务', 'L7480': 'L7480 旅行社', 'L7491': 'L7491 保安服务', 'L7490': 'L7490 其他服务',
+                                        'I6600': 'I6600 住宿业', 'I6610': 'I6610 旅游饭店', 'I6620': 'I6620 一般旅馆', 'I6620-1': 'I6620-1 星级旅馆',
+                                        'I6690': 'I6690 其他住宿服务', 'I6700': 'I6700 餐饮业', 'I6710': 'I6710 正餐服务', 'I6720': 'I6720 快餐服务',
+                                        'I6730': 'I6730 饮料及冷饮服务',
+                                        'M7500': 'M7500 研究与试验发展', 'M7600': 'M7600 专业技术服务', 'M7700': 'M7700 科技交流和推广服务',
+                                        'N7900': 'N7900 水利管理业', 'N8000': 'N8000 环境管理业', 'N8010': 'N8010 自然保护',
+                                        'N8021': 'N8021 城市环卫管理', 'N8022': 'N8022 水污染治理', 'N8100': 'N8100 公共设施管理',
+                                        'O8220': 'O8220 托儿所/养老院/保健服务', 'O8240': 'O8240 理发美容', 'O8230': 'O8230 洗染服务',
+                                        'O8250': 'O8250 洗浴服务', 'O8270': 'O8270 殡葬服务', 'O8280': 'O8280 摄影扩印服务',
+                                        'O8290': 'O8290 其他居民服务', 'O8311': 'O8311 汽车摩托车维护保养', 'O8316': 'O8316 电器修理',
+                                        'O8317': 'O8317 钟表珠宝维修', 'O8318': 'O8318 装潢家具维修', 'O8319': 'O8319 其他日用品维修',
+                                        'O8320': 'O8320 保洁服务',
+                                        'P8410': 'P8410 学前初等中等教育', 'P8440': 'P8440 高等教育', 'P8490': 'P8490 其他教育',
+                                        'P8491': 'P8491 图书馆和信息中心',
+                                        'Q8510-1': 'Q8510-1 医院卫生院', 'Q8510-2': 'Q8510-2 妇幼保健活动', 'Q8570': 'Q8570 疾病防控活动',
+                                        'Q8511': 'Q8511 疗养院', 'Q8590': 'Q8590 其他卫生活动', 'Q8600': 'Q8600 社会保障业', 'Q8700': 'Q8700 社会福利业',
+                                        'R8810': 'R8810 新闻出版业', 'R8900': 'R8900 广播电视影像制作', 'R8931': 'R8931 电影制作和发行',
+                                        'R8933': 'R8933 电影放映', 'R9010': 'R9010 文艺创作与表演', 'R9020': 'R9020 艺术表演场馆',
+                                        'R9040': 'R9040 文物与文化保护', 'R9050': 'R9050 博物馆纪念馆', 'R9110': 'R9110 体育组织',
+                                        'R9120': 'R9120 体育场馆', 'R9210': 'R9210 室内娱乐活动', 'R9220': 'R9220 游乐园',
+                                        'R9230': 'R9230 休闲健身活动', 'R9200-1': 'R9200-1 其他休闲娱乐',
+                                        'F5521': 'F5521 机场', 'F5700': 'F5700 运输服务业', 'F5900': 'F5900 邮政业', 'F5990': 'F5990 其他寄递服务',
+                                        'G6010': 'G6010 电信业', 'G6020': 'G6020 互联网服务', 'G6040': 'G6040 卫星传输服务',
+                                        'G6030': 'G6030 广播电视传输服务', 'G6100': 'G6100 计算机服务', 'G6200': 'G6200 软件业',
+                                        'S9300': 'S9300 中国共产党机关', 'S9400': 'S9400 国家及政府机关', 'S9490': 'S9490 公安局消防局',
+                                        'S9500': 'S9500 人民政协和民主党派', 'S9600-1': 'S9600-1 群众团体及社会团体',
+                                        'S9600-2': 'S9600-2 宗教组织', 'S9600-3': 'S9600-3 其他团体组织',
+                                        'K': 'K 房地产业', 'H': 'H 批发和零售业', 'T': 'T 国际组织'
+                                    },
+                                    data: {
+                                        'J6800': { fireproof: 0.000127, nonflammable: 0.000179, combustible: 0.000242, flammable: 0.000457 },
+                                        'J700': { fireproof: 0.000127, nonflammable: 0.000179, combustible: 0.000242, flammable: 0.000457 },
+                                        'J6900': { fireproof: 0.000127, nonflammable: 0.000179, combustible: 0.000242, flammable: 0.000457 },
+                                        'J7100': { fireproof: 0.000139, nonflammable: 0.000197, combustible: 0.000265, flammable: 0.000503 },
+                                        'L7300': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000338, flammable: 0.000641 },
+                                        'L7400': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000338, flammable: 0.000641 },
+                                        'L7410': { fireproof: 0.000139, nonflammable: 0.000197, combustible: 0.000267, flammable: 0.000504 },
+                                        'L7420': { fireproof: 0.000127, nonflammable: 0.000179, combustible: 0.000242, flammable: 0.000457 },
+                                        'L7430': { fireproof: 0.000139, nonflammable: 0.000197, combustible: 0.000267, flammable: 0.000504 },
+                                        'L7439': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000338, flammable: 0.000641 },
+                                        'L7440': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000338, flammable: 0.000641 },
+                                        'L7450': { fireproof: 0.000165, nonflammable: 0.000233, combustible: 0.000313, flammable: 0.000595 },
+                                        'L7460': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000339, flammable: 0.000642 },
+                                        'L7480': { fireproof: 0.000191, nonflammable: 0.000268, combustible: 0.000362, flammable: 0.000687 },
+                                        'L7491': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000338, flammable: 0.000641 },
+                                        'L7490': { fireproof: 0.000191, nonflammable: 0.000268, combustible: 0.000362, flammable: 0.000687 },
+                                        'I6600': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'I6610': { fireproof: 0.000217, nonflammable: 0.000304, combustible: 0.000410, flammable: 0.000777 },
+                                        'I6620': { fireproof: 0.000217, nonflammable: 0.000304, combustible: 0.000410, flammable: 0.000777 },
+                                        'I6620-1': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000339, flammable: 0.000642 },
+                                        'I6690': { fireproof: 0.000217, nonflammable: 0.000304, combustible: 0.000410, flammable: 0.000777 },
+                                        'I6700': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'I6710': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'I6720': { fireproof: 0.000280, nonflammable: 0.000394, combustible: 0.000532, flammable: 0.001005 },
+                                        'I6730': { fireproof: 0.000242, nonflammable: 0.000341, combustible: 0.000460, flammable: 0.000871 },
+                                        'M7500': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'M7600': { fireproof: 0.000230, nonflammable: 0.000323, combustible: 0.000436, flammable: 0.000825 },
+                                        'M7700': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'N7900': { fireproof: 0.000192, nonflammable: 0.000270, combustible: 0.000365, flammable: 0.000691 },
+                                        'N8000': { fireproof: 0.000176, nonflammable: 0.000247, combustible: 0.000332, flammable: 0.000630 },
+                                        'N8010': { fireproof: 0.000176, nonflammable: 0.000247, combustible: 0.000332, flammable: 0.000630 },
+                                        'N8021': { fireproof: 0.000189, nonflammable: 0.000265, combustible: 0.000359, flammable: 0.000678 },
+                                        'N8022': { fireproof: 0.000189, nonflammable: 0.000265, combustible: 0.000359, flammable: 0.000678 },
+                                        'N8100': { fireproof: 0.000192, nonflammable: 0.000270, combustible: 0.000365, flammable: 0.000691 },
+                                        'O8220': { fireproof: 0.000186, nonflammable: 0.000262, combustible: 0.000354, flammable: 0.000671 },
+                                        'O8240': { fireproof: 0.000248, nonflammable: 0.000350, combustible: 0.000472, flammable: 0.000895 },
+                                        'O8230': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'O8250': { fireproof: 0.000289, nonflammable: 0.000406, combustible: 0.000548, flammable: 0.001039 },
+                                        'O8270': { fireproof: 0.000313, nonflammable: 0.000441, combustible: 0.000595, flammable: 0.001128 },
+                                        'O8280': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'O8290': { fireproof: 0.000248, nonflammable: 0.000350, combustible: 0.000472, flammable: 0.000895 },
+                                        'O8311': { fireproof: 0.000289, nonflammable: 0.000406, combustible: 0.000548, flammable: 0.001039 },
+                                        'O8316': { fireproof: 0.000306, nonflammable: 0.000430, combustible: 0.000580, flammable: 0.001099 },
+                                        'O8317': { fireproof: 0.000230, nonflammable: 0.000323, combustible: 0.000436, flammable: 0.000825 },
+                                        'O8318': { fireproof: 0.000230, nonflammable: 0.000323, combustible: 0.000436, flammable: 0.000825 },
+                                        'O8319': { fireproof: 0.000306, nonflammable: 0.000430, combustible: 0.000580, flammable: 0.001099 },
+                                        'O8320': { fireproof: 0.000306, nonflammable: 0.000430, combustible: 0.000580, flammable: 0.001099 },
+                                        'P8410': { fireproof: 0.000180, nonflammable: 0.000254, combustible: 0.000344, flammable: 0.000650 },
+                                        'P8440': { fireproof: 0.000180, nonflammable: 0.000254, combustible: 0.000344, flammable: 0.000650 },
+                                        'P8490': { fireproof: 0.000209, nonflammable: 0.000294, combustible: 0.000397, flammable: 0.000753 },
+                                        'P8491': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000339, flammable: 0.000642 },
+                                        'Q8510-1': { fireproof: 0.000248, nonflammable: 0.000350, combustible: 0.000472, flammable: 0.000895 },
+                                        'Q8510-2': { fireproof: 0.000244, nonflammable: 0.000342, combustible: 0.000462, flammable: 0.000875 },
+                                        'Q8570': { fireproof: 0.000244, nonflammable: 0.000342, combustible: 0.000462, flammable: 0.000875 },
+                                        'Q8511': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'Q8590': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'Q8600': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'Q8700': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'R8810': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'R8900': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'R8931': { fireproof: 0.000306, nonflammable: 0.000430, combustible: 0.000580, flammable: 0.001099 },
+                                        'R8933': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'R9010': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'R9020': { fireproof: 0.000238, nonflammable: 0.000335, combustible: 0.000451, flammable: 0.000854 },
+                                        'R9040': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'R9050': { fireproof: 0.000179, nonflammable: 0.000251, combustible: 0.000339, flammable: 0.000642 },
+                                        'R9110': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'R9120': { fireproof: 0.000268, nonflammable: 0.000377, combustible: 0.000509, flammable: 0.000965 },
+                                        'R9210': { fireproof: 0.000294, nonflammable: 0.000412, combustible: 0.000557, flammable: 0.001055 },
+                                        'R9220': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'R9230': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'R9200-1': { fireproof: 0.000306, nonflammable: 0.000430, combustible: 0.000580, flammable: 0.001099 },
+                                        'F5521': { fireproof: 0.000192, nonflammable: 0.000270, combustible: 0.000365, flammable: 0.000691 },
+                                        'F5700': { fireproof: 0.000230, nonflammable: 0.000324, combustible: 0.000438, flammable: 0.000830 },
+                                        'F5900': { fireproof: 0.000254, nonflammable: 0.000359, combustible: 0.000483, flammable: 0.000916 },
+                                        'F5990': { fireproof: 0.000306, nonflammable: 0.000430, combustible: 0.000580, flammable: 0.001099 },
+                                        'G6010': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000733 },
+                                        'G6020': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000731 },
+                                        'G6040': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000733 },
+                                        'G6030': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000733 },
+                                        'G6100': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000733 },
+                                        'G6200': { fireproof: 0.000203, nonflammable: 0.000286, combustible: 0.000386, flammable: 0.000733 },
+                                        'S9300': { fireproof: 0.000176, nonflammable: 0.000247, combustible: 0.000332, flammable: 0.000630 },
+                                        'S9400': { fireproof: 0.000176, nonflammable: 0.000247, combustible: 0.000332, flammable: 0.000630 },
+                                        'S9490': { fireproof: 0.000157, nonflammable: 0.000221, combustible: 0.000298, flammable: 0.000565 },
+                                        'S9500': { fireproof: 0.000153, nonflammable: 0.000215, combustible: 0.000291, flammable: 0.000550 },
+                                        'S9600-1': { fireproof: 0.000159, nonflammable: 0.000224, combustible: 0.000303, flammable: 0.000572 },
+                                        'S9600-2': { fireproof: 0.000207, nonflammable: 0.000291, combustible: 0.000392, flammable: 0.000744 },
+                                        'S9600-3': { fireproof: 0.000176, nonflammable: 0.000247, combustible: 0.000332, flammable: 0.000630 },
+                                        'K': { fireproof: 0.000153, nonflammable: 0.000215, combustible: 0.000289, flammable: 0.000548 },
+                                        'H': { fireproof: 0.000282, nonflammable: 0.000397, combustible: 0.000535, flammable: 0.001015 },
+                                        'T': { fireproof: 0.000153, nonflammable: 0.000215, combustible: 0.000289, flammable: 0.000548 }
+                                    }
+                                }
+                            },
+                            {
+                                id: 'typhoonFloodRain', name: '台风、洪水、暴雨',
+                                baseRateTable: {
+                                    type: 'zoneStructure',
+                                    zoneLabels: {
+                                        'zone1': '一类区（北京、青海、宁夏、天津）',
+                                        'zone2': '二类区（陕西、山西、内蒙古、辽宁、大连、吉林、黑龙江、上海、山东、青岛、河南、重庆、甘肃、新疆、西藏）',
+                                        'zone3': '三类区（江苏、湖北、河北、贵州、云南、四川、广东、深圳、海南）',
+                                        'zone4': '四类区（安徽、湖南、广西、江西、浙江、宁波、福建、厦门）'
+                                    },
+                                    structures: [
+                                        { id: 'steel', name: '钢结构' },
+                                        { id: 'rc', name: '钢筋混凝土' },
+                                        { id: 'mixed', name: '混合结构' },
+                                        { id: 'brickWood', name: '砖木结构' },
+                                        { id: 'other', name: '其他结构' }
+                                    ],
+                                    data: {
+                                        'zone1': { steel: 0.000048, rc: 0.000073, mixed: 0.000121, brickWood: 0.000218, other: 0.000363 },
+                                        'zone2': { steel: 0.000061, rc: 0.000091, mixed: 0.000151, brickWood: 0.000273, other: 0.000454 },
+                                        'zone3': { steel: 0.000073, rc: 0.000109, mixed: 0.000182, brickWood: 0.000327, other: 0.000545 },
+                                        'zone4': { steel: 0.000091, rc: 0.000136, mixed: 0.000227, brickWood: 0.000409, other: 0.000681 }
+                                    }
+                                }
+                            },
+                            {
+                                id: 'earthquakeTsunami', name: '地震、海啸',
+                                baseRateTable: {
+                                    type: 'zoneStructure',
+                                    zoneLabels: {
+                                        'zone1': '一类区（黑龙江、吉林、贵州、湖北、湖南、江西、浙江、宁波、广东、深圳、广西）',
+                                        'zone2': '二类区（内蒙古、山东、青岛、河南、安徽、福建、厦门、江苏、上海、重庆）',
+                                        'zone3': '三类区（山西、陕西、辽宁、大连、海南）',
+                                        'zone4': '四类区（北京、天津、河北、宁夏、甘肃、青海、四川）',
+                                        'zone5': '五类区（新疆、西藏、云南）'
+                                    },
+                                    structures: [
+                                        { id: 'steel', name: '钢结构' },
+                                        { id: 'rc', name: '钢筋混凝土' },
+                                        { id: 'mixed', name: '混合结构' },
+                                        { id: 'brickWood', name: '砖木结构' },
+                                        { id: 'other', name: '其他结构' }
+                                    ],
+                                    data: {
+                                        'zone1': { steel: 0.000030, rc: 0.000038, mixed: 0.000042, brickWood: 0.000085, other: 0.000129 },
+                                        'zone2': { steel: 0.000077, rc: 0.000092, mixed: 0.000104, brickWood: 0.000214, other: 0.000320 },
+                                        'zone3': { steel: 0.000117, rc: 0.000136, mixed: 0.000156, brickWood: 0.000320, other: 0.000480 },
+                                        'zone4': { steel: 0.000139, rc: 0.000165, mixed: 0.000188, brickWood: 0.000382, other: 0.000575 },
+                                        'zone5': { steel: 0.000233, rc: 0.000274, mixed: 0.000313, brickWood: 0.000639, other: 0.000959 }
+                                    }
+                                }
+                            },
+                            {
+                                id: 'otherNatural', name: '其它自然灾害',
+                                baseRateTable: { type: 'manual' },
+                                defaultRate: 0.000038,
+                                rateRange: [0.00004, 0.00016]
+                            },
+                            {
+                                id: 'otherAccident', name: '其它意外事故',
+                                baseRateTable: { type: 'manual' },
+                                defaultRate: 0.000061,
+                                rateRange: [0.00005, 0.00015]
+                            }
+                        ],
+                        coefficients: [
+                            { id: 'fireAmountAdj', name: '火灾爆炸-保额调整系数', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '＜0.5亿', value: 1.15, type: 'fixed' },
+                                { parameter: '[0.5, 2)亿', value: 1.05, type: 'fixed' },
+                                { parameter: '[2, 10)亿', value: 1.00, type: 'fixed' },
+                                { parameter: '[10, 20)亿', value: 0.95, type: 'fixed' },
+                                { parameter: '≥20亿', value: 0.85, type: 'fixed' }
+                            ]},
+                            { id: 'typhoonAmountAdj', name: '台风洪水暴雨-保额调整系数', applicableTo: ['typhoonFloodRain'], rows: [
+                                { parameter: '＜0.5亿', value: 1.15, type: 'fixed' },
+                                { parameter: '[0.5, 2)亿', value: 1.05, type: 'fixed' },
+                                { parameter: '[2, 10)亿', value: 1.00, type: 'fixed' },
+                                { parameter: '[10, 20)亿', value: 0.95, type: 'fixed' },
+                                { parameter: '≥20亿', value: 0.85, type: 'fixed' }
+                            ]},
+                            { id: 'quakeAmountAdj', name: '地震海啸-保额调整系数', applicableTo: ['earthquakeTsunami'], rows: [
+                                { parameter: '＜0.5亿', value: 1.15, type: 'fixed' },
+                                { parameter: '[0.5, 2)亿', value: 1.05, type: 'fixed' },
+                                { parameter: '[2, 10)亿', value: 1.00, type: 'fixed' },
+                                { parameter: '[10, 20)亿', value: 0.95, type: 'fixed' },
+                                { parameter: '≥20亿', value: 0.85, type: 'fixed' }
+                            ]},
+                            { id: 'typhoonThreat', name: '台风侵袭可能性', applicableTo: ['typhoonFloodRain'], rows: [
+                                { parameter: '台风登陆区域', value: 1.20, type: 'fixed' },
+                                { parameter: '台风影响区域', value: 1.00, type: 'fixed' },
+                                { parameter: '台风无影响区域', value: 0.80, type: 'fixed' }
+                            ]},
+                            { id: 'floodThreat', name: '洪水侵袭可能性', applicableTo: ['typhoonFloodRain'], rows: [
+                                { parameter: '危险程度高地区', value: 1.20, type: 'fixed' },
+                                { parameter: '危险程度较高地区', value: 1.00, type: 'fixed' },
+                                { parameter: '危险程度较小地区', value: 0.80, type: 'fixed' }
+                            ]},
+                            { id: 'quakeThreat', name: '地震侵袭可能性', applicableTo: ['earthquakeTsunami'], rows: [
+                                { parameter: '高于当地抗震设计标准', value: 0.90, type: 'fixed' },
+                                { parameter: '符合当地抗震设计标准', value: 1.00, type: 'fixed' },
+                                { parameter: '低于当地抗震设计标准', value: 1.05, type: 'fixed' }
+                            ]},
+                            { id: 'otherNatThreat', name: '其他自然灾害威胁', applicableTo: ['otherNatural'], rows: [
+                                { parameter: '威胁高', value: 1.15, type: 'fixed' },
+                                { parameter: '一般威胁', value: 1.00, type: 'fixed' },
+                                { parameter: '威胁低', value: 0.85, type: 'fixed' }
+                            ]},
+                            { id: 'fireTeamTime', name: '消防队到达时间', applicableTo: ['all'], rows: [
+                                { parameter: '5分钟以内', value: 0.95, type: 'fixed' },
+                                { parameter: '6-15分钟', value: 1.00, type: 'fixed' },
+                                { parameter: '16-30分钟', value: 1.05, type: 'fixed' },
+                                { parameter: '30分钟以上', value: 1.10, type: 'fixed' }
+                            ]},
+                            { id: 'lossRecord', name: '损失记录', applicableTo: ['all'], rows: [
+                                { parameter: '＜40%（N=1年）', value: 0.75, type: 'fixed' },
+                                { parameter: '＜40%（N=2年）', value: 0.70, type: 'fixed' },
+                                { parameter: '＜40%（N≥3年）', value: 0.65, type: 'fixed' },
+                                { parameter: '[40%,50%)（N=1年）', value: 0.95, type: 'fixed' },
+                                { parameter: '[40%,50%)（N=2年）', value: 0.90, type: 'fixed' },
+                                { parameter: '[40%,50%)（N≥3年）', value: 0.85, type: 'fixed' },
+                                { parameter: '[50%,60%)（N=1年）', value: 1.05, type: 'fixed' },
+                                { parameter: '[50%,60%)（N=2年）', value: 1.02, type: 'fixed' },
+                                { parameter: '[50%,60%)（N≥3年）', value: 1.00, type: 'fixed' },
+                                { parameter: '[60%,70%)（N=1年）', value: 1.15, type: 'fixed' },
+                                { parameter: '[60%,70%)（N=2年）', value: 1.12, type: 'fixed' },
+                                { parameter: '[60%,70%)（N≥3年）', value: 1.10, type: 'fixed' },
+                                { parameter: '[70%,90%)（任意年限）', min: 1.15, max: 1.30, type: 'range' },
+                                { parameter: '≥90%（任意年限）', min: 1.30, max: 1.50, type: 'range' }
+                            ]},
+                            { id: 'naturalDisasterMeasure', name: '自然灾害防范措施', applicableTo: ['all'], rows: [
+                                { parameter: '有防范措施（效率高）', value: 0.85, type: 'fixed' },
+                                { parameter: '有防范措施（效率一般）', value: 1.00, type: 'fixed' },
+                                { parameter: '无防范措施', value: 1.15, type: 'fixed' }
+                            ]},
+                            { id: 'safetyAwareness', name: '安全意识', applicableTo: ['all'], rows: [
+                                { parameter: '好', value: 0.80, type: 'fixed' },
+                                { parameter: '一般', value: 1.00, type: 'fixed' }
+                            ]},
+                            { id: 'safetyFacility', name: '安全设施', applicableTo: ['all'], rows: [
+                                { parameter: '有防范措施（效率高）', value: 0.85, type: 'fixed' },
+                                { parameter: '有防范措施（效率一般）', value: 1.00, type: 'fixed' },
+                                { parameter: '无防范措施', value: 1.15, type: 'fixed' }
+                            ]},
+                            { id: 'deductibleAmount', name: '免赔额调整系数', linkedGroup: 'deductible', applicableTo: ['all'], rows: [
+                                { parameter: '＜1000元', value: 1.15, type: 'fixed' },
+                                { parameter: '[1000, 2000)元', value: 1.10, type: 'fixed' },
+                                { parameter: '[2000, 5000)元', value: 1.00, type: 'fixed' },
+                                { parameter: '[5000, 8000)元', value: 0.95, type: 'fixed' },
+                                { parameter: '[8000, 12000)元', value: 0.90, type: 'fixed' },
+                                { parameter: '≥12000元', value: 0.80, type: 'fixed' }
+                            ]},
+                            { id: 'deductibleRate', name: '免赔率调整系数', linkedGroup: 'deductible', applicableTo: ['all'], rows: [
+                                { parameter: '＜5%', value: 1.10, type: 'fixed' },
+                                { parameter: '[5%, 10%)', value: 1.00, type: 'fixed' },
+                                { parameter: '[10%, 15%)', value: 0.95, type: 'fixed' },
+                                { parameter: '[15%, 20%)', value: 0.85, type: 'fixed' },
+                                { parameter: '≥20%', value: 0.75, type: 'fixed' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
