@@ -1661,9 +1661,8 @@ class MainInsuranceTab(QWidget):
         if pt == "liability":
             method = self.method_combo.currentData()
             return [c for c in coefficients if method in c.get("applicableTo", [])]
-        # 对于非 liability 类型，applicableTo 包含 "all" 的始终显示
-        # 对于 composite 类型，还需要显示特定子险种的系数
-        return [c for c in coefficients if "all" in c.get("applicableTo", [])]
+        # 对于非 liability 类型，显示所有系数（它们的 applicableTo 可能包含 "all" 或子险种名称）
+        return coefficients
 
     def _render_coefficients(self):
         while self.coeff_layout.count():
