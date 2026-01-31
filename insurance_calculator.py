@@ -1652,6 +1652,19 @@ class MainInsuranceTab(QWidget):
         self.scroll_layout.addWidget(self.coeff_container)
         self._render_coefficients()
 
+    def _get_applicable_coefficients(self):
+        """获取当前产品类型下适用的系数列表"""
+        if not self.current_plan:
+            return []
+        pt = self._get_product_type()
+        coefficients = self.current_plan.get("coefficients", [])
+        if pt == "liability":
+            method = self.method_combo.currentData()
+            return [c for c in coefficients if method in c.get("applicableTo", [])]
+        # 对于非 liability 类型，applicableTo 包含 "all" 的始终显示
+        # 对于 composite 类型，还需要显示特定子险种的系数
+        return [c for c in coefficients if "all" in c.get("applicableTo", [])]
+
     def _render_coefficients(self):
         while self.coeff_layout.count():
             item = self.coeff_layout.takeAt(0)
@@ -1659,8 +1672,7 @@ class MainInsuranceTab(QWidget):
                 item.widget().deleteLater()
         if not self.current_plan:
             return
-        method = self.method_combo.currentData()
-        applicable = [c for c in self.current_plan.get("coefficients", []) if method in c.get("applicableTo", [])]
+        applicable = self._get_applicable_coefficients()
         if not applicable and self.selected_disability_table == "none":
             lbl = QLabel("当前计费方式无可用系数表")
             lbl.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; padding: 16px;")
@@ -1783,24 +1795,8 @@ class MainInsuranceTab(QWidget):
         prefix = {"error": "❌", "warn": "⚠️", "success": "✅"}.get(level, "ℹ️")
         self.log_display.append(f"[{time_str}] {prefix} {msg}")
 
-    def calculate(self):
-        method = self.method_combo.currentData()
-        industry_class = self.industry_combo.currentData()
-        employee_count = self.count_spin.value()
-        term_type = self.term_combo.currentData()
-        days = self.days_spin.value() if term_type == "short" else 365
-        if employee_count <= 0:
-            self._log("计算失败: 承保人数无效", "error")
-            return
-        base_rates = self.current_plan.get("baseRates", {}).get(method, {})
-        base_rate = base_rates.get(industry_class)
-        if not base_rate:
-            self._log(f"计算失败: 基准费率不存在 method={method} class={industry_class}", "error")
-            return
-        self._log("--- 开始计算 ---")
-        self._log(f"版本: {self.current_plan.get('label', '')} | 计费: {'固定限额' if method == 'fixed' else '工资总额'} | 行业: {industry_class}")
-        self._log(f"基准费率: {base_rate * 100:.4f}%")
-        applicable = [c for c in self.current_plan.get("coefficients", []) if method in c.get("applicableTo", [])]
+    def _calc_coeff_product(self, applicable):
+        """计算系数乘积，返回 (coeff_product, coeff_details, unselected_count)"""
         coeff_product = 1.0
         coeff_details = []
         unselected_count = 0
@@ -1816,12 +1812,40 @@ class MainInsuranceTab(QWidget):
         if unselected_count > 0:
             self._log(f"  注意: {unselected_count} 个系数未选择，按基准 1.0 计算", "warn")
         self._log(f"系数乘积: {fmt_num(coeff_product, 6)}")
-        adjusted_rate = base_rate * coeff_product
+        return coeff_product, coeff_details, unselected_count
+
+    def _apply_premium_cap(self, adjusted_rate, premium_cap):
+        """应用费率封顶"""
         is_capped = False
-        if adjusted_rate > 0.70:
-            self._log(f"调整后费率 {adjusted_rate * 100:.4f}% 超过70%封顶", "warn")
-            adjusted_rate = 0.70
+        if premium_cap is not None and adjusted_rate > premium_cap:
+            self._log(f"调整后费率 {adjusted_rate * 100:.4f}% 超过{premium_cap * 100:.0f}%封顶", "warn")
+            adjusted_rate = premium_cap
             is_capped = True
+        return adjusted_rate, is_capped
+
+    def _calc_liability(self):
+        """雇主责任险计算逻辑"""
+        method = self.method_combo.currentData()
+        industry_class = self.industry_combo.currentData()
+        employee_count = self.count_spin.value()
+        term_type = self.term_combo.currentData()
+        days = self.days_spin.value() if term_type == "short" else 365
+        if employee_count <= 0:
+            self._log("计算失败: 承保人数无效", "error")
+            return
+        base_rates = self.current_plan.get("baseRates", {}).get(method, {})
+        base_rate = base_rates.get(industry_class)
+        if not base_rate:
+            self._log(f"计算失败: 基准费率不存在 method={method} class={industry_class}", "error")
+            return
+        self._log(f"版本: {self.current_plan.get('label', '')} | 计费: {'固定限额' if method == 'fixed' else '工资总额'} | 行业: {industry_class}")
+        self._log(f"基准费率: {base_rate * 100:.4f}%")
+        applicable = [c for c in self.current_plan.get("coefficients", []) if method in c.get("applicableTo", [])]
+        coeff_product, coeff_details, _ = self._calc_coeff_product(applicable)
+        adjusted_rate = base_rate * coeff_product
+        product_data = MC_PRODUCTS.get(self.selected_product, {})
+        premium_cap = product_data.get("premiumCap")
+        adjusted_rate, is_capped = self._apply_premium_cap(adjusted_rate, premium_cap)
         self._log(f"调整后费率: {adjusted_rate * 100:.4f}%{'（封顶）' if is_capped else ''}")
         per_person_premium = 0.0
         total_premium = 0.0
@@ -1860,18 +1884,197 @@ class MainInsuranceTab(QWidget):
             disability_desc = f"附加伤残赔偿比例({tbl_label} · {d_opt['label']})"
             formula += f"\n\n扩展伤残赔偿比例: {fmt_currency(before_premium)} × {fmt_num(disability_coeff, 3)} = {fmt_currency(total_premium)}"
             self._log(f"伤残赔偿比例调整: × {fmt_num(disability_coeff, 3)} ({disability_desc})")
-        self._log(f"主险保费: {fmt_currency(total_premium)}", "success")
-        self._log("--- 计算完成 ---", "success")
         self.result = {
             "version": self.current_plan.get("label", ""), "method": method, "industryClass": industry_class,
             "baseRate": base_rate, "coeffProduct": coeff_product, "disabilityCoeff": disability_coeff,
             "disabilityDesc": disability_desc, "adjustedRate": adjusted_rate, "isCapped": is_capped,
             "perPersonPremium": per_person_premium, "totalPremium": total_premium,
             "employeeCount": employee_count, "termType": term_type, "days": days,
-            "formulaBreakdown": formula, "coeffDetails": coeff_details
+            "formulaBreakdown": formula, "coeffDetails": coeff_details,
+            "productType": "liability"
         }
-        self._render_result()
-        self.send_btn.show()
+
+    def _calc_property(self):
+        """财产险类计算: 年保费 = 保险金额 × 基准费率 × 系数乘积"""
+        term_type = self.term_combo.currentData()
+        days = self.days_spin.value() if term_type == "short" else 365
+        insured_amount = self.amount_spin.value()
+        base_rate = self.current_plan.get("baseRates", {}).get("default")
+        if not base_rate:
+            self._log("计算失败: 基准费率不存在", "error")
+            return
+        self._log(f"版本: {self.current_plan.get('label', '')} | 保险金额: {fmt_currency(insured_amount)}")
+        self._log(f"基准费率: {base_rate * 100:.4f}%")
+        applicable = self._get_applicable_coefficients()
+        coeff_product, coeff_details, _ = self._calc_coeff_product(applicable)
+        adjusted_rate = base_rate * coeff_product
+        product_data = MC_PRODUCTS.get(self.selected_product, {})
+        premium_cap = product_data.get("premiumCap")
+        adjusted_rate, is_capped = self._apply_premium_cap(adjusted_rate, premium_cap)
+        self._log(f"调整后费率: {adjusted_rate * 100:.4f}%{'（封顶）' if is_capped else ''}")
+        total_premium = insured_amount * adjusted_rate
+        if term_type == "short":
+            total_premium *= (days / 365)
+        formula = f"年保费 = {fmt_currency(insured_amount)} × {adjusted_rate * 100:.4f}%"
+        if term_type == "short":
+            formula += f" × ({days}/365)"
+        formula += f" = {fmt_currency(total_premium)}"
+        self.result = {
+            "version": self.current_plan.get("label", ""), "baseRate": base_rate,
+            "coeffProduct": coeff_product, "adjustedRate": adjusted_rate, "isCapped": is_capped,
+            "totalPremium": total_premium, "perPersonPremium": 0,
+            "insuredAmount": insured_amount, "termType": term_type, "days": days,
+            "formulaBreakdown": formula, "coeffDetails": coeff_details,
+            "productType": "property"
+        }
+
+    def _calc_composite(self):
+        """恒力项目组合险计算: 分别计算物质损失和机器损坏保费后求和"""
+        term_type = self.term_combo.currentData()
+        days = self.days_spin.value() if term_type == "short" else 365
+        material_amount = self.amount_spin.value()
+        machinery_amount = self.sub_amount_spin.value()
+        base_rates = self.current_plan.get("baseRates", {})
+        material_rate = base_rates.get("materialDamage")
+        machinery_rate = base_rates.get("machineryBreakdown")
+        if not material_rate or not machinery_rate:
+            self._log("计算失败: 基准费率不存在", "error")
+            return
+        self._log(f"版本: {self.current_plan.get('label', '')}")
+        self._log(f"物质损失保额: {fmt_currency(material_amount)} | 基准费率: {material_rate * 100:.4f}%")
+        self._log(f"机器损坏保额: {fmt_currency(machinery_amount)} | 基准费率: {machinery_rate * 100:.4f}%")
+        coefficients = self.current_plan.get("coefficients", [])
+        # 物质损失系数
+        material_coeffs = [c for c in coefficients if "materialDamage" in c.get("applicableTo", []) or "all" in c.get("applicableTo", [])]
+        machinery_coeffs = [c for c in coefficients if "machineryBreakdown" in c.get("applicableTo", []) or "all" in c.get("applicableTo", [])]
+        self._log("--- 物质损失系数 ---")
+        material_coeff_product, material_coeff_details, _ = self._calc_coeff_product(material_coeffs)
+        self._log("--- 机器损坏系数 ---")
+        machinery_coeff_product, machinery_coeff_details, _ = self._calc_coeff_product(machinery_coeffs)
+        material_adj_rate = material_rate * material_coeff_product
+        machinery_adj_rate = machinery_rate * machinery_coeff_product
+        material_premium = material_amount * material_adj_rate
+        machinery_premium = machinery_amount * machinery_adj_rate
+        if term_type == "short":
+            material_premium *= (days / 365)
+            machinery_premium *= (days / 365)
+        total_premium = material_premium + machinery_premium
+        formula = f"物质损失保费 = {fmt_currency(material_amount)} × {material_adj_rate * 100:.4f}%"
+        if term_type == "short":
+            formula += f" × ({days}/365)"
+        formula += f" = {fmt_currency(material_premium)}"
+        formula += f"\n机器损坏保费 = {fmt_currency(machinery_amount)} × {machinery_adj_rate * 100:.4f}%"
+        if term_type == "short":
+            formula += f" × ({days}/365)"
+        formula += f" = {fmt_currency(machinery_premium)}"
+        formula += f"\n合计保费 = {fmt_currency(material_premium)} + {fmt_currency(machinery_premium)} = {fmt_currency(total_premium)}"
+        all_coeff_details = material_coeff_details + machinery_coeff_details
+        self.result = {
+            "version": self.current_plan.get("label", ""),
+            "baseRate": {"materialDamage": material_rate, "machineryBreakdown": machinery_rate},
+            "coeffProduct": {"materialDamage": material_coeff_product, "machineryBreakdown": machinery_coeff_product},
+            "adjustedRate": {"materialDamage": material_adj_rate, "machineryBreakdown": machinery_adj_rate},
+            "isCapped": False, "totalPremium": total_premium, "perPersonPremium": 0,
+            "materialAmount": material_amount, "machineryAmount": machinery_amount,
+            "materialPremium": material_premium, "machineryPremium": machinery_premium,
+            "termType": term_type, "days": days,
+            "formulaBreakdown": formula, "coeffDetails": all_coeff_details,
+            "productType": "composite"
+        }
+
+    def _calc_interruption(self):
+        """营业中断保险计算: 年保费 = 毛利润损失保额 × 基准费率 × 系数乘积"""
+        term_type = self.term_combo.currentData()
+        days = self.days_spin.value() if term_type == "short" else 365
+        insured_amount = self.amount_spin.value()
+        base_rate = self.current_plan.get("baseRates", {}).get("default")
+        if not base_rate:
+            self._log("计算失败: 基准费率不存在", "error")
+            return
+        self._log(f"版本: {self.current_plan.get('label', '')} | 毛利润损失保额: {fmt_currency(insured_amount)}")
+        self._log(f"基准费率: {base_rate * 100:.4f}%")
+        applicable = self._get_applicable_coefficients()
+        coeff_product, coeff_details, _ = self._calc_coeff_product(applicable)
+        adjusted_rate = base_rate * coeff_product
+        self._log(f"调整后费率: {adjusted_rate * 100:.4f}%")
+        total_premium = insured_amount * adjusted_rate
+        if term_type == "short":
+            total_premium *= (days / 365)
+        formula = f"年保费 = {fmt_currency(insured_amount)} × {adjusted_rate * 100:.4f}%"
+        if term_type == "short":
+            formula += f" × ({days}/365)"
+        formula += f" = {fmt_currency(total_premium)}"
+        self.result = {
+            "version": self.current_plan.get("label", ""), "baseRate": base_rate,
+            "coeffProduct": coeff_product, "adjustedRate": adjusted_rate, "isCapped": False,
+            "totalPremium": total_premium, "perPersonPremium": 0,
+            "insuredAmount": insured_amount, "termType": term_type, "days": days,
+            "formulaBreakdown": formula, "coeffDetails": coeff_details,
+            "productType": "interruption"
+        }
+
+    def _calc_jewelry(self):
+        """珠宝商综合保险计算: 按选择的保障类型和商户类型计算"""
+        term_type = self.term_combo.currentData()
+        days = self.days_spin.value() if term_type == "short" else 365
+        insured_amount = self.amount_spin.value()
+        merchant_type = self.merchant_type_combo.currentData()
+        coverage_type = self.coverage_type_combo.currentData()
+        product_data = MC_PRODUCTS.get(self.selected_product, {})
+        categories = product_data.get("coverageCategories", {})
+        category = categories.get(coverage_type, {})
+        base_rate = category.get("baseRates", {}).get(merchant_type)
+        if not base_rate:
+            self._log(f"计算失败: 基准费率不存在 merchant={merchant_type} coverage={coverage_type}", "error")
+            return
+        merchant_label = product_data.get("merchantTypes", {}).get(merchant_type, merchant_type)
+        coverage_label = category.get("label", coverage_type)
+        self._log(f"版本: {self.current_plan.get('label', '')} | {merchant_label} | {coverage_label}")
+        self._log(f"保险金额: {fmt_currency(insured_amount)} | 基准费率: {base_rate * 100:.4f}%")
+        applicable = self._get_applicable_coefficients()
+        coeff_product, coeff_details, _ = self._calc_coeff_product(applicable)
+        adjusted_rate = base_rate * coeff_product
+        self._log(f"调整后费率: {adjusted_rate * 100:.4f}%")
+        total_premium = insured_amount * adjusted_rate
+        if term_type == "short":
+            total_premium *= (days / 365)
+        formula = f"保障类型: {coverage_label} ({merchant_label})"
+        formula += f"\n年保费 = {fmt_currency(insured_amount)} × {adjusted_rate * 100:.4f}%"
+        if term_type == "short":
+            formula += f" × ({days}/365)"
+        formula += f" = {fmt_currency(total_premium)}"
+        self.result = {
+            "version": self.current_plan.get("label", ""), "baseRate": base_rate,
+            "coeffProduct": coeff_product, "adjustedRate": adjusted_rate, "isCapped": False,
+            "totalPremium": total_premium, "perPersonPremium": 0,
+            "insuredAmount": insured_amount, "merchantType": merchant_type, "coverageType": coverage_type,
+            "termType": term_type, "days": days,
+            "formulaBreakdown": formula, "coeffDetails": coeff_details,
+            "productType": "jewelry"
+        }
+
+    def calculate(self):
+        self._log("--- 开始计算 ---")
+        pt = self._get_product_type()
+        self.result = None
+        if pt == "liability":
+            self._calc_liability()
+        elif pt == "property":
+            self._calc_property()
+        elif pt == "composite":
+            self._calc_composite()
+        elif pt == "interruption":
+            self._calc_interruption()
+        elif pt == "jewelry":
+            self._calc_jewelry()
+        else:
+            self._log(f"未知产品类型: {pt}", "error")
+            return
+        if self.result:
+            self._log(f"主险保费: {fmt_currency(self.result['totalPremium'])}", "success")
+            self._log("--- 计算完成 ---", "success")
+            self._render_result()
+            self.send_btn.show()
 
     def _render_result(self):
         if not self.result:
