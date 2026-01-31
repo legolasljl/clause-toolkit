@@ -11708,6 +11708,85 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            // ====== #1 工程机械设备综合保险 ======
+            machineryEquipment: {
+                productName: '工程机械设备综合保险',
+                productType: 'property',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: null,
+                formulaText: '年保险费＝保险金额×基准费率×各项费率调整系数的乘积',
+                formulaNote: '短期承保保险费＝年保险费×保险期间天数÷365',
+                versions: {
+                    original: {
+                        label: '工程机械设备综合保险费率',
+                        baseRates: { 'default': 0.0026 },
+                        coefficients: [
+                            { id: 'insuredAmountME', name: '保险金额调整系数', applicableTo: ['all'],
+                              note: '平均每台设备保险金额；未列明金额可按线性插值法计算',
+                              rows: [
+                                { parameter: '≤10万元', min: 1.3, max: 1.5, type: 'range' },
+                                { parameter: '20万元', value: 1.2, type: 'fixed' },
+                                { parameter: '30万元', value: 1.1, type: 'fixed' },
+                                { parameter: '50万元', value: 1.0, type: 'fixed' },
+                                { parameter: '100万元', value: 0.9, type: 'fixed' },
+                                { parameter: '≥200万元', min: 0.7, max: 0.8, type: 'range' }
+                            ]},
+                            { id: 'complexityME', name: '设备结构复杂程度调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '简单', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '复杂', min: 1.2, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '特别复杂', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'lossHistoryME', name: '历史事故与损失情况调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '极少', min: 0.5, max: 0.7, type: 'range' },
+                                { parameter: '较少', min: 0.7, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '较多', min: 1.2, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '很多', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'areaRiskME', name: '作业区域风险调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '较低', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '较高', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'originME', name: '设备产地调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '国内', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '国外', min: 1.0, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'managementME', name: '管理水平调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '安全管理制度和措施完善，无明显缺陷', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '安全管理制度和措施较完善，但存在个别缺陷', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '安全管理制度和措施不完善或存在较多缺陷', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'renewalME', name: '续保调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '新保', value: 1.0, type: 'fixed' },
+                                { parameter: '续保一年', value: 0.9, type: 'fixed' },
+                                { parameter: '续保两年', value: 0.85, type: 'fixed' },
+                                { parameter: '续保三年及以上', value: 0.8, type: 'fixed' }
+                            ]},
+                            { id: 'deductAmountME', name: '免赔额调整系数', applicableTo: ['all'], linkedGroup: 'deductibleME',
+                              note: '未列明免赔额可按线性插值法计算；若同时约定免赔额和免赔率，以低者作为免赔调整系数',
+                              rows: [
+                                { parameter: '0元', value: 1.0, type: 'fixed' },
+                                { parameter: '1000元', value: 0.96, type: 'fixed' },
+                                { parameter: '2500元', value: 0.91, type: 'fixed' },
+                                { parameter: '5000元', value: 0.85, type: 'fixed' },
+                                { parameter: '≥10000元', min: 0.7, max: 0.77, type: 'range' }
+                            ]},
+                            { id: 'deductRateME', name: '免赔率调整系数', applicableTo: ['all'], linkedGroup: 'deductibleME',
+                              note: '未列明免赔率可按线性插值法计算',
+                              rows: [
+                                { parameter: '0', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.9, type: 'fixed' },
+                                { parameter: '20%', value: 0.8, type: 'fixed' },
+                                { parameter: '30%', value: 0.7, type: 'fixed' },
+                                { parameter: '40%', value: 0.6, type: 'fixed' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
