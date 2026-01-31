@@ -12458,6 +12458,125 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            // ====== #8 科技型企业关键研发设备保险（2025版） ======
+            techCorpRDEquip: {
+                productName: '科技型企业关键研发设备保险（2025版）',
+                productType: 'property',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: 0.70,
+                formulaText: '年保险费＝保险金额×基准费率×各项费率调整系数的乘积',
+                formulaNote: '若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算',
+                versions: {
+                    original: {
+                        label: '科技型企业关键研发设备保险（2025版）费率',
+                        baseRates: { 'default': 0.0023 },
+                        coefficients: [
+                            { id: 'industryTCRE', name: '行业调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '电子信息(0101-0106)', min: 1.2, max: 3.0, type: 'range' },
+                                { parameter: '航空航天(0301-0302)', min: 2.0, max: 5.0, type: 'range' },
+                                { parameter: '光机电一体化(0401-0402)', min: 1.1, max: 2.8, type: 'range' },
+                                { parameter: '生物、医药和医疗器械(0501-0505)', min: 1.2, max: 3.0, type: 'range' },
+                                { parameter: '新材料(0601-0604)', min: 1.0, max: 2.5, type: 'range' },
+                                { parameter: '新能源与高效节能(0701-0702)', min: 1.2, max: 2.8, type: 'range' },
+                                { parameter: '环境保护(0801-0805)', min: 0.8, max: 4.5, type: 'range' },
+                                { parameter: '地球、空间与海洋(0901-0905)', min: 1.2, max: 3.5, type: 'range' },
+                                { parameter: '农业-优良动植物新品种(1101)', min: 0.7, max: 1.5, type: 'range' },
+                                { parameter: '农业-家畜良种胚胎(1102)', min: 0.9, max: 3.0, type: 'range' },
+                                { parameter: '农业-生物农药(1103)', min: 0.9, max: 3.0, type: 'range' },
+                                { parameter: '农业-诊断试剂与疫苗(1104)', min: 1.2, max: 3.5, type: 'range' },
+                                { parameter: '农业-饲料及添加剂(1105)', min: 1.2, max: 2.5, type: 'range' },
+                                { parameter: '农业-新型肥料(1106)', min: 1.0, max: 2.0, type: 'range' },
+                                { parameter: '农业-农业工程设施(1107)', min: 0.8, max: 2.5, type: 'range' },
+                                { parameter: '农业-农副产品贮藏加工(1108)', min: 0.8, max: 2.5, type: 'range' }
+                            ]},
+                            { id: 'insuredAmountTCRE', name: '保险金额调整系数', applicableTo: ['all'],
+                              note: '保险金额单位为万元', rows: [
+                                { parameter: '≤50万', min: 3.0, max: 5.0, type: 'range' },
+                                { parameter: '（50，100]万', min: 2.0, max: 3.0, type: 'range' },
+                                { parameter: '（100，500]万', min: 1.0, max: 2.0, type: 'range' },
+                                { parameter: '（500，1000]万', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '＞1000万', min: 0.6, max: 0.8, type: 'range' }
+                            ]},
+                            { id: 'deductAmountTCRE', name: '免赔额调整系数', applicableTo: ['all'], linkedGroup: 'deductibleTCRE',
+                              note: '免赔额与保险金额交叉查表；保险金额单位为万元', rows: [
+                                { parameter: '[1000,2000)元（保额≤50万）', min: 0.99, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '[1000,2000)元（保额(50,100]万）', value: 1.0, type: 'fixed' },
+                                { parameter: '[2000,5000)元（保额≤50万）', min: 0.98, max: 0.99, minExclusive: true, type: 'range' },
+                                { parameter: '[2000,5000)元（保额(50,100]万）', min: 0.99, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '[5000,1万)元（保额≤50万）', min: 0.97, max: 0.98, minExclusive: true, type: 'range' },
+                                { parameter: '[5000,1万)元（保额(50,100]万）', min: 0.98, max: 0.99, minExclusive: true, type: 'range' },
+                                { parameter: '[5000,1万)元（保额(100,500]万）', min: 0.99, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '[1万,3万)元（保额≤50万）', min: 0.9, max: 0.97, minExclusive: true, type: 'range' },
+                                { parameter: '[1万,3万)元（保额(50,100]万）', min: 0.93, max: 0.98, minExclusive: true, type: 'range' },
+                                { parameter: '[1万,3万)元（保额(100,500]万）', min: 0.98, max: 0.99, minExclusive: true, type: 'range' },
+                                { parameter: '[1万,3万)元（保额(500,1000]万）', min: 0.99, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '[3万,5万)元（保额≤50万）', min: 0.84, max: 0.9, minExclusive: true, type: 'range' },
+                                { parameter: '[3万,5万)元（保额(50,100]万）', min: 0.89, max: 0.93, minExclusive: true, type: 'range' },
+                                { parameter: '[3万,5万)元（保额(100,500]万）', min: 0.97, max: 0.98, minExclusive: true, type: 'range' },
+                                { parameter: '[3万,5万)元（保额(500,1000]万）', min: 0.98, max: 0.99, minExclusive: true, type: 'range' },
+                                { parameter: '[3万,5万)元（保额＞1000万）', min: 0.99, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '[5万,10万)元（保额≤50万）', min: 0.67, max: 0.84, minExclusive: true, type: 'range' },
+                                { parameter: '[5万,10万)元（保额(50,100]万）', min: 0.78, max: 0.89, minExclusive: true, type: 'range' },
+                                { parameter: '[5万,10万)元（保额(100,500]万）', min: 0.95, max: 0.97, minExclusive: true, type: 'range' },
+                                { parameter: '[5万,10万)元（保额(500,1000]万）', min: 0.97, max: 0.98, minExclusive: true, type: 'range' },
+                                { parameter: '[5万,10万)元（保额＞1000万）', min: 0.98, max: 0.99, minExclusive: true, type: 'range' },
+                                { parameter: '[10万,20万)元（保额(100,500]万）', min: 0.89, max: 0.95, minExclusive: true, type: 'range' },
+                                { parameter: '[10万,20万)元（保额(500,1000]万）', min: 0.96, max: 0.97, minExclusive: true, type: 'range' },
+                                { parameter: '[10万,20万)元（保额＞1000万）', min: 0.97, max: 0.98, minExclusive: true, type: 'range' },
+                                { parameter: '[20万,30万]元（保额(100,500]万）', min: 0.84, max: 0.89, type: 'range' },
+                                { parameter: '[20万,30万]元（保额(500,1000]万）', min: 0.93, max: 0.96, type: 'range' },
+                                { parameter: '[20万,30万]元（保额＞1000万）', min: 0.95, max: 0.97, type: 'range' }
+                            ]},
+                            { id: 'operatorTCRE', name: '操作人员培训情况调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '充分培训并持证上岗', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '上岗前必要培训但无持证要求', min: 1.0, max: 1.2, type: 'range' },
+                                { parameter: '缺少必要培训', min: 1.2, max: 1.5, type: 'range' }
+                            ]},
+                            { id: 'maintenanceTCRE', name: '维修保养情况调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '定期进行维修保养', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '不定期进行维修保养', min: 1.0, max: 1.2, type: 'range' },
+                                { parameter: '缺少维修保养条件', min: 1.2, max: 1.5, type: 'range' }
+                            ]},
+                            { id: 'lightningTCRE', name: '防雷避雷设施调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '布设了必要的防雷避雷设施', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '布设了部分防雷避雷设施', min: 1.0, max: 1.2, type: 'range' },
+                                { parameter: '未布设防雷避雷设施', min: 1.2, max: 1.5, type: 'range' }
+                            ]},
+                            { id: 'managementTCRE', name: '管理水平调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '制定有相关管理规范并严格执行', min: 0.5, max: 0.95, type: 'range' },
+                                { parameter: '制定有相关管理规范并基本得到执行', min: 1.0, max: 1.1, type: 'range' },
+                                { parameter: '缺少相关管理规范', min: 1.15, max: 2.0, type: 'range' }
+                            ]},
+                            { id: 'lossHistoryTCRE', name: '历史事故与损失情况调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '极少', min: 0.5, max: 0.7, type: 'range' },
+                                { parameter: '较少', min: 0.7, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '较多', min: 1.2, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '很多', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'renewalTCRE', name: '续保调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '新保', value: 1.0, type: 'fixed' },
+                                { parameter: '续保1年', value: 0.9, type: 'fixed' },
+                                { parameter: '续保2年', value: 0.85, type: 'fixed' },
+                                { parameter: '续保3年以上', value: 0.8, type: 'fixed' }
+                            ]},
+                            { id: 'riskDispersionTCRE', name: '研发项目风险分散程度调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '高', min: 0.8, max: 0.95, type: 'range' },
+                                { parameter: '中', min: 1.0, max: 1.1, type: 'range' },
+                                { parameter: '低', min: 1.15, max: 1.3, type: 'range' }
+                            ]},
+                            { id: 'lossRatioTCRE', name: '赔付率调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '[0，20%]', min: 0.5, max: 0.6, type: 'range' },
+                                { parameter: '（20%，45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                { parameter: '（45%，70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '（70%，95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '＞95%', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
