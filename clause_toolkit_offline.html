@@ -12473,6 +12473,9 @@ ${fileList}
 
             let html = '<div class="mc-coeff-section">';
             html += '<h4>' + mc_escHtml(coeff.name);
+            if (coeff.linkedGroup) {
+                html += ' <span style="font-size:11px;color:var(--warning-color);font-weight:normal;">🔗 联动取低</span>';
+            }
             if (selectedValue !== null) {
                 html += ' <span class="mc-coeff-badge">' + mc_fmtNum(selectedValue, 4) + '</span>';
             } else {
@@ -12987,7 +12990,7 @@ ${fileList}
             document.getElementById('mc_subInsuredAmount').value = '5000000';
             document.getElementById('mc_dailyCash').value = '100000';
             document.getElementById('mc_merchantType').value = 'wholesale';
-            document.getElementById('mc_coverageType').value = 'storeDisplay';
+            document.getElementById('mc_coverageType').value = 'goodsStore';
             document.getElementById('mc_daysGroup').style.display = 'none';
             mc_selectedDisabilityTable = 'none';
             mc_selectedDisabilityOption = -1;
