@@ -11897,6 +11897,187 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            // ====== #3 高新技术企业关键研发设备保险（2025版） ======
+            hiTechRDEquip2025: {
+                productName: '高新技术企业关键研发设备保险（2025版）',
+                productType: 'property',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: null,
+                formulaText: '年保险费＝保险金额×基准费率×各项费率调整系数的乘积',
+                formulaNote: '短期承保保险费按条款所附短期费率表计收',
+                versions: {
+                    original: {
+                        label: '高新技术企业关键研发设备保险（2025版）费率',
+                        baseRates: { 'default': 0.0041 },
+                        coefficients: [
+                            { id: 'industryHTRD', name: '行业调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '电子信息(0101-0106)', min: 1.2, max: 3.0, type: 'range' },
+                                { parameter: '航空航天(0301-0302)', min: 1.5, max: 5.0, type: 'range' },
+                                { parameter: '光机电一体化(0401-0402)', min: 1.1, max: 2.8, type: 'range' },
+                                { parameter: '生物、医药和医疗器械(0501-0505)', min: 1.2, max: 3.0, type: 'range' },
+                                { parameter: '新材料(0601-0604)', min: 1.0, max: 2.5, type: 'range' },
+                                { parameter: '新能源与高效节能(0701-0702)', min: 1.2, max: 2.8, type: 'range' },
+                                { parameter: '环境保护(0801-0805)', min: 0.8, max: 4.5, type: 'range' },
+                                { parameter: '地球、空间与海洋(0901-0905)', min: 1.2, max: 3.5, type: 'range' },
+                                { parameter: '农业-优良动植物新品种(1101)', min: 0.7, max: 1.5, type: 'range' },
+                                { parameter: '农业-家畜良种胚胎(1102)', min: 0.9, max: 3.0, type: 'range' },
+                                { parameter: '农业-生物农药(1103)', min: 0.9, max: 3.0, type: 'range' },
+                                { parameter: '农业-诊断试剂与疫苗(1104)', min: 1.2, max: 3.5, type: 'range' },
+                                { parameter: '农业-饲料及添加剂(1105)', min: 1.2, max: 2.5, type: 'range' },
+                                { parameter: '农业-新型肥料(1106)', min: 1.0, max: 2.0, type: 'range' },
+                                { parameter: '农业-农业工程设施(1107)', min: 0.8, max: 2.5, type: 'range' },
+                                { parameter: '农业-农副产品贮藏加工(1108)', min: 0.8, max: 2.5, type: 'range' }
+                            ]},
+                            { id: 'insuredAmountHTRD', name: '保险金额调整系数', applicableTo: ['all'],
+                              note: '保险金额单位为万元',
+                              rows: [
+                                { parameter: '＜50万', min: 2.1, max: 5.0, minExclusive: true, type: 'range' },
+                                { parameter: '[50，100）万', min: 1.2, max: 2.1, minExclusive: true, type: 'range' },
+                                { parameter: '[100，500）万', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '[500，1000）万', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '≥1000万', min: 0.7, max: 0.8, type: 'range' }
+                            ]},
+                            { id: 'deductAmountHTRD', name: '免赔额调整系数', applicableTo: ['all'], linkedGroup: 'deductibleHTRD',
+                              note: '免赔额与保险金额交叉查表；保险金额单位为万元',
+                              rows: [
+                                { parameter: '[1000,2000]元（保额＜50万）', min: 0.99, max: 1.0, type: 'range' },
+                                { parameter: '[1000,2000]元（保额[50,100)万）', value: 1.0, type: 'fixed' },
+                                { parameter: '(2000,5000]元（保额＜50万）', min: 0.98, max: 0.99, type: 'range' },
+                                { parameter: '(2000,5000]元（保额[50,100)万）', min: 0.99, max: 1.0, type: 'range' },
+                                { parameter: '(5000,1万]元（保额＜50万）', min: 0.97, max: 0.98, type: 'range' },
+                                { parameter: '(5000,1万]元（保额[50,100)万）', min: 0.98, max: 0.99, type: 'range' },
+                                { parameter: '(5000,1万]元（保额[100,500)万）', min: 0.99, max: 1.0, type: 'range' },
+                                { parameter: '(1万,3万]元（保额＜50万）', min: 0.9, max: 0.97, type: 'range' },
+                                { parameter: '(1万,3万]元（保额[50,100)万）', min: 0.97, max: 0.98, type: 'range' },
+                                { parameter: '(1万,3万]元（保额[100,500)万）', min: 0.98, max: 0.99, type: 'range' },
+                                { parameter: '(1万,3万]元（保额[500,1000)万）', min: 0.99, max: 1.0, type: 'range' },
+                                { parameter: '(3万,5万]元（保额＜50万）', min: 0.84, max: 0.9, type: 'range' },
+                                { parameter: '(3万,5万]元（保额[50,100)万）', min: 0.9, max: 0.97, minExclusive: true, type: 'range' },
+                                { parameter: '(3万,5万]元（保额[100,500)万）', min: 0.97, max: 0.98, type: 'range' },
+                                { parameter: '(3万,5万]元（保额[500,1000)万）', min: 0.98, max: 0.99, type: 'range' },
+                                { parameter: '(3万,5万]元（保额≥1000万）', min: 0.99, max: 1.0, type: 'range' },
+                                { parameter: '(5万,10万]元（保额＜50万）', min: 0.67, max: 0.84, type: 'range' },
+                                { parameter: '(5万,10万]元（保额[50,100)万）', min: 0.84, max: 0.9, type: 'range' },
+                                { parameter: '(5万,10万]元（保额[100,500)万）', min: 0.9, max: 0.97, type: 'range' },
+                                { parameter: '(5万,10万]元（保额[500,1000)万）', min: 0.97, max: 0.98, type: 'range' },
+                                { parameter: '(5万,10万]元（保额≥1000万）', min: 0.98, max: 0.99, type: 'range' },
+                                { parameter: '(10万,20万]元（保额[100,500)万）', min: 0.84, max: 0.9, type: 'range' },
+                                { parameter: '(10万,20万]元（保额[500,1000)万）', min: 0.9, max: 0.97, type: 'range' },
+                                { parameter: '(10万,20万]元（保额≥1000万）', min: 0.97, max: 0.98, type: 'range' },
+                                { parameter: '(20万,30万]元（保额[100,500)万）', min: 0.67, max: 0.84, type: 'range' },
+                                { parameter: '(20万,30万]元（保额[500,1000)万）', min: 0.84, max: 0.9, type: 'range' },
+                                { parameter: '(20万,30万]元（保额≥1000万）', min: 0.9, max: 0.97, type: 'range' }
+                            ]},
+                            { id: 'riskMgmtHTRD', name: '风险管理水平调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '较高', min: 0.5, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '较低', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'lossRatioHTRD', name: '赔付率调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '[0，20%]', min: 0.5, max: 0.6, type: 'range' },
+                                { parameter: '（20%，45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                { parameter: '（45%，70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '（70%，95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '＞95%', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
+            },
+            // ====== #4 高新技术企业营业中断保险（2025版） ======
+            hiTechBI2025: {
+                productName: '高新技术企业营业中断保险（2025版）',
+                productType: 'property',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: null,
+                formulaText: '年保险费＝保险金额×基准费率×各项费率调整系数的乘积',
+                formulaNote: '短期承保保险费按条款所附短期费率表计收',
+                versions: {
+                    original: {
+                        label: '高新技术企业营业中断保险（2025版）费率',
+                        baseRates: { 'default': 0.0030 },
+                        coefficients: [
+                            { id: 'industryHTBI', name: '行业调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '电子信息(0101-0106)', min: 1.0, max: 1.8, type: 'range' },
+                                { parameter: '软件(0201-0203)', min: 0.9, max: 1.5, type: 'range' },
+                                { parameter: '航空航天(0301-0302)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '光机电一体化(0401-0402)', min: 0.8, max: 1.2, type: 'range' },
+                                { parameter: '生物、医药和医疗器械(0501-0505)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '新材料(0601-0604)', min: 1.2, max: 2.0, type: 'range' },
+                                { parameter: '新能源与高效节能(0701-0702)', min: 1.2, max: 2.0, type: 'range' },
+                                { parameter: '环境保护(0801-0805)', min: 1.0, max: 2.0, type: 'range' },
+                                { parameter: '地球、空间与海洋(0901-0905)', min: 1.1, max: 2.0, type: 'range' },
+                                { parameter: '农业-优良动植物新品种(1101)', min: 0.7, max: 1.5, type: 'range' },
+                                { parameter: '农业-家畜良种胚胎(1102)', min: 0.9, max: 1.5, type: 'range' },
+                                { parameter: '农业-生物农药(1103)', min: 0.9, max: 1.2, type: 'range' },
+                                { parameter: '农业-诊断试剂与疫苗(1104)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '农业-饲料及添加剂(1105)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '农业-新型肥料(1106)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '农业-农业工程设施(1107)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '农业-农副产品贮藏加工(1108)', min: 1.0, max: 1.5, type: 'range' }
+                            ]},
+                            { id: 'regionRiskHTBI', name: '区域灾害风险调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '较低', min: 0.5, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '较高', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'rdTermHTBI', name: '研发期限调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '＜0.5年', value: 0.8, type: 'fixed' },
+                                { parameter: '[0.5，1）年', value: 1.0, type: 'fixed' },
+                                { parameter: '[1，2）年', value: 1.2, type: 'fixed' },
+                                { parameter: '≥2年', min: 1.5, max: 1.8, type: 'range' }
+                            ]},
+                            { id: 'deductAmountHTBI', name: '免赔额调整系数', applicableTo: ['all'], linkedGroup: 'deductibleHTBI',
+                              note: '免赔额与保险金额交叉查表；若同时约定免赔额和免赔率，以低者为准',
+                              rows: [
+                                { parameter: '[1000,2000]元（保额＜1000万）', min: 0.93, max: 0.96, type: 'range' },
+                                { parameter: '[1000,2000]元（保额[1000万,1亿)）', min: 0.96, max: 0.98, type: 'range' },
+                                { parameter: '(2000,5000]元（保额＜1000万）', min: 0.87, max: 0.93, type: 'range' },
+                                { parameter: '(2000,5000]元（保额[1000万,1亿)）', min: 0.93, max: 0.96, type: 'range' },
+                                { parameter: '(2000,5000]元（保额[1亿,10亿)）', min: 0.96, max: 0.98, type: 'range' },
+                                { parameter: '(2000,5000]元（保额≥10亿）', min: 0.98, max: 1.0, type: 'range' },
+                                { parameter: '(5000,1万]元（保额＜1000万）', min: 0.8, max: 0.87, type: 'range' },
+                                { parameter: '(5000,1万]元（保额[1000万,1亿)）', min: 0.87, max: 0.93, type: 'range' },
+                                { parameter: '(5000,1万]元（保额[1亿,10亿)）', min: 0.93, max: 0.96, type: 'range' },
+                                { parameter: '(5000,1万]元（保额≥10亿）', min: 0.96, max: 0.98, type: 'range' },
+                                { parameter: '(1万,3万]元（保额＜1000万）', min: 0.66, max: 0.8, type: 'range' },
+                                { parameter: '(1万,3万]元（保额[1000万,1亿)）', min: 0.8, max: 0.87, type: 'range' },
+                                { parameter: '(1万,3万]元（保额[1亿,10亿)）', min: 0.87, max: 0.93, type: 'range' },
+                                { parameter: '(1万,3万]元（保额≥10亿）', min: 0.93, max: 0.96, type: 'range' },
+                                { parameter: '(3万,5万]元（保额＜1000万）', min: 0.6, max: 0.66, type: 'range' },
+                                { parameter: '(3万,5万]元（保额[1000万,1亿)）', min: 0.66, max: 0.8, type: 'range' },
+                                { parameter: '(3万,5万]元（保额[1亿,10亿)）', min: 0.8, max: 0.87, type: 'range' },
+                                { parameter: '(3万,5万]元（保额≥10亿）', min: 0.87, max: 0.93, type: 'range' },
+                                { parameter: '(5万,10万]元（保额＜1000万）', min: 0.52, max: 0.6, type: 'range' },
+                                { parameter: '(5万,10万]元（保额[1000万,1亿)）', min: 0.6, max: 0.66, type: 'range' },
+                                { parameter: '(5万,10万]元（保额[1亿,10亿)）', min: 0.66, max: 0.8, type: 'range' },
+                                { parameter: '(5万,10万]元（保额≥10亿）', min: 0.8, max: 0.87, type: 'range' },
+                                { parameter: '(10万,20万]元（保额＜1000万）', min: 0.45, max: 0.52, type: 'range' },
+                                { parameter: '(10万,20万]元（保额[1000万,1亿)）', min: 0.52, max: 0.6, type: 'range' },
+                                { parameter: '(10万,20万]元（保额[1亿,10亿)）', min: 0.6, max: 0.66, type: 'range' },
+                                { parameter: '(10万,20万]元（保额≥10亿）', min: 0.66, max: 0.8, type: 'range' },
+                                { parameter: '(20万,30万]元（保额[1000万,1亿)）', min: 0.45, max: 0.52, type: 'range' },
+                                { parameter: '(20万,30万]元（保额[1亿,10亿)）', min: 0.52, max: 0.6, type: 'range' },
+                                { parameter: '(20万,30万]元（保额≥10亿）', min: 0.6, max: 0.66, type: 'range' }
+                            ]},
+                            { id: 'riskMgmtHTBI', name: '风险管理水平调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '较高', min: 0.5, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '较低', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'lossRatioHTBI', name: '赔付率调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '[0，20%]', min: 0.5, max: 0.6, type: 'range' },
+                                { parameter: '（20%，45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                { parameter: '（45%，70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '（70%，95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '＞95%', min: 1.2, max: 2.0, minExclusive: true, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
