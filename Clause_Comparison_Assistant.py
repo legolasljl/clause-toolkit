@@ -7189,6 +7189,9 @@ class ClauseComparisonAssistant(QMainWindow):
             self.main_insurance_tab.premium_calculated.connect(
                 self.addon_insurance_tab.receive_main_premium
             )
+            self.main_insurance_tab.full_result_calculated.connect(
+                self.addon_insurance_tab.receive_full_data
+            )
 
         layout.addWidget(self.main_tabs, 1)
 
