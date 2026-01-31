@@ -14850,6 +14850,15 @@ ${fileList}
             mc_log('已重置参数和系数选择（险种/版本不变）', 'info');
         }
 
+        // --- 主险计算器初始化：从 MC_PRODUCTS 动态生成险种下拉框 ---
+        (function mc_initProductSelect() {
+            mc_refreshProductSelect('employerLiability');
+            mc_refreshVersionSelect('original');
+            mc_currentPlan = MC_PRODUCTS[mc_selectedProduct].versions[mc_selectedVersion];
+            mc_updateParamsVisibility();
+            mc_renderCoefficients();
+        })();
+
     </script>
 </body>
 
