@@ -2442,6 +2442,8 @@ ADDON_TYPES = {
     "simple_percentage": {"label": "百分比", "color": "#d97706"},
     "table_coefficient": {"label": "系数表", "color": "#7c3aed"},
     "regulatory": {"label": "规范类", "color": "#9ca3af"},
+    "included_in_main": {"label": "纳入主险", "color": "#64748b"},
+    "daily_prorate": {"label": "按日计费", "color": "#ea580c"},
 }
 
 # 关键词映射：文件名关键词 → 附加险类型
@@ -2456,6 +2458,8 @@ ADDON_KEYWORD_MAP = [
     (["一次性伤残"], "formula_sum"),
     (["突发疾病除外", "猝死除外"], "deduction"),
     (["月申报", "员工自动承保", "每月申报"], "no_calc"),
+    (["纳入主险保险金额"], "included_in_main"),
+    (["按日比例计算", "按日比例收取"], "daily_prorate"),
 ]
 
 # 伤残调整系数 (劳务关系人员)
@@ -3130,6 +3134,24 @@ class AddonInsuranceTab(QWidget):
             self.detail_layout.addStretch()
             return
 
+        if rate_type == "included_in_main":
+            inc_label = QLabel("📦 纳入主险保险金额\n本附加险承保的财产应纳入主险保险金额，按主险费率计收保险费，不另收附加保险费")
+            inc_label.setAlignment(Qt.AlignCenter)
+            inc_label.setWordWrap(True)
+            inc_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 14px; padding: 30px;")
+            self.detail_layout.addWidget(inc_label)
+            self.detail_layout.addStretch()
+            return
+
+        if rate_type == "daily_prorate":
+            dp_label = QLabel("📅 按日比例计算\n保费按日比例计算：保险金额 × 保单费率 × (天数 / 365)")
+            dp_label.setAlignment(Qt.AlignCenter)
+            dp_label.setWordWrap(True)
+            dp_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 14px; padding: 30px;")
+            self.detail_layout.addWidget(dp_label)
+            self.detail_layout.addStretch()
+            return
+
         if rate_type == "simple_percentage":
             pct = entry.get("percentage", 0)
             mult = entry.get("multiplier")
@@ -3302,8 +3324,8 @@ class AddonInsuranceTab(QWidget):
             for ti, table in enumerate(entry.get("coefficientTables", [])):
                 self._render_addon_coeff_table(table, ti)
 
-        # 计算按钮（非 regulatory / no_calc）
-        if rate_type not in ("regulatory", "no_calc"):
+        # 计算按钮（非展示类类型）
+        if rate_type not in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
             calc_btn = make_accent_button("🧮 计算附加险保费")
             calc_btn.clicked.connect(self._calculate)
             self.detail_layout.addWidget(calc_btn)
@@ -3430,7 +3452,7 @@ class AddonInsuranceTab(QWidget):
             return
         self.main_premium = self.main_premium_input.value()
         rate_type = entry.get("rateType", "")
-        if rate_type in ("regulatory", "no_calc"):
+        if rate_type in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
             return
         if self.main_premium <= 0 and rate_type not in ("per_person_base", "property_loss"):
             self._log("请输入有效的主险保费", "warn")
@@ -3873,7 +3895,7 @@ class AddonInsuranceTab(QWidget):
         for item in matched:
             entry = item["entry"]
             rt = entry.get("rateType", "")
-            if rt in ("regulatory", "no_calc"):
+            if rt in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
                 skip_count += 1
                 continue
             if rt == "simple_percentage":

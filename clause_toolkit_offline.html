@@ -9182,7 +9182,9 @@ ${fileList}
             no_calc: { label: '无需计算', color: '#6b7280' },
             simple_percentage: { label: '百分比', color: '#d97706' },
             table_coefficient: { label: '系数表', color: '#7c3aed' },
-            regulatory: { label: '规范类', color: '#9ca3af' }
+            regulatory: { label: '规范类', color: '#9ca3af' },
+            included_in_main: { label: '纳入主险', color: '#64748b' },
+            daily_prorate: { label: '按日计费', color: '#ea580c' }
         };
 
         const RC_ADDON_KEYWORD_MAP = [
@@ -9195,7 +9197,9 @@ ${fileList}
             [['雇主法律责任', '法律费用责任'], 'formula_sum'],
             [['一次性伤残'], 'formula_sum'],
             [['突发疾病除外', '猝死除外'], 'deduction'],
-            [['月申报', '员工自动承保', '每月申报'], 'no_calc']
+            [['月申报', '员工自动承保', '每月申报'], 'no_calc'],
+            [['纳入主险保险金额'], 'included_in_main'],
+            [['按日比例计算', '按日比例收取'], 'daily_prorate']
         ];
 
         const RC_DISABILITY_ADJUST_COEFFS = { table1: 0.995, table2: 1.072, table3: 0.919 };
@@ -9667,6 +9671,18 @@ ${fileList}
                 html += rc_renderManualSection();
                 panel.innerHTML = html; return;
             }
+            if (rt === 'included_in_main') {
+                html += '<div style="padding:30px;text-align:center;color:var(--text-secondary);">' +
+                    '<p style="font-size:16px;">📦 纳入主险保险金额</p>' +
+                    '<p>本附加险承保的财产应纳入主险保险金额，按主险费率计收保险费，不另收附加保险费</p></div>';
+                panel.innerHTML = html; return;
+            }
+            if (rt === 'daily_prorate') {
+                html += '<div style="padding:30px;text-align:center;color:var(--text-secondary);">' +
+                    '<p style="font-size:16px;">📅 按日比例计算</p>' +
+                    '<p>保费按日比例计算：保险金额 × 保单费率 × (天数 / 365)</p></div>';
+                panel.innerHTML = html; return;
+            }
 
             if (rt === 'simple_percentage') {
                 html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;"><strong>费率: </strong>';
@@ -9748,7 +9764,7 @@ ${fileList}
                 if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
             }
 
-            if (rt !== 'regulatory' && rt !== 'no_calc') {
+            if (rt !== 'regulatory' && rt !== 'no_calc' && rt !== 'included_in_main' && rt !== 'daily_prorate') {
                 html += '<div class="rc-actions">' +
                     '<button class="btn btn-primary" onclick="rc_calculate()">🧮 计算附加险保费</button>' +
                     '<button class="btn" onclick="rc_exportExcel()">📊 导出 Excel</button></div>';
@@ -9864,7 +9880,7 @@ ${fileList}
             rc_mainPremium = parseFloat(document.getElementById('rc_mainPremiumInput').value) || 0;
             rc_perPersonPremium = parseFloat(document.getElementById('rc_perPersonPremiumInput').value) || 0;
             const rt = e.rateType;
-            if (rt === 'regulatory' || rt === 'no_calc') return;
+            if (rt === 'regulatory' || rt === 'no_calc' || rt === 'included_in_main' || rt === 'daily_prorate') return;
             if (rc_mainPremium <= 0 && rt !== 'per_person_base' && rt !== 'property_loss') {
                 rc_log('⚠️ 请输入有效的主险保费', 'warning'); return;
             }
@@ -10489,7 +10505,7 @@ ${fileList}
 
             rc_multiSelectedEntries.forEach(function (entry) {
                 var rt = entry.rateType;
-                if (rt === 'regulatory' || rt === 'no_calc') { skipCount++; return; }
+                if (rt === 'regulatory' || rt === 'no_calc' || rt === 'included_in_main' || rt === 'daily_prorate') { skipCount++; return; }
 
                 if (rt === 'simple_percentage') {
                     var result = rc_calcSimple(entry);
