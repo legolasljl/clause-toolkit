@@ -642,6 +642,205 @@ MC_PRODUCTS = {
                 ]
             }
         }
+    },
+    "machineryBreakdown": {
+        "productName": "机器损坏保险",
+        "productType": "property",
+        "amountUnit": "千万元",
+        "amountLabel": "保险金额",
+        "premiumCap": None,
+        "versions": {
+            "original": {
+                "label": "机器损坏保险费率",
+                "baseRates": {"default": 0.0020},
+                "coefficients": [
+                    {"id": "machineType", "name": "机器类别调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "通用机械设备", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "精密仪器/电子设备", "min": 1.0, "max": 1.3, "type": "range"},
+                         {"parameter": "大型发电/变压设备", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "machineAge", "name": "设备年限调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "＜3年（新设备）", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "3-8年", "value": 1.0, "type": "fixed"},
+                         {"parameter": "8-15年", "min": 1.1, "max": 1.3, "type": "range"},
+                         {"parameter": "＞15年", "min": 1.3, "max": 1.6, "type": "range"}
+                     ]},
+                    {"id": "maintenanceLevel", "name": "维护保养水平调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "定期专业维保+完整记录", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "基本维保", "value": 1.0, "type": "fixed"},
+                         {"parameter": "维保不足", "min": 1.1, "max": 1.4, "type": "range"}
+                     ]},
+                    {"id": "operatorQualification", "name": "操作人员资质调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "专业持证上岗", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "经过培训", "value": 1.0, "type": "fixed"},
+                         {"parameter": "资质不明", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "environment", "name": "使用环境调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "室内恒温恒湿", "min": 0.7, "max": 0.9, "type": "range"},
+                         {"parameter": "室内一般环境", "value": 1.0, "type": "fixed"},
+                         {"parameter": "室外/恶劣环境", "min": 1.1, "max": 1.4, "type": "range"}
+                     ]},
+                    {"id": "deductibleMach", "name": "免赔额调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "高免赔（≥保额1%）", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
+                         {"parameter": "低免赔/零免赔", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "lossHistoryMach", "name": "历史赔付调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "insuredAmountMach", "name": "保险金额规模调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "＞5000万元", "min": 0.75, "max": 0.9, "type": "range"},
+                         {"parameter": "1000-5000万元", "value": 1.0, "type": "fixed"},
+                         {"parameter": "＜1000万元", "min": 1.05, "max": 1.2, "type": "range"}
+                     ]},
+                    {"id": "sparePartsAvail", "name": "备品备件可获得性调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "国产常见型号", "min": 0.8, "max": 0.95, "type": "range"},
+                         {"parameter": "进口但有国内代理", "value": 1.0, "type": "fixed"},
+                         {"parameter": "特殊定制/停产型号", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "powerSupply", "name": "供电质量调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "双回路+UPS", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "一般供电", "value": 1.0, "type": "fixed"},
+                         {"parameter": "供电不稳定", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "renewalMach", "name": "续保调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                     ]},
+                    {"id": "manufacturer", "name": "制造商/品牌调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "知名品牌/可靠性高", "min": 0.85, "max": 0.95, "type": "range"},
+                         {"parameter": "一般品牌", "value": 1.0, "type": "fixed"},
+                         {"parameter": "非知名品牌", "min": 1.05, "max": 1.15, "type": "range"}
+                     ]},
+                    {"id": "marketMach", "name": "市场竞争调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
+                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
+                     ]}
+                ]
+            }
+        }
+    },
+    "compositeHengli2025": {
+        "productName": "突发和意外的直接物质损失一切险(恒力2025版)",
+        "productType": "composite",
+        "amountUnit": "元",
+        "amountLabel": "保险金额",
+        "premiumCap": None,
+        "subRisks": ["materialDamage", "machineryBreakdown"],
+        "subRiskLabels": {"materialDamage": "物质损失", "machineryBreakdown": "机器损坏"},
+        "versions": {
+            "hengli2025": {
+                "label": "恒力2025版费率",
+                "baseRates": {"materialDamage": 0.00089, "machineryBreakdown": 0.00362},
+                "coefficients": [
+                    {"id": "propertyTypeHL", "name": "财产类别调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "房屋建筑+机器设备+存货", "value": 1.0, "type": "fixed"},
+                         {"parameter": "仅房屋建筑", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "仅机器设备", "min": 1.0, "max": 1.2, "type": "range"}
+                     ]},
+                    {"id": "buildingStructureHL", "name": "建筑结构调整系数", "applicableTo": ["materialDamage"],
+                     "rows": [
+                         {"parameter": "钢结构/钢混结构", "min": 0.7, "max": 0.9, "type": "range"},
+                         {"parameter": "砖混结构", "min": 0.9, "max": 1.1, "type": "range"},
+                         {"parameter": "砖木/木结构", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "fireProtectionHL", "name": "消防设施调整系数", "applicableTo": ["materialDamage"],
+                     "rows": [
+                         {"parameter": "完善", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "较完善", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "不完善", "min": 1.0, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "machineTypeHL", "name": "机器类别调整系数", "applicableTo": ["machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "通用机械", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "精密仪器/电子设备", "min": 1.0, "max": 1.3, "type": "range"},
+                         {"parameter": "大型特种设备", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "machineAgeHL", "name": "设备年限调整系数", "applicableTo": ["machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "＜5年", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "5-10年", "value": 1.0, "type": "fixed"},
+                         {"parameter": "＞10年", "min": 1.1, "max": 1.4, "type": "range"}
+                     ]},
+                    {"id": "maintenanceLevelHL", "name": "维护保养水平调整系数", "applicableTo": ["machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "定期专业维保", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "基本维保", "value": 1.0, "type": "fixed"},
+                         {"parameter": "维保不足", "min": 1.1, "max": 1.4, "type": "range"}
+                     ]},
+                    {"id": "deductibleHL", "name": "免赔额/免赔率调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "高免赔", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
+                         {"parameter": "低免赔", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "lossHistoryHL", "name": "历史赔付调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "locationHL", "name": "地理位置调整系数", "applicableTo": ["materialDamage"],
+                     "rows": [
+                         {"parameter": "非自然灾害高发区", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "一般地区", "value": 1.0, "type": "fixed"},
+                         {"parameter": "自然灾害高发区", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "industryRiskHL", "name": "行业风险调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "低风险", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "中风险", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "较高风险", "min": 1.0, "max": 1.3, "type": "range"},
+                         {"parameter": "高风险", "min": 1.3, "max": 2.0, "type": "range"}
+                     ]},
+                    {"id": "managementHL", "name": "风险管理水平调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "优秀", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "良好", "min": 0.85, "max": 1.0, "type": "range"},
+                         {"parameter": "一般", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "较差", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "renewalHL", "name": "续保调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                     ]},
+                    {"id": "coverageScopeHL", "name": "承保范围调整系数", "applicableTo": ["materialDamage"],
+                     "rows": [
+                         {"parameter": "标准承保范围", "value": 1.0, "type": "fixed"},
+                         {"parameter": "扩展自然灾害", "min": 1.1, "max": 1.3, "type": "range"},
+                         {"parameter": "限缩承保范围", "min": 0.8, "max": 0.95, "type": "range"}
+                     ]},
+                    {"id": "marketHL", "name": "市场竞争调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
+                     "rows": [
+                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
+                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
+                     ]}
+                ]
+            }
+        }
     }
 }
 
