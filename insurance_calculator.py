@@ -62,6 +62,10 @@ except ImportError:
 MC_PRODUCTS = {
     "employerLiability": {
         "productName": "雇主责任险",
+        "productType": "liability",
+        "amountUnit": "万元",
+        "amountLabel": "每人限额",
+        "premiumCap": 0.70,
         "versions": {
             "original": {
                 "label": "雇主责任险费率",
@@ -409,6 +413,232 @@ MC_PRODUCTS = {
                             {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
                         ]
                     }
+                ]
+            }
+        }
+    },
+    "propertyAllRisk": {
+        "productName": "财产一切险",
+        "productType": "property",
+        "amountUnit": "亿元",
+        "amountLabel": "保险金额",
+        "premiumCap": 0.70,
+        "versions": {
+            "original": {
+                "label": "财产一切险费率",
+                "baseRates": {"default": 0.0020},
+                "coefficients": [
+                    {"id": "propertyType", "name": "财产类别调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "房屋建筑", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "机器设备", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "存货", "min": 1.0, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "buildingStructure", "name": "建筑结构调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "钢结构/钢混结构", "min": 0.7, "max": 0.9, "type": "range"},
+                         {"parameter": "砖混结构", "min": 0.9, "max": 1.1, "type": "range"},
+                         {"parameter": "砖木/木结构", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "fireProtection", "name": "消防设施调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "完善（自动喷淋+报警）", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "较完善（灭火器+消火栓）", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "不完善", "min": 1.0, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "securityMeasures", "name": "安全措施调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "24小时监控+保安", "min": 0.7, "max": 0.9, "type": "range"},
+                         {"parameter": "基本安保措施", "value": 1.0, "type": "fixed"},
+                         {"parameter": "安保措施不足", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "location", "name": "地理位置调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "非自然灾害高发区", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "一般地区", "value": 1.0, "type": "fixed"},
+                         {"parameter": "自然灾害高发区", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "deductibleProp", "name": "免赔额/免赔率调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "高免赔（≥10万或5%）", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
+                         {"parameter": "低免赔/零免赔", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "lossHistory", "name": "历史赔付调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "insuredAmount", "name": "保险金额规模调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "＞10亿元", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "5-10亿元", "min": 0.85, "max": 0.95, "type": "range"},
+                         {"parameter": "1-5亿元", "value": 1.0, "type": "fixed"},
+                         {"parameter": "＜1亿元", "min": 1.05, "max": 1.2, "type": "range"}
+                     ]},
+                    {"id": "industryRisk", "name": "行业风险调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "低风险（办公/商业）", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "中风险（轻工制造）", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "较高风险（重工/化工）", "min": 1.0, "max": 1.3, "type": "range"},
+                         {"parameter": "高风险（易燃易爆）", "min": 1.3, "max": 2.0, "type": "range"}
+                     ]},
+                    {"id": "managementLevelProp", "name": "风险管理水平调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "优秀", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "良好", "min": 0.85, "max": 1.0, "type": "range"},
+                         {"parameter": "一般", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "较差", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "renewalProp", "name": "续保调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                     ]},
+                    {"id": "coverageScope", "name": "承保范围调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "标准承保范围", "value": 1.0, "type": "fixed"},
+                         {"parameter": "扩展暴风/洪水/地震", "min": 1.1, "max": 1.3, "type": "range"},
+                         {"parameter": "限缩承保范围", "min": 0.8, "max": 0.95, "type": "range"}
+                     ]},
+                    {"id": "policyPeriod", "name": "保险期间调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "一年期", "value": 1.0, "type": "fixed"},
+                         {"parameter": "长期（2-3年）", "min": 0.9, "max": 0.95, "type": "range"}
+                     ]},
+                    {"id": "coinsurance", "name": "共保/再保调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "有再保安排", "min": 0.9, "max": 1.0, "type": "range"},
+                         {"parameter": "无再保安排", "value": 1.0, "type": "fixed"}
+                     ]},
+                    {"id": "specialAgreement", "name": "特别约定调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "标准条款", "value": 1.0, "type": "fixed"},
+                         {"parameter": "含利于被保险人条款", "min": 1.05, "max": 1.2, "type": "range"},
+                         {"parameter": "含利于保险人条款", "min": 0.85, "max": 0.95, "type": "range"}
+                     ]},
+                    {"id": "marketCompetition", "name": "市场竞争调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
+                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
+                     ]}
+                ]
+            }
+        }
+    },
+    "propertyComprehensive": {
+        "productName": "财产综合险",
+        "productType": "property",
+        "amountUnit": "亿元",
+        "amountLabel": "保险金额",
+        "premiumCap": 0.70,
+        "versions": {
+            "original": {
+                "label": "财产综合险费率",
+                "baseRates": {"default": 0.0017},
+                "coefficients": [
+                    {"id": "propertyType", "name": "财产类别调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "房屋建筑", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "机器设备", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "存货", "min": 1.0, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "buildingStructure", "name": "建筑结构调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "钢结构/钢混结构", "min": 0.7, "max": 0.9, "type": "range"},
+                         {"parameter": "砖混结构", "min": 0.9, "max": 1.1, "type": "range"},
+                         {"parameter": "砖木/木结构", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "fireProtection", "name": "消防设施调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "完善（自动喷淋+报警）", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "较完善（灭火器+消火栓）", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "不完善", "min": 1.0, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "securityMeasures", "name": "安全措施调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "24小时监控+保安", "min": 0.7, "max": 0.9, "type": "range"},
+                         {"parameter": "基本安保措施", "value": 1.0, "type": "fixed"},
+                         {"parameter": "安保措施不足", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "location", "name": "地理位置调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "非自然灾害高发区", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "一般地区", "value": 1.0, "type": "fixed"},
+                         {"parameter": "自然灾害高发区", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "deductibleProp", "name": "免赔额/免赔率调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "高免赔（≥10万或5%）", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
+                         {"parameter": "低免赔/零免赔", "min": 1.1, "max": 1.3, "type": "range"}
+                     ]},
+                    {"id": "lossHistory", "name": "历史赔付调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "insuredAmount", "name": "保险金额规模调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "＞10亿元", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "5-10亿元", "min": 0.85, "max": 0.95, "type": "range"},
+                         {"parameter": "1-5亿元", "value": 1.0, "type": "fixed"},
+                         {"parameter": "＜1亿元", "min": 1.05, "max": 1.2, "type": "range"}
+                     ]},
+                    {"id": "industryRisk", "name": "行业风险调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "低风险（办公/商业）", "min": 0.6, "max": 0.8, "type": "range"},
+                         {"parameter": "中风险（轻工制造）", "min": 0.8, "max": 1.0, "type": "range"},
+                         {"parameter": "较高风险（重工/化工）", "min": 1.0, "max": 1.3, "type": "range"},
+                         {"parameter": "高风险（易燃易爆）", "min": 1.3, "max": 2.0, "type": "range"}
+                     ]},
+                    {"id": "managementLevelProp", "name": "风险管理水平调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "优秀", "min": 0.7, "max": 0.85, "type": "range"},
+                         {"parameter": "良好", "min": 0.85, "max": 1.0, "type": "range"},
+                         {"parameter": "一般", "min": 1.0, "max": 1.2, "type": "range"},
+                         {"parameter": "较差", "min": 1.2, "max": 1.5, "type": "range"}
+                     ]},
+                    {"id": "renewalProp", "name": "续保调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                     ]},
+                    {"id": "coverageScope", "name": "承保范围调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "标准承保范围", "value": 1.0, "type": "fixed"},
+                         {"parameter": "扩展暴风/洪水/地震", "min": 1.1, "max": 1.3, "type": "range"},
+                         {"parameter": "限缩承保范围", "min": 0.8, "max": 0.95, "type": "range"}
+                     ]},
+                    {"id": "policyPeriod", "name": "保险期间调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "一年期", "value": 1.0, "type": "fixed"},
+                         {"parameter": "长期（2-3年）", "min": 0.9, "max": 0.95, "type": "range"}
+                     ]},
+                    {"id": "coinsurance", "name": "共保/再保调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "有再保安排", "min": 0.9, "max": 1.0, "type": "range"},
+                         {"parameter": "无再保安排", "value": 1.0, "type": "fixed"}
+                     ]},
+                    {"id": "specialAgreement", "name": "特别约定调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "标准条款", "value": 1.0, "type": "fixed"},
+                         {"parameter": "含利于被保险人条款", "min": 1.05, "max": 1.2, "type": "range"},
+                         {"parameter": "含利于保险人条款", "min": 0.85, "max": 0.95, "type": "range"}
+                     ]},
+                    {"id": "marketCompetition", "name": "市场竞争调整系数", "applicableTo": ["all"],
+                     "rows": [
+                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
+                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
+                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
+                     ]}
                 ]
             }
         }
@@ -1759,7 +1989,7 @@ class AddonInsuranceTab(QWidget):
                     "baseRatePercent": base_rate_pct,
                     "coefficientTables": coeff_tables,
                     "description": substantive[0] if substantive else "",
-                    "formula": f"保费 = 每人赔偿限额 × {base_rate_pct}% × 人数 × 系数（基本保险费{base_premium}元）"}
+                    "formula": f"保费 = ({base_premium}元 + 每人赔偿限额 × {base_rate_pct}%) × 系数积 × 承保人数"}
 
         # --- per_person_base: 药品服务 ---
         if detected_type == "per_person_base":
@@ -2074,7 +2304,7 @@ class AddonInsuranceTab(QWidget):
             self.addon_count_input = QSpinBox()
             self.addon_count_input.setRange(1, 999999)
             self.addon_count_input.setValue(default_count)
-            self.addon_count_input.setSuffix(" 人")
+            self.addon_count_input.setSuffix("")
             count_row.addWidget(self.addon_count_input)
             count_row.addStretch()
             count_w = QWidget()
@@ -2086,7 +2316,7 @@ class AddonInsuranceTab(QWidget):
         elif rate_type == "property_loss":
             bp = entry.get("basePremium", 20)
             br = entry.get("baseRatePercent", 1.5)
-            hint = QLabel(f"基本保险费 = 基准保险费 = {bp}元\n基准费率: {br}%\n需输入本附加险的每次事故每人赔偿限额")
+            hint = QLabel(f"公式: 保费 = (基本保险费 + 每次事故每人赔偿限额 × 基准费率) × 系数积 × 承保人数\n基本保险费: {bp}元，基准费率: {br}%")
             hint.setWordWrap(True)
             hint.setStyleSheet(f"padding: 10px; background: #f0fdfa; border: 1px solid #5eead4; border-radius: 8px; font-size: 12px;")
             self.detail_layout.addWidget(hint)
@@ -2102,7 +2332,7 @@ class AddonInsuranceTab(QWidget):
             self.addon_count_input = QSpinBox()
             self.addon_count_input.setRange(1, 999999)
             self.addon_count_input.setValue(default_count)
-            self.addon_count_input.setSuffix(" 人")
+            self.addon_count_input.setSuffix("")
             grid.addWidget(self.addon_count_input, 1, 1)
             grid_w = QWidget()
             grid_w.setLayout(grid)
@@ -2139,7 +2369,7 @@ class AddonInsuranceTab(QWidget):
             self.addon_count_input = QSpinBox()
             self.addon_count_input.setRange(1, 999999)
             self.addon_count_input.setValue(default_count)
-            self.addon_count_input.setSuffix(" 人")
+            self.addon_count_input.setSuffix("")
             count_row.addWidget(self.addon_count_input)
             count_row.addStretch()
             count_w = QWidget()
@@ -2448,7 +2678,7 @@ class AddonInsuranceTab(QWidget):
         return {"type": "disability_adjust", "premium": premium, "formulaDisplay": formula_str}
 
     def _calc_property_loss(self, entry):
-        """员工个人特定财产损失: max(限额×费率%, 基本保险费) × 人数 × 系数积"""
+        """员工个人特定财产损失: (基本保险费 + 限额×费率%) × 系数积 × 承保人数"""
         base_premium = entry.get("basePremium", 20)
         base_rate_pct = entry.get("baseRatePercent", 1.5)
         limit_input = getattr(self, 'property_limit_input', None)
@@ -2458,16 +2688,16 @@ class AddonInsuranceTab(QWidget):
         if limit_val <= 0:
             raise ValueError("请输入每次事故每人赔偿限额")
         limit_yuan = limit_val * 10000
-        calc_premium = limit_yuan * base_rate_pct / 100
-        per_person = max(calc_premium, base_premium)
+        rate_part = limit_yuan * base_rate_pct / 100
+        per_person = base_premium + rate_part
         product = 1.0
         coeff_str = ""
         if entry.get("coefficientTables"):
             product, details = self._get_coeff_product(entry)
             coeff_str = " × " + " × ".join(f"{d['value']:.4f}" for d in details)
-        premium = per_person * count * product
-        formula_str = (f"max({limit_val}万×{base_rate_pct}%={fmt_currency(calc_premium)}, "
-                       f"基本保险费{base_premium}元) = {fmt_currency(per_person)}/人 × {count}人{coeff_str} = "
+        premium = per_person * product * count
+        formula_str = (f"({base_premium}元 + {limit_val}万×{base_rate_pct}%) × 系数{coeff_str.lstrip(' × ')} × {count}人 = "
+                       f"({base_premium} + {fmt_currency(rate_part)}) × {product:.4f} × {count} = "
                        f"{fmt_currency(premium)}")
         return {"type": "property_loss", "premium": premium, "formulaDisplay": formula_str}
 
