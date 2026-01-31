@@ -12142,6 +12142,143 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            // ====== #6 储能设施综合运营保险（2025版） ======
+            energyStorage2025: {
+                productName: '储能设施综合运营保险（2025版）',
+                productType: 'composite',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: null,
+                subRisks: ['storageAllRisk', 'equipDamage', 'biAllRisk', 'biEquip'],
+                subRiskLabels: { storageAllRisk: '运营期一切险', equipDamage: '设备损失保险', biAllRisk: '营业中断(一切险)', biEquip: '营业中断(设备损失)' },
+                formulaText: '总保险费＝各项保险的年保险费之和',
+                formulaNote: '各项保险的年保险费＝各项保险的保险金额×对应的基准费率×各项适用的费率调整系数的乘积',
+                versions: {
+                    original: {
+                        label: '储能设施综合运营保险（2025版）费率',
+                        baseRates: { storageAllRisk: 0.0021, equipDamage: 0.0023, biAllRisk: 0.0032, biEquip: 0.0058 },
+                        coefficients: [
+                            // === 通用调整系数 ===
+                            { id: 'insuredAmountES', name: '保险金额调整系数', applicableTo: ['storageAllRisk', 'equipDamage', 'biAllRisk', 'biEquip'], rows: [
+                                { parameter: '＜1000万', min: 1.1, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '[1000万，5000万）', min: 1.0, max: 1.1, minExclusive: true, type: 'range' },
+                                { parameter: '[5000万，1亿）', min: 0.95, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '[1亿，2亿）', min: 0.9, max: 0.95, minExclusive: true, type: 'range' },
+                                { parameter: '[2亿，5亿）', min: 0.85, max: 0.9, minExclusive: true, type: 'range' },
+                                { parameter: '≥5亿', min: 0.8, max: 0.85, type: 'range' }
+                            ]},
+                            { id: 'lossRatioES', name: '赔付率调整系数', applicableTo: ['storageAllRisk', 'equipDamage', 'biAllRisk', 'biEquip'], rows: [
+                                { parameter: '[0，20%]', min: 0.5, max: 0.6, type: 'range' },
+                                { parameter: '（20%，45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                { parameter: '（45%，70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '（70%，95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '＞95%', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'managementES', name: '管理水平调整系数', applicableTo: ['storageAllRisk', 'equipDamage', 'biAllRisk', 'biEquip'], rows: [
+                                { parameter: '管理制度和事故防范措施完善', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '管理制度和事故防范措施较为完善', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '管理制度和事故防范措施缺陷较多', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'lossHistoryES', name: '历史事故与损失情况调整系数', applicableTo: ['storageAllRisk', 'equipDamage', 'biAllRisk', 'biEquip'], rows: [
+                                { parameter: '极少', min: 0.5, max: 0.7, type: 'range' },
+                                { parameter: '较少', min: 0.7, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                { parameter: '较多', min: 1.3, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '很多', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            // === 一切险及其营业中断 ===
+                            { id: 'naturalDisasterES', name: '自然灾害风险调整系数', applicableTo: ['storageAllRisk', 'biAllRisk'], rows: [
+                                { parameter: '低', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '中', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '高', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'fireExplosionES', name: '火灾爆炸风险调整系数', applicableTo: ['storageAllRisk', 'biAllRisk'], rows: [
+                                { parameter: '较低', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '较高', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'fireCapabilityES', name: '消防能力调整系数', applicableTo: ['storageAllRisk', 'biAllRisk'], rows: [
+                                { parameter: '消防设施设备及人员完备，能快速处置', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '消防设施设备及人员较完备，能较快处置', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '消防设施设备及人员不足或无法及时处置', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            // === 一切险专属免赔 ===
+                            { id: 'deductAmountARES', name: '一切险免赔额调整系数', applicableTo: ['storageAllRisk'], linkedGroup: 'deductibleAR_ES',
+                              note: '若同时约定免赔额和免赔率，以低者为准', rows: [
+                                { parameter: '0万元', value: 1.0, type: 'fixed' },
+                                { parameter: '0.5万元', value: 0.95, type: 'fixed' },
+                                { parameter: '1.0万元', value: 0.9, type: 'fixed' },
+                                { parameter: '1.5万元', value: 0.85, type: 'fixed' },
+                                { parameter: '≥2.0万元', min: 0.7, max: 0.8, type: 'range' }
+                            ]},
+                            { id: 'deductRateARES', name: '一切险免赔率调整系数', applicableTo: ['storageAllRisk'], linkedGroup: 'deductibleAR_ES', rows: [
+                                { parameter: '0%', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.9, type: 'fixed' },
+                                { parameter: '20%', value: 0.8, type: 'fixed' },
+                                { parameter: '30%', value: 0.7, type: 'fixed' }
+                            ]},
+                            // === 设备损失及其营业中断 ===
+                            { id: 'equipAgeES', name: '主要设备已使用年数调整系数', applicableTo: ['equipDamage', 'biEquip'], rows: [
+                                { parameter: '＜5年', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '[5，10）年', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '[10，15）年', min: 1.5, max: 2.0, type: 'range' },
+                                { parameter: '≥15年', min: 2.0, max: 3.0, type: 'range' }
+                            ]},
+                            { id: 'equipOriginES', name: '主要设备产地调整系数', applicableTo: ['equipDamage', 'biEquip'], rows: [
+                                { parameter: '国产', value: 1.0, type: 'fixed' },
+                                { parameter: '进口', min: 1.2, max: 1.3, type: 'range' }
+                            ]},
+                            // === 设备损失专属免赔 ===
+                            { id: 'deductAmountEDES', name: '设备损失免赔额调整系数', applicableTo: ['equipDamage'], linkedGroup: 'deductibleED_ES',
+                              note: '若同时约定免赔额和免赔率，以低者为准', rows: [
+                                { parameter: '0万元', value: 1.0, type: 'fixed' },
+                                { parameter: '0.5万元', value: 0.95, type: 'fixed' },
+                                { parameter: '1.0万元', value: 0.9, type: 'fixed' },
+                                { parameter: '1.5万元', value: 0.85, type: 'fixed' },
+                                { parameter: '≥2.0万元', min: 0.7, max: 0.8, type: 'range' }
+                            ]},
+                            { id: 'deductRateEDES', name: '设备损失免赔率调整系数', applicableTo: ['equipDamage'], linkedGroup: 'deductibleED_ES', rows: [
+                                { parameter: '0%', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.9, type: 'fixed' },
+                                { parameter: '20%', value: 0.8, type: 'fixed' },
+                                { parameter: '30%', value: 0.7, type: 'fixed' }
+                            ]},
+                            // === 营业中断专属 ===
+                            { id: 'compensationTermES', name: '赔偿期限调整系数', applicableTo: ['biAllRisk', 'biEquip'],
+                              note: '未列明赔偿期限可按线性插值法计算', rows: [
+                                { parameter: '6个月', value: 0.8, type: 'fixed' },
+                                { parameter: '12个月', value: 1.0, type: 'fixed' },
+                                { parameter: '18个月', value: 0.8, type: 'fixed' },
+                                { parameter: '24个月', value: 0.7, type: 'fixed' }
+                            ]},
+                            { id: 'deductAmountBIES', name: '营业中断免赔额调整系数', applicableTo: ['biAllRisk', 'biEquip'], linkedGroup: 'deductibleBI_ES',
+                              note: '免赔额÷营业中断保险金额；若同时约定免赔额、免赔率、免赔天数，以低者为准', rows: [
+                                { parameter: '0', value: 1.3, type: 'fixed' },
+                                { parameter: '1%', value: 1.2, type: 'fixed' },
+                                { parameter: '2%', value: 1.1, type: 'fixed' },
+                                { parameter: '3%', value: 1.0, type: 'fixed' },
+                                { parameter: '6%', value: 0.9, type: 'fixed' },
+                                { parameter: '≥9%', min: 0.7, max: 0.8, type: 'range' }
+                            ]},
+                            { id: 'deductRateBIES', name: '营业中断免赔率调整系数', applicableTo: ['biAllRisk', 'biEquip'], linkedGroup: 'deductibleBI_ES', rows: [
+                                { parameter: '0%', value: 1.1, type: 'fixed' },
+                                { parameter: '10%', value: 1.0, type: 'fixed' },
+                                { parameter: '20%', value: 0.9, type: 'fixed' },
+                                { parameter: '30%', value: 0.8, type: 'fixed' }
+                            ]},
+                            { id: 'deductDaysBIES', name: '营业中断免赔天数调整系数', applicableTo: ['biAllRisk', 'biEquip'], linkedGroup: 'deductibleBI_ES', rows: [
+                                { parameter: '0天', value: 1.3, type: 'fixed' },
+                                { parameter: '5天', value: 1.1, type: 'fixed' },
+                                { parameter: '10天', value: 1.0, type: 'fixed' },
+                                { parameter: '15天', value: 0.95, type: 'fixed' },
+                                { parameter: '20天', value: 0.9, type: 'fixed' },
+                                { parameter: '25天', value: 0.85, type: 'fixed' },
+                                { parameter: '≥30天', min: 0.7, max: 0.8, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
