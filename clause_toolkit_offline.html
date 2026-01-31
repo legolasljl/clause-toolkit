@@ -12897,6 +12897,7 @@ ${fileList}
             var isComposite = pt === 'composite';
             var isInterruption = pt === 'interruption';
             var isJewelry = pt === 'jewelry';
+            var isMultiRisk = pt === 'multiRiskSum';
 
             // liability 专属字段
             var liabilityEls = ['mc_industryClass', 'mc_pricingMethod', 'mc_employeeCount'];
@@ -12908,7 +12909,7 @@ ${fileList}
             document.getElementById('mc_annualSalaryGroup').style.display = isLiability && document.getElementById('mc_pricingMethod').value === 'salary' ? '' : 'none';
 
             // 通用保险金额（元）
-            var showAmount = isProperty || isComposite || isInterruption || isJewelry;
+            var showAmount = isProperty || isComposite || isInterruption || isJewelry || isMultiRisk;
             document.getElementById('mc_amountGroup').style.display = showAmount ? '' : 'none';
             if (showAmount) {
                 var label = product.amountLabel || '保险金额';
@@ -12951,6 +12952,77 @@ ${fileList}
                 });
             }
 
+            // multiRiskSum 风险参数选择区
+            var mrsContainer = document.getElementById('mc_mrsParams');
+            if (!mrsContainer) {
+                mrsContainer = document.createElement('div');
+                mrsContainer.id = 'mc_mrsParams';
+                dynContainer.parentNode.insertBefore(mrsContainer, dynContainer.nextSibling);
+            }
+            mrsContainer.innerHTML = '';
+            if (isMultiRisk && mc_currentPlan && mc_currentPlan.risks) {
+                var mrsHtml = '<div style="margin-top:12px;padding:12px;background:var(--bg-secondary);border-radius:8px;">';
+                mrsHtml += '<div style="font-weight:600;margin-bottom:8px;">🔥 风险参数选择</div>';
+                mc_currentPlan.risks.forEach(function(risk) {
+                    if (!risk.baseRateTable) return;
+                    var tbl = risk.baseRateTable;
+                    if (tbl.type === 'industryBuilding') {
+                        // 行业下拉 + 建筑类型下拉（只渲染一次）
+                        if (!document.getElementById('mc_mrs_industry')) {
+                            mrsHtml += '<div class="mc-input-group" style="margin-bottom:8px;">';
+                            mrsHtml += '<label>行业代码</label>';
+                            mrsHtml += '<select id="mc_mrs_industry" style="width:100%;padding:8px;border:1px solid var(--border-primary);border-radius:8px;font-size:13px;">';
+                            Object.keys(tbl.data).forEach(function(code) {
+                                var label = tbl.labels ? tbl.labels[code] : code;
+                                mrsHtml += '<option value="' + code + '">' + mc_escHtml(label) + '</option>';
+                            });
+                            mrsHtml += '</select></div>';
+                            mrsHtml += '<div class="mc-input-group" style="margin-bottom:8px;">';
+                            mrsHtml += '<label>建筑类型</label>';
+                            mrsHtml += '<select id="mc_mrs_buildingType" style="width:100%;padding:8px;border:1px solid var(--border-primary);border-radius:8px;font-size:13px;">';
+                            (tbl.buildingTypes || []).forEach(function(bt) {
+                                mrsHtml += '<option value="' + bt.id + '">' + mc_escHtml(bt.name) + '</option>';
+                            });
+                            mrsHtml += '</select></div>';
+                        }
+                    } else if (tbl.type === 'zoneStructure') {
+                        mrsHtml += '<div class="mc-input-group" style="margin-bottom:8px;">';
+                        mrsHtml += '<label>' + mc_escHtml(risk.name) + ' — 地区分区</label>';
+                        mrsHtml += '<select id="mc_mrs_zone_' + risk.id + '" style="width:100%;padding:8px;border:1px solid var(--border-primary);border-radius:8px;font-size:13px;">';
+                        Object.keys(tbl.data).forEach(function(zone) {
+                            var zLabel = tbl.zoneLabels ? tbl.zoneLabels[zone] : zone;
+                            mrsHtml += '<option value="' + zone + '">' + mc_escHtml(zLabel) + '</option>';
+                        });
+                        mrsHtml += '</select></div>';
+                        mrsHtml += '<div class="mc-input-group" style="margin-bottom:8px;">';
+                        mrsHtml += '<label>' + mc_escHtml(risk.name) + ' — 建筑结构</label>';
+                        mrsHtml += '<select id="mc_mrs_struct_' + risk.id + '" style="width:100%;padding:8px;border:1px solid var(--border-primary);border-radius:8px;font-size:13px;">';
+                        (tbl.structures || []).forEach(function(s) {
+                            mrsHtml += '<option value="' + s.id + '">' + mc_escHtml(s.name) + '</option>';
+                        });
+                        mrsHtml += '</select></div>';
+                    } else if (tbl.type === 'plantType') {
+                        mrsHtml += '<div class="mc-input-group" style="margin-bottom:8px;">';
+                        mrsHtml += '<label>' + mc_escHtml(risk.name) + ' — 工厂类型</label>';
+                        mrsHtml += '<select id="mc_mrs_plantType" style="width:100%;padding:8px;border:1px solid var(--border-primary);border-radius:8px;font-size:13px;">';
+                        Object.keys(tbl.data).forEach(function(k) {
+                            mrsHtml += '<option value="' + k + '">' + mc_escHtml(k) + '</option>';
+                        });
+                        mrsHtml += '</select></div>';
+                    } else if (tbl.type === 'manual') {
+                        mrsHtml += '<div class="mc-input-group" style="margin-bottom:8px;">';
+                        mrsHtml += '<label>' + mc_escHtml(risk.name) + ' 基准费率（万分之）</label>';
+                        mrsHtml += '<input type="number" id="mc_mrs_rate_' + risk.id + '" value="' + ((risk.defaultRate || 0) * 10000).toFixed(1) + '" step="0.1" min="0" style="width:100%;padding:8px;border:1px solid var(--border-primary);border-radius:8px;font-size:13px;">';
+                        if (risk.rateRange) {
+                            mrsHtml += '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">范围：' + (risk.rateRange[0]*10000).toFixed(1) + '‱ ~ ' + (risk.rateRange[1]*10000).toFixed(1) + '‱</div>';
+                        }
+                        mrsHtml += '</div>';
+                    }
+                });
+                mrsHtml += '</div>';
+                mrsContainer.innerHTML = mrsHtml;
+            }
+
             // 现金综合日均营业额
             var hasDailyCash = (product.extraFields || []).indexOf('dailyCashTurnover') !== -1;
             document.getElementById('mc_dailyCashGroup').style.display = hasDailyCash ? '' : 'none';
@@ -12988,6 +13060,13 @@ ${fileList}
                         parts.push(cats[k].label.split('-').pop() + ' ' + (cats[k].baseRates.wholesale * 100).toFixed(3) + '%');
                     });
                     baseRateText += parts.join(' | ');
+                } else if (isMultiRisk && ver && ver.risks) {
+                    var rParts = [];
+                    ver.risks.forEach(function(rk) {
+                        if (rk.baseRate !== undefined) rParts.push(rk.name + ' ' + (rk.baseRate * 100).toFixed(4) + '%');
+                        else rParts.push(rk.name + ' 查表');
+                    });
+                    baseRateText += rParts.join(' | ');
                 } else if (ver && ver.baseRates && ver.baseRates['default'] !== undefined) {
                     baseRateText += (ver.baseRates['default'] * 100).toFixed(3) + '%';
                 }
@@ -13962,6 +14041,136 @@ ${fileList}
             };
         }
 
+        // --- multiRiskSum 计算 ---
+        function mc_calcMultiRiskSum() {
+            var termType = document.getElementById('mc_termType').value;
+            var days = termType === 'short' ? (parseInt(document.getElementById('mc_days').value) || 180) : 365;
+            var insuredAmount = parseFloat(document.getElementById('mc_insuredAmount').value) || 0;
+            var product = MC_PRODUCTS[mc_selectedProduct] || {};
+            var plan = mc_currentPlan;
+            var risks = plan.risks || [];
+            if (!risks.length) { mc_log('计算失败: 未定义风险类别', 'error'); return; }
+
+            mc_log('版本: ' + plan.label + ' | 保险金额: ' + mc_fmtCurrency(insuredAmount), 'info');
+
+            // 收集用户选择的所有系数
+            var allApplicable = mc_getApplicableCoefficients();
+            var totalRate = 0;
+            var riskDetails = [];
+            var allCoeffDetails = [];
+
+            risks.forEach(function(risk) {
+                // 获取该风险的基准费率
+                var baseRate = 0;
+                if (risk.baseRate !== undefined) {
+                    baseRate = risk.baseRate;
+                } else if (risk.baseRateTable) {
+                    baseRate = mc_lookupMultiRiskBaseRate(risk);
+                }
+                if (!baseRate) {
+                    mc_log('风险 ' + risk.name + ': 基准费率未选定或为0，跳过', 'warn');
+                }
+
+                // 筛选适用于该风险的系数
+                var riskCoeffs = allApplicable.filter(function(c) {
+                    if (!c.applicableTo) return true;
+                    if (c.applicableTo.indexOf('all') >= 0) return true;
+                    return c.applicableTo.indexOf(risk.id) >= 0;
+                });
+
+                var r = mc_calcCoeffProduct(riskCoeffs);
+                var riskRate = baseRate * r.coeffProduct;
+                totalRate += riskRate;
+
+                riskDetails.push({
+                    id: risk.id, name: risk.name,
+                    baseRate: baseRate, coeffProduct: r.coeffProduct,
+                    riskRate: riskRate, coeffDetails: r.coeffDetails
+                });
+
+                r.coeffDetails.forEach(function(d) {
+                    if (!allCoeffDetails.some(function(e) { return e.id === d.id && e.parameter === d.parameter; })) {
+                        allCoeffDetails.push(d);
+                    }
+                });
+
+                mc_log('风险 ' + risk.name + ': 基准费率=' + (baseRate * 100).toFixed(4) + '% × 系数乘积=' +
+                    r.coeffProduct.toFixed(4) + ' → ' + (riskRate * 100).toFixed(4) + '%', 'info');
+            });
+
+            // 检查系数乘积下限（premiumCap 在 multiRiskSum 中用作系数乘积下限）
+            var capNote = '';
+            if (product.premiumCap) {
+                riskDetails.forEach(function(rd) {
+                    if (rd.coeffProduct < product.premiumCap) {
+                        capNote = '注：各风险调整系数乘积不应低于 ' + product.premiumCap;
+                    }
+                });
+            }
+
+            var totalPremium = insuredAmount * totalRate;
+            if (termType === 'short') totalPremium *= (days / 365);
+
+            // 构建公式
+            var formula = '年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)\n';
+            riskDetails.forEach(function(rd) {
+                formula += rd.name + ': ' + (rd.baseRate * 100).toFixed(4) + '% × ' +
+                    rd.coeffProduct.toFixed(4) + ' = ' + (rd.riskRate * 100).toFixed(4) + '%\n';
+            });
+            formula += '总费率: ' + (totalRate * 100).toFixed(4) + '%\n';
+            formula += '年保费 = ' + mc_fmtCurrency(insuredAmount) + ' × ' + (totalRate * 100).toFixed(4) + '%';
+            if (termType === 'short') formula += ' × (' + days + '/365)';
+            formula += ' = ' + mc_fmtCurrency(totalPremium);
+            if (capNote) formula += '\n' + capNote;
+
+            mc_log('总费率: ' + (totalRate * 100).toFixed(4) + '% | 总保费: ' + mc_fmtCurrency(totalPremium), 'success');
+
+            mc_result = {
+                version: plan.label, totalRate: totalRate, totalPremium: totalPremium,
+                insuredAmount: insuredAmount, riskDetails: riskDetails,
+                termType: termType, days: days, formulaBreakdown: formula,
+                coeffDetails: allCoeffDetails, productType: 'multiRiskSum'
+            };
+        }
+
+        // 查表获取 multiRiskSum 风险基准费率
+        function mc_lookupMultiRiskBaseRate(risk) {
+            var table = risk.baseRateTable;
+            if (!table) return 0;
+            // 根据表类型查找
+            if (table.type === 'industryBuilding') {
+                var industrySelect = document.getElementById('mc_mrs_industry');
+                var buildingSelect = document.getElementById('mc_mrs_buildingType');
+                if (!industrySelect || !buildingSelect) return 0;
+                var code = industrySelect.value;
+                var bType = buildingSelect.value;
+                var rates = table.data[code];
+                if (!rates) return 0;
+                return rates[bType] || 0;
+            }
+            if (table.type === 'zoneStructure') {
+                var zoneSelect = document.getElementById('mc_mrs_zone_' + risk.id);
+                var structSelect = document.getElementById('mc_mrs_struct_' + risk.id);
+                if (!zoneSelect || !structSelect) return 0;
+                var zone = zoneSelect.value;
+                var struct = structSelect.value;
+                var zoneData = table.data[zone];
+                if (!zoneData) return 0;
+                return zoneData[struct] || 0;
+            }
+            if (table.type === 'plantType') {
+                var ptSelect = document.getElementById('mc_mrs_plantType');
+                if (!ptSelect) return 0;
+                return table.data[ptSelect.value] || 0;
+            }
+            if (table.type === 'manual') {
+                var manualInput = document.getElementById('mc_mrs_rate_' + risk.id);
+                if (!manualInput) return 0;
+                return parseFloat(manualInput.value) / 10000 || 0;
+            }
+            return 0;
+        }
+
         // --- 核心计算引擎 ---
         function mc_calculate() {
             mc_log('--- 开始计算 ---', 'info');
@@ -13972,6 +14181,7 @@ ${fileList}
             else if (pt === 'composite') mc_calcComposite();
             else if (pt === 'interruption') mc_calcInterruption();
             else if (pt === 'jewelry') mc_calcJewelry();
+            else if (pt === 'multiRiskSum') mc_calcMultiRiskSum();
             else { mc_log('未知产品类型: ' + pt, 'error'); return; }
             if (mc_result) {
                 mc_log('主险保费: ' + mc_fmtCurrency(mc_result.totalPremium), 'success');
@@ -14034,6 +14244,15 @@ ${fileList}
                         html += '<tr><td>' + mc_escHtml(lbl) + '保额</td><td>' + mc_fmtCurrency(r.subResults[rid].amount || 0) + '</td></tr>';
                         html += '<tr><td>' + mc_escHtml(lbl) + '保费</td><td>' + mc_fmtCurrency(r.subResults[rid].premium || 0) + '</td></tr>';
                     }
+                });
+            } else if (pt === 'multiRiskSum') {
+                html += '<tr><td>保险金额</td><td>' + mc_fmtCurrency(r.insuredAmount || 0) + '</td></tr>';
+                html += '<tr><td>总费率</td><td>' + ((r.totalRate || 0) * 100).toFixed(4) + '%</td></tr>';
+                (r.riskDetails || []).forEach(function(rd) {
+                    html += '<tr style="background:var(--bg-secondary);"><td colspan="2" style="font-weight:600;">' + mc_escHtml(rd.name) + '</td></tr>';
+                    html += '<tr><td>　基准费率</td><td>' + (rd.baseRate * 100).toFixed(4) + '%</td></tr>';
+                    html += '<tr><td>　系数乘积</td><td>' + mc_fmtNum(rd.coeffProduct, 6) + '</td></tr>';
+                    html += '<tr><td>　风险费率</td><td>' + (rd.riskRate * 100).toFixed(4) + '%</td></tr>';
                 });
             } else {
                 html += '<tr><td>基准费率</td><td>' + ((r.baseRate || 0) * 100).toFixed(4) + '%</td></tr>';
