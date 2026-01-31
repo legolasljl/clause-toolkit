@@ -12078,6 +12078,70 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            // ====== #5 科技企业研发保障保险（2025版） ======
+            techRDProtection2025: {
+                productName: '科技企业研发保障保险（2025版）',
+                productType: 'composite',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: null,
+                subRisks: ['rdExpense', 'livingAllowance'],
+                subRiskLabels: { rdExpense: '研发费用损失责任', livingAllowance: '生活补贴责任' },
+                formulaText: '保险费＝∑（分项责任保险金额×分项责任基准费率×各项适用的费率调整系数的乘积）',
+                formulaNote: '',
+                versions: {
+                    original: {
+                        label: '科技企业研发保障保险（2025版）费率',
+                        baseRates: { rdExpense: 0.0306, livingAllowance: 0.0332 },
+                        coefficients: [
+                            { id: 'projectRiskTRP', name: '项目风险调整系数', applicableTo: ['rdExpense', 'livingAllowance'], rows: [
+                                { parameter: '较低', min: 0.5, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '较高', min: 1.5, max: 2.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'projectTermTRP', name: '项目期限调整系数', applicableTo: ['rdExpense', 'livingAllowance'], rows: [
+                                { parameter: '≤1年', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '（1，2]年', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '（2，3]年', min: 1.2, max: 1.4, minExclusive: true, type: 'range' },
+                                { parameter: '＞3年', min: 1.4, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'rdExperienceTRP', name: '研发经验调整系数', applicableTo: ['rdExpense', 'livingAllowance'], rows: [
+                                { parameter: '有丰富的项目研发经验', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '有一定的项目研发经验', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                { parameter: '无项目研发经验', min: 1.3, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'managementTRP', name: '管理水平调整系数', applicableTo: ['rdExpense', 'livingAllowance'], rows: [
+                                { parameter: '管理人员的管理水平较高', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '管理人员的管理水平一般', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                { parameter: '管理人员的管理水平较低', min: 1.3, max: 1.8, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'deductRateTRP', name: '免赔率调整系数', applicableTo: ['rdExpense', 'livingAllowance'], linkedGroup: 'deductibleTRP',
+                              note: '若同时约定免赔率与免赔额，以低者为准',
+                              rows: [
+                                { parameter: '0', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.9, type: 'fixed' },
+                                { parameter: '20%', value: 0.8, type: 'fixed' },
+                                { parameter: '30%', value: 0.7, type: 'fixed' }
+                            ]},
+                            { id: 'deductAmountRdTRP', name: '免赔额调整系数（研发费用损失）', applicableTo: ['rdExpense'], linkedGroup: 'deductibleTRP',
+                              note: '未列明免赔额可按线性插值法计算',
+                              rows: [
+                                { parameter: '0万元', value: 1.0, type: 'fixed' },
+                                { parameter: '1万元', value: 0.99, type: 'fixed' },
+                                { parameter: '5万元', value: 0.97, type: 'fixed' },
+                                { parameter: '≥10万元', min: 0.9, max: 0.93, type: 'range' }
+                            ]},
+                            { id: 'deductAmountLivTRP', name: '免赔额调整系数（生活补贴）', applicableTo: ['livingAllowance'], linkedGroup: 'deductibleTRP',
+                              note: '未列明免赔额可按线性插值法计算',
+                              rows: [
+                                { parameter: '0万元', value: 1.0, type: 'fixed' },
+                                { parameter: '1万元', value: 0.95, type: 'fixed' },
+                                { parameter: '≥2万元', min: 0.85, max: 0.9, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
@@ -12248,12 +12312,44 @@ ${fileList}
             document.getElementById('mc_amountGroup').style.display = showAmount ? '' : 'none';
             if (showAmount) {
                 var label = product.amountLabel || '保险金额';
-                if (isComposite) label = '物质损失或损坏一切险保额';
+                if (isComposite) {
+                    var subRisks = product.subRisks || ['materialDamage', 'machineryBreakdown'];
+                    var subLabels = product.subRiskLabels || {};
+                    label = subLabels[subRisks[0]] || '物质损失或损坏一切险保额';
+                }
                 document.getElementById('mc_amountLabel').textContent = label + '（元）';
             }
 
-            // composite 第二保额
-            document.getElementById('mc_subAmountGroup').style.display = isComposite ? '' : 'none';
+            // composite 第二保额 (旧版双险种兼容)
+            var oldSubGroup = document.getElementById('mc_subAmountGroup');
+            if (isComposite && product.subRisks && product.subRisks.length === 2) {
+                oldSubGroup.style.display = '';
+                var subLabel2 = (product.subRiskLabels || {})[product.subRisks[1]] || '机器损坏保额';
+                var subLabelEl = document.getElementById('mc_subAmountLabel');
+                if (subLabelEl) subLabelEl.textContent = subLabel2 + '（元）';
+            } else {
+                oldSubGroup.style.display = 'none';
+            }
+
+            // composite 动态子险种保额输入（3个及以上子险种）
+            var dynContainer = document.getElementById('mc_dynSubAmounts');
+            if (!dynContainer) {
+                dynContainer = document.createElement('div');
+                dynContainer.id = 'mc_dynSubAmounts';
+                oldSubGroup.parentNode.insertBefore(dynContainer, oldSubGroup.nextSibling);
+            }
+            dynContainer.innerHTML = '';
+            if (isComposite && product.subRisks && product.subRisks.length > 2) {
+                product.subRisks.forEach(function(riskId, idx) {
+                    if (idx === 0) return; // 第一个用 mc_insuredAmount
+                    var lbl = (product.subRiskLabels || {})[riskId] || riskId;
+                    var html = '<div class="mc-input-group" style="margin-top:8px;">';
+                    html += '<label>' + mc_escHtml(lbl) + '（元）</label>';
+                    html += '<input type="number" id="mc_subInsuredAmount_' + riskId + '" value="5000000" min="0" step="10000" style="width:100%;padding:8px 12px;border:1px solid var(--border-primary);border-radius:8px;font-size:14px;">';
+                    html += '</div>';
+                    dynContainer.innerHTML += html;
+                });
+            }
 
             // 现金综合日均营业额
             var hasDailyCash = (product.extraFields || []).indexOf('dailyCashTurnover') !== -1;
@@ -12277,8 +12373,14 @@ ${fileList}
                 formulaDiv.style.display = '';
                 var baseRateText = '基准费率：';
                 var ver = product.versions && product.versions[mc_selectedVersion];
-                if (isComposite && ver && ver.baseRates) {
-                    baseRateText += '物质损失 ' + (ver.baseRates.materialDamage * 100).toFixed(3) + '% | 机器损坏 ' + (ver.baseRates.machineryBreakdown * 100).toFixed(3) + '%';
+                if (isComposite && ver && ver.baseRates && product.subRisks) {
+                    var srParts = [];
+                    product.subRisks.forEach(function(rid) {
+                        var lbl = (product.subRiskLabels || {})[rid] || rid;
+                        var rate = ver.baseRates[rid];
+                        if (rate) srParts.push(lbl + ' ' + (rate * 100).toFixed(3) + '%');
+                    });
+                    baseRateText += srParts.join(' | ');
                 } else if (isJewelry && product.coverageCategories) {
                     var cats = product.coverageCategories;
                     var parts = [];
@@ -13127,44 +13229,76 @@ ${fileList}
         function mc_calcComposite() {
             var termType = document.getElementById('mc_termType').value;
             var days = termType === 'short' ? (parseInt(document.getElementById('mc_days').value) || 180) : 365;
-            var materialAmount = parseFloat(document.getElementById('mc_insuredAmount').value) || 0;
-            var machineryAmount = parseFloat(document.getElementById('mc_subInsuredAmount').value) || 0;
-            var materialRate = mc_currentPlan.baseRates['materialDamage'];
-            var machineryRate = mc_currentPlan.baseRates['machineryBreakdown'];
-            if (!materialRate || !machineryRate) { mc_log('计算失败: 基准费率不存在', 'error'); return; }
-            mc_log('版本: ' + mc_currentPlan.label, 'info');
-            mc_log('物质损失保额: ' + mc_fmtCurrency(materialAmount) + ' | 费率: ' + (materialRate * 100).toFixed(4) + '%', 'info');
-            mc_log('机器损坏保额: ' + mc_fmtCurrency(machineryAmount) + ' | 费率: ' + (machineryRate * 100).toFixed(4) + '%', 'info');
+            var product = MC_PRODUCTS[mc_selectedProduct] || {};
+            var subRisks = product.subRisks || ['materialDamage', 'machineryBreakdown'];
+            var subRiskLabels = product.subRiskLabels || {};
             var coefficients = mc_currentPlan.coefficients || [];
-            var materialCoeffs = coefficients.filter(function(c) { return c.applicableTo.indexOf('materialDamage') !== -1 || c.applicableTo.indexOf('all') !== -1; });
-            var machineryCoeffs = coefficients.filter(function(c) { return c.applicableTo.indexOf('machineryBreakdown') !== -1 || c.applicableTo.indexOf('all') !== -1; });
-            mc_log('--- 物质损失系数 ---', 'info');
-            var rm = mc_calcCoeffProduct(materialCoeffs);
-            mc_log('--- 机器损坏系数 ---', 'info');
-            var rmach = mc_calcCoeffProduct(machineryCoeffs);
-            var materialAdjRate = materialRate * rm.coeffProduct;
-            var machineryAdjRate = machineryRate * rmach.coeffProduct;
-            var materialPremium = materialAmount * materialAdjRate;
-            var machineryPremium = machineryAmount * machineryAdjRate;
-            if (termType === 'short') { materialPremium *= (days / 365); machineryPremium *= (days / 365); }
-            var totalPremium = materialPremium + machineryPremium;
-            var formula = '物质损失保费 = ' + mc_fmtCurrency(materialAmount) + ' × ' + (materialAdjRate * 100).toFixed(4) + '%';
-            if (termType === 'short') formula += ' × (' + days + '/365)';
-            formula += ' = ' + mc_fmtCurrency(materialPremium);
-            formula += '\n机器损坏保费 = ' + mc_fmtCurrency(machineryAmount) + ' × ' + (machineryAdjRate * 100).toFixed(4) + '%';
-            if (termType === 'short') formula += ' × (' + days + '/365)';
-            formula += ' = ' + mc_fmtCurrency(machineryPremium);
-            formula += '\n合计保费 = ' + mc_fmtCurrency(materialPremium) + ' + ' + mc_fmtCurrency(machineryPremium) + ' = ' + mc_fmtCurrency(totalPremium);
+            mc_log('版本: ' + mc_currentPlan.label, 'info');
+
+            var totalPremium = 0;
+            var allCoeffDetails = [];
+            var formulaParts = [];
+            var subResults = {};
+
+            subRisks.forEach(function(riskId, idx) {
+                var label = subRiskLabels[riskId] || riskId;
+                var amountInput = idx === 0 ? document.getElementById('mc_insuredAmount') : document.getElementById('mc_subInsuredAmount_' + riskId);
+                if (!amountInput && idx === 1) amountInput = document.getElementById('mc_subInsuredAmount');
+                var amount = amountInput ? (parseFloat(amountInput.value) || 0) : 0;
+                var baseRate = mc_currentPlan.baseRates[riskId];
+                if (!baseRate) { mc_log(label + ': 基准费率不存在，跳过', 'warn'); return; }
+
+                mc_log(label + ' 保额: ' + mc_fmtCurrency(amount) + ' | 费率: ' + (baseRate * 100).toFixed(4) + '%', 'info');
+
+                var riskCoeffs = coefficients.filter(function(c) {
+                    return c.applicableTo.indexOf(riskId) !== -1 || c.applicableTo.indexOf('all') !== -1;
+                });
+                mc_log('--- ' + label + ' 系数 ---', 'info');
+                var r = mc_calcCoeffProduct(riskCoeffs);
+                var adjRate = baseRate * r.coeffProduct;
+                var premium = amount * adjRate;
+                if (termType === 'short') premium *= (days / 365);
+
+                totalPremium += premium;
+                allCoeffDetails = allCoeffDetails.concat(r.coeffDetails);
+
+                subResults[riskId] = { amount: amount, baseRate: baseRate, coeffProduct: r.coeffProduct, adjRate: adjRate, premium: premium };
+
+                var part = label + '保费 = ' + mc_fmtCurrency(amount) + ' × ' + (adjRate * 100).toFixed(4) + '%';
+                if (termType === 'short') part += ' × (' + days + '/365)';
+                part += ' = ' + mc_fmtCurrency(premium);
+                formulaParts.push(part);
+            });
+
+            var formula = formulaParts.join('\n');
+            if (subRisks.length > 1) {
+                formula += '\n合计保费 = ' + mc_fmtCurrency(totalPremium);
+            }
+
+            // 构建兼容旧格式的 baseRate/coeffProduct 对象
+            var baseRateObj = {};
+            var coeffProdObj = {};
+            var adjRateObj = {};
+            subRisks.forEach(function(riskId) {
+                if (subResults[riskId]) {
+                    baseRateObj[riskId] = subResults[riskId].baseRate;
+                    coeffProdObj[riskId] = subResults[riskId].coeffProduct;
+                    adjRateObj[riskId] = subResults[riskId].adjRate;
+                }
+            });
+
             mc_result = {
                 version: mc_currentPlan.label,
-                baseRate: { materialDamage: materialRate, machineryBreakdown: machineryRate },
-                coeffProduct: { materialDamage: rm.coeffProduct, machineryBreakdown: rmach.coeffProduct },
-                adjustedRate: { materialDamage: materialAdjRate, machineryBreakdown: machineryAdjRate },
+                baseRate: baseRateObj, coeffProduct: coeffProdObj, adjustedRate: adjRateObj,
                 isCapped: false, totalPremium: totalPremium, perPersonPremium: 0,
-                materialAmount: materialAmount, machineryAmount: machineryAmount,
-                materialPremium: materialPremium, machineryPremium: machineryPremium,
+                subResults: subResults, subRisks: subRisks, subRiskLabels: subRiskLabels,
+                // 兼容旧字段
+                materialAmount: subResults.materialDamage ? subResults.materialDamage.amount : 0,
+                machineryAmount: subResults.machineryBreakdown ? subResults.machineryBreakdown.amount : 0,
+                materialPremium: subResults.materialDamage ? subResults.materialDamage.premium : 0,
+                machineryPremium: subResults.machineryBreakdown ? subResults.machineryBreakdown.premium : 0,
                 termType: termType, days: days, formulaBreakdown: formula,
-                coeffDetails: rm.coeffDetails.concat(rmach.coeffDetails), productType: 'composite'
+                coeffDetails: allCoeffDetails, productType: 'composite'
             };
         }
 
@@ -13290,12 +13424,17 @@ ${fileList}
             } else if (pt === 'composite') {
                 var br = r.baseRate || {};
                 var cp = r.coeffProduct || {};
-                html += '<tr><td>物质损失基准费率</td><td>' + ((br.materialDamage || 0) * 100).toFixed(4) + '%</td></tr>';
-                html += '<tr><td>机器损坏基准费率</td><td>' + ((br.machineryBreakdown || 0) * 100).toFixed(4) + '%</td></tr>';
-                html += '<tr><td>物质损失系数乘积</td><td>' + mc_fmtNum(cp.materialDamage || 1, 6) + '</td></tr>';
-                html += '<tr><td>机器损坏系数乘积</td><td>' + mc_fmtNum(cp.machineryBreakdown || 1, 6) + '</td></tr>';
-                html += '<tr><td>物质损失保额</td><td>' + mc_fmtCurrency(r.materialAmount || 0) + '</td></tr>';
-                html += '<tr><td>机器损坏保额</td><td>' + mc_fmtCurrency(r.machineryAmount || 0) + '</td></tr>';
+                var subs = r.subRisks || ['materialDamage', 'machineryBreakdown'];
+                var slbls = r.subRiskLabels || { materialDamage: '物质损失', machineryBreakdown: '机器损坏' };
+                subs.forEach(function(rid) {
+                    var lbl = slbls[rid] || rid;
+                    html += '<tr><td>' + mc_escHtml(lbl) + '基准费率</td><td>' + ((br[rid] || 0) * 100).toFixed(4) + '%</td></tr>';
+                    html += '<tr><td>' + mc_escHtml(lbl) + '系数乘积</td><td>' + mc_fmtNum(cp[rid] || 1, 6) + '</td></tr>';
+                    if (r.subResults && r.subResults[rid]) {
+                        html += '<tr><td>' + mc_escHtml(lbl) + '保额</td><td>' + mc_fmtCurrency(r.subResults[rid].amount || 0) + '</td></tr>';
+                        html += '<tr><td>' + mc_escHtml(lbl) + '保费</td><td>' + mc_fmtCurrency(r.subResults[rid].premium || 0) + '</td></tr>';
+                    }
+                });
             } else {
                 html += '<tr><td>基准费率</td><td>' + ((r.baseRate || 0) * 100).toFixed(4) + '%</td></tr>';
                 html += '<tr><td>系数乘积</td><td>' + mc_fmtNum(r.coeffProduct || 1, 6) + '</td></tr>';
