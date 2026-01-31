@@ -2080,27 +2080,49 @@ class MainInsuranceTab(QWidget):
         if not self.result:
             return
         r = self.result
+        pt = r.get("productType", "liability")
+        product_name = MC_PRODUCTS.get(self.selected_product, {}).get("productName", "")
         lines = [
-            "═══════════════ 📊 计算结果 ═══════════════", "",
+            f"═══════════════ 📊 {product_name} 计算结果 ═══════════════", "",
             f"  主险保费:   {fmt_currency(r['totalPremium'])}",
-            f"  每人保费:   {fmt_currency(r['perPersonPremium'])}", "",
-            "─────────── 公式分解 ───────────",
-            r["formulaBreakdown"], "",
-            "─────────── 参数明细 ───────────",
-            f"  费率版本: {r['version']}",
-            f"  计费方式: {'固定限额' if r['method'] == 'fixed' else '工资总额'}",
-            f"  行业类别: {r['industryClass']}",
-            f"  基准费率: {r['baseRate'] * 100:.4f}%",
-            f"  系数乘积: {fmt_num(r['coeffProduct'], 6)}",
-            f"  调整后费率: {r['adjustedRate'] * 100:.4f}%{' (封顶)' if r['isCapped'] else ''}",
-            f"  承保人数: {r['employeeCount']}人",
-            f"  保险期间: {'年度' if r['termType'] == 'annual' else str(r['days']) + '天'}",
         ]
-        if r["disabilityCoeff"] != 1.0:
+        if pt == "liability":
+            lines.append(f"  每人保费:   {fmt_currency(r['perPersonPremium'])}")
+        lines.extend(["", "─────────── 公式分解 ───────────", r["formulaBreakdown"], ""])
+        lines.append("─────────── 参数明细 ───────────")
+        lines.append(f"  费率版本: {r.get('version', '')}")
+        if pt == "liability":
+            lines.append(f"  计费方式: {'固定限额' if r.get('method') == 'fixed' else '工资总额'}")
+            lines.append(f"  行业类别: {r.get('industryClass', '')}")
+            base_rate_val = r.get('baseRate', 0)
+            lines.append(f"  基准费率: {base_rate_val * 100:.4f}%")
+            lines.append(f"  系数乘积: {fmt_num(r.get('coeffProduct', 1), 6)}")
+            lines.append(f"  调整后费率: {r.get('adjustedRate', 0) * 100:.4f}%{' (封顶)' if r.get('isCapped') else ''}")
+            lines.append(f"  承保人数: {r.get('employeeCount', 0)}人")
+        elif pt == "composite":
+            br = r.get("baseRate", {})
+            cp = r.get("coeffProduct", {})
+            ar = r.get("adjustedRate", {})
+            lines.append(f"  物质损失基准费率: {br.get('materialDamage', 0) * 100:.4f}%")
+            lines.append(f"  机器损坏基准费率: {br.get('machineryBreakdown', 0) * 100:.4f}%")
+            lines.append(f"  物质损失系数乘积: {fmt_num(cp.get('materialDamage', 1), 6)}")
+            lines.append(f"  机器损坏系数乘积: {fmt_num(cp.get('machineryBreakdown', 1), 6)}")
+            lines.append(f"  物质损失保额: {fmt_currency(r.get('materialAmount', 0))}")
+            lines.append(f"  机器损坏保额: {fmt_currency(r.get('machineryAmount', 0))}")
+        else:
+            base_rate_val = r.get('baseRate', 0)
+            lines.append(f"  基准费率: {base_rate_val * 100:.4f}%")
+            lines.append(f"  系数乘积: {fmt_num(r.get('coeffProduct', 1), 6)}")
+            adj_rate = r.get('adjustedRate', 0)
+            lines.append(f"  调整后费率: {adj_rate * 100:.4f}%{' (封顶)' if r.get('isCapped') else ''}")
+            if r.get("insuredAmount"):
+                lines.append(f"  保险金额: {fmt_currency(r['insuredAmount'])}")
+        lines.append(f"  保险期间: {'年度' if r.get('termType') == 'annual' else str(r.get('days', 365)) + '天'}")
+        if pt == "liability" and r.get("disabilityCoeff", 1.0) != 1.0:
             lines.append(f"  伤残赔偿比例系数: {fmt_num(r['disabilityCoeff'], 3)}")
-            lines.append(f"  {r['disabilityDesc']}")
+            lines.append(f"  {r.get('disabilityDesc', '')}")
         lines.extend(["", "─────────── 系数明细 ───────────"])
-        for d in r["coeffDetails"]:
+        for d in r.get("coeffDetails", []):
             suffix = "（未选，默认）" if d.get("unselected") else ""
             lines.append(f"  {d['name']}: {fmt_num(d['value'], 4)}{suffix}")
         self.result_display.setText("\n".join(lines))
@@ -2116,25 +2138,33 @@ class MainInsuranceTab(QWidget):
         self.count_spin.setValue(100)
         self.term_combo.setCurrentIndex(0)
         self.days_spin.setValue(180)
+        self.amount_spin.setValue(10000000)
+        self.sub_amount_spin.setValue(5000000)
+        self.daily_cash_spin.setValue(100000)
+        self.merchant_type_combo.setCurrentIndex(0)
+        self.coverage_type_combo.setCurrentIndex(0)
         self.selected_disability_table = "none"
         self.selected_disability_option = -1
         self.disability_combo.setCurrentIndex(0)
         self._clear_result()
+        self._update_params_visibility()
         self._render_coefficients()
         self._log("已重置参数和系数选择（险种/版本不变）")
 
     def _send_to_addon(self):
         if not self.result:
             return
-        self.premium_calculated.emit(self.result["totalPremium"], self.result["perPersonPremium"])
-        # 构建完整数据包传递给附加险
+        self.premium_calculated.emit(self.result["totalPremium"], self.result.get("perPersonPremium", 0))
         full_data = dict(self.result)
-        full_data["perPersonLimit"] = self.limit_spin.value() * 10000 if self.method_combo.currentData() == "fixed" else 0
-        full_data["annualSalary"] = self.salary_spin.value() if self.method_combo.currentData() == "salary" else 0
-        full_data["disabilityTable"] = self.selected_disability_table
-        full_data["disabilityOption"] = self.selected_disability_option
+        full_data["selectedProduct"] = self.selected_product
+        full_data["productType"] = self._get_product_type()
+        if self._get_product_type() == "liability":
+            full_data["perPersonLimit"] = self.limit_spin.value() * 10000 if self.method_combo.currentData() == "fixed" else 0
+            full_data["annualSalary"] = self.salary_spin.value() if self.method_combo.currentData() == "salary" else 0
+            full_data["disabilityTable"] = self.selected_disability_table
+            full_data["disabilityOption"] = self.selected_disability_option
         self.full_result_calculated.emit(full_data)
-        self._log(f"已将主险保费 {fmt_currency(self.result['totalPremium'])}、每人保费 {fmt_currency(self.result['perPersonPremium'])} 传入附加险计算", "success")
+        self._log(f"已将主险保费 {fmt_currency(self.result['totalPremium'])} 传入附加险计算", "success")
 
     def _import_rate_plan(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "导入费率方案", "", "费率方案文件 (*.json *.docx);;JSON (*.json);;Word (*.docx)")
