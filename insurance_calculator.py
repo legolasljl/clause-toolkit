@@ -420,112 +420,130 @@ MC_PRODUCTS = {
     "propertyAllRisk": {
         "productName": "财产一切险",
         "productType": "property",
-        "amountUnit": "亿元",
+        "amountUnit": "元",
         "amountLabel": "保险金额",
         "premiumCap": 0.70,
+        "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+        "formulaNote": "若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算；短期承保保险费根据条款所附短期费率表计收",
         "versions": {
             "original": {
                 "label": "财产一切险费率",
-                "baseRates": {"default": 0.0020},
+                "baseRates": { "default": 0.0020 },
                 "coefficients": [
-                    {"id": "propertyType", "name": "财产类别调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "房屋建筑", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "机器设备", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "存货", "min": 1.0, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "buildingStructure", "name": "建筑结构调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "钢结构/钢混结构", "min": 0.7, "max": 0.9, "type": "range"},
-                         {"parameter": "砖混结构", "min": 0.9, "max": 1.1, "type": "range"},
-                         {"parameter": "砖木/木结构", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "fireProtection", "name": "消防设施调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "完善（自动喷淋+报警）", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "较完善（灭火器+消火栓）", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "不完善", "min": 1.0, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "securityMeasures", "name": "安全措施调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "24小时监控+保安", "min": 0.7, "max": 0.9, "type": "range"},
-                         {"parameter": "基本安保措施", "value": 1.0, "type": "fixed"},
-                         {"parameter": "安保措施不足", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "location", "name": "地理位置调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "非自然灾害高发区", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "一般地区", "value": 1.0, "type": "fixed"},
-                         {"parameter": "自然灾害高发区", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "deductibleProp", "name": "免赔额/免赔率调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高免赔（≥10万或5%）", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低免赔/零免赔", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "lossHistory", "name": "历史赔付调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "insuredAmount", "name": "保险金额规模调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "＞10亿元", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "5-10亿元", "min": 0.85, "max": 0.95, "type": "range"},
-                         {"parameter": "1-5亿元", "value": 1.0, "type": "fixed"},
-                         {"parameter": "＜1亿元", "min": 1.05, "max": 1.2, "type": "range"}
-                     ]},
-                    {"id": "industryRisk", "name": "行业风险调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "低风险（办公/商业）", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "中风险（轻工制造）", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "较高风险（重工/化工）", "min": 1.0, "max": 1.3, "type": "range"},
-                         {"parameter": "高风险（易燃易爆）", "min": 1.3, "max": 2.0, "type": "range"}
-                     ]},
-                    {"id": "managementLevelProp", "name": "风险管理水平调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "优秀", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "良好", "min": 0.85, "max": 1.0, "type": "range"},
-                         {"parameter": "一般", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "较差", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "renewalProp", "name": "续保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
-                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]},
-                    {"id": "coverageScope", "name": "承保范围调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "标准承保范围", "value": 1.0, "type": "fixed"},
-                         {"parameter": "扩展暴风/洪水/地震", "min": 1.1, "max": 1.3, "type": "range"},
-                         {"parameter": "限缩承保范围", "min": 0.8, "max": 0.95, "type": "range"}
-                     ]},
-                    {"id": "policyPeriod", "name": "保险期间调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "一年期", "value": 1.0, "type": "fixed"},
-                         {"parameter": "长期（2-3年）", "min": 0.9, "max": 0.95, "type": "range"}
-                     ]},
-                    {"id": "coinsurance", "name": "共保/再保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "有再保安排", "min": 0.9, "max": 1.0, "type": "range"},
-                         {"parameter": "无再保安排", "value": 1.0, "type": "fixed"}
-                     ]},
-                    {"id": "specialAgreement", "name": "特别约定调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "标准条款", "value": 1.0, "type": "fixed"},
-                         {"parameter": "含利于被保险人条款", "min": 1.05, "max": 1.2, "type": "range"},
-                         {"parameter": "含利于保险人条款", "min": 0.85, "max": 0.95, "type": "range"}
-                     ]},
-                    {"id": "marketCompetition", "name": "市场竞争调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
-                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
-                     ]}
+                    { "id": "industry", "name": "行业类别调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "农、林、牧、渔业", "min": 1.2, "max": 2.5, "type": "range" },
+                        { "parameter": "采矿业", "min": 1.0, "max": 2.0, "type": "range" },
+                        { "parameter": "制造业", "min": 0.5, "max": 1.5, "type": "range" },
+                        { "parameter": "电力、热力、燃气及水生产和供应业，水利、环境和公共设施管理业", "min": 0.5, "max": 1.5, "type": "range" },
+                        { "parameter": "建筑业", "min": 0.8, "max": 1.5, "type": "range" },
+                        { "parameter": "批发和零售业，交通运输、仓储和邮政业", "min": 1.0, "max": 2.5, "type": "range" },
+                        { "parameter": "住宿和餐饮业，文化、体育和娱乐业", "min": 0.6, "max": 1.5, "type": "range" },
+                        { "parameter": "信息传输、软件和信息技术服务业，金融业，房地产业，租赁和商务服务业，科学研究和技术服务业，居民服务、修理和其他服务业，教育，卫生和社会工作，公共管理、社会保障和社会组织，国际组织", "min": 0.5, "max": 1.0, "type": "range" }
+                    ]},
+                    { "id": "insuredAmount", "name": "保险金额调整系数", "applicableTo": ["all"],
+                      "note": "保险金额单位为亿元；上表范围内未列明的保险金额对应的调整系数可按线性插值法计算", "rows": [
+                        { "parameter": "≤0.1亿元", "min": 1.2, "max": 1.3, "type": "range" },
+                        { "parameter": "0.5亿元", "value": 1.1, "type": "fixed" },
+                        { "parameter": "1亿元", "value": 1.0, "type": "fixed" },
+                        { "parameter": "2亿元", "value": 0.95, "type": "fixed" },
+                        { "parameter": "5亿元", "value": 0.9, "type": "fixed" },
+                        { "parameter": "10亿元", "value": 0.8, "type": "fixed" },
+                        { "parameter": "50亿元", "value": 0.7, "type": "fixed" },
+                        { "parameter": "≥100亿元", "min": 0.5, "max": 0.6, "type": "range" }
+                    ]},
+                    { "id": "naturalDisaster", "name": "自然灾害风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较低", "min": 0.5, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "terrain", "name": "地势调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较高", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较低", "min": 1.2, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "fireExplosion", "name": "火灾爆炸隐患调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较少", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较多", "min": 1.2, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "firePrevention", "name": "防火措施调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "完善", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "较完善", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "不完善", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "storageType", "name": "存储物品类型调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "易燃易爆物品", "value": 1.5, "type": "fixed" },
+                        { "parameter": "可燃物", "value": 1.2, "type": "fixed" },
+                        { "parameter": "难燃或不燃物", "value": 1.0, "type": "fixed" }
+                    ]},
+                    { "id": "explosiveStorage", "name": "易燃易爆物品存放位置调整系数", "applicableTo": ["all"],
+                      "note": "若无易燃易爆物品则本调整系数取值为1.0", "rows": [
+                        { "parameter": "是（存放在危险品仓库中）", "value": 1.0, "type": "fixed" },
+                        { "parameter": "否（未存放在危险品仓库中）", "value": 1.2, "type": "fixed" }
+                    ]},
+                    { "id": "processRisk", "name": "生产工艺风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "safetySystem", "name": "安全生产制度与措施调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "安全生产制度与措施完善", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "安全生产制度与措施较完善", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "安全生产制度与措施不完善", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "renewal", "name": "续保调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "新保", "value": 1.0, "type": "fixed" },
+                        { "parameter": "续保一年", "value": 0.9, "type": "fixed" },
+                        { "parameter": "续保两年", "value": 0.85, "type": "fixed" },
+                        { "parameter": "续保三年及以上", "value": 0.8, "type": "fixed" }
+                    ]},
+                    { "id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["all"], "linkedGroup": "deductible",
+                      "note": "每次事故免赔额（万元）；未列明的免赔额可按线性插值法计算；若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "0.1万元", "value": 0.98, "type": "fixed" },
+                        { "parameter": "0.2万元", "value": 0.97, "type": "fixed" },
+                        { "parameter": "0.5万元", "value": 0.94, "type": "fixed" },
+                        { "parameter": "1万元", "value": 0.9, "type": "fixed" },
+                        { "parameter": "2万元", "value": 0.85, "type": "fixed" },
+                        { "parameter": "5万元", "value": 0.78, "type": "fixed" },
+                        { "parameter": "10万元", "value": 0.71, "type": "fixed" },
+                        { "parameter": "20万元", "value": 0.64, "type": "fixed" },
+                        { "parameter": "50万元", "value": 0.53, "type": "fixed" },
+                        { "parameter": "≥100万元", "min": 0.4, "max": 0.46, "type": "range" }
+                    ]},
+                    { "id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["all"], "linkedGroup": "deductible",
+                      "note": "每次事故免赔率；若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "10%", "value": 0.9, "type": "fixed" },
+                        { "parameter": "20%", "value": 0.8, "type": "fixed" },
+                        { "parameter": "30%", "value": 0.7, "type": "fixed" }
+                    ]},
+                    { "id": "lossHistory", "name": "历史事故与损失情况调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "极少", "min": 0.5, "max": 0.7, "type": "range" },
+                        { "parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较多", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "buildingStructure", "name": "建筑结构调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "钢筋混凝土结构", "min": 0.8, "max": 0.85, "type": "range" },
+                        { "parameter": "钢结构", "min": 0.85, "max": 1.0, "type": "range" },
+                        { "parameter": "砖木结构", "min": 1.05, "max": 1.1, "type": "range" },
+                        { "parameter": "其他", "min": 1.1, "max": 1.2, "type": "range" }
+                    ]},
+                    { "id": "fireStation", "name": "公共消防队调整系数", "applicableTo": ["all"],
+                      "note": "公共消防队到达标的所在地需要时间（分钟）", "rows": [
+                        { "parameter": "≤15分钟", "min": 0.8, "max": 1.0, "type": "range" },
+                        { "parameter": "（15，30]分钟", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞30分钟", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "[0，20%]", "min": 0.5, "max": 0.6, "type": "range" },
+                        { "parameter": "（20%，45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range" },
+                        { "parameter": "（45%，70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "（70%，95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞95%", "min": 1.2, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]}
                 ]
             }
         }
@@ -533,112 +551,130 @@ MC_PRODUCTS = {
     "propertyComprehensive": {
         "productName": "财产综合险",
         "productType": "property",
-        "amountUnit": "亿元",
+        "amountUnit": "元",
         "amountLabel": "保险金额",
         "premiumCap": 0.70,
+        "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+        "formulaNote": "若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算；短期承保保险费根据条款所附短期费率表计收",
         "versions": {
             "original": {
                 "label": "财产综合险费率",
-                "baseRates": {"default": 0.0017},
+                "baseRates": { "default": 0.0017 },
                 "coefficients": [
-                    {"id": "propertyType", "name": "财产类别调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "房屋建筑", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "机器设备", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "存货", "min": 1.0, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "buildingStructure", "name": "建筑结构调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "钢结构/钢混结构", "min": 0.7, "max": 0.9, "type": "range"},
-                         {"parameter": "砖混结构", "min": 0.9, "max": 1.1, "type": "range"},
-                         {"parameter": "砖木/木结构", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "fireProtection", "name": "消防设施调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "完善（自动喷淋+报警）", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "较完善（灭火器+消火栓）", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "不完善", "min": 1.0, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "securityMeasures", "name": "安全措施调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "24小时监控+保安", "min": 0.7, "max": 0.9, "type": "range"},
-                         {"parameter": "基本安保措施", "value": 1.0, "type": "fixed"},
-                         {"parameter": "安保措施不足", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "location", "name": "地理位置调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "非自然灾害高发区", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "一般地区", "value": 1.0, "type": "fixed"},
-                         {"parameter": "自然灾害高发区", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "deductibleProp", "name": "免赔额/免赔率调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高免赔（≥10万或5%）", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低免赔/零免赔", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "lossHistory", "name": "历史赔付调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "insuredAmount", "name": "保险金额规模调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "＞10亿元", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "5-10亿元", "min": 0.85, "max": 0.95, "type": "range"},
-                         {"parameter": "1-5亿元", "value": 1.0, "type": "fixed"},
-                         {"parameter": "＜1亿元", "min": 1.05, "max": 1.2, "type": "range"}
-                     ]},
-                    {"id": "industryRisk", "name": "行业风险调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "低风险（办公/商业）", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "中风险（轻工制造）", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "较高风险（重工/化工）", "min": 1.0, "max": 1.3, "type": "range"},
-                         {"parameter": "高风险（易燃易爆）", "min": 1.3, "max": 2.0, "type": "range"}
-                     ]},
-                    {"id": "managementLevelProp", "name": "风险管理水平调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "优秀", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "良好", "min": 0.85, "max": 1.0, "type": "range"},
-                         {"parameter": "一般", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "较差", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "renewalProp", "name": "续保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
-                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]},
-                    {"id": "coverageScope", "name": "承保范围调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "标准承保范围", "value": 1.0, "type": "fixed"},
-                         {"parameter": "扩展暴风/洪水/地震", "min": 1.1, "max": 1.3, "type": "range"},
-                         {"parameter": "限缩承保范围", "min": 0.8, "max": 0.95, "type": "range"}
-                     ]},
-                    {"id": "policyPeriod", "name": "保险期间调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "一年期", "value": 1.0, "type": "fixed"},
-                         {"parameter": "长期（2-3年）", "min": 0.9, "max": 0.95, "type": "range"}
-                     ]},
-                    {"id": "coinsurance", "name": "共保/再保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "有再保安排", "min": 0.9, "max": 1.0, "type": "range"},
-                         {"parameter": "无再保安排", "value": 1.0, "type": "fixed"}
-                     ]},
-                    {"id": "specialAgreement", "name": "特别约定调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "标准条款", "value": 1.0, "type": "fixed"},
-                         {"parameter": "含利于被保险人条款", "min": 1.05, "max": 1.2, "type": "range"},
-                         {"parameter": "含利于保险人条款", "min": 0.85, "max": 0.95, "type": "range"}
-                     ]},
-                    {"id": "marketCompetition", "name": "市场竞争调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
-                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
-                     ]}
+                    { "id": "industry", "name": "行业类别调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "农、林、牧、渔业", "min": 1.2, "max": 2.5, "type": "range" },
+                        { "parameter": "采矿业", "min": 1.0, "max": 2.0, "type": "range" },
+                        { "parameter": "制造业", "min": 0.5, "max": 1.5, "type": "range" },
+                        { "parameter": "电力、热力、燃气及水生产和供应业，水利、环境和公共设施管理业", "min": 0.5, "max": 1.5, "type": "range" },
+                        { "parameter": "建筑业", "min": 0.8, "max": 1.5, "type": "range" },
+                        { "parameter": "批发和零售业，交通运输、仓储和邮政业", "min": 1.0, "max": 2.5, "type": "range" },
+                        { "parameter": "住宿和餐饮业，文化、体育和娱乐业", "min": 0.6, "max": 1.5, "type": "range" },
+                        { "parameter": "信息传输、软件和信息技术服务业，金融业，房地产业，租赁和商务服务业，科学研究和技术服务业，居民服务、修理和其他服务业，教育，卫生和社会工作，公共管理、社会保障和社会组织，国际组织", "min": 0.5, "max": 1.0, "type": "range" }
+                    ]},
+                    { "id": "insuredAmount", "name": "保险金额调整系数", "applicableTo": ["all"],
+                      "note": "保险金额单位为亿元；上表范围内未列明的保险金额对应的调整系数可按线性插值法计算", "rows": [
+                        { "parameter": "≤0.1亿元", "min": 1.2, "max": 1.3, "type": "range" },
+                        { "parameter": "0.5亿元", "value": 1.1, "type": "fixed" },
+                        { "parameter": "1亿元", "value": 1.0, "type": "fixed" },
+                        { "parameter": "2亿元", "value": 0.95, "type": "fixed" },
+                        { "parameter": "5亿元", "value": 0.9, "type": "fixed" },
+                        { "parameter": "10亿元", "value": 0.8, "type": "fixed" },
+                        { "parameter": "50亿元", "value": 0.7, "type": "fixed" },
+                        { "parameter": "≥100亿元", "min": 0.5, "max": 0.6, "type": "range" }
+                    ]},
+                    { "id": "naturalDisaster", "name": "自然灾害风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较低", "min": 0.5, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "terrain", "name": "地势调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较高", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较低", "min": 1.2, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "fireExplosion", "name": "火灾爆炸隐患调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较少", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较多", "min": 1.2, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "firePrevention", "name": "防火措施调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "完善", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "较完善", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "不完善", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "storageType", "name": "存储物品类型调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "易燃易爆物品", "value": 1.5, "type": "fixed" },
+                        { "parameter": "可燃物", "value": 1.2, "type": "fixed" },
+                        { "parameter": "难燃或不燃物", "value": 1.0, "type": "fixed" }
+                    ]},
+                    { "id": "explosiveStorage", "name": "易燃易爆物品存放位置调整系数", "applicableTo": ["all"],
+                      "note": "若无易燃易爆物品则本调整系数取值为1.0", "rows": [
+                        { "parameter": "是（存放在危险品仓库中）", "value": 1.0, "type": "fixed" },
+                        { "parameter": "否（未存放在危险品仓库中）", "value": 1.2, "type": "fixed" }
+                    ]},
+                    { "id": "processRisk", "name": "生产工艺风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "safetySystem", "name": "安全生产制度与措施调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "安全生产制度与措施完善", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "安全生产制度与措施较完善", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "安全生产制度与措施不完善", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "renewal", "name": "续保调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "新保", "value": 1.0, "type": "fixed" },
+                        { "parameter": "续保一年", "value": 0.9, "type": "fixed" },
+                        { "parameter": "续保两年", "value": 0.85, "type": "fixed" },
+                        { "parameter": "续保三年及以上", "value": 0.8, "type": "fixed" }
+                    ]},
+                    { "id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["all"], "linkedGroup": "deductible",
+                      "note": "每次事故免赔额（万元）；未列明的免赔额可按线性插值法计算；若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "0.1万元", "value": 0.98, "type": "fixed" },
+                        { "parameter": "0.2万元", "value": 0.97, "type": "fixed" },
+                        { "parameter": "0.5万元", "value": 0.94, "type": "fixed" },
+                        { "parameter": "1万元", "value": 0.9, "type": "fixed" },
+                        { "parameter": "2万元", "value": 0.85, "type": "fixed" },
+                        { "parameter": "5万元", "value": 0.78, "type": "fixed" },
+                        { "parameter": "10万元", "value": 0.71, "type": "fixed" },
+                        { "parameter": "20万元", "value": 0.64, "type": "fixed" },
+                        { "parameter": "50万元", "value": 0.53, "type": "fixed" },
+                        { "parameter": "≥100万元", "min": 0.4, "max": 0.46, "type": "range" }
+                    ]},
+                    { "id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["all"], "linkedGroup": "deductible",
+                      "note": "每次事故免赔率；若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "10%", "value": 0.9, "type": "fixed" },
+                        { "parameter": "20%", "value": 0.8, "type": "fixed" },
+                        { "parameter": "30%", "value": 0.7, "type": "fixed" }
+                    ]},
+                    { "id": "lossHistory", "name": "历史事故与损失情况调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "极少", "min": 0.5, "max": 0.7, "type": "range" },
+                        { "parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较多", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "buildingStructure", "name": "建筑结构调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "钢筋混凝土结构", "min": 0.8, "max": 0.85, "type": "range" },
+                        { "parameter": "钢结构", "min": 0.85, "max": 1.0, "type": "range" },
+                        { "parameter": "砖木结构", "min": 1.05, "max": 1.1, "type": "range" },
+                        { "parameter": "其他", "min": 1.1, "max": 1.2, "type": "range" }
+                    ]},
+                    { "id": "fireStation", "name": "公共消防队调整系数", "applicableTo": ["all"],
+                      "note": "公共消防队到达标的所在地需要时间（分钟）", "rows": [
+                        { "parameter": "≤15分钟", "min": 0.8, "max": 1.0, "type": "range" },
+                        { "parameter": "（15，30]分钟", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞30分钟", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "[0，20%]", "min": 0.5, "max": 0.6, "type": "range" },
+                        { "parameter": "（20%，45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range" },
+                        { "parameter": "（45%，70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "（70%，95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞95%", "min": 1.2, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]}
                 ]
             }
         }
@@ -646,198 +682,230 @@ MC_PRODUCTS = {
     "machineryBreakdown": {
         "productName": "机器损坏保险",
         "productType": "property",
-        "amountUnit": "千万元",
+        "amountUnit": "元",
         "amountLabel": "保险金额",
         "premiumCap": None,
+        "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+        "formulaNote": "短期承保保险费按条款所附短期费率表计收",
         "versions": {
             "original": {
                 "label": "机器损坏保险费率",
-                "baseRates": {"default": 0.0020},
+                "baseRates": { "default": 0.0020 },
                 "coefficients": [
-                    {"id": "machineType", "name": "机器类别调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "通用机械设备", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "精密仪器/电子设备", "min": 1.0, "max": 1.3, "type": "range"},
-                         {"parameter": "大型发电/变压设备", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "machineAge", "name": "设备年限调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "＜3年（新设备）", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "3-8年", "value": 1.0, "type": "fixed"},
-                         {"parameter": "8-15年", "min": 1.1, "max": 1.3, "type": "range"},
-                         {"parameter": "＞15年", "min": 1.3, "max": 1.6, "type": "range"}
-                     ]},
-                    {"id": "maintenanceLevel", "name": "维护保养水平调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "定期专业维保+完整记录", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "基本维保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "维保不足", "min": 1.1, "max": 1.4, "type": "range"}
-                     ]},
-                    {"id": "operatorQualification", "name": "操作人员资质调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "专业持证上岗", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "经过培训", "value": 1.0, "type": "fixed"},
-                         {"parameter": "资质不明", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "environment", "name": "使用环境调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "室内恒温恒湿", "min": 0.7, "max": 0.9, "type": "range"},
-                         {"parameter": "室内一般环境", "value": 1.0, "type": "fixed"},
-                         {"parameter": "室外/恶劣环境", "min": 1.1, "max": 1.4, "type": "range"}
-                     ]},
-                    {"id": "deductibleMach", "name": "免赔额调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高免赔（≥保额1%）", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低免赔/零免赔", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "lossHistoryMach", "name": "历史赔付调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "insuredAmountMach", "name": "保险金额规模调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "＞5000万元", "min": 0.75, "max": 0.9, "type": "range"},
-                         {"parameter": "1000-5000万元", "value": 1.0, "type": "fixed"},
-                         {"parameter": "＜1000万元", "min": 1.05, "max": 1.2, "type": "range"}
-                     ]},
-                    {"id": "sparePartsAvail", "name": "备品备件可获得性调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "国产常见型号", "min": 0.8, "max": 0.95, "type": "range"},
-                         {"parameter": "进口但有国内代理", "value": 1.0, "type": "fixed"},
-                         {"parameter": "特殊定制/停产型号", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "powerSupply", "name": "供电质量调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "双回路+UPS", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般供电", "value": 1.0, "type": "fixed"},
-                         {"parameter": "供电不稳定", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "renewalMach", "name": "续保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
-                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]},
-                    {"id": "manufacturer", "name": "制造商/品牌调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "知名品牌/可靠性高", "min": 0.85, "max": 0.95, "type": "range"},
-                         {"parameter": "一般品牌", "value": 1.0, "type": "fixed"},
-                         {"parameter": "非知名品牌", "min": 1.05, "max": 1.15, "type": "range"}
-                     ]},
-                    {"id": "marketMach", "name": "市场竞争调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
-                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
-                     ]}
+                    { "id": "industry", "name": "行业调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "农、林、牧、渔业", "min": 1.2, "max": 2.5, "type": "range" },
+                        { "parameter": "采矿业", "min": 1.0, "max": 2.0, "type": "range" },
+                        { "parameter": "制造业", "min": 0.5, "max": 1.5, "type": "range" },
+                        { "parameter": "电力、热力、燃气及水生产和供应业，水利、环境和公共设施管理业", "min": 0.5, "max": 1.5, "type": "range" },
+                        { "parameter": "建筑业", "min": 0.8, "max": 1.5, "type": "range" },
+                        { "parameter": "批发和零售业，交通运输、仓储和邮政业", "min": 1.0, "max": 2.5, "type": "range" },
+                        { "parameter": "住宿和餐饮业，文化、体育和娱乐业", "min": 0.6, "max": 1.5, "type": "range" },
+                        { "parameter": "信息传输、软件和信息技术服务业，金融业，房地产业，租赁和商务服务业，科学研究和技术服务业，居民服务、修理和其他服务业，教育，卫生和社会工作，公共管理、社会保障和社会组织，国际组织", "min": 0.5, "max": 1.0, "type": "range" }
+                    ]},
+                    { "id": "insuredAmount", "name": "保险金额调整系数", "applicableTo": ["all"],
+                      "note": "保险金额单位为千万元", "rows": [
+                        { "parameter": "＜1千万元", "value": 1.2, "type": "fixed" },
+                        { "parameter": "[1，5）千万元", "value": 1.1, "type": "fixed" },
+                        { "parameter": "[5，10）千万元", "value": 1.0, "type": "fixed" },
+                        { "parameter": "[10，20）千万元", "value": 0.95, "type": "fixed" },
+                        { "parameter": "[20，50）千万元", "value": 0.9, "type": "fixed" },
+                        { "parameter": "[50，100）千万元", "value": 0.8, "type": "fixed" },
+                        { "parameter": "[100，500）千万元", "value": 0.7, "type": "fixed" },
+                        { "parameter": "≥500千万元", "value": 0.6, "type": "fixed" }
+                    ]},
+                    { "id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "[0，20%]", "min": 0.5, "max": 0.6, "type": "range" },
+                        { "parameter": "（20%，45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range" },
+                        { "parameter": "（45%，70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "（70%，95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "managementLevel", "name": "管理水平调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "管理制度和措施完善", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "管理制度和措施较为完善", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "管理制度和措施不完善", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "operatorQuality", "name": "操作人员素质调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "操作人员素质高、操作经验丰富", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "操作人员素质较高、操作经验较为丰富", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "操作人员素质不高或者操作经验较少", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["all"], "linkedGroup": "deductible",
+                      "note": "每次事故免赔额（万元）；未列明的免赔额可按线性插值法计算；若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "0.1万元", "value": 0.98, "type": "fixed" },
+                        { "parameter": "0.2万元", "value": 0.95, "type": "fixed" },
+                        { "parameter": "0.5万元", "value": 0.9, "type": "fixed" },
+                        { "parameter": "1万元", "value": 0.85, "type": "fixed" },
+                        { "parameter": "2万元", "value": 0.8, "type": "fixed" },
+                        { "parameter": "5万元", "value": 0.75, "type": "fixed" },
+                        { "parameter": "10万元", "value": 0.7, "type": "fixed" }
+                    ]},
+                    { "id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["all"], "linkedGroup": "deductible",
+                      "note": "若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "5%", "value": 0.95, "type": "fixed" },
+                        { "parameter": "10%", "value": 0.9, "type": "fixed" },
+                        { "parameter": "15%", "value": 0.85, "type": "fixed" },
+                        { "parameter": "20%", "value": 0.8, "type": "fixed" },
+                        { "parameter": "25%", "value": 0.75, "type": "fixed" },
+                        { "parameter": "30%", "value": 0.7, "type": "fixed" },
+                        { "parameter": "35%", "value": 0.65, "type": "fixed" }
+                    ]},
+                    { "id": "renewal", "name": "续保调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "新保", "value": 1.0, "type": "fixed" },
+                        { "parameter": "续保一年", "value": 0.9, "type": "fixed" },
+                        { "parameter": "续保两年及以上", "min": 0.8, "max": 0.85, "type": "range" }
+                    ]},
+                    { "id": "machineRisk", "name": "机器设备风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "损坏或故障的可能性较低", "min": 0.7, "max": 1.0, "maxExclusive": True, "type": "range" },
+                        { "parameter": "损坏或故障的可能性中等", "min": 1.0, "max": 1.2, "maxExclusive": True, "type": "range" },
+                        { "parameter": "损坏或故障的可能性较高", "min": 1.2, "max": 1.5, "type": "range" }
+                    ]},
+                    { "id": "maintenance", "name": "维修保养状况调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "定期对设备进行维修保养", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "不定期对设备进行维修保养", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较少对设备进行维修保养", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "equipmentOrigin", "name": "设备产地调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "国产", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "进口", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "equipmentAge", "name": "设备使用时间调整系数", "applicableTo": ["all"],
+                      "note": "设备已使用时间（年）", "rows": [
+                        { "parameter": "≤5年", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "（5，10]年", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞10年", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "techMaturity", "name": "设备技术成熟度调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "设备所使用的技术非常成熟", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "设备所使用的技术较为成熟", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "设备所使用的技术不成熟", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "usageIntensity", "name": "设备使用强度调整系数", "applicableTo": ["all"],
+                      "note": "设备平均每日使用时间占比", "rows": [
+                        { "parameter": "≤20%", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "（20%，50%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞50%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]}
                 ]
             }
         }
     },
     "compositeHengli2025": {
-        "productName": "突发和意外的直接物质损失一切险(恒力2025版)",
+        "productName": "突发和意外的直接物质损失一切险(恒力项目专用2025版)",
         "productType": "composite",
         "amountUnit": "元",
         "amountLabel": "保险金额",
         "premiumCap": None,
         "subRisks": ["materialDamage", "machineryBreakdown"],
-        "subRiskLabels": {"materialDamage": "物质损失", "machineryBreakdown": "机器损坏"},
+        "subRiskLabels": { "materialDamage": "物质损失或损坏一切险", "machineryBreakdown": "机器损坏" },
+        "formulaText": "保险费＝物质损失或损坏一切险保险费＋机器损坏保险费",
+        "formulaNote": "物质损失或损坏一切险年保险费＝物质损失保险金额×物质损失基准费率×适用系数乘积；机器损坏年保险费＝机器损坏保险金额×机器损坏基准费率×适用系数乘积；短期承保保险费＝年保险费×保险期间天数÷365",
         "versions": {
             "hengli2025": {
                 "label": "恒力2025版费率",
-                "baseRates": {"materialDamage": 0.00089, "machineryBreakdown": 0.00362},
+                "baseRates": { "materialDamage": 0.00089, "machineryBreakdown": 0.00362 },
                 "coefficients": [
-                    {"id": "propertyTypeHL", "name": "财产类别调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "房屋建筑+机器设备+存货", "value": 1.0, "type": "fixed"},
-                         {"parameter": "仅房屋建筑", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "仅机器设备", "min": 1.0, "max": 1.2, "type": "range"}
-                     ]},
-                    {"id": "buildingStructureHL", "name": "建筑结构调整系数", "applicableTo": ["materialDamage"],
-                     "rows": [
-                         {"parameter": "钢结构/钢混结构", "min": 0.7, "max": 0.9, "type": "range"},
-                         {"parameter": "砖混结构", "min": 0.9, "max": 1.1, "type": "range"},
-                         {"parameter": "砖木/木结构", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "fireProtectionHL", "name": "消防设施调整系数", "applicableTo": ["materialDamage"],
-                     "rows": [
-                         {"parameter": "完善", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "较完善", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "不完善", "min": 1.0, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "machineTypeHL", "name": "机器类别调整系数", "applicableTo": ["machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "通用机械", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "精密仪器/电子设备", "min": 1.0, "max": 1.3, "type": "range"},
-                         {"parameter": "大型特种设备", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "machineAgeHL", "name": "设备年限调整系数", "applicableTo": ["machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "＜5年", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "5-10年", "value": 1.0, "type": "fixed"},
-                         {"parameter": "＞10年", "min": 1.1, "max": 1.4, "type": "range"}
-                     ]},
-                    {"id": "maintenanceLevelHL", "name": "维护保养水平调整系数", "applicableTo": ["machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "定期专业维保", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "基本维保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "维保不足", "min": 1.1, "max": 1.4, "type": "range"}
-                     ]},
-                    {"id": "deductibleHL", "name": "免赔额/免赔率调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "高免赔", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低免赔", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "lossHistoryHL", "name": "历史赔付调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "赔付率50%-80%", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "赔付率＞80%", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "locationHL", "name": "地理位置调整系数", "applicableTo": ["materialDamage"],
-                     "rows": [
-                         {"parameter": "非自然灾害高发区", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "一般地区", "value": 1.0, "type": "fixed"},
-                         {"parameter": "自然灾害高发区", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "industryRiskHL", "name": "行业风险调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "低风险", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "中风险", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "较高风险", "min": 1.0, "max": 1.3, "type": "range"},
-                         {"parameter": "高风险", "min": 1.3, "max": 2.0, "type": "range"}
-                     ]},
-                    {"id": "managementHL", "name": "风险管理水平调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "优秀", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "良好", "min": 0.85, "max": 1.0, "type": "range"},
-                         {"parameter": "一般", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "较差", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "renewalHL", "name": "续保调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
-                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]},
-                    {"id": "coverageScopeHL", "name": "承保范围调整系数", "applicableTo": ["materialDamage"],
-                     "rows": [
-                         {"parameter": "标准承保范围", "value": 1.0, "type": "fixed"},
-                         {"parameter": "扩展自然灾害", "min": 1.1, "max": 1.3, "type": "range"},
-                         {"parameter": "限缩承保范围", "min": 0.8, "max": 0.95, "type": "range"}
-                     ]},
-                    {"id": "marketHL", "name": "市场竞争调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"],
-                     "rows": [
-                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
-                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
-                     ]}
+                    { "id": "lossRatioHL", "name": "赔付率调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"], "rows": [
+                        { "parameter": "[0，20%]", "min": 0.5, "max": 0.6, "type": "range" },
+                        { "parameter": "（20%，45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range" },
+                        { "parameter": "（45%，70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "（70%，95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "riskMgmtHL", "name": "风险防范与管理水平调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"], "rows": [
+                        { "parameter": "较高", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "deductAmountHL", "name": "免赔额调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"], "linkedGroup": "deductibleHL",
+                      "note": "免赔额（元）；未列明的免赔额可按线性插值法计算；若同时设定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "1000元", "value": 0.98, "type": "fixed" },
+                        { "parameter": "2000元", "value": 0.96, "type": "fixed" },
+                        { "parameter": "5000元", "value": 0.93, "type": "fixed" },
+                        { "parameter": "1万元", "value": 0.88, "type": "fixed" },
+                        { "parameter": "2万元", "value": 0.83, "type": "fixed" },
+                        { "parameter": "5万元", "value": 0.73, "type": "fixed" },
+                        { "parameter": "10万元", "value": 0.63, "type": "fixed" }
+                    ]},
+                    { "id": "deductRateHL", "name": "免赔率调整系数", "applicableTo": ["materialDamage", "machineryBreakdown"], "linkedGroup": "deductibleHL",
+                      "note": "若同时设定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "5%", "value": 0.95, "type": "fixed" },
+                        { "parameter": "10%", "value": 0.9, "type": "fixed" },
+                        { "parameter": "15%", "value": 0.85, "type": "fixed" },
+                        { "parameter": "20%", "value": 0.8, "type": "fixed" },
+                        { "parameter": "25%", "value": 0.75, "type": "fixed" },
+                        { "parameter": "30%", "value": 0.7, "type": "fixed" },
+                        { "parameter": "35%", "value": 0.65, "type": "fixed" }
+                    ]},
+                    { "id": "operatorHL", "name": "操作人员调整系数", "applicableTo": ["machineryBreakdown"],
+                      "note": "仅适用于机器损坏部分", "rows": [
+                        { "parameter": "较高", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "maintenanceHL", "name": "机器设备维修保养状况调整系数", "applicableTo": ["machineryBreakdown"],
+                      "note": "仅适用于机器损坏部分；评估项：1.有无配备专业维修人员 2.是否进行日常维修保养 3.是否有检查维修保养计划 4.大修间隔是否低于半年 5.损坏/故障时是否有应急修理措施", "rows": [
+                        { "parameter": "全部正向达标", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一项未达标", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "超过一项未达标", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "machineRiskHL", "name": "机器设备风险调整系数", "applicableTo": ["machineryBreakdown"],
+                      "note": "仅适用于机器损坏部分", "rows": [
+                        { "parameter": "损坏或故障的可能性较低", "min": 0.7, "max": 1.0, "maxExclusive": True, "type": "range" },
+                        { "parameter": "损坏或故障的可能性中等", "min": 1.0, "max": 1.2, "maxExclusive": True, "type": "range" },
+                        { "parameter": "损坏或故障的可能性较高", "min": 1.2, "max": 1.5, "type": "range" }
+                    ]},
+                    { "id": "equipOriginHL", "name": "设备产地调整系数", "applicableTo": ["machineryBreakdown"],
+                      "note": "仅适用于机器损坏部分", "rows": [
+                        { "parameter": "国产", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "进口", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "equipAgeHL", "name": "设备使用时间调整系数", "applicableTo": ["machineryBreakdown"],
+                      "note": "仅适用于机器损坏部分；设备已使用时间（年）", "rows": [
+                        { "parameter": "≤5年", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "（5，10]年", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞10年", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "techMaturityHL", "name": "设备技术成熟度调整系数", "applicableTo": ["machineryBreakdown"],
+                      "note": "仅适用于机器损坏部分", "rows": [
+                        { "parameter": "设备所使用的技术非常成熟", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "设备所使用的技术较为成熟", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "设备所使用的技术不成熟", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "usageIntensityHL", "name": "设备使用强度调整系数", "applicableTo": ["machineryBreakdown"],
+                      "note": "仅适用于机器损坏部分；设备平均每日使用时间占比", "rows": [
+                        { "parameter": "≤20%", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "（20%，50%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞50%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "disasterRiskHL", "name": "标的所在地灾害风险调整系数", "applicableTo": ["materialDamage"],
+                      "note": "仅适用于物质损害或损坏一切险部分", "rows": [
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "fireEquipHL", "name": "消防设施调整系数", "applicableTo": ["materialDamage"],
+                      "note": "仅适用于物质损害或损坏一切险部分；评估项：1.防雷检测是否合格 2.防静电装置是否符合要求 3.是否安装自动检测和火灾报警系统 4.是否安装灭火喷淋系统 5.是否配置相应消防设备设施和灭火药剂", "rows": [
+                        { "parameter": "全部正向达标", "min": 0.9, "max": 1.0, "type": "range" },
+                        { "parameter": "一项未达标", "min": 1.0, "max": 1.1, "minExclusive": True, "type": "range" },
+                        { "parameter": "超过一项未达标", "min": 1.1, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "fireProofHL", "name": "建筑防火设施规范调整系数", "applicableTo": ["materialDamage"],
+                      "note": "仅适用于物质损害或损坏一切险部分；评估项：1.仓库防火等级是否达标 2.爆炸品等是否专库储存 3.通风和温度调节是否满足要求 4.垛距、通道、墙距是否达标", "rows": [
+                        { "parameter": "全部正向达标", "min": 0.9, "max": 1.0, "type": "range" },
+                        { "parameter": "一项未达标", "min": 1.0, "max": 1.1, "minExclusive": True, "type": "range" },
+                        { "parameter": "超过一项未达标", "min": 1.1, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "electricHL", "name": "电气线路调整系数", "applicableTo": ["materialDamage"],
+                      "note": "仅适用于物质损害或损坏一切险部分；评估项：1.有无电线乱接乱拉 2.电线电缆使用是否超过5年 3.线路布置是否合理 4.电气线路是否有老化现象 5.库房中是否有叉车充电现象", "rows": [
+                        { "parameter": "全部正向达标", "min": 0.9, "max": 1.0, "type": "range" },
+                        { "parameter": "一项未达标", "min": 1.0, "max": 1.1, "minExclusive": True, "type": "range" },
+                        { "parameter": "超过一项未达标", "min": 1.1, "max": 1.3, "minExclusive": True, "type": "range" }
+                    ]}
                 ]
             }
         }
@@ -848,74 +916,87 @@ MC_PRODUCTS = {
         "amountUnit": "元",
         "amountLabel": "毛利润损失保险金额",
         "premiumCap": None,
+        "formulaText": "年保险费＝毛利润损失保险金额×基准费率×各项费率调整系数的乘积",
+        "formulaNote": "短期承保保险费按条款所附短期费率表计收",
         "versions": {
             "original": {
                 "label": "营业中断保险费率",
-                "baseRates": {"default": 0.0011},
+                "baseRates": { "default": 0.0011 },
                 "coefficients": [
-                    {"id": "industryBI", "name": "行业类别调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "低风险行业（服务/零售）", "min": 0.7, "max": 0.9, "type": "range"},
-                         {"parameter": "中风险行业（一般制造）", "value": 1.0, "type": "fixed"},
-                         {"parameter": "高风险行业（化工/能源）", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "indemnityPeriod", "name": "赔偿期间调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "6个月", "min": 0.7, "max": 0.8, "type": "range"},
-                         {"parameter": "12个月", "value": 1.0, "type": "fixed"},
-                         {"parameter": "18个月", "min": 1.2, "max": 1.4, "type": "range"},
-                         {"parameter": "24个月", "min": 1.4, "max": 1.6, "type": "range"}
-                     ]},
-                    {"id": "waitingPeriod", "name": "等待期调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "无等待期", "min": 1.1, "max": 1.2, "type": "range"},
-                         {"parameter": "3天", "value": 1.0, "type": "fixed"},
-                         {"parameter": "7天", "min": 0.9, "max": 0.95, "type": "range"},
-                         {"parameter": "14天及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]},
-                    {"id": "supplyChainRisk", "name": "供应链依赖度调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "供应商分散/可替代", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般依赖", "value": 1.0, "type": "fixed"},
-                         {"parameter": "高度依赖单一供应商", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "backupFacility", "name": "备用设施/预案调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "有完善备用设施和预案", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "有基本预案", "value": 1.0, "type": "fixed"},
-                         {"parameter": "无备用设施和预案", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "lossHistoryBI", "name": "历史赔付调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "赔付率＞50%", "min": 1.0, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "deductibleBI", "name": "免赔额调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高免赔", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低免赔", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "renewalBI", "name": "续保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
-                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]},
-                    {"id": "managementBI", "name": "风险管理水平调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "优秀", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "良好", "min": 0.85, "max": 1.0, "type": "range"},
-                         {"parameter": "一般", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "较差", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "marketBI", "name": "市场竞争调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
-                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
-                     ]}
+                    { "id": "maxIndemnityPeriod", "name": "最大赔偿期调整系数", "applicableTo": ["all"],
+                      "note": "上表范围内未列明的最大赔偿期对应的调整系数可按线性插值法计算", "rows": [
+                        { "parameter": "≤1个月", "value": 0.5, "type": "fixed" },
+                        { "parameter": "3个月", "value": 0.6, "type": "fixed" },
+                        { "parameter": "6个月", "value": 0.8, "type": "fixed" },
+                        { "parameter": "9个月", "value": 0.9, "type": "fixed" },
+                        { "parameter": "12个月", "value": 1.0, "type": "fixed" },
+                        { "parameter": "18个月", "value": 0.8, "type": "fixed" },
+                        { "parameter": "24个月", "value": 0.7, "type": "fixed" },
+                        { "parameter": "≥36个月", "value": 0.6, "type": "fixed" }
+                    ]},
+                    { "id": "materialContract", "name": "物质损失保险合同调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "财产基本险", "value": 0.7, "type": "fixed" },
+                        { "parameter": "财产综合险", "value": 1.0, "type": "fixed" },
+                        { "parameter": "财产一切险", "value": 1.1, "type": "fixed" },
+                        { "parameter": "其他", "min": 0.7, "max": 1.3, "type": "range" }
+                    ]},
+                    { "id": "naturalDisasterBI", "name": "自然灾害风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "极低", "min": 0.5, "max": 0.7, "type": "range" },
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "很高", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "accidentRiskBI", "name": "意外事故风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "极低", "min": 0.5, "max": 0.7, "type": "range" },
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "很高", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "recoveryAbility", "name": "恢复生产能力调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较强", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较弱", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "lossRatioBI", "name": "赔付率调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "[0，20%]", "min": 0.5, "max": 0.6, "type": "range" },
+                        { "parameter": "（20%，45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range" },
+                        { "parameter": "（45%，70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "（70%，95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "renewalBI", "name": "续保调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "新保", "value": 1.0, "type": "fixed" },
+                        { "parameter": "续保1年", "value": 0.9, "type": "fixed" },
+                        { "parameter": "续保2年", "value": 0.8, "type": "fixed" },
+                        { "parameter": "续保3年及以上", "value": 0.7, "type": "fixed" }
+                    ]},
+                    { "id": "deductAmountBI", "name": "免赔额调整系数", "applicableTo": ["all"], "linkedGroup": "deductibleBI",
+                      "note": "免赔额以毛利润额天数计；未列明的可按线性插值法计算；若同时约定免赔额和免赔期，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.1, "type": "fixed" },
+                        { "parameter": "4天的毛利润额", "value": 1.0, "type": "fixed" },
+                        { "parameter": "8天的毛利润额", "value": 0.9, "type": "fixed" },
+                        { "parameter": "12天及以上的毛利润额", "min": 0.7, "max": 0.8, "type": "range" }
+                    ]},
+                    { "id": "deductPeriodBI", "name": "免赔期调整系数", "applicableTo": ["all"], "linkedGroup": "deductibleBI",
+                      "note": "免赔期（天）；若同时约定免赔额和免赔期，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0天", "value": 1.1, "type": "fixed" },
+                        { "parameter": "4天", "value": 1.0, "type": "fixed" },
+                        { "parameter": "8天", "value": 0.9, "type": "fixed" },
+                        { "parameter": "≥12天", "min": 0.7, "max": 0.8, "type": "range" }
+                    ]},
+                    { "id": "riskPreventionBI", "name": "风险防范措施调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较好", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较差", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "auditExpenseBI", "name": "审计费用赔偿限额调整系数", "applicableTo": ["all"],
+                      "note": "审计费用赔偿限额÷毛利润损失保险金额；未列明的可按线性插值法计算", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "5%", "value": 1.05, "type": "fixed" },
+                        { "parameter": "≥10%", "min": 1.1, "max": 1.2, "type": "range" }
+                    ]}
                 ]
             }
         }
@@ -927,53 +1008,62 @@ MC_PRODUCTS = {
         "amountLabel": "保险金额",
         "premiumCap": None,
         "extraFields": ["dailyCashTurnover"],
+        "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+        "formulaNote": "短期承保保险费＝年保险费×保险期间天数÷365",
         "versions": {
             "original": {
                 "label": "现金综合保险费率",
-                "baseRates": {"default": 0.00082},
+                "baseRates": { "default": 0.00082 },
                 "coefficients": [
-                    {"id": "cashStorageMethod", "name": "现金保管方式调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "银行级保险柜+双人管理", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准保险柜", "value": 1.0, "type": "fixed"},
-                         {"parameter": "简易保管设施", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "transportSecurity", "name": "运送安全措施调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "专业押运公司", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "自行押运（双人+专车）", "value": 1.0, "type": "fixed"},
-                         {"parameter": "简易运送", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "securitySystem", "name": "安防系统调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "完善（监控+报警+保安）", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "基本安防", "value": 1.0, "type": "fixed"},
-                         {"parameter": "安防不足", "min": 1.1, "max": 1.4, "type": "range"}
-                     ]},
-                    {"id": "locationCash", "name": "经营地点调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "商业中心/治安良好区", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般商业区", "value": 1.0, "type": "fixed"},
-                         {"parameter": "偏远/治安较差区", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "lossHistoryCash", "name": "历史赔付调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "赔付率＞50%", "min": 1.0, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "deductibleCash", "name": "免赔额调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高免赔", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低免赔", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "renewalCash", "name": "续保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
-                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]}
+                    { "id": "turnoverRatio", "name": "营业额调整系数", "applicableTo": ["all"],
+                      "note": "保险金额÷平均每日现金营业额", "rows": [
+                        { "parameter": "＜1", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range" },
+                        { "parameter": "[1，2）", "min": 0.9, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "[2，3）", "min": 0.8, "max": 0.9, "minExclusive": True, "type": "range" },
+                        { "parameter": "≥3", "min": 0.7, "max": 0.8, "type": "range" }
+                    ]},
+                    { "id": "subjectType", "name": "标的类型调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "否（不包含运输途中的现金）", "min": 0.5, "max": 0.7, "type": "range" },
+                        { "parameter": "是（包含运输途中的现金）", "min": 1.0, "max": 1.5, "type": "range" }
+                    ]},
+                    { "id": "transportRisk", "name": "运输风险调整系数", "applicableTo": ["all"],
+                      "note": "若不承保运输途中的现金，则本调整系数取值为1.0", "rows": [
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "safetyMgmt", "name": "安全管理制度与措施调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "安全管理制度与措施完善", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "安全管理制度与措施较完善", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "安全管理制度与措施不完善", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "lossHistoryCash", "name": "历史事故与损失情况调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "极少", "min": 0.5, "max": 0.7, "type": "range" },
+                        { "parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较多", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "renewalCash", "name": "续保调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "新保", "value": 1.0, "type": "fixed" },
+                        { "parameter": "续保一年", "value": 0.9, "type": "fixed" },
+                        { "parameter": "续保两年", "value": 0.85, "type": "fixed" },
+                        { "parameter": "续保三年及以上", "value": 0.8, "type": "fixed" }
+                    ]},
+                    { "id": "deductAmountCash", "name": "免赔额调整系数", "applicableTo": ["all"], "linkedGroup": "deductibleCash",
+                      "note": "每次事故免赔额（元）；未列明的可按线性插值法计算；若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "2000元", "value": 0.9, "type": "fixed" },
+                        { "parameter": "5000元", "value": 0.8, "type": "fixed" },
+                        { "parameter": "≥10000元", "min": 0.6, "max": 0.7, "type": "range" }
+                    ]},
+                    { "id": "deductRateCash", "name": "免赔率调整系数", "applicableTo": ["all"], "linkedGroup": "deductibleCash",
+                      "note": "每次事故免赔率；若同时约定免赔额和免赔率，以两者调整系数的低者取值", "rows": [
+                        { "parameter": "0", "value": 1.0, "type": "fixed" },
+                        { "parameter": "10%", "value": 0.9, "type": "fixed" },
+                        { "parameter": "20%", "value": 0.8, "type": "fixed" },
+                        { "parameter": "30%", "value": 0.7, "type": "fixed" }
+                    ]}
                 ]
             }
         }
@@ -984,66 +1074,66 @@ MC_PRODUCTS = {
         "amountUnit": "元",
         "amountLabel": "保险金额",
         "premiumCap": None,
-        "merchantTypes": {"wholesale": "批发商", "retail": "零售商"},
+        "merchantTypes": { "wholesale": "批发商/制造商", "retail": "零售商" },
         "coverageCategories": {
-            "storeDisplay": {"label": "店铺陈列", "baseRates": {"wholesale": 0.0035, "retail": 0.0040}},
-            "safeStorage": {"label": "保险柜保管", "baseRates": {"wholesale": 0.0015, "retail": 0.0018}},
-            "transit": {"label": "运输途中", "baseRates": {"wholesale": 0.0050, "retail": 0.0045}},
-            "exhibition": {"label": "展览展示", "baseRates": {"wholesale": 0.0060, "retail": 0.0055}}
+            "goodsStore": { "label": "货品损失-经营场所的货品及货品销售所得现金", "baseRates": { "wholesale": 0.00197, "retail": 0.00197 } },
+            "goodsOffsite": { "label": "货品损失-场所外存储货品", "baseRates": { "wholesale": 0.00161, "retail": 0.00159 } },
+            "goodsCustody": { "label": "货品损失-代保管货品", "baseRates": { "wholesale": 0.00151, "retail": 0.00151 } },
+            "businessProperty": { "label": "营业财产损失保险-营业财产", "baseRates": { "wholesale": 0.00083, "retail": 0.00083 } }
         },
+        "formulaText": "货品损失年保险费＝货品损失保险金额×货品损失基准费率×各项调整系数乘积",
+        "formulaNote": "营业财产损失年保险费＝营业财产保险金额×营业财产基准费率×各项调整系数乘积；短期承保保险费＝年保险费×保险期间天数÷365",
         "versions": {
             "original": {
                 "label": "珠宝商综合保险费率",
                 "baseRates": {},
                 "coefficients": [
-                    {"id": "securityLevelJewel", "name": "安保等级调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高等级（武装押运+银行级保险柜+24h监控）", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "中等级（保安+标准保险柜+监控）", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低等级（基本安保）", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "locationJewel", "name": "经营地点调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高端商场/商业中心", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般商业街", "value": 1.0, "type": "fixed"},
-                         {"parameter": "偏远地区/治安较差", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "goodsType", "name": "货物类别调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "黄金/白银", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "钻石/宝石", "min": 1.0, "max": 1.2, "type": "range"},
-                         {"parameter": "高价值名表/艺术品", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "lossHistoryJewel", "name": "历史赔付调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "近3年无赔付", "min": 0.6, "max": 0.8, "type": "range"},
-                         {"parameter": "赔付率＜50%", "min": 0.8, "max": 1.0, "type": "range"},
-                         {"parameter": "赔付率＞50%", "min": 1.0, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "deductibleJewel", "name": "免赔额调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "高免赔（≥保额2%）", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "标准免赔", "value": 1.0, "type": "fixed"},
-                         {"parameter": "低免赔", "min": 1.1, "max": 1.3, "type": "range"}
-                     ]},
-                    {"id": "transitMethod", "name": "运输方式调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "专业押运车", "min": 0.7, "max": 0.85, "type": "range"},
-                         {"parameter": "普通车辆+押运人员", "value": 1.0, "type": "fixed"},
-                         {"parameter": "快递/邮寄", "min": 1.2, "max": 1.5, "type": "range"}
-                     ]},
-                    {"id": "renewalJewel", "name": "续保调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "新保", "value": 1.0, "type": "fixed"},
-                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
-                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
-                     ]},
-                    {"id": "marketJewel", "name": "市场竞争调整系数", "applicableTo": ["all"],
-                     "rows": [
-                         {"parameter": "竞争激烈", "min": 0.8, "max": 0.9, "type": "range"},
-                         {"parameter": "一般", "value": 1.0, "type": "fixed"},
-                         {"parameter": "竞争较少", "min": 1.05, "max": 1.15, "type": "range"}
-                     ]}
+                    { "id": "accidentRisk", "name": "意外事故风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "中等", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "naturalDisasterJewel", "name": "自然灾害风险调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较低", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "中等", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "deductibleJewel", "name": "免赔额调整系数", "applicableTo": ["all"],
+                      "note": "每次事故免赔额（元）；未列明的可按线性插值法计算", "rows": [
+                        { "parameter": "0", "value": 1.2, "type": "fixed" },
+                        { "parameter": "1000元", "value": 1.0, "type": "fixed" },
+                        { "parameter": "≥3000元", "min": 0.7, "max": 0.9, "type": "range" }
+                    ]},
+                    { "id": "managementJewel", "name": "管理水平调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "安全管理制度和措施完善，无明显缺陷", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "安全管理制度和措施较完善，但存在个别缺陷", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "安全管理制度和措施不完善或存在较多缺陷", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "lossRatioJewel", "name": "赔付率调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "[0，20%]", "min": 0.5, "max": 0.6, "type": "range" },
+                        { "parameter": "（20%，45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range" },
+                        { "parameter": "（45%，70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "（70%，95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "＞95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "renewalJewel", "name": "续保调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "新保", "value": 1.0, "type": "fixed" },
+                        { "parameter": "续保一年", "value": 0.9, "type": "fixed" },
+                        { "parameter": "续保两年", "value": 0.85, "type": "fixed" },
+                        { "parameter": "续保三年及以上", "value": 0.8, "type": "fixed" }
+                    ]},
+                    { "id": "securityJewel", "name": "治安状况调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "较好", "min": 0.7, "max": 1.0, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较差", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" }
+                    ]},
+                    { "id": "lossHistoryJewel", "name": "历史事故与损失情况调整系数", "applicableTo": ["all"], "rows": [
+                        { "parameter": "极少", "min": 0.5, "max": 0.7, "type": "range" },
+                        { "parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range" },
+                        { "parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range" },
+                        { "parameter": "较多", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range" },
+                        { "parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range" }
+                    ]}
                 ]
             }
         }
@@ -1428,7 +1518,7 @@ class MainInsuranceTab(QWidget):
         self.days_spin.hide()
 
         # === 通用保险金额输入（property / interruption / composite / jewelry） ===
-        self.amount_label = QLabel("保险金额(亿元):")
+        self.amount_label = QLabel("保险金额(元):")
         grid.addWidget(self.amount_label, 4, 0)
         self.amount_spin = QDoubleSpinBox()
         self.amount_spin.setRange(0, 999999999999)
@@ -1476,13 +1566,20 @@ class MainInsuranceTab(QWidget):
         self.coverage_type_label = QLabel("保障类型:")
         grid.addWidget(self.coverage_type_label, 6, 0)
         self.coverage_type_combo = QComboBox()
-        self.coverage_type_combo.addItem("店铺陈列", "storeDisplay")
-        self.coverage_type_combo.addItem("保险柜保管", "safeStorage")
-        self.coverage_type_combo.addItem("运输途中", "transit")
-        self.coverage_type_combo.addItem("展览展示", "exhibition")
+        self.coverage_type_combo.addItem("货品损失-经营场所货品及现金", "goodsStore")
+        self.coverage_type_combo.addItem("货品损失-场所外存储货品", "goodsOffsite")
+        self.coverage_type_combo.addItem("货品损失-代保管货品", "goodsCustody")
+        self.coverage_type_combo.addItem("营业财产损失保险", "businessProperty")
         grid.addWidget(self.coverage_type_combo, 6, 1)
         self.coverage_type_label.hide()
         self.coverage_type_combo.hide()
+
+        # 基准费率和公式展示标签
+        self.formula_label = QLabel("")
+        self.formula_label.setWordWrap(True)
+        self.formula_label.setStyleSheet("QLabel { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #3b82f6; }")
+        self.formula_label.setVisible(False)
+        grid.addWidget(self.formula_label, 7, 0, 1, 4)
 
         self.scroll_layout.addWidget(card)
 
@@ -1528,16 +1625,15 @@ class MainInsuranceTab(QWidget):
         self.count_label_widget.setVisible(is_liability)
         self.count_spin.setVisible(is_liability)
 
-        # 通用保险金额
+        # 通用保险金额（元）
         show_amount = is_property or is_composite or is_interruption or is_jewelry
         self.amount_label.setVisible(show_amount)
         self.amount_spin.setVisible(show_amount)
         if show_amount:
-            unit = product.get("amountUnit", "元")
             label_text = product.get("amountLabel", "保险金额")
-            self.amount_label.setText(f"{label_text}({unit}):")
             if is_composite:
-                self.amount_label.setText("物质损失保额:")
+                label_text = "物质损失或损坏一切险保额"
+            self.amount_label.setText(f"{label_text}(元):")
 
         # composite 第二保额
         self.sub_amount_label.setVisible(is_composite)
@@ -1553,6 +1649,29 @@ class MainInsuranceTab(QWidget):
         self.merchant_type_combo.setVisible(is_jewelry)
         self.coverage_type_label.setVisible(is_jewelry)
         self.coverage_type_combo.setVisible(is_jewelry)
+
+        # 基准费率和公式展示
+        if hasattr(self, 'formula_label'):
+            if not is_liability and product.get("formulaText"):
+                ver = product.get("versions", {}).get(self.selected_version, {})
+                base_rate_text = "基准费率："
+                if is_composite and ver.get("baseRates"):
+                    br = ver["baseRates"]
+                    base_rate_text += f"物质损失 {br.get('materialDamage', 0) * 100:.3f}% | 机器损坏 {br.get('machineryBreakdown', 0) * 100:.3f}%"
+                elif is_jewelry and product.get("coverageCategories"):
+                    parts = []
+                    for k, cat in product["coverageCategories"].items():
+                        parts.append(f"{cat['label'].split('-')[-1]} {cat['baseRates']['wholesale'] * 100:.3f}%")
+                    base_rate_text += " | ".join(parts)
+                elif ver.get("baseRates", {}).get("default") is not None:
+                    base_rate_text += f"{ver['baseRates']['default'] * 100:.3f}%"
+                formula_text = f"{base_rate_text}\n公式：{product['formulaText']}"
+                if product.get("formulaNote"):
+                    formula_text += f"\n{product['formulaNote']}"
+                self.formula_label.setText(formula_text)
+                self.formula_label.setVisible(True)
+            else:
+                self.formula_label.setVisible(False)
 
         # 伤残赔偿比例区域：仅 liability 显示
         if hasattr(self, 'disability_card'):
@@ -1795,11 +1914,20 @@ class MainInsuranceTab(QWidget):
         self.log_display.append(f"[{time_str}] {prefix} {msg}")
 
     def _calc_coeff_product(self, applicable):
-        """计算系数乘积，返回 (coeff_product, coeff_details, unselected_count)"""
+        """计算系数乘积，返回 (coeff_product, coeff_details, unselected_count)
+        支持 linkedGroup：同组系数取最低值而非相乘"""
         coeff_product = 1.0
         coeff_details = []
         unselected_count = 0
+        linked_groups = {}
+        standalone = []
         for coeff in applicable:
+            if coeff.get("linkedGroup"):
+                linked_groups.setdefault(coeff["linkedGroup"], []).append(coeff)
+            else:
+                standalone.append(coeff)
+        # 处理独立系数
+        for coeff in standalone:
             sel = self.coeff_selections.get(coeff["id"])
             if sel:
                 coeff_product *= sel["value"]
@@ -1808,6 +1936,22 @@ class MainInsuranceTab(QWidget):
             else:
                 coeff_details.append({"name": coeff["name"], "value": 1.0, "unselected": True})
                 unselected_count += 1
+        # 处理联动组：取组内最低值
+        for group_key, group_coeffs in linked_groups.items():
+            selected_vals = []
+            for coeff in group_coeffs:
+                sel = self.coeff_selections.get(coeff["id"])
+                if sel:
+                    selected_vals.append(sel["value"])
+                    coeff_details.append({"name": coeff["name"], "value": sel["value"], "linkedGroup": group_key})
+                    self._log(f"  系数 [{coeff['name']}] = {fmt_num(sel['value'], 4)} (联动组: {group_key})")
+                else:
+                    coeff_details.append({"name": coeff["name"], "value": 1.0, "unselected": True, "linkedGroup": group_key})
+                    unselected_count += 1
+            if selected_vals:
+                min_val = min(selected_vals)
+                coeff_product *= min_val
+                self._log(f"  联动组 [{group_key}] 取最低值: {fmt_num(min_val, 4)}")
         if unselected_count > 0:
             self._log(f"  注意: {unselected_count} 个系数未选择，按基准 1.0 计算", "warn")
         self._log(f"系数乘积: {fmt_num(coeff_product, 6)}")
