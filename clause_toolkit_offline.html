@@ -11787,6 +11787,116 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            // ====== #2 高新技术企业财产保险（一切险2025版） ======
+            hiTechProperty2025: {
+                productName: '高新技术企业财产保险（一切险2025版）',
+                productType: 'property',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: 0.70,
+                formulaText: '年保险费＝保险金额×基准费率×各项费率调整系数的乘积',
+                formulaNote: '若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算；短期承保保险费根据条款所附短期费率表计收',
+                versions: {
+                    original: {
+                        label: '高新技术企业财产保险（一切险2025版）费率',
+                        baseRates: { 'default': 0.0038 },
+                        coefficients: [
+                            { id: 'industryHTP', name: '行业调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '电子信息(0101-0106)', min: 1.0, max: 1.8, type: 'range' },
+                                { parameter: '软件(0201-0203)', min: 0.9, max: 1.5, type: 'range' },
+                                { parameter: '航空航天(0301-0302)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '光机电一体化(0401-0402)', min: 0.8, max: 1.2, type: 'range' },
+                                { parameter: '生物、医药和医疗器械(0501-0505)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '新材料(0601-0604)', min: 1.2, max: 2.0, type: 'range' },
+                                { parameter: '新能源与高效节能(0701-0702)', min: 1.2, max: 2.0, type: 'range' },
+                                { parameter: '环境保护(0801-0805)', min: 1.0, max: 2.0, type: 'range' },
+                                { parameter: '地球、空间与海洋(0901-0905)', min: 1.1, max: 2.0, type: 'range' },
+                                { parameter: '农业-优良动植物新品种(1101)', min: 0.7, max: 1.5, type: 'range' },
+                                { parameter: '农业-家畜良种胚胎(1102)', min: 0.9, max: 1.5, type: 'range' },
+                                { parameter: '农业-生物农药(1103)', min: 0.9, max: 1.2, type: 'range' },
+                                { parameter: '农业-诊断试剂与疫苗(1104)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '农业-饲料及添加剂(1105)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '农业-新型肥料(1106)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '农业-农业工程设施(1107)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '农业-农副产品贮藏加工(1108)', min: 1.0, max: 1.5, type: 'range' }
+                            ]},
+                            { id: 'regionRiskHTP', name: '区域灾害风险调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '低', min: 0.5, max: 1.0, type: 'range' },
+                                { parameter: '中', min: 1.0, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '高', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'insuredAmountHTP', name: '保险金额调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '＜1000万', min: 2.1, max: 5.0, minExclusive: true, type: 'range' },
+                                { parameter: '[1000万，1亿）', min: 0.8, max: 2.1, minExclusive: true, type: 'range' },
+                                { parameter: '[1亿，10亿）', min: 0.5, max: 0.8, minExclusive: true, type: 'range' },
+                                { parameter: '≥10亿', min: 0.2, max: 0.5, type: 'range' }
+                            ]},
+                            { id: 'deductAmountHTP', name: '免赔额调整系数', applicableTo: ['all'], linkedGroup: 'deductibleHTP',
+                              note: '免赔额与保险金额交叉查表；未列明可按线性插值法计算；若同时约定免赔额和免赔率，以低者为准',
+                              rows: [
+                                { parameter: '1000元（保额≤1000万）', value: 0.96, type: 'fixed' },
+                                { parameter: '1000元（保额约1亿）', value: 0.98, type: 'fixed' },
+                                { parameter: '2000元（保额≤1000万）', value: 0.93, type: 'fixed' },
+                                { parameter: '2000元（保额约1亿）', value: 0.96, type: 'fixed' },
+                                { parameter: '2000元（保额约10亿）', value: 0.98, type: 'fixed' },
+                                { parameter: '2000元（保额＞10亿）', value: 1.0, type: 'fixed' },
+                                { parameter: '5000元（保额≤1000万）', value: 0.87, type: 'fixed' },
+                                { parameter: '5000元（保额约1亿）', value: 0.93, type: 'fixed' },
+                                { parameter: '5000元（保额约10亿）', value: 0.96, type: 'fixed' },
+                                { parameter: '5000元（保额＞10亿）', value: 0.98, type: 'fixed' },
+                                { parameter: '1万元（保额≤1000万）', value: 0.8, type: 'fixed' },
+                                { parameter: '1万元（保额约1亿）', value: 0.87, type: 'fixed' },
+                                { parameter: '1万元（保额约10亿）', value: 0.93, type: 'fixed' },
+                                { parameter: '1万元（保额＞10亿）', value: 0.96, type: 'fixed' },
+                                { parameter: '3万元（保额≤1000万）', value: 0.66, type: 'fixed' },
+                                { parameter: '3万元（保额约1亿）', value: 0.8, type: 'fixed' },
+                                { parameter: '3万元（保额约10亿）', value: 0.87, type: 'fixed' },
+                                { parameter: '3万元（保额＞10亿）', value: 0.93, type: 'fixed' },
+                                { parameter: '5万元（保额≤1000万）', value: 0.6, type: 'fixed' },
+                                { parameter: '5万元（保额约1亿）', value: 0.66, type: 'fixed' },
+                                { parameter: '5万元（保额约10亿）', value: 0.8, type: 'fixed' },
+                                { parameter: '5万元（保额＞10亿）', value: 0.87, type: 'fixed' },
+                                { parameter: '10万元（保额≤1000万）', value: 0.52, type: 'fixed' },
+                                { parameter: '10万元（保额约1亿）', value: 0.6, type: 'fixed' },
+                                { parameter: '10万元（保额约10亿）', value: 0.66, type: 'fixed' },
+                                { parameter: '10万元（保额＞10亿）', value: 0.8, type: 'fixed' },
+                                { parameter: '20万元（保额≤1000万）', value: 0.45, type: 'fixed' },
+                                { parameter: '20万元（保额约1亿）', value: 0.52, type: 'fixed' },
+                                { parameter: '20万元（保额约10亿）', value: 0.6, type: 'fixed' },
+                                { parameter: '20万元（保额＞10亿）', value: 0.66, type: 'fixed' },
+                                { parameter: '30万元（保额约1亿）', value: 0.45, type: 'fixed' },
+                                { parameter: '30万元（保额约10亿）', value: 0.52, type: 'fixed' },
+                                { parameter: '30万元（保额＞10亿）', value: 0.6, type: 'fixed' }
+                            ]},
+                            { id: 'deductRateHTP', name: '免赔率调整系数', applicableTo: ['all'], linkedGroup: 'deductibleHTP',
+                              note: '未列明免赔率可按线性插值法计算',
+                              rows: [
+                                { parameter: '0', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.9, type: 'fixed' },
+                                { parameter: '20%', value: 0.8, type: 'fixed' },
+                                { parameter: '30%', value: 0.7, type: 'fixed' }
+                            ]},
+                            { id: 'buildingHTP', name: '建筑物结构调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '钢筋混凝土', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '钢结构', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '其他', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'riskMgmtHTP', name: '风险管理水平调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '较高', min: 0.5, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '较低', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'lossRatioHTP', name: '赔付率调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '[0，20%]', min: 0.5, max: 0.6, type: 'range' },
+                                { parameter: '（20%，45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                { parameter: '（45%，70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '（70%，95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '＞95%', min: 1.2, max: 2.0, minExclusive: true, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
