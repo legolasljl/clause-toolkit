@@ -1345,6 +1345,7 @@ class MainInsuranceTab(QWidget):
     def _on_product_change(self):
         self.selected_product = self.product_combo.currentData()
         self._refresh_version_combo()
+        self._update_params_visibility()
         self._on_version_change()
         self._log(f"切换险种: {MC_PRODUCTS[self.selected_product]['productName']}")
 
@@ -1365,14 +1366,16 @@ class MainInsuranceTab(QWidget):
         grid.setContentsMargins(16, 12, 16, 12)
         grid.setSpacing(10)
 
-        grid.addWidget(QLabel("行业类别:"), 0, 0)
+        self.industry_label_widget = QLabel("行业类别:")
+        grid.addWidget(self.industry_label_widget, 0, 0)
         self.industry_combo = QComboBox()
         self.industry_combo.addItem("一类行业", "class1")
         self.industry_combo.addItem("二类行业", "class2")
         self.industry_combo.addItem("三类行业", "class3")
         grid.addWidget(self.industry_combo, 0, 1)
 
-        grid.addWidget(QLabel("计费方式:"), 0, 2)
+        self.method_label_widget = QLabel("计费方式:")
+        grid.addWidget(self.method_label_widget, 0, 2)
         self.method_combo = QComboBox()
         self.method_combo.addItem("固定限额", "fixed")
         self.method_combo.addItem("工资总额", "salary")
@@ -1399,7 +1402,8 @@ class MainInsuranceTab(QWidget):
         self.salary_label.hide()
         self.salary_spin.hide()
 
-        grid.addWidget(QLabel("承保人数:"), 2, 0)
+        self.count_label_widget = QLabel("承保人数:")
+        grid.addWidget(self.count_label_widget, 2, 0)
         self.count_spin = QSpinBox()
         self.count_spin.setRange(1, 999999)
         self.count_spin.setValue(100)
@@ -1422,6 +1426,64 @@ class MainInsuranceTab(QWidget):
         grid.addWidget(self.days_spin, 3, 1)
         self.days_label.hide()
         self.days_spin.hide()
+
+        # === 通用保险金额输入（property / interruption / composite / jewelry） ===
+        self.amount_label = QLabel("保险金额(亿元):")
+        grid.addWidget(self.amount_label, 4, 0)
+        self.amount_spin = QDoubleSpinBox()
+        self.amount_spin.setRange(0, 999999999999)
+        self.amount_spin.setValue(10000000)
+        self.amount_spin.setDecimals(2)
+        self.amount_spin.setSuffix(" 元")
+        grid.addWidget(self.amount_spin, 4, 1)
+        self.amount_label.hide()
+        self.amount_spin.hide()
+
+        # === 恒力项目第二个保额（composite类型） ===
+        self.sub_amount_label = QLabel("机器损坏保额:")
+        grid.addWidget(self.sub_amount_label, 4, 2)
+        self.sub_amount_spin = QDoubleSpinBox()
+        self.sub_amount_spin.setRange(0, 999999999999)
+        self.sub_amount_spin.setValue(5000000)
+        self.sub_amount_spin.setDecimals(2)
+        self.sub_amount_spin.setSuffix(" 元")
+        grid.addWidget(self.sub_amount_spin, 4, 3)
+        self.sub_amount_label.hide()
+        self.sub_amount_spin.hide()
+
+        # === 现金综合保险：平均每日现金营业额 ===
+        self.daily_cash_label = QLabel("平均每日现金营业额:")
+        grid.addWidget(self.daily_cash_label, 5, 0)
+        self.daily_cash_spin = QDoubleSpinBox()
+        self.daily_cash_spin.setRange(0, 999999999)
+        self.daily_cash_spin.setValue(100000)
+        self.daily_cash_spin.setDecimals(2)
+        self.daily_cash_spin.setSuffix(" 元")
+        grid.addWidget(self.daily_cash_spin, 5, 1)
+        self.daily_cash_label.hide()
+        self.daily_cash_spin.hide()
+
+        # === 珠宝商：商户类型 + 保障类型 ===
+        self.merchant_type_label = QLabel("商户类型:")
+        grid.addWidget(self.merchant_type_label, 5, 2)
+        self.merchant_type_combo = QComboBox()
+        self.merchant_type_combo.addItem("批发商", "wholesale")
+        self.merchant_type_combo.addItem("零售商", "retail")
+        grid.addWidget(self.merchant_type_combo, 5, 3)
+        self.merchant_type_label.hide()
+        self.merchant_type_combo.hide()
+
+        self.coverage_type_label = QLabel("保障类型:")
+        grid.addWidget(self.coverage_type_label, 6, 0)
+        self.coverage_type_combo = QComboBox()
+        self.coverage_type_combo.addItem("店铺陈列", "storeDisplay")
+        self.coverage_type_combo.addItem("保险柜保管", "safeStorage")
+        self.coverage_type_combo.addItem("运输途中", "transit")
+        self.coverage_type_combo.addItem("展览展示", "exhibition")
+        grid.addWidget(self.coverage_type_combo, 6, 1)
+        self.coverage_type_label.hide()
+        self.coverage_type_combo.hide()
+
         self.scroll_layout.addWidget(card)
 
     def _on_method_change(self):
@@ -1439,8 +1501,65 @@ class MainInsuranceTab(QWidget):
         self.days_label.setVisible(is_short)
         self.days_spin.setVisible(is_short)
 
+    def _get_product_type(self):
+        """获取当前选中产品的 productType"""
+        product = MC_PRODUCTS.get(self.selected_product, {})
+        return product.get("productType", "liability")
+
+    def _update_params_visibility(self):
+        """根据产品类型动态显示/隐藏参数字段"""
+        pt = self._get_product_type()
+        product = MC_PRODUCTS.get(self.selected_product, {})
+        is_liability = pt == "liability"
+        is_property = pt == "property"
+        is_composite = pt == "composite"
+        is_interruption = pt == "interruption"
+        is_jewelry = pt == "jewelry"
+
+        # liability 专属字段
+        self.industry_label_widget.setVisible(is_liability)
+        self.industry_combo.setVisible(is_liability)
+        self.method_label_widget.setVisible(is_liability)
+        self.method_combo.setVisible(is_liability)
+        self.limit_label.setVisible(is_liability and self.method_combo.currentData() == "fixed")
+        self.limit_spin.setVisible(is_liability and self.method_combo.currentData() == "fixed")
+        self.salary_label.setVisible(is_liability and self.method_combo.currentData() == "salary")
+        self.salary_spin.setVisible(is_liability and self.method_combo.currentData() == "salary")
+        self.count_label_widget.setVisible(is_liability)
+        self.count_spin.setVisible(is_liability)
+
+        # 通用保险金额
+        show_amount = is_property or is_composite or is_interruption or is_jewelry
+        self.amount_label.setVisible(show_amount)
+        self.amount_spin.setVisible(show_amount)
+        if show_amount:
+            unit = product.get("amountUnit", "元")
+            label_text = product.get("amountLabel", "保险金额")
+            self.amount_label.setText(f"{label_text}({unit}):")
+            if is_composite:
+                self.amount_label.setText("物质损失保额:")
+
+        # composite 第二保额
+        self.sub_amount_label.setVisible(is_composite)
+        self.sub_amount_spin.setVisible(is_composite)
+
+        # 现金综合保险额外字段
+        has_daily_cash = "dailyCashTurnover" in product.get("extraFields", [])
+        self.daily_cash_label.setVisible(has_daily_cash)
+        self.daily_cash_spin.setVisible(has_daily_cash)
+
+        # 珠宝商字段
+        self.merchant_type_label.setVisible(is_jewelry)
+        self.merchant_type_combo.setVisible(is_jewelry)
+        self.coverage_type_label.setVisible(is_jewelry)
+        self.coverage_type_combo.setVisible(is_jewelry)
+
+        # 伤残赔偿比例区域：仅 liability 显示
+        if hasattr(self, 'disability_card'):
+            self.disability_card.setVisible(is_liability)
+
     def _build_disability_section(self):
-        card = GlassCard()
+        self.disability_card = card = GlassCard()
         layout = QVBoxLayout(card)
         layout.setContentsMargins(16, 12, 16, 12)
         row = QHBoxLayout()
