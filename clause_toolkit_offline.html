@@ -12279,6 +12279,185 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            // ====== #7 科技型企业财产保险（一切险） ======
+            techCorpProperty: {
+                productName: '科技型企业财产保险（一切险）',
+                productType: 'property',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: 0.70,
+                formulaText: '年保险费＝保险金额×基准费率×各项费率调整系数的乘积',
+                formulaNote: '若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算',
+                versions: {
+                    original: {
+                        label: '科技型企业财产保险（一切险）费率',
+                        baseRates: { 'default': 0.0018 },
+                        coefficients: [
+                            { id: 'industryTCP', name: '行业调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '电子信息(0101-0106)', min: 1.0, max: 1.8, type: 'range' },
+                                { parameter: '软件(0201-0203)', min: 0.9, max: 1.5, type: 'range' },
+                                { parameter: '航空航天(0301-0302)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '光机电一体化(0401-0402)', min: 0.8, max: 1.2, type: 'range' },
+                                { parameter: '生物、医药和医疗器械(0501-0505)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '新材料(0601-0604)', min: 1.2, max: 2.0, type: 'range' },
+                                { parameter: '新能源与高效节能(0701-0702)', min: 1.2, max: 2.0, type: 'range' },
+                                { parameter: '环境保护(0801-0805)', min: 1.0, max: 2.0, type: 'range' },
+                                { parameter: '地球、空间与海洋(0901-0905)', min: 1.1, max: 2.0, type: 'range' },
+                                { parameter: '农业-优良动植物新品种(1101)', min: 0.7, max: 1.5, type: 'range' },
+                                { parameter: '农业-家畜良种胚胎(1102)', min: 0.9, max: 1.5, type: 'range' },
+                                { parameter: '农业-生物农药(1103)', min: 0.9, max: 1.2, type: 'range' },
+                                { parameter: '农业-诊断试剂与疫苗(1104)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '农业-饲料及添加剂(1105)', min: 1.2, max: 1.5, type: 'range' },
+                                { parameter: '农业-新型肥料(1106)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '农业-农业工程设施(1107)', min: 1.0, max: 1.5, type: 'range' },
+                                { parameter: '农业-农副产品贮藏加工(1108)', min: 1.0, max: 1.5, type: 'range' }
+                            ]},
+                            { id: 'regionStormTCP', name: '暴风雨区域调整系数(占比22%)', applicableTo: ['all'],
+                              note: '区域调整系数＝暴风雨22%×本值+台风7%×台风值+洪水4%×洪水值+其他67%×其他值', rows: [
+                                { parameter: '一类(京、陕、青、宁、津)', min: 0.12, max: 0.54, type: 'range' },
+                                { parameter: '二类(晋、蒙、辽、连、吉、黑、沪、浙、甬、闽、厦、鲁、青岛、豫、鄂、粤、深、琼、渝、黔、藏、甘、新)', min: 0.52, max: 1.34, type: 'range' },
+                                { parameter: '三类(冀、苏、皖、赣、湘、桂、滇、川)', min: 1.27, max: 1.74, type: 'range' }
+                            ]},
+                            { id: 'regionTyphoonTCP', name: '台风区域调整系数(占比7%)', applicableTo: ['all'], rows: [
+                                { parameter: '一类(京、津、冀、晋、蒙、辽、连、吉、黑、皖、豫、鄂、川、渝、黔、滇、藏、陕、甘、青、宁、新)', min: 0.01, max: 0.05, type: 'range' },
+                                { parameter: '二类(鲁、青岛、赣、湘)', min: 0.1, max: 0.48, type: 'range' },
+                                { parameter: '三类(沪、苏、桂、琼)', min: 0.6, max: 2.44, type: 'range' },
+                                { parameter: '四类(闽、厦、浙、甬、粤、深)', min: 2.61, max: 5.13, type: 'range' }
+                            ]},
+                            { id: 'regionFloodTCP', name: '洪水区域调整系数(占比4%)', applicableTo: ['all'], rows: [
+                                { parameter: '一类(京、津、沪、藏)', min: 0.01, max: 0.08, type: 'range' },
+                                { parameter: '二类(冀、晋、蒙、辽、连、吉、黑、苏、鲁、青岛、豫、粤、深、琼、陕、甘、青、宁、新、厦)', min: 0.11, max: 0.88, type: 'range' },
+                                { parameter: '三类(浙、甬、闽、川、渝、黔、滇)', min: 1.04, max: 1.92, type: 'range' },
+                                { parameter: '四类(皖、赣、湘、桂、鄂)', min: 1.74, max: 4.45, type: 'range' }
+                            ]},
+                            { id: 'regionOtherTCP', name: '其他灾因区域调整系数(占比67%)', applicableTo: ['all'], rows: [
+                                { parameter: '一类(京、津、沪、陕、青、宁、吉、渝、川、闽、粤、琼、厦、深)', min: 0.85, max: 0.91, type: 'range' },
+                                { parameter: '二类(甘、新、晋、辽、黑、鄂、苏、皖、浙、黔、连、甬、藏)', min: 0.95, max: 1.05, type: 'range' },
+                                { parameter: '三类(赣、湘、桂、冀、鲁、豫、青岛)', min: 1.08, max: 1.14, type: 'range' },
+                                { parameter: '四类(蒙、滇)', min: 1.17, max: 1.3, type: 'range' }
+                            ]},
+                            { id: 'insuredAmountTCP', name: '保险金额调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '＜1000万', min: 2.1, max: 5.0, minExclusive: true, type: 'range' },
+                                { parameter: '[1000万，1亿）', min: 0.8, max: 2.1, minExclusive: true, type: 'range' },
+                                { parameter: '[1亿，10亿）', min: 0.5, max: 0.8, minExclusive: true, type: 'range' },
+                                { parameter: '≥10亿', min: 0.2, max: 0.5, type: 'range' }
+                            ]},
+                            { id: 'deductAmountTCP', name: '免赔额调整系数', applicableTo: ['all'], linkedGroup: 'deductibleTCP',
+                              note: '免赔额与保险金额交叉查表；若同时约定免赔额和免赔率，以低者为准', rows: [
+                                { parameter: '1000元（保额≤1000万）', value: 0.97, type: 'fixed' },
+                                { parameter: '1000元（保额约1亿）', value: 0.98, type: 'fixed' },
+                                { parameter: '2000元（保额≤1000万）', value: 0.93, type: 'fixed' },
+                                { parameter: '2000元（保额约1亿）', value: 0.96, type: 'fixed' },
+                                { parameter: '2000元（保额约10亿）', value: 0.98, type: 'fixed' },
+                                { parameter: '2000元（保额＞10亿）', value: 1.0, type: 'fixed' },
+                                { parameter: '5000元（保额≤1000万）', value: 0.87, type: 'fixed' },
+                                { parameter: '5000元（保额约1亿）', value: 0.92, type: 'fixed' },
+                                { parameter: '5000元（保额约10亿）', value: 0.96, type: 'fixed' },
+                                { parameter: '5000元（保额＞10亿）', value: 0.98, type: 'fixed' },
+                                { parameter: '1万元（保额≤1000万）', value: 0.8, type: 'fixed' },
+                                { parameter: '1万元（保额约1亿）', value: 0.86, type: 'fixed' },
+                                { parameter: '1万元（保额约10亿）', value: 0.94, type: 'fixed' },
+                                { parameter: '1万元（保额＞10亿）', value: 0.97, type: 'fixed' },
+                                { parameter: '3万元（保额≤1000万）', value: 0.66, type: 'fixed' },
+                                { parameter: '3万元（保额约1亿）', value: 0.73, type: 'fixed' },
+                                { parameter: '3万元（保额约10亿）', value: 0.86, type: 'fixed' },
+                                { parameter: '3万元（保额＞10亿）', value: 0.94, type: 'fixed' },
+                                { parameter: '5万元（保额≤1000万）', value: 0.6, type: 'fixed' },
+                                { parameter: '5万元（保额约1亿）', value: 0.66, type: 'fixed' },
+                                { parameter: '5万元（保额约10亿）', value: 0.82, type: 'fixed' },
+                                { parameter: '5万元（保额＞10亿）', value: 0.91, type: 'fixed' },
+                                { parameter: '10万元（保额≤1000万）', value: 0.52, type: 'fixed' },
+                                { parameter: '10万元（保额约1亿）', value: 0.57, type: 'fixed' },
+                                { parameter: '10万元（保额约10亿）', value: 0.73, type: 'fixed' },
+                                { parameter: '10万元（保额＞10亿）', value: 0.87, type: 'fixed' },
+                                { parameter: '20万元（保额≤1000万）', value: 0.45, type: 'fixed' },
+                                { parameter: '20万元（保额约1亿）', value: 0.49, type: 'fixed' },
+                                { parameter: '20万元（保额约10亿）', value: 0.64, type: 'fixed' },
+                                { parameter: '20万元（保额＞10亿）', value: 0.81, type: 'fixed' },
+                                { parameter: '30万元（保额约1亿）', value: 0.45, type: 'fixed' },
+                                { parameter: '30万元（保额约10亿）', value: 0.59, type: 'fixed' },
+                                { parameter: '30万元（保额＞10亿）', value: 0.77, type: 'fixed' }
+                            ]},
+                            { id: 'deductRateTCP', name: '免赔率调整系数', applicableTo: ['all'], linkedGroup: 'deductibleTCP', rows: [
+                                { parameter: '0', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.9, type: 'fixed' },
+                                { parameter: '20%', value: 0.8, type: 'fixed' },
+                                { parameter: '30%', value: 0.7, type: 'fixed' }
+                            ]},
+                            { id: 'geoLocationTCP', name: '地理位置调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '位于地势低洼处、山坡/山脚下、或临近江河海湖水库', min: 1.1, max: 1.5, type: 'range' },
+                                { parameter: '无上述情况', value: 1.0, type: 'fixed' }
+                            ]},
+                            { id: 'surroundingTCP', name: '周边环境调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '周围存在火灾爆炸隐患或毗邻高风险建筑', min: 1.1, max: 1.5, type: 'range' },
+                                { parameter: '无上述情况', value: 1.0, type: 'fixed' }
+                            ]},
+                            { id: 'specialIndustryTCP', name: '特定行业调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '生产工艺对环境要求极严格（如无尘、无菌）', min: 2.0, max: 4.0, type: 'range' },
+                                { parameter: '其他行业', value: 1.0, type: 'fixed' }
+                            ]},
+                            { id: 'buildingTCP', name: '建筑物结构调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '钢筋混凝土结构', value: 0.85, type: 'fixed' },
+                                { parameter: '钢结构', value: 0.95, type: 'fixed' },
+                                { parameter: '砖混结构', value: 1.0, type: 'fixed' },
+                                { parameter: '砖砌/石头', value: 1.05, type: 'fixed' },
+                                { parameter: '木质结构', value: 1.1, type: 'fixed' },
+                                { parameter: '其他', min: 1.0, max: 1.2, type: 'range' }
+                            ]},
+                            { id: 'venueRiskTCP', name: '场所占用性质调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '风险密集型公共营业场所（小商品市场、家具灯具城等）', min: 1.5, max: 2.0, type: 'range' },
+                                { parameter: '其他', value: 1.0, type: 'fixed' }
+                            ]},
+                            { id: 'lightningTCP', name: '防雷避雷设施调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '缺少必要的防雷避雷设施', min: 1.05, max: 1.3, type: 'range' },
+                                { parameter: '无上述情况', value: 1.0, type: 'fixed' }
+                            ]},
+                            { id: 'fireFacilityTCP', name: '消防设施调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '消防设施齐备、有效', min: 0.7, max: 1.0, type: 'range' },
+                                { parameter: '消防设施不太齐备或部分失效', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                { parameter: '消防设施不齐备或无效', min: 1.3, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'publicFireTCP', name: '公共消防队调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '距离较近、级别较高、反应较快', min: 0.8, max: 1.0, type: 'range' },
+                                { parameter: '有一定距离、级别中等、反应一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '距离较远、级别较低、反应较慢', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'floodFacilityTCP', name: '防洪设施调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '防洪设施齐备、有效', min: 0.95, max: 1.0, type: 'range' },
+                                { parameter: '防洪设施不太齐备或部分失效', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                { parameter: '防洪设施不齐备或均无效', min: 1.3, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'managementTCP', name: '管理水平调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '较高', min: 0.5, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '较低', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'lossHistoryTCP', name: '历史事故与损失情况调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '极少', min: 0.5, max: 0.7, type: 'range' },
+                                { parameter: '较少', min: 0.7, max: 1.0, minExclusive: true, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                { parameter: '较多', min: 1.2, max: 1.5, minExclusive: true, type: 'range' },
+                                { parameter: '很多', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                            ]},
+                            { id: 'renewalTCP', name: '续保调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '新保', value: 1.0, type: 'fixed' },
+                                { parameter: '续保一年', value: 0.98, type: 'fixed' },
+                                { parameter: '续保两年', value: 0.95, type: 'fixed' },
+                                { parameter: '续保三年及以上', value: 0.92, type: 'fixed' }
+                            ]},
+                            { id: 'riskDispersionTCP', name: '保险标的风险分散程度调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '分散程度较高', min: 0.85, max: 0.95, type: 'range' },
+                                { parameter: '分散程度较低', value: 1.0, type: 'fixed' }
+                            ]},
+                            { id: 'waterResistTCP', name: '保险标的耐水性调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '较高', min: 0.95, max: 1.0, type: 'range' },
+                                { parameter: '一般', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                { parameter: '较低', min: 1.3, max: 2.0, minExclusive: true, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
