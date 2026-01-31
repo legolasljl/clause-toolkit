@@ -472,7 +472,7 @@ def classify_and_extract(paragraphs, tables, filename):
             }
 
     # regulatory fallback
-    adjustment_keywords = ['保单最终保险费', '工资总额进行调整', '保费调整']
+    adjustment_keywords = ['保单最终保险费', '工资总额进行调整', '保费调整', '按保险费率补缴保险费']
     for kw in adjustment_keywords:
         if kw in full_text:
             return {
