@@ -2379,7 +2379,7 @@
 
             <!-- 操作按钮 -->
             <div class="mc-btn-row">
-                <button class="btn btn-primary" onclick="mc_calculate()">🧮 计算保费</button>
+                <button class="btn btn-primary" onclick="mc_calculate()">🧮 计算主险保费</button>
                 <button class="btn" onclick="mc_reset()">🔄 重置</button>
                 <button class="btn" id="mc_sendBtn" style="display:none; background:#10b981; color:#fff; border:none;" onclick="mc_sendToAdditional()">📤 将结果传入附加险计算</button>
             </div>
@@ -11596,7 +11596,7 @@ ${fileList}
                     formulaBreakdown += ' × (' + days + '/365)';
                 }
                 formulaBreakdown += ' = ' + mc_fmtCurrency(perPersonPremium);
-                formulaBreakdown += '\n总保费 = ' + mc_fmtCurrency(perPersonPremium) + ' × ' + employeeCount + '人 = ' + mc_fmtCurrency(totalPremium);
+                formulaBreakdown += '\n主险保费 = ' + mc_fmtCurrency(perPersonPremium) + ' × ' + employeeCount + '人 = ' + mc_fmtCurrency(totalPremium);
 
                 mc_log('每人赔偿限额: ' + perPersonLimit + '万元', 'info');
                 mc_log('每人年保费: ' + mc_fmtCurrency(perPersonPremium), 'info');
@@ -11635,7 +11635,7 @@ ${fileList}
                 mc_log('伤残赔偿比例调整: × ' + mc_fmtNum(disabilityCoeff, 3) + ' (' + disabilityDesc + ')', 'info');
             }
 
-            mc_log('总保费: ' + mc_fmtCurrency(totalPremium), 'success');
+            mc_log('主险保费: ' + mc_fmtCurrency(totalPremium), 'success');
             mc_log('--- 计算完成 ---', 'success');
 
             // 保存结果
@@ -11673,7 +11673,7 @@ ${fileList}
             // 主要数字
             html += '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px;">';
             html += '<div style="flex:1;min-width:180px;background:var(--success-bg);border-radius:12px;padding:16px;text-align:center;">';
-            html += '<div style="font-size:12px;color:var(--success-color);margin-bottom:4px;">总保费</div>';
+            html += '<div style="font-size:12px;color:var(--success-color);margin-bottom:4px;">主险保费</div>';
             html += '<div style="font-size:24px;font-weight:700;color:var(--success-color);">' + mc_fmtCurrency(r.totalPremium) + '</div>';
             html += '</div>';
             html += '<div style="flex:1;min-width:180px;background:var(--info-bg);border-radius:12px;padding:16px;text-align:center;">';

@@ -985,7 +985,7 @@ class MainInsuranceTab(QWidget):
 
     def _build_action_buttons(self):
         row = QHBoxLayout()
-        calc_btn = make_accent_button("🧮 计算保费")
+        calc_btn = make_accent_button("🧮 计算主险保费")
         calc_btn.clicked.connect(self.calculate)
         row.addWidget(calc_btn)
         reset_btn = QPushButton("🔄 重置参数")
@@ -1080,7 +1080,7 @@ class MainInsuranceTab(QWidget):
             if term_type == "short":
                 formula += f" × ({days}/365)"
             formula += f" = {fmt_currency(per_person_premium)}"
-            formula += f"\n总保费 = {fmt_currency(per_person_premium)} × {employee_count}人 = {fmt_currency(total_premium)}"
+            formula += f"\n主险保费 = {fmt_currency(per_person_premium)} × {employee_count}人 = {fmt_currency(total_premium)}"
         else:
             salary_yuan = self.salary_spin.value()
             total_premium = salary_yuan * adjusted_rate
@@ -1104,7 +1104,7 @@ class MainInsuranceTab(QWidget):
             disability_desc = f"附加伤残赔偿比例({tbl_label} · {d_opt['label']})"
             formula += f"\n\n扩展伤残赔偿比例: {fmt_currency(before_premium)} × {fmt_num(disability_coeff, 3)} = {fmt_currency(total_premium)}"
             self._log(f"伤残赔偿比例调整: × {fmt_num(disability_coeff, 3)} ({disability_desc})")
-        self._log(f"总保费: {fmt_currency(total_premium)}", "success")
+        self._log(f"主险保费: {fmt_currency(total_premium)}", "success")
         self._log("--- 计算完成 ---", "success")
         self.result = {
             "version": self.current_plan.get("label", ""), "method": method, "industryClass": industry_class,
@@ -1123,7 +1123,7 @@ class MainInsuranceTab(QWidget):
         r = self.result
         lines = [
             "═══════════════ 📊 计算结果 ═══════════════", "",
-            f"  总保费:     {fmt_currency(r['totalPremium'])}",
+            f"  主险保费:   {fmt_currency(r['totalPremium'])}",
             f"  每人保费:   {fmt_currency(r['perPersonPremium'])}", "",
             "─────────── 公式分解 ───────────",
             r["formulaBreakdown"], "",
