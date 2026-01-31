@@ -1363,6 +1363,7 @@
         .rc-type-badge.per_person_rate { background: #fffbeb; color: #d97706; }
         .rc-type-badge.per_person_base { background: #ecfeff; color: #0891b2; }
         .rc-type-badge.disability_adjust { background: #ecfdf5; color: #059669; }
+        .rc-type-badge.property_loss { background: #f0fdfa; color: #0d9488; }
         .rc-type-badge.formula_sum { background: #eff6ff; color: #2563eb; }
         .rc-type-badge.deduction { background: #fdf2f8; color: #db2777; }
         .rc-type-badge.no_calc { background: #f3f4f6; color: #6b7280; }
@@ -2434,6 +2435,7 @@
                         <option value="per_person_rate">每人费率</option>
                         <option value="per_person_base">每人定额</option>
                         <option value="disability_adjust">伤残调整</option>
+                        <option value="property_loss">财产损失</option>
                         <option value="formula_sum">求和公式</option>
                         <option value="deduction">减收</option>
                         <option value="no_calc">无需计算</option>
@@ -9127,6 +9129,7 @@ ${fileList}
             per_person_rate: { label: '每人费率', color: '#f59e0b' },
             per_person_base: { label: '每人定额', color: '#06b6d4' },
             disability_adjust: { label: '伤残调整', color: '#10b981' },
+            property_loss: { label: '财产损失', color: '#0d9488' },
             formula_sum: { label: '求和公式', color: '#3b82f6' },
             deduction: { label: '减收', color: '#ec4899' },
             no_calc: { label: '无需计算', color: '#6b7280' },
@@ -9141,6 +9144,7 @@ ${fileList}
             [['工伤补充', '特定人员'], 'per_person_rate'],
             [['药品服务', '药品费用'], 'per_person_base'],
             [['劳务关系人员'], 'disability_adjust'],
+            [['特定财产损失'], 'property_loss'],
             [['雇主法律责任', '法律费用责任'], 'formula_sum'],
             [['一次性伤残'], 'formula_sum'],
             [['突发疾病除外', '猝死除外'], 'deduction'],
@@ -9381,6 +9385,18 @@ ${fileList}
             if (detectedType === 'disability_adjust') {
                 return { ...entry, rateType: 'disability_adjust', adjustCoeffs: { ...RC_DISABILITY_ADJUST_COEFFS },
                     description: substantive[0] || '', formula: '保费 = 每人保费 × 伤残调整系数 × 人数' };
+            }
+
+            if (detectedType === 'property_loss') {
+                let basePremium = 20, baseRatePct = 1.5;
+                for (const pi of percentages) { baseRatePct = pi.value; break; }
+                for (const p of paragraphs) {
+                    const amtM = p.match(/基[本准]保险费[=＝]?\s*(\d+)\s*元/);
+                    if (amtM) { basePremium = parseInt(amtM[1]); break; }
+                }
+                return { ...entry, rateType: 'property_loss', basePremium: basePremium, baseRatePercent: baseRatePct,
+                    coefficientTables: coeffTables, description: substantive[0] || '',
+                    formula: '保费 = max(每人赔偿限额 × ' + baseRatePct + '%, ' + basePremium + '元) × 人数 × 系数' };
             }
 
             if (detectedType === 'formula_sum') {
@@ -9634,6 +9650,10 @@ ${fileList}
                 html += '<div class="rc-extra-inputs" style="margin-bottom:12px;"><label>工伤保险状态</label>' +
                     '<select id="rc_injuryInsuranceCombo" style="height:34px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;">' +
                     '<option value="with">已购买工伤保险</option><option value="without">未购买工伤保险</option></select></div>';
+                const defCount1 = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
+                html += '<div class="rc-extra-inputs" style="margin-bottom:12px;"><label>适用人数</label>' +
+                    '<input type="number" id="rc_addonCountInput" min="1" step="1" value="' + defCount1 + '" ' +
+                    'style="height:34px;width:140px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;"> 人</div>';
                 if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
             }
             if (rt === 'per_person_base') {
@@ -9647,6 +9667,23 @@ ${fileList}
                     '根据主险选择的伤残赔偿附表调整:<br>&nbsp;&nbsp;附表1: ×' + coeffs.table1 + '<br>&nbsp;&nbsp;附表2: ×' + coeffs.table2 + '<br>&nbsp;&nbsp;附表3: ×' + coeffs.table3 + '</div>';
                 if (rc_fullMainData && rc_fullMainData.disabilityTable && rc_fullMainData.disabilityTable !== 'none')
                     html += '<div style="color:#10b981;font-size:12px;font-weight:600;margin-bottom:8px;">🔗 已自动识别主险伤残附表: ' + rc_fullMainData.disabilityTable + '</div>';
+                const defCount3 = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
+                html += '<div class="rc-extra-inputs" style="margin-bottom:12px;"><label>适用人数</label>' +
+                    '<input type="number" id="rc_addonCountInput" min="1" step="1" value="' + defCount3 + '" ' +
+                    'style="height:34px;width:140px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;"> 人</div>';
+            }
+            if (rt === 'property_loss') {
+                const bp = e.basePremium || 20;
+                const br = e.baseRatePercent || 1.5;
+                html += '<div style="padding:10px;background:#f0fdfa;border:1px solid #5eead4;border-radius:8px;margin-bottom:12px;font-size:12px;">' +
+                    '基本保险费 = 基准保险费 = ' + bp + '元<br>基准费率: ' + br + '%<br>需输入本附加险的每次事故每人赔偿限额</div>';
+                const defCount4 = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">' +
+                    '<div class="rc-extra-inputs"><label>每次事故每人赔偿限额 (万元)</label>' +
+                    '<input type="number" id="rc_propertyLimitInput" step="0.1" min="0" placeholder="万元"></div>' +
+                    '<div class="rc-extra-inputs"><label>适用人数</label>' +
+                    '<input type="number" id="rc_addonCountInput" min="1" step="1" value="' + defCount4 + '"> 人</div></div>';
+                if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
             }
             if (rt === 'formula_sum') {
                 const factor = e.baseRateFactor || 1.0;
@@ -9780,7 +9817,7 @@ ${fileList}
             rc_perPersonPremium = parseFloat(document.getElementById('rc_perPersonPremiumInput').value) || 0;
             const rt = e.rateType;
             if (rt === 'regulatory' || rt === 'no_calc') return;
-            if (rc_mainPremium <= 0 && rt !== 'per_person_base') {
+            if (rc_mainPremium <= 0 && rt !== 'per_person_base' && rt !== 'property_loss') {
                 rc_log('⚠️ 请输入有效的主险保费', 'warning'); return;
             }
 
@@ -9791,6 +9828,7 @@ ${fileList}
                 per_person_rate: rc_calcPerPersonRate,
                 per_person_base: rc_calcPerPersonBase,
                 disability_adjust: rc_calcDisabilityAdjust,
+                property_loss: rc_calcPropertyLoss,
                 formula_sum: rc_calcFormulaSum,
                 deduction: rc_calcDeduction,
                 table_coefficient: rc_calcTable
@@ -9863,7 +9901,8 @@ ${fileList}
             const isWithInjury = combo && combo.value === 'with';
             const pct = isWithInjury ? (ri.with_injury_insurance || ri.default || 0) : (ri.without_injury_insurance || ri.default || 0);
             const rate = pct / 100;
-            const count = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
+            const countEl = document.getElementById('rc_addonCountInput');
+            const count = countEl ? (parseInt(countEl.value) || 1) : (rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1);
             let cprod = 1.0, cstr = '';
             if (e.coefficientTables && e.coefficientTables.length) {
                 const { product, details } = rc_getCoeffProduct(e);
@@ -9893,9 +9932,32 @@ ${fileList}
             if (rc_fullMainData) disTable = rc_fullMainData.disabilityTable || 'none';
             if (disTable === 'none' || !coeffs[disTable]) throw new Error('需要主险选择伤残赔偿附表（请先在主险计算页计算并传入附加险）');
             const coeff = coeffs[disTable];
-            const count = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
+            const countEl = document.getElementById('rc_addonCountInput');
+            const count = countEl ? (parseInt(countEl.value) || 1) : (rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1);
             const premium = rc_perPersonPremium * coeff * count;
             return { type: 'disability_adjust', premium, formulaDisplay: rc_formatCurrency(rc_perPersonPremium) + ' × ' + coeff + '(' + disTable + ') × ' + count + '人 = ' + rc_formatCurrency(premium) };
+        }
+
+        function rc_calcPropertyLoss(e) {
+            const basePremium = e.basePremium || 20;
+            const baseRatePct = e.baseRatePercent || 1.5;
+            const limitEl = document.getElementById('rc_propertyLimitInput');
+            const limitVal = limitEl ? (parseFloat(limitEl.value) || 0) : 0;
+            if (limitVal <= 0) throw new Error('请输入每次事故每人赔偿限额');
+            const countEl = document.getElementById('rc_addonCountInput');
+            const count = countEl ? (parseInt(countEl.value) || 1) : (rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1);
+            const limitYuan = limitVal * 10000;
+            const calcPremium = limitYuan * baseRatePct / 100;
+            const perPerson = Math.max(calcPremium, basePremium);
+            let cprod = 1.0, cstr = '';
+            if (e.coefficientTables && e.coefficientTables.length) {
+                const { product, details } = rc_getCoeffProduct(e);
+                cprod = product; cstr = ' × ' + details.map(d => d.value.toFixed(4)).join(' × ');
+            }
+            const premium = perPerson * count * cprod;
+            const formulaStr = 'max(' + limitVal + '万×' + baseRatePct + '%=' + rc_formatCurrency(calcPremium) + ', 基本保险费' + basePremium + '元) = ' +
+                rc_formatCurrency(perPerson) + '/人 × ' + count + '人' + cstr + ' = ' + rc_formatCurrency(premium);
+            return { type: 'property_loss', premium, formulaDisplay: formulaStr };
         }
 
         function rc_calcFormulaSum(e) {

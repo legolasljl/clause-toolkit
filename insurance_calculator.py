@@ -1305,6 +1305,7 @@ ADDON_TYPES = {
     "per_person_rate": {"label": "每人费率", "color": "#f59e0b"},
     "per_person_base": {"label": "每人定额", "color": "#06b6d4"},
     "disability_adjust": {"label": "伤残调整", "color": "#10b981"},
+    "property_loss": {"label": "财产损失", "color": "#0d9488"},
     "formula_sum": {"label": "求和公式", "color": "#3b82f6"},
     "deduction": {"label": "减收", "color": "#ec4899"},
     "no_calc": {"label": "无需计算", "color": "#6b7280"},
@@ -1317,6 +1318,7 @@ ADDON_TYPES = {
 ADDON_KEYWORD_MAP = [
     (["误工费"], "modifier_coeff"),
     (["突发疾病身故"], "sudden_death"),
+    (["特定财产损失"], "property_loss"),
     (["工伤补充", "特定人员"], "per_person_rate"),
     (["药品服务", "药品费用"], "per_person_base"),
     (["劳务关系人员"], "disability_adjust"),
@@ -1740,6 +1742,25 @@ class AddonInsuranceTab(QWidget):
                     "description": substantive[0] if substantive else "",
                     "formula": "保费 = 每人保费 × 费率% × 人数 × 系数"}
 
+        # --- property_loss: 员工个人特定财产损失 ---
+        if detected_type == "property_loss":
+            base_premium = 20  # 基本保险费=基准保险费=20元
+            base_rate_pct = 1.5  # 基准费率1.5%
+            for pi in percentages:
+                base_rate_pct = pi["value"]
+                break
+            for p in paragraphs:
+                amt_m = re.search(r"基[本准]保险费[=＝]?\s*(\d+)\s*元", p)
+                if amt_m:
+                    base_premium = int(amt_m.group(1))
+                    break
+            return {**entry, "rateType": "property_loss",
+                    "basePremium": base_premium,
+                    "baseRatePercent": base_rate_pct,
+                    "coefficientTables": coeff_tables,
+                    "description": substantive[0] if substantive else "",
+                    "formula": f"保费 = 每人赔偿限额 × {base_rate_pct}% × 人数 × 系数（基本保险费{base_premium}元）"}
+
         # --- per_person_base: 药品服务 ---
         if detected_type == "per_person_base":
             base_amount = 300  # 默认
@@ -2046,6 +2067,46 @@ class AddonInsuranceTab(QWidget):
             self.injury_insurance_combo.addItem("已购买工伤保险", "with")
             self.injury_insurance_combo.addItem("未购买工伤保险", "without")
             self.detail_layout.addWidget(self.injury_insurance_combo)
+            # 独立人数输入（不一定全员）
+            default_count = self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1
+            count_row = QHBoxLayout()
+            count_row.addWidget(QLabel("适用人数:"))
+            self.addon_count_input = QSpinBox()
+            self.addon_count_input.setRange(1, 999999)
+            self.addon_count_input.setValue(default_count)
+            self.addon_count_input.setSuffix(" 人")
+            count_row.addWidget(self.addon_count_input)
+            count_row.addStretch()
+            count_w = QWidget()
+            count_w.setLayout(count_row)
+            self.detail_layout.addWidget(count_w)
+            for ti, table in enumerate(entry.get("coefficientTables", [])):
+                self._render_addon_coeff_table(table, ti)
+
+        elif rate_type == "property_loss":
+            bp = entry.get("basePremium", 20)
+            br = entry.get("baseRatePercent", 1.5)
+            hint = QLabel(f"基本保险费 = 基准保险费 = {bp}元\n基准费率: {br}%\n需输入本附加险的每次事故每人赔偿限额")
+            hint.setWordWrap(True)
+            hint.setStyleSheet(f"padding: 10px; background: #f0fdfa; border: 1px solid #5eead4; border-radius: 8px; font-size: 12px;")
+            self.detail_layout.addWidget(hint)
+            grid = QGridLayout()
+            grid.addWidget(QLabel("每次事故每人赔偿限额(万元):"), 0, 0)
+            self.property_limit_input = QDoubleSpinBox()
+            self.property_limit_input.setRange(0, 9999)
+            self.property_limit_input.setDecimals(1)
+            self.property_limit_input.setSuffix(" 万元")
+            grid.addWidget(self.property_limit_input, 0, 1)
+            default_count = self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1
+            grid.addWidget(QLabel("适用人数:"), 1, 0)
+            self.addon_count_input = QSpinBox()
+            self.addon_count_input.setRange(1, 999999)
+            self.addon_count_input.setValue(default_count)
+            self.addon_count_input.setSuffix(" 人")
+            grid.addWidget(self.addon_count_input, 1, 1)
+            grid_w = QWidget()
+            grid_w.setLayout(grid)
+            self.detail_layout.addWidget(grid_w)
             for ti, table in enumerate(entry.get("coefficientTables", [])):
                 self._render_addon_coeff_table(table, ti)
 
@@ -2071,6 +2132,19 @@ class AddonInsuranceTab(QWidget):
                     auto_label = QLabel(f"🔗 已自动识别主险伤残附表: {dis_table}")
                     auto_label.setStyleSheet(f"color: #10b981; font-size: 12px; font-weight: 600;")
                     self.detail_layout.addWidget(auto_label)
+            # 独立人数输入（不一定全员）
+            default_count = self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1
+            count_row = QHBoxLayout()
+            count_row.addWidget(QLabel("适用人数:"))
+            self.addon_count_input = QSpinBox()
+            self.addon_count_input.setRange(1, 999999)
+            self.addon_count_input.setValue(default_count)
+            self.addon_count_input.setSuffix(" 人")
+            count_row.addWidget(self.addon_count_input)
+            count_row.addStretch()
+            count_w = QWidget()
+            count_w.setLayout(count_row)
+            self.detail_layout.addWidget(count_w)
 
         elif rate_type == "formula_sum":
             factor = entry.get("baseRateFactor", 1.0)
@@ -2228,7 +2302,7 @@ class AddonInsuranceTab(QWidget):
         rate_type = entry.get("rateType", "")
         if rate_type in ("regulatory", "no_calc"):
             return
-        if self.main_premium <= 0 and rate_type not in ("per_person_base",):
+        if self.main_premium <= 0 and rate_type not in ("per_person_base", "property_loss"):
             self._log("请输入有效的主险保费", "warn")
             return
         try:
@@ -2239,6 +2313,7 @@ class AddonInsuranceTab(QWidget):
                 "per_person_rate": self._calc_per_person_rate,
                 "per_person_base": self._calc_per_person_base,
                 "disability_adjust": self._calc_disability_adjust,
+                "property_loss": self._calc_property_loss,
                 "formula_sum": self._calc_formula_sum,
                 "deduction": self._calc_deduction,
                 "table_coefficient": self._calc_table,
@@ -2330,7 +2405,8 @@ class AddonInsuranceTab(QWidget):
         else:
             pct = rate_info.get("without_injury_insurance", rate_info.get("default", 0))
         rate = pct / 100
-        count = self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1
+        count_input = getattr(self, 'addon_count_input', None)
+        count = count_input.value() if count_input else (self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1)
         product = 1.0
         coeff_str = ""
         if entry.get("coefficientTables"):
@@ -2364,11 +2440,36 @@ class AddonInsuranceTab(QWidget):
         if dis_table == "none" or dis_table not in coeffs:
             raise ValueError("需要主险选择伤残赔偿附表（请先在主险计算Tab选择伤残附表并传入）")
         coeff = coeffs[dis_table]
-        count = self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1
+        count_input = getattr(self, 'addon_count_input', None)
+        count = count_input.value() if count_input else (self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1)
         premium = self.per_person_premium * coeff * count
         formula_str = (f"{fmt_currency(self.per_person_premium)} × {coeff}({dis_table}) × {count}人 = "
                        f"{fmt_currency(premium)}")
         return {"type": "disability_adjust", "premium": premium, "formulaDisplay": formula_str}
+
+    def _calc_property_loss(self, entry):
+        """员工个人特定财产损失: max(限额×费率%, 基本保险费) × 人数 × 系数积"""
+        base_premium = entry.get("basePremium", 20)
+        base_rate_pct = entry.get("baseRatePercent", 1.5)
+        limit_input = getattr(self, 'property_limit_input', None)
+        limit_val = limit_input.value() if limit_input else 0
+        count_input = getattr(self, 'addon_count_input', None)
+        count = count_input.value() if count_input else (self.full_main_data.get("employeeCount", 1) if self.full_main_data else 1)
+        if limit_val <= 0:
+            raise ValueError("请输入每次事故每人赔偿限额")
+        limit_yuan = limit_val * 10000
+        calc_premium = limit_yuan * base_rate_pct / 100
+        per_person = max(calc_premium, base_premium)
+        product = 1.0
+        coeff_str = ""
+        if entry.get("coefficientTables"):
+            product, details = self._get_coeff_product(entry)
+            coeff_str = " × " + " × ".join(f"{d['value']:.4f}" for d in details)
+        premium = per_person * count * product
+        formula_str = (f"max({limit_val}万×{base_rate_pct}%={fmt_currency(calc_premium)}, "
+                       f"基本保险费{base_premium}元) = {fmt_currency(per_person)}/人 × {count}人{coeff_str} = "
+                       f"{fmt_currency(premium)}")
+        return {"type": "property_loss", "premium": premium, "formulaDisplay": formula_str}
 
     def _calc_formula_sum(self, entry):
         """雇主法律责任/一次性伤残: Σ公式"""
