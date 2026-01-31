@@ -13055,6 +13055,195 @@ ${fileList}
                         ]
                     }
                 }
+            },
+            petrochemical: {
+                productName: '石油化工企业财产一切险',
+                productType: 'multiRiskSum',
+                amountUnit: '元',
+                amountLabel: '保险金额',
+                premiumCap: null,
+                formulaText: '年保费 = 保险金额 × Σ(灾因基准费率 × 灾因调整系数乘积 × 赔付率调整系数)',
+                formulaNote: '适用于石油化工企业整体投保；多产品企业按产量加权计算生产类型及规模系数',
+                versions: {
+                    original: {
+                        label: '石油化工企业财产一切险费率',
+                        risks: [
+                            {
+                                id: 'fireExplosion', name: '火灾及爆炸',
+                                baseRateTable: {
+                                    type: 'plantType',
+                                    data: { '炼油厂': 0.00061, '石油化工厂': 0.00045 }
+                                },
+                                deductibleNote: '基准免赔额：50万元或损失的5%，两者以高者为准'
+                            },
+                            {
+                                id: 'rainFlood', name: '暴雨及洪水',
+                                baseRateTable: {
+                                    type: 'plantType',
+                                    data: { '炼油厂': 0.00027, '石油化工厂': 0.00023 }
+                                },
+                                deductibleNote: '基准免赔额：50万或损失的5%，两者以高者为准'
+                            },
+                            {
+                                id: 'windNatural', name: '风灾及其他自然灾害',
+                                baseRateTable: {
+                                    type: 'plantType',
+                                    data: { '炼油厂': 0.00015, '石油化工厂': 0.00015 }
+                                },
+                                deductibleNote: '基准免赔额：15万或损失的5%，两者以高者为准'
+                            },
+                            {
+                                id: 'humanError', name: '人工疏忽及失误',
+                                baseRateTable: {
+                                    type: 'plantType',
+                                    data: { '炼油厂': 0.00030, '石油化工厂': 0.00027 }
+                                },
+                                deductibleNote: '基准免赔额：20万或损失的5%，两者以高者为准'
+                            }
+                        ],
+                        coefficients: [
+                            { id: 'productionTypeScale', name: '生产类型及规模', applicableTo: ['fireExplosion', 'humanError'], rows: [
+                                { parameter: '炼油厂 年加工量＜300万吨', value: 1.05, type: 'fixed' },
+                                { parameter: '炼油厂 年加工量300-800万吨', value: 1.00, type: 'fixed' },
+                                { parameter: '炼油厂 年加工量≥800万吨', value: 0.95, type: 'fixed' },
+                                { parameter: '石化厂 合成树脂及塑料＜20万吨', value: 1.05, type: 'fixed' },
+                                { parameter: '石化厂 合成树脂及塑料≥20万吨', value: 1.03, type: 'fixed' },
+                                { parameter: '石化厂 合纤原料及聚合物/合成纤维＜20万吨', value: 1.03, type: 'fixed' },
+                                { parameter: '石化厂 合纤原料及聚合物/合成纤维≥20万吨', value: 1.00, type: 'fixed' },
+                                { parameter: '石化厂 合成橡胶＜20万吨', value: 0.97, type: 'fixed' },
+                                { parameter: '石化厂 合成橡胶≥20万吨', value: 0.95, type: 'fixed' },
+                                { parameter: '石化厂 基本有机原料＜30万吨', value: 1.05, type: 'fixed' },
+                                { parameter: '石化厂 基本有机原料≥30万吨', value: 1.03, type: 'fixed' },
+                                { parameter: '石化厂 其它产品', value: 1.05, type: 'fixed' }
+                            ]},
+                            { id: 'ethyleneCracking', name: '乙烯裂解', applicableTo: ['fireExplosion', 'humanError'], rows: [
+                                { parameter: '生产流程中包含乙烯裂解', value: 1.00, type: 'fixed' },
+                                { parameter: '生产流程中不包含乙烯裂解', value: 0.95, type: 'fixed' }
+                            ]},
+                            { id: 'equipAge', name: '设备新旧程度', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '投产后1年以下', value: 1.05, type: 'fixed' },
+                                { parameter: '投产后1-8年', value: 0.95, type: 'fixed' },
+                                { parameter: '投产后8年及以上', value: 1.05, type: 'fixed' }
+                            ]},
+                            { id: 'equipMaintenance', name: '设备大修情况', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '能按规定定期大修', value: 1.00, type: 'fixed' },
+                                { parameter: '不能按规定定期大修', min: 1.10, max: 1.30, type: 'range' }
+                            ]},
+                            { id: 'fireAccident5yr', name: '5年内火灾事故', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '发生过两次及以上重特大火灾事故', value: 1.30, type: 'fixed' },
+                                { parameter: '发生过一次重特大火灾事故', value: 1.10, type: 'fixed' },
+                                { parameter: '未发生重特大火灾事故', value: 1.00, type: 'fixed' },
+                                { parameter: '未发生火灾事故', value: 0.90, type: 'fixed' }
+                            ]},
+                            { id: 'fireDeductAmount', name: '火灾爆炸-免赔额', linkedGroup: 'fireDeductible', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '基准免赔额', value: 1.00, type: 'fixed' },
+                                { parameter: '基准免赔额的2倍', value: 0.925, type: 'fixed' },
+                                { parameter: '基准免赔额的5倍', value: 0.85, type: 'fixed' },
+                                { parameter: '基准免赔额的10倍', value: 0.80, type: 'fixed' },
+                                { parameter: '基准免赔额的30倍及以上', value: 0.70, type: 'fixed' }
+                            ]},
+                            { id: 'fireDeductRate', name: '火灾爆炸-免赔率', linkedGroup: 'fireDeductible', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '5%', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.95, type: 'fixed' }
+                            ]},
+                            { id: 'enterpriseType', name: '企业类型', applicableTo: ['fireExplosion', 'humanError'], rows: [
+                                { parameter: '国际跨国公司独资或合资大型石化企业', value: 0.90, type: 'fixed' },
+                                { parameter: '国有大型石油公司所属石化企业', value: 0.90, type: 'fixed' },
+                                { parameter: '其它国有石化企业', value: 1.00, type: 'fixed' },
+                                { parameter: '民营石化企业', value: 1.05, type: 'fixed' }
+                            ]},
+                            { id: 'lightningFacility', name: '避雷设施', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '符合安全生产相关规定', value: 1.00, type: 'fixed' },
+                                { parameter: '不符合安全生产相关规定', min: 1.10, max: 1.30, type: 'range' }
+                            ]},
+                            { id: 'fireTeam', name: '专业消防队', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '企业内组建专业消防队并配备专业消防车', value: 1.0, type: 'fixed' },
+                                { parameter: '未组建专业消防队或未配备专业消防车', min: 1.10, max: 1.30, type: 'range' }
+                            ]},
+                            { id: 'surroundingEnv', name: '周边环境', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '周围不存在火灾爆炸隐患', value: 1.0, type: 'fixed' },
+                                { parameter: '周围存在火灾爆炸隐患', min: 1.10, max: 1.30, type: 'range' }
+                            ]},
+                            { id: 'fireSafety', name: '消防安全', applicableTo: ['fireExplosion'], rows: [
+                                { parameter: '完全满足安全生产相关规定', value: 1.0, type: 'fixed' },
+                                { parameter: '不能完全满足安全生产相关规定', min: 1.10, max: 1.30, type: 'range' }
+                            ]},
+                            { id: 'rainfall20yr', name: '近20年最大日降水量', applicableTo: ['rainFlood'], rows: [
+                                { parameter: '500毫米以上', value: 1.08, type: 'fixed' },
+                                { parameter: '400-500毫米', value: 1.05, type: 'fixed' },
+                                { parameter: '200-400毫米', value: 1.02, type: 'fixed' },
+                                { parameter: '100-200毫米', value: 1.00, type: 'fixed' },
+                                { parameter: '50-100毫米', value: 0.98, type: 'fixed' },
+                                { parameter: '50毫米以下', value: 0.95, type: 'fixed' }
+                            ]},
+                            { id: 'waterProximity', name: '周边水域', applicableTo: ['rainFlood'], rows: [
+                                { parameter: '5公里范围内有水域', value: 1.10, type: 'fixed' },
+                                { parameter: '5公里范围内无水域', value: 1.00, type: 'fixed' }
+                            ]},
+                            { id: 'mudslide10yr', name: '近10年泥石流', applicableTo: ['rainFlood'], rows: [
+                                { parameter: '从未发生过', value: 1.00, type: 'fixed' },
+                                { parameter: '发生过一次', value: 1.10, type: 'fixed' },
+                                { parameter: '发生过两次及以上', value: 1.20, type: 'fixed' }
+                            ]},
+                            { id: 'rainDeductAmount', name: '暴雨洪水-免赔额', linkedGroup: 'rainDeductible', applicableTo: ['rainFlood'], rows: [
+                                { parameter: '基准免赔额', value: 1.00, type: 'fixed' },
+                                { parameter: '基准免赔额的2倍', value: 0.925, type: 'fixed' },
+                                { parameter: '基准免赔额的5倍', value: 0.85, type: 'fixed' },
+                                { parameter: '基准免赔额的10倍', value: 0.80, type: 'fixed' },
+                                { parameter: '基准免赔额的30倍及以上', value: 0.70, type: 'fixed' }
+                            ]},
+                            { id: 'rainDeductRate', name: '暴雨洪水-免赔率', linkedGroup: 'rainDeductible', applicableTo: ['rainFlood'], rows: [
+                                { parameter: '5%', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.95, type: 'fixed' }
+                            ]},
+                            { id: 'windProvince', name: '风灾-工厂所在省份', applicableTo: ['windNatural'], rows: [
+                                { parameter: '浙江、广东、福建、海南', value: 1.50, type: 'fixed' },
+                                { parameter: '广西、辽宁、江苏', value: 1.30, type: 'fixed' },
+                                { parameter: '湖南、吉林、黑龙江、山东', value: 1.20, type: 'fixed' },
+                                { parameter: '陕西、山西、四川、甘肃、云南、河南', value: 1.10, type: 'fixed' },
+                                { parameter: '其它省份', value: 1.00, type: 'fixed' }
+                            ]},
+                            { id: 'windDeductAmount', name: '风灾-免赔额', linkedGroup: 'windDeductible', applicableTo: ['windNatural'], rows: [
+                                { parameter: '基准免赔额', value: 1.00, type: 'fixed' },
+                                { parameter: '基准免赔额的2倍', value: 0.925, type: 'fixed' },
+                                { parameter: '基准免赔额的5倍', value: 0.85, type: 'fixed' },
+                                { parameter: '基准免赔额的10倍', value: 0.80, type: 'fixed' },
+                                { parameter: '基准免赔额的30倍及以上', value: 0.70, type: 'fixed' }
+                            ]},
+                            { id: 'windDeductRate', name: '风灾-免赔率', linkedGroup: 'windDeductible', applicableTo: ['windNatural'], rows: [
+                                { parameter: '5%', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.95, type: 'fixed' }
+                            ]},
+                            { id: 'humanDeductAmount', name: '人工疏忽-免赔额', linkedGroup: 'humanDeductible', applicableTo: ['humanError'], rows: [
+                                { parameter: '基准免赔额', value: 1.00, type: 'fixed' },
+                                { parameter: '基准免赔额的2倍', value: 0.925, type: 'fixed' },
+                                { parameter: '基准免赔额的5倍', value: 0.85, type: 'fixed' },
+                                { parameter: '基准免赔额的10倍', value: 0.80, type: 'fixed' },
+                                { parameter: '基准免赔额的30倍及以上', value: 0.70, type: 'fixed' }
+                            ]},
+                            { id: 'humanDeductRate', name: '人工疏忽-免赔率', linkedGroup: 'humanDeductible', applicableTo: ['humanError'], rows: [
+                                { parameter: '5%', value: 1.0, type: 'fixed' },
+                                { parameter: '10%', value: 0.95, type: 'fixed' }
+                            ]},
+                            { id: 'lossRecord', name: '赔付率调整系数', applicableTo: ['all'], rows: [
+                                { parameter: '＜40%（N=1年）', value: 0.75, type: 'fixed' },
+                                { parameter: '＜40%（N=2年）', value: 0.70, type: 'fixed' },
+                                { parameter: '＜40%（N≥3年）', value: 0.65, type: 'fixed' },
+                                { parameter: '[40%,50%)（N=1年）', value: 0.95, type: 'fixed' },
+                                { parameter: '[40%,50%)（N=2年）', value: 0.90, type: 'fixed' },
+                                { parameter: '[40%,50%)（N≥3年）', value: 0.85, type: 'fixed' },
+                                { parameter: '[50%,60%)（N=1年）', value: 1.05, type: 'fixed' },
+                                { parameter: '[50%,60%)（N=2年）', value: 1.02, type: 'fixed' },
+                                { parameter: '[50%,60%)（N≥3年）', value: 1.00, type: 'fixed' },
+                                { parameter: '[60%,70%)（N=1年）', value: 1.15, type: 'fixed' },
+                                { parameter: '[60%,70%)（N=2年）', value: 1.12, type: 'fixed' },
+                                { parameter: '[60%,70%)（N≥3年）', value: 1.10, type: 'fixed' },
+                                { parameter: '[70%,90%)（任意年限）', min: 1.15, max: 1.30, type: 'range' },
+                                { parameter: '≥90%（任意年限）', min: 1.30, max: 1.50, type: 'range' }
+                            ]}
+                        ]
+                    }
+                }
             }
         };
 
