@@ -310,6 +310,7 @@ class AnthropicColors:
     TEXT_PRIMARY = "#141413"    # 主要文字
     TEXT_SECONDARY = "#b0aea5"  # 次要文字（仅用于装饰性文字）
     TEXT_MUTED = "#6b6a65"      # 中等对比度文字（用于按钮/标签）
+    TEXT_TERTIARY = "#8a8880"   # 第三级文字（保险计算器模块使用）
     TEXT_LIGHT = "#faf9f5"      # 深色背景上的文字
 
     # 状态色
