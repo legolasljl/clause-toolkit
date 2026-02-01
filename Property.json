@@ -134,7 +134,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "中国太平洋财产保险股份有限公司企业财产保险附加水损扩展条款（2025版）费率方案.docx"
+      "sourceFile": "中国太平洋财产保险股份有限公司企业财产保险附加水损扩展条款（2025版）费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 2,
+        "财产综合险": 1
+      }
     },
     {
       "clauseName": "附加法律服务保险（2025版",
@@ -3512,7 +3516,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加其他责任条款费率方案.docx"
+      "sourceFile": "企业财产保险附加其他责任条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.5,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加内在或潜在缺陷",
@@ -3632,7 +3640,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加冷冻、冷藏物品变质条款费率方案.docx"
+      "sourceFile": "企业财产保险附加冷冻、冷藏物品变质条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2,
+        "财产一切险": 0.2
+      }
     },
     {
       "clauseName": "附加冷藏库暂停供电扩展",
@@ -3854,7 +3867,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加包含机械及电气故障条款费率方案.docx"
+      "sourceFile": "企业财产保险附加包含机械及电气故障条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 50,
+        "财产综合险": 11,
+        "财产一切险": 10
+      }
     },
     {
       "clauseName": "附加包括全部营业额",
@@ -3990,7 +4008,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加叉车责任条款费率方案.docx"
+      "sourceFile": "企业财产保险附加叉车责任条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2,
+        "财产一切险": 0.2
+      }
     },
     {
       "clauseName": "附加发付红利",
@@ -5754,7 +5777,12 @@
       "clauseName": "附加外来物体对保险财产碰撞责任扩展",
       "fullName": "企业财产保险附加外来物体对保险财产碰撞责任扩展条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "simple_percentage",
+      "insuranceTypeRates": {
+        "财产基本险": 0.1,
+        "财产综合险": 0.1,
+        "财产一切险": 0
+      },
       "description": "若主险为财产一切险，则本附加险属于规范类，不涉及保险费的调整；若主险为财产基本险或财产综合险，则本附加险保险费为主险保险费的0.1%",
       "sourceFile": "企业财产保险附加外来物体对保险财产碰撞责任扩展条款费率方案.docx"
     },
@@ -7197,7 +7225,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加建筑物外部附属设施扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加建筑物外部附属设施扩展条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2,
+        "财产一切险": 0.2
+      }
     },
     {
       "clauseName": "附加建筑物外部附属设施扩展条款（A款",
@@ -9276,7 +9309,13 @@
       "clauseName": "附加暴风雨除外条款（A款",
       "fullName": "企业财产保险附加暴风雨除外条款（A款）费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "main_premium_modifier",
+      "modifierType": "simple_deduction",
+      "insuranceTypeDeductions": {
+        "财产基本险": 0,
+        "财产综合险": 20,
+        "财产一切险": 19.5
+      },
       "description": "若主险为财产基本险，本附加条款属于规范类，不涉及保险费的调整；若主险为财产综合险，附加本条款后可减收主险保险费的20%；若主险为财产一切险，附加本条款后可减收主险保险费的19.5%.",
       "sourceFile": "企业财产保险附加暴风雨除外条款（A款）费率方案.docx"
     },
@@ -9756,7 +9795,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加橱窗玻璃扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加橱窗玻璃扩展条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加残值货物拍卖",
@@ -9966,13 +10009,23 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加水暖管爆裂条款（B款）费率方案.docx"
+      "sourceFile": "企业财产保险附加水暖管爆裂条款（B款）费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加水暖管蒸汽管爆裂",
       "fullName": "企业财产保险附加水暖管蒸汽管爆裂保险费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "base_rate_formula",
+      "formulaType": "main_premium_divided_by_rate",
+      "insuranceTypeRates": {
+        "财产基本险": 0.01,
+        "财产综合险": 0.01,
+        "财产一切险": 0
+      },
       "description": "若主险为财产一切险，则本附加险属于规范类，不涉及保险费的调整；若主险为财产基本险或财产综合险，则本附加险保险费＝主险保险费×0.01%÷主险基准费率",
       "sourceFile": "企业财产保险附加水暖管蒸汽管爆裂保险费率方案.docx"
     },
@@ -10022,7 +10075,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加水渍险条款费率方案.docx"
+      "sourceFile": "企业财产保险附加水渍险条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.2,
+        "财产综合险": 0.1,
+        "财产一切险": 0
+      }
     },
     {
       "clauseName": "附加水灾",
@@ -10070,7 +10128,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加水灾条款费率方案.docx"
+      "sourceFile": "企业财产保险附加水灾条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.2,
+        "财产综合险": 0.1,
+        "财产一切险": 0.1
+      }
     },
     {
       "clauseName": "附加水箱、水管水损扩展条款A",
@@ -10118,7 +10181,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加水箱、水管水损扩展条款A费率方案.docx"
+      "sourceFile": "企业财产保险附加水箱、水管水损扩展条款A费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加水箱、水管水损扩展",
@@ -10166,7 +10233,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加水箱、水管水损扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加水箱、水管水损扩展条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加水箱、水管爆裂扩展条款（2025版",
@@ -10441,7 +10512,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加洪水条款费率方案.docx"
+      "sourceFile": "企业财产保险附加洪水条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 20,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加洪水除外条款（A款",
@@ -10609,7 +10684,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加海潮条款费率方案.docx"
+      "sourceFile": "企业财产保险附加海潮条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.5,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加消防保证条款（2025版",
@@ -10682,7 +10761,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加液体泄漏条款费率方案.docx"
+      "sourceFile": "企业财产保险附加液体泄漏条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加液体渗漏",
@@ -10739,7 +10822,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加液体渗漏条款（A款）费率方案.docx"
+      "sourceFile": "企业财产保险附加液体渗漏条款（A款）费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 10,
+        "财产综合险": 0.5
+      }
     },
     {
       "clauseName": "附加清理排水沟费用",
@@ -11157,7 +11244,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加渗漏条款费率方案.docx"
+      "sourceFile": "企业财产保险附加渗漏条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加温度变化条款（12小时",
@@ -12756,7 +12847,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加碰撞损失条款费率方案.docx"
+      "sourceFile": "企业财产保险附加碰撞损失条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加碰撞",
@@ -13369,7 +13464,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加罩棚露堆财产保险费率方案.docx"
+      "sourceFile": "企业财产保险附加罩棚露堆财产保险费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.5
+      }
     },
     {
       "clauseName": "附加自动保障接管财产",
@@ -13467,7 +13567,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加自动喷淋损失条款（B款）费率方案.docx"
+      "sourceFile": "企业财产保险附加自动喷淋损失条款（B款）费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.5,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加自动喷淋水损",
@@ -13624,7 +13728,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加自动喷淋装置系统泄漏条款费率方案.docx"
+      "sourceFile": "企业财产保险附加自动喷淋装置系统泄漏条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加自动增加限额",
@@ -13863,7 +13971,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加自然灾害等原因条款费率方案.docx"
+      "sourceFile": "企业财产保险附加自然灾害等原因条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 100,
+        "财产综合险": 15,
+        "财产一切险": 10
+      }
     },
     {
       "clauseName": "附加自燃、鼠咬、虫蛀扩展条款（2022版",
@@ -13911,7 +14024,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加自燃、鼠咬、虫蛀扩展条款（2022版）费率方案.docx"
+      "sourceFile": "企业财产保险附加自燃、鼠咬、虫蛀扩展条款（2022版）费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.4
+      }
     },
     {
       "clauseName": "附加自燃及相关原因损失",
@@ -13959,7 +14077,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加自燃及相关原因损失条款费率方案.docx"
+      "sourceFile": "企业财产保险附加自燃及相关原因损失条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加自燃",
@@ -14007,7 +14129,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加自燃条款费率方案.docx"
+      "sourceFile": "企业财产保险附加自燃条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.2,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加艺术精品",
@@ -14577,7 +14703,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加设计错误、原材料缺陷、工艺不善、自然磨损所致后果损失条款费率方案.docx"
+      "sourceFile": "企业财产保险附加设计错误、原材料缺陷、工艺不善、自然磨损所致后果损失条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.5,
+        "财产综合险": 0.2,
+        "财产一切险": 0.2
+      }
     },
     {
       "clauseName": "附加设计错误",
@@ -15015,7 +15146,11 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加财产流动（存货及机械设备）条款费率方案.docx"
+      "sourceFile": "企业财产保险附加财产流动（存货及机械设备）条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 0.5,
+        "财产综合险": 0.2
+      }
     },
     {
       "clauseName": "附加财产防护及保存",
@@ -16485,7 +16620,19 @@
       "clauseName": "附加铁路道路桥梁和码头扩展",
       "fullName": "企业财产保险附加铁路道路桥梁和码头扩展条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "simple_percentage",
+      "insuranceTypeRates": {
+        "财产基本险": 80,
+        "财产综合险": 5,
+        "财产一切险": 0
+      },
+      "customInputs": [{"key": "addonSumInsured", "label": "本附加险对应保险标的的保险金额", "unit": "元"}],
+      "ratioMultiplier": {
+        "numeratorKey": "addonSumInsured",
+        "denominatorSource": "mainSumInsured",
+        "label": "本附加险保险金额÷总保险金额"
+      },
+      "formula": "保险费＝主险保险费×费率×本附加险保险金额÷总保险金额",
       "description": "若主险为财产一切险，则本附加险属于规范类，不涉及保险费的调整；若主险为财产综合险，则本附加险保险费＝主险保险费×5%×本附加险对应保险标的的保险金额÷总保险金额；若主险为财产基本险，则本附加险保险费＝主险保险费×80%×本附加险对应保险标的的保险金额÷总保险金额。",
       "sourceFile": "企业财产保险附加铁路道路桥梁和码头扩展条款费率方案.docx"
     },
@@ -16891,7 +17038,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加露天及简易建筑内存放财产扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加露天及简易建筑内存放财产扩展条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.5
+      }
     },
     {
       "clauseName": "附加露天及简易建筑内存放财产扩展条款（B款",
@@ -16939,7 +17091,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加露天及简易建筑内存放财产扩展条款（B款）费率方案.docx"
+      "sourceFile": "企业财产保险附加露天及简易建筑内存放财产扩展条款（B款）费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.5
+      }
     },
     {
       "clauseName": "附加露天堆放扩展",
@@ -16987,7 +17144,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加露天堆放扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加露天堆放扩展条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.5
+      }
     },
     {
       "clauseName": "附加露天存放成品车辆特约",
@@ -17044,7 +17206,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加露天存放的库存财产条款费率方案.docx"
+      "sourceFile": "企业财产保险附加露天存放的库存财产条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.5
+      }
     },
     {
       "clauseName": "附加露天财产扩展",
@@ -17092,7 +17259,12 @@
       ],
       "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
       "description": "",
-      "sourceFile": "企业财产保险附加露天财产扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加露天财产扩展条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.5
+      }
     },
     {
       "clauseName": "附加露天贮藏库存财产",
@@ -17179,7 +17351,12 @@
       ],
       "formula": "保险费＝基准保险费×每次事故赔偿限额调整系数",
       "description": "一、基准保险费",
-      "sourceFile": "企业财产保险附加露天贮藏库存财产条款费率方案.docx"
+      "sourceFile": "企业财产保险附加露天贮藏库存财产条款费率方案.docx",
+      "insuranceTypeRates": {
+        "财产基本险": 1,
+        "财产综合险": 0.5,
+        "财产一切险": 0.5
+      }
     },
     {
       "clauseName": "附加非保险地址自有输电线路和地下管道（含阱",
@@ -17525,7 +17702,13 @@
       "clauseName": "附加龙卷风除外条款（A款",
       "fullName": "企业财产保险附加龙卷风除外条款（A款）费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "main_premium_modifier",
+      "modifierType": "simple_deduction",
+      "insuranceTypeDeductions": {
+        "财产基本险": 0,
+        "财产综合险": 2.5,
+        "财产一切险": 2.3
+      },
       "description": "若主险为财产基本险，本附加条款属于规范类，不涉及保险费的调整；若主险为财产综合险，附加本条款后可减收主险保险费的2.5%；若主险为财产一切险，附加本条款后可减收主险保险费的2.3%.",
       "sourceFile": "企业财产保险附加龙卷风除外条款（A款）费率方案.docx"
     },
