@@ -9123,6 +9123,8 @@ ADDON_TYPES = {
     "included_in_main": {"label": "纳入主险", "color": "#64748b"},
     "daily_prorate": {"label": "按日计费", "color": "#ea580c"},
     "main_premium_modifier": {"label": "主险保费调整", "color": "#dc2626"},
+    "base_rate_formula": {"label": "基准费率", "color": "#0891b2"},
+    "formula_conditional": {"label": "条件公式", "color": "#6366f1"},
 }
 
 # 关键词映射：文件名关键词 → 附加险类型
@@ -9140,6 +9142,7 @@ ADDON_KEYWORD_MAP = [
     (["纳入主险保险金额"], "included_in_main"),
     (["按日比例计算", "按日比例收取"], "daily_prorate"),
     (["每次事故赔偿限额"], "main_premium_modifier"),
+    (["基准费率"], "base_rate_formula"),
 ]
 
 # 伤残调整系数 (劳务关系人员)
@@ -9165,6 +9168,7 @@ class AddonInsuranceTab(QWidget):
         self.coeff_selections = {}
         # 主险数据
         self.main_premium = 0.0
+        self.main_sum_insured = 0.0
         self.per_person_premium = 0.0
         self.full_main_data = None  # 完整主险计算结果
         # 保费汇总
@@ -9189,6 +9193,14 @@ class AddonInsuranceTab(QWidget):
         self.main_premium_input.setSuffix(" 元")
         self.main_premium_input.valueChanged.connect(lambda v: setattr(self, 'main_premium', v))
         top_layout.addWidget(self.main_premium_input)
+
+        top_layout.addWidget(QLabel("主险保额:"))
+        self.main_sum_insured_input = QDoubleSpinBox()
+        self.main_sum_insured_input.setRange(0, 999999999999)
+        self.main_sum_insured_input.setDecimals(2)
+        self.main_sum_insured_input.setSuffix(" 元")
+        self.main_sum_insured_input.valueChanged.connect(lambda v: setattr(self, 'main_sum_insured', v))
+        top_layout.addWidget(self.main_sum_insured_input)
 
         top_layout.addWidget(QLabel("每人保费:"))
         self.per_person_input = QDoubleSpinBox()
@@ -10037,6 +10049,20 @@ class AddonInsuranceTab(QWidget):
             self.detail_layout.addWidget(ratio_w)
             self._render_modifier_table(table)
 
+        elif rate_type == "base_rate_formula":
+            self._render_base_rate_formula(entry)
+
+        elif rate_type == "formula_conditional":
+            fc_desc = entry.get("description") or entry.get("formula") or ""
+            if fc_desc:
+                fc_label = QLabel(f"📐 条件公式\n{fc_desc}")
+                fc_label.setWordWrap(True)
+                fc_label.setStyleSheet("padding: 12px; background: #eef2ff; border: 1px solid #818cf8; "
+                                       "border-radius: 8px; font-size: 12px; color: #3730a3;")
+                self.detail_layout.addWidget(fc_label)
+            for ti, table in enumerate(entry.get("coefficientTables", [])):
+                self._render_addon_coeff_table(table, ti)
+
         elif rate_type == "table_coefficient":
             if entry.get("basePremium"):
                 bp = entry["basePremium"]
@@ -10048,7 +10074,7 @@ class AddonInsuranceTab(QWidget):
                 self._render_addon_coeff_table(table, ti)
 
         # 计算按钮（非展示类类型）
-        if rate_type not in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
+        if rate_type not in ("regulatory", "no_calc", "included_in_main", "daily_prorate", "formula_conditional"):
             calc_btn = make_accent_button("🧮 计算附加险保费")
             calc_btn.clicked.connect(self._calculate)
             self.detail_layout.addWidget(calc_btn)
@@ -10169,6 +10195,238 @@ class AddonInsuranceTab(QWidget):
 
     # ---------- 计算引擎 (重构版) ----------
     # ---------- 主险保费调整条款：多列系数表渲染 ----------
+    def _render_base_rate_formula(self, entry):
+        """渲染 base_rate_formula 类型的详情面板"""
+        has_sub = bool(entry.get("subFormulas"))
+
+        # 顶部信息框
+        info_card = GlassCard()
+        info_layout = QVBoxLayout(info_card)
+        info_layout.setContentsMargins(12, 10, 12, 10)
+        info_card.setStyleSheet("background: #ecfeff; border: 2px solid #0891b2; border-radius: 8px;")
+        title = QLabel("📊 基准费率计算条款")
+        title.setStyleSheet("font-size: 14px; font-weight: 700; color: #0891b2;")
+        info_layout.addWidget(title)
+        if not has_sub:
+            rate_val = entry.get("baseRate")
+            rate_text = f"{rate_val}%" if rate_val is not None else ("同主险基准费率" if entry.get("baseRateIsMainRate") else "见系数表")
+            cap_text = f" | 费率上限: {entry['rateCap']}%" if entry.get("rateCap") else ""
+            rate_label = QLabel(f"基准费率: {rate_text}{cap_text}")
+            rate_label.setStyleSheet("font-size: 12px; color: #155e75;")
+            info_layout.addWidget(rate_label)
+        if entry.get("formula"):
+            fl = QLabel(entry["formula"])
+            fl.setWordWrap(True)
+            fl.setStyleSheet("font-size: 12px; color: #0e7490; margin-top: 4px;")
+            info_layout.addWidget(fl)
+        self.detail_layout.addWidget(info_card)
+
+        # 多责任子公式选择
+        self.brf_sub_inputs = []
+        if has_sub:
+            sub_row = QHBoxLayout()
+            sub_row.addWidget(QLabel("选择责任类型:"))
+            self.brf_sub_combo = QComboBox()
+            for si, sf in enumerate(entry["subFormulas"]):
+                label = sf["name"]
+                if sf.get("baseRate") is not None:
+                    label += f" (基准费率: {sf['baseRate']}%)"
+                self.brf_sub_combo.addItem(label, si)
+            self.brf_sub_combo.currentIndexChanged.connect(self._on_brf_sub_changed)
+            sub_row.addWidget(self.brf_sub_combo)
+            sub_row.addStretch()
+            sub_w = QWidget()
+            sub_w.setLayout(sub_row)
+            self.detail_layout.addWidget(sub_w)
+
+            # 子公式信息
+            self.brf_sub_info_label = QLabel()
+            self.brf_sub_info_label.setWordWrap(True)
+            self.brf_sub_info_label.setStyleSheet("padding: 8px; background: #f0fdfa; border-radius: 6px; font-size: 12px; color: #0e7490;")
+            self.detail_layout.addWidget(self.brf_sub_info_label)
+
+            # 输入框容器
+            self.brf_inputs_widget = QWidget()
+            self.brf_inputs_layout = QVBoxLayout(self.brf_inputs_widget)
+            self.brf_inputs_layout.setContentsMargins(0, 0, 0, 0)
+            self.detail_layout.addWidget(self.brf_inputs_widget)
+            self._on_brf_sub_changed(0)
+        else:
+            # 单一公式
+            if entry.get("baseRateIsMainRate"):
+                rate_row = QHBoxLayout()
+                rate_row.addWidget(QLabel("主险基准费率 (%):"))
+                self.brf_main_rate_input = QDoubleSpinBox()
+                self.brf_main_rate_input.setRange(0, 100)
+                self.brf_main_rate_input.setDecimals(3)
+                self.brf_main_rate_input.setSuffix(" %")
+                rate_row.addWidget(self.brf_main_rate_input)
+                rate_row.addStretch()
+                rate_w = QWidget()
+                rate_w.setLayout(rate_row)
+                self.detail_layout.addWidget(rate_w)
+            else:
+                self.brf_main_rate_input = None
+
+            self.brf_inputs_widget = None
+            custom_inputs = entry.get("customInputs", [])
+            for ci, inp in enumerate(custom_inputs):
+                row = QHBoxLayout()
+                unit_text = f" ({inp['unit']})" if inp.get("unit") else ""
+                row.addWidget(QLabel(f"{inp['label']}{unit_text}:"))
+                spin = QDoubleSpinBox()
+                spin.setRange(0, 999999999999)
+                spin.setDecimals(2)
+                if inp.get("unit") == "元":
+                    spin.setSuffix(" 元")
+                elif inp.get("unit"):
+                    spin.setSuffix(f" {inp['unit']}")
+                row.addWidget(spin)
+                row.addStretch()
+                row_w = QWidget()
+                row_w.setLayout(row)
+                self.detail_layout.addWidget(row_w)
+                self.brf_sub_inputs.append(spin)
+
+        # 系数表
+        for ti, table in enumerate(entry.get("coefficientTables", [])):
+            self._render_addon_coeff_table(table, ti)
+
+    def _on_brf_sub_changed(self, idx):
+        """切换子公式时更新输入区"""
+        entry = self.selected_entry
+        if not entry or not entry.get("subFormulas"):
+            return
+        sf = entry["subFormulas"][idx]
+        # 更新信息
+        info_parts = []
+        if sf.get("formula"):
+            info_parts.append(sf["formula"])
+        if sf.get("baseRate") is not None:
+            info_parts.append(f"基准费率: {sf['baseRate']}%")
+        cap = entry.get("rateCap")
+        if cap:
+            info_parts.append(f"费率上限: {cap}%")
+        self.brf_sub_info_label.setText("\n".join(info_parts))
+
+        # 清空旧输入
+        while self.brf_inputs_layout.count():
+            item = self.brf_inputs_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self.brf_sub_inputs = []
+
+        # 添加新输入
+        for ci, inp in enumerate(sf.get("customInputs", [])):
+            row = QHBoxLayout()
+            unit_text = f" ({inp['unit']})" if inp.get("unit") else ""
+            row.addWidget(QLabel(f"{inp['label']}{unit_text}:"))
+            spin = QDoubleSpinBox()
+            spin.setRange(0, 999999999999)
+            spin.setDecimals(2)
+            if inp.get("unit") == "元":
+                spin.setSuffix(" 元")
+            elif inp.get("unit"):
+                spin.setSuffix(f" {inp['unit']}")
+            row.addWidget(spin)
+            row.addStretch()
+            row_w = QWidget()
+            row_w.setLayout(row)
+            self.brf_inputs_layout.addWidget(row_w)
+            self.brf_sub_inputs.append(spin)
+
+    def _calc_base_rate_formula(self, entry):
+        """计算 base_rate_formula 类型"""
+        has_sub = bool(entry.get("subFormulas"))
+        if has_sub:
+            sub_idx = self.brf_sub_combo.currentData() if hasattr(self, "brf_sub_combo") else 0
+            sf = entry["subFormulas"][sub_idx]
+            base_rate = sf.get("baseRate")
+            custom_inputs = sf.get("customInputs", [])
+        else:
+            base_rate = entry.get("baseRate")
+            custom_inputs = entry.get("customInputs", [])
+
+        rate_cap = entry.get("rateCap")
+        formula_type = entry.get("formulaType")
+
+        # 如果基准费率来自主险
+        if base_rate is None and entry.get("baseRateIsMainRate"):
+            if hasattr(self, "brf_main_rate_input") and self.brf_main_rate_input:
+                base_rate = self.brf_main_rate_input.value()
+            if not base_rate or base_rate <= 0:
+                raise ValueError("请输入有效的主险基准费率")
+
+        # 获取自定义输入值
+        input_values = []
+        input_labels = []
+        for ci, inp in enumerate(custom_inputs):
+            if ci < len(self.brf_sub_inputs):
+                val = self.brf_sub_inputs[ci].value()
+            else:
+                val = 0
+            if val <= 0:
+                raise ValueError(f"请输入有效的{inp['label']}")
+            input_values.append(val)
+            input_labels.append(inp["label"])
+
+        # 获取系数乘积
+        coeff_product = 1.0
+        coeff_details = []
+        tables = entry.get("coefficientTables", [])
+        if tables and hasattr(self, "coeff_selections"):
+            for ti, sel in self.coeff_selections.items():
+                if sel is not None:
+                    coeff_details.append({"name": tables[ti].get("name", ""), "value": float(sel)})
+                    coeff_product *= float(sel)
+
+        # 特殊公式：主险保费比例
+        if formula_type == "main_premium_ratio":
+            custom_amount = input_values[0] if input_values else 0
+            main_si = self.main_sum_insured if hasattr(self, "main_sum_insured") else 0
+            if main_si <= 0:
+                raise ValueError("请输入主险保险金额")
+            premium = self.main_premium * (base_rate / 100) * custom_amount / main_si
+            formula_str = (f"{self._fmt_currency(self.main_premium)} × {base_rate}% × "
+                          f"{self._fmt_currency(custom_amount)} ÷ {self._fmt_currency(main_si)} = {self._fmt_currency(premium)}")
+            return {"type": "base_rate_formula", "premium": premium, "formulaDisplay": formula_str}
+
+        # 标准公式
+        custom_product = 1.0
+        for v in input_values:
+            custom_product *= v
+
+        effective_rate = (base_rate / 100) * coeff_product
+        if rate_cap and effective_rate > (rate_cap / 100):
+            effective_rate = rate_cap / 100
+
+        premium = custom_product * effective_rate
+
+        parts = []
+        for i, val in enumerate(input_values):
+            parts.append(f"{input_labels[i]}: {self._fmt_currency(val)}")
+        parts.append(f"基准费率: {base_rate}%")
+        if coeff_details:
+            coeff_str = " × ".join(f"{d['value']:.4f}" for d in coeff_details)
+            parts.append(f"系数积: {coeff_str} = {coeff_product:.6f}")
+        raw_rate = (base_rate / 100) * coeff_product
+        if rate_cap and raw_rate > (rate_cap / 100):
+            parts.append(f"费率 {raw_rate*100:.4f}% > 上限 {rate_cap}%，按 {rate_cap}% 计算")
+        parts.append(f"保费 = {self._fmt_currency(premium)}")
+
+        return {
+            "type": "base_rate_formula",
+            "premium": premium,
+            "formulaDisplay": "\n".join(parts),
+        }
+
+    @staticmethod
+    def _fmt_currency(val):
+        """格式化货币"""
+        if val >= 10000:
+            return f"¥{val:,.2f}"
+        return f"¥{val:.2f}"
+
     def _render_modifier_table(self, table):
         """渲染 main_premium_modifier 的多列系数参考表"""
         col_labels = table.get("columnLabels", [])
@@ -10280,7 +10538,7 @@ class AddonInsuranceTab(QWidget):
         rate_type = entry.get("rateType", "")
         if rate_type in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
             return
-        if self.main_premium <= 0 and rate_type not in ("per_person_base", "property_loss"):
+        if self.main_premium <= 0 and rate_type not in ("per_person_base", "property_loss", "base_rate_formula"):
             self._log("请输入有效的主险保费", "warn")
             return
         try:
@@ -10296,6 +10554,7 @@ class AddonInsuranceTab(QWidget):
                 "deduction": self._calc_deduction,
                 "table_coefficient": self._calc_table,
                 "main_premium_modifier": self._calc_main_premium_modifier,
+                "base_rate_formula": self._calc_base_rate_formula,
             }.get(rate_type)
             if not calc_method:
                 self._log(f"未知计算类型: {rate_type}", "error")
@@ -10799,17 +11058,24 @@ class AddonInsuranceTab(QWidget):
             rt = entry.get("rateType", "")
             if rt in ("main_premium_modifier", "modifier_coeff"):
                 continue
-            if rt in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
+            if rt in ("regulatory", "no_calc", "included_in_main", "daily_prorate", "formula_conditional"):
                 skip_count += 1
                 continue
-            if rt == "simple_percentage":
-                result = self._calc_simple(entry)
-                self._add_premium_item(entry["clauseName"], result["premium"], result["formulaDisplay"])
-                calc_count += 1
-            elif rt == "deduction":
-                result = self._calc_deduction(entry)
-                self._add_premium_item(entry["clauseName"], result["premium"], result["formulaDisplay"])
-                calc_count += 1
+            batch_calc_fn = {
+                "simple_percentage": self._calc_simple,
+                "deduction": self._calc_deduction,
+                "table_coefficient": self._calc_table,
+                "base_rate_formula": self._calc_base_rate_formula,
+            }.get(rt)
+            if batch_calc_fn:
+                try:
+                    result = batch_calc_fn(entry)
+                    self._add_premium_item(entry["clauseName"], result["premium"], result["formulaDisplay"])
+                    calc_count += 1
+                except Exception as e:
+                    label = ADDON_TYPES.get(rt, {}).get("label", rt)
+                    self._add_premium_item(entry["clauseName"], 0, f"⚠️ 需手动计算 [{label}]: {e}")
+                    skip_count += 1
             else:
                 self._add_premium_item(entry["clauseName"], 0,
                                        f"需手动计算 [{ADDON_TYPES.get(rt, {}).get('label', rt)}]")
