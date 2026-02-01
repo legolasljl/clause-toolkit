@@ -16324,6 +16324,46 @@ ${fileList}
 
             mc_log('已将主险保费 ' + mc_fmtCurrency(mc_result.totalPremium) + ' 传入附加险计算', 'success');
             mc_showToast('已将主险完整数据传入附加险计算', 'success');
+            rc_displayMainParams();
+        }
+
+        // --- 主险参数展示 ---
+        function rc_displayMainParams() {
+            var d = rc_fullMainData;
+            var container = document.getElementById('rc_mainPremiumDisplay');
+            if (!container) return;
+            if (!d) { container.innerHTML = ''; return; }
+
+            var formatRate = function(rate) {
+                if (rate == null) return '—';
+                if (typeof rate === 'object') {
+                    return Object.keys(rate).map(function(k) {
+                        return k + ': ' + (typeof rate[k] === 'number' ? (rate[k] * 100).toFixed(4) + '%' : rate[k]);
+                    }).join(' | ');
+                }
+                return (typeof rate === 'number') ? (rate * 100).toFixed(4) + '%' : String(rate);
+            };
+
+            var productName = d.selectedProduct || '—';
+            var baseRateStr = formatRate(d.baseRate);
+            var adjustedRateStr = formatRate(d.adjustedRate);
+            var sumInsuredStr = rc_mainSumInsured > 0 ? rc_formatCurrency(rc_mainSumInsured) : '—';
+
+            container.innerHTML =
+                '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;">' +
+                '<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:6px 12px;min-width:120px;">' +
+                '<div style="font-size:10px;color:#1e40af;font-weight:600;">险种</div>' +
+                '<div style="font-size:13px;font-weight:700;color:#1e3a5f;">' + rc_escHtml(productName) + '</div></div>' +
+                '<div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;padding:6px 12px;min-width:120px;">' +
+                '<div style="font-size:10px;color:#065f46;font-weight:600;">基准费率</div>' +
+                '<div style="font-size:13px;font-weight:700;color:#065f46;">' + rc_escHtml(baseRateStr) + '</div></div>' +
+                '<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:6px 12px;min-width:120px;">' +
+                '<div style="font-size:10px;color:#92400e;font-weight:600;">调整后费率</div>' +
+                '<div style="font-size:13px;font-weight:700;color:#92400e;">' + rc_escHtml(adjustedRateStr) + '</div></div>' +
+                '<div style="background:#fdf2f8;border:1px solid #f9a8d4;border-radius:8px;padding:6px 12px;min-width:120px;">' +
+                '<div style="font-size:10px;color:#9d174d;font-weight:600;">总保险金额</div>' +
+                '<div style="font-size:13px;font-weight:700;color:#9d174d;">' + rc_escHtml(sumInsuredStr) + '</div></div>' +
+                '</div>';
         }
 
         // --- 重置（保持险种/版本选择不变） ---
