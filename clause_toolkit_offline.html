@@ -4475,7 +4475,12 @@ ${fileList}
                 "损害防止": "阻止损失",
                 "施救费用": "阻止损失",
                 "崩塌沉降": "地面突然下陷下沉",
-                "地面下陷": "地面突然下陷下沉"
+                "地面下陷": "地面突然下陷下沉",
+                "自动保障新增雇员": "员工自动承保",
+                "新增雇员自动保障": "员工自动承保",
+                "保费调整": "保费调整条款",
+                "就餐时间": "员工食堂",
+                "上下班途中": "通勤"
             },
             keywordMap: {
                 "污染": ["污染", "意外污染", "pollution"],
@@ -4488,11 +4493,18 @@ ${fileList}
             },
             penaltyKeywords: ["打孔盗气"],
             noiseWords: [
-                "企业财产保险", "附加", "扩展", "条款", "险",
+                "中国太平洋财产保险股份有限公司",
+                "企业财产保险", "附加", "条款",
                 "（A款）", "（B款）", "(A款)", "(B款)",
-                "2025版", "2024版", "2023版", "版",
-                "clause", "extension", "cover", "insurance"
+                "2025版", "2024版", "2023版", "2022版", "2026版",
+                "clause", "extension", "cover"
             ],
+            // v19.0: 险种类别前缀
+            categoryPrefixes: {
+                property: ["企业财产保险", "财产一切险", "财产综合险", "财产基本险",
+                           "机器损坏保险", "锅炉及压力容器", "营业中断保险", "珠宝商综合保险"],
+                liability: ["雇主责任保险", "公众责任保险", "职业责任保险"]
+            },
             boilerplatePhrases: [
                 "本条款所述费用在本保险单明细表所列保险金额之外另行赔付。",
                 "本附加险根据保险单的约定收取保险费。",
@@ -6279,6 +6291,28 @@ ${fileList}
             return null;
         }
 
+        // v19.0: 险种上下文感知
+        var _currentCategory = '';
+
+        function detectCategoryFromSheet(sheetName) {
+            if (!sheetName) return '';
+            var s = sheetName.toLowerCase();
+            if (s.indexOf('liability') >= 0 || s.indexOf('责任') >= 0 || s.indexOf('雇主') >= 0) return 'liability';
+            if (s.indexOf('property') >= 0 || s.indexOf('财产') >= 0 || s.indexOf('企业') >= 0) return 'property';
+            return '';
+        }
+
+        function detectLibCategory(libName) {
+            if (!libName) return '';
+            var prefixes = DefaultConfig.categoryPrefixes;
+            for (var cat in prefixes) {
+                for (var j = 0; j < prefixes[cat].length; j++) {
+                    if (libName.indexOf(prefixes[cat][j]) >= 0) return cat;
+                }
+            }
+            return '';
+        }
+
         function tryFuzzyMatch(titleClean, content, index, isTitleOnly, clientTitle, maxResults) {
             clientTitle = clientTitle || '';
             maxResults = maxResults || 1;
@@ -6359,6 +6393,16 @@ ${fileList}
 
                 if (isPenaltyKeyword(cached.original) && !isPenaltyKeyword(titleClean)) {
                     score -= 0.5;
+                }
+
+                // v19.0: 险种上下文感知 - 同险种加分，跨险种减分
+                if (_currentCategory) {
+                    var libCat = detectLibCategory(libOriginalName);
+                    if (libCat === _currentCategory) {
+                        score += 0.15;
+                    } else if (libCat && libCat !== _currentCategory) {
+                        score -= 0.25;
+                    }
                 }
 
                 if (score > MatchThresholds.accept_min) {
@@ -7099,6 +7143,24 @@ ${fileList}
 
                 const index = buildIndex(libData); libraryIndex = index;  // 保存到全局变量供查询功能使用
                 cmp_log(`✓ 索引完成: ${index.byNameNorm.size} 名称, ${index.byKeyword.size} 关键词`, 'success');
+
+                // v19.0: 从条款库数据检测险种类别
+                _currentCategory = '';
+                if (libData.length > 0) {
+                    var sampleSheet = libData[0]._sheetName || '';
+                    _currentCategory = detectCategoryFromSheet(sampleSheet);
+                    if (!_currentCategory) {
+                        // 从条款名称推断
+                        for (var si = 0; si < Math.min(libData.length, 10); si++) {
+                            var sn = String(libData[si]['条款名称'] || '');
+                            var cat = detectLibCategory(sn);
+                            if (cat) { _currentCategory = cat; break; }
+                        }
+                    }
+                    if (_currentCategory) {
+                        cmp_log(`🏷️ 检测到险种类别: ${_currentCategory}`, 'info');
+                    }
+                }
 
                 // 3. 解析Word文档
                 cmp_log('📖 解析文档...', 'info');
