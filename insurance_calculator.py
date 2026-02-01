@@ -10290,7 +10290,7 @@ class AddonInsuranceTab(QWidget):
             self.conditional_checkbox.setStyleSheet("font-size: 13px; font-weight: 600; color: #5b21b6; padding: 8px; "
                                                      "background: #f5f3ff; border: 1px solid #a78bfa; border-radius: 8px;")
             self.detail_layout.addWidget(self.conditional_checkbox)
-            # 险种选择（base_rate_division需要）
+            # 险种选择（base_rate_division需要baseRates时）
             wc = entry.get("whenChecked", {})
             if wc.get("formulaType") == "base_rate_division" and wc.get("baseRates"):
                 type_row = QHBoxLayout()
@@ -10303,6 +10303,24 @@ class AddonInsuranceTab(QWidget):
                 type_w = QWidget()
                 type_w.setLayout(type_row)
                 self.detail_layout.addWidget(type_w)
+            # 自定义输入框（customInputs）
+            custom_inputs = entry.get("customInputs", [])
+            self.conditional_custom_inputs = {}
+            for ci in custom_inputs:
+                ci_row = QHBoxLayout()
+                ci_row.addWidget(QLabel(f"{ci['label']}:"))
+                ci_spin = QDoubleSpinBox()
+                ci_spin.setRange(0, 999999999999)
+                ci_spin.setDecimals(2)
+                if ci.get("unit"):
+                    ci_spin.setSuffix(f" {ci['unit']}")
+                ci_spin.setMinimumWidth(150)
+                ci_row.addWidget(ci_spin)
+                ci_row.addStretch()
+                ci_w = QWidget()
+                ci_w.setLayout(ci_row)
+                self.detail_layout.addWidget(ci_w)
+                self.conditional_custom_inputs[ci["key"]] = ci_spin
             # 公式说明
             if entry.get("formula"):
                 formula_hint = QLabel(f"📐 {entry['formula']}")
@@ -11260,33 +11278,66 @@ class AddonInsuranceTab(QWidget):
     def _calc_conditional_simple(self, entry):
         """计算 conditional_simple 类型（勾选条件计算）"""
         checkbox = getattr(self, 'conditional_checkbox', None)
-        if not checkbox or not checkbox.isChecked():
+        is_checked = checkbox.isChecked() if checkbox else False
+        # 根据勾选状态选择对应的计算配置
+        if is_checked:
+            calc_config = entry.get("whenChecked", {})
+        else:
+            calc_config = entry.get("whenUnchecked", {})
+        # 如果没有对应配置，则不涉及保费调整
+        if not calc_config:
             return {"type": "conditional_simple", "premium": 0,
                     "formulaDisplay": "主险已包含本附加险责任，不涉及保险费调整"}
-        wc = entry.get("whenChecked", {})
-        if not wc:
-            raise ValueError("条款配置缺少whenChecked")
-        if wc.get("formulaType") == "simple_pct":
-            pct = wc["percentage"]
+        return self._exec_conditional_formula(calc_config, entry)
+
+    def _exec_conditional_formula(self, calc_config, entry):
+        """执行 conditional_simple 的具体计算公式"""
+        formula_type = calc_config.get("formulaType", "")
+        if formula_type == "simple_pct":
+            pct = calc_config["percentage"]
             premium = self.main_premium * (pct / 100)
             return {"type": "conditional_simple", "premium": premium,
                     "formulaDisplay": f"主险保费 × {pct}%\n"
                                      f"{fmt_currency(self.main_premium)} × {pct}% = {fmt_currency(premium)}"}
-        if wc.get("formulaType") == "base_rate_division":
+        if formula_type == "base_rate_division":
+            # 支持 multiplier 模式（如第三人照管财产）
+            multiplier = calc_config.get("multiplier")
+            if multiplier is not None:
+                return self._calc_conditional_multiplier(calc_config, entry, multiplier)
+            # 原有 baseRates + numeratorPct 模式
             ins_type = self._get_selected_insurance_type()
             if not ins_type:
                 raise ValueError("请选择主险类型")
-            base_rates = wc.get("baseRates", {})
+            base_rates = calc_config.get("baseRates", {})
             base_rate = base_rates.get(ins_type)
             if not base_rate:
                 raise ValueError(f"未找到{ins_type}的基准费率")
             base_rate_decimal = base_rate / 100
-            numerator_pct = wc["numeratorPct"]
+            numerator_pct = calc_config["numeratorPct"]
             premium = self.main_premium * (numerator_pct / 100) / base_rate_decimal
             return {"type": "conditional_simple", "premium": premium,
                     "formulaDisplay": f"【{ins_type}】主险保费 × {numerator_pct}% ÷ 基准费率({base_rate}%)\n"
                                      f"{fmt_currency(self.main_premium)} × {numerator_pct}% ÷ {base_rate}% = {fmt_currency(premium)}"}
-        raise ValueError(f"未知的conditional_simple公式类型: {wc.get('formulaType')}")
+        raise ValueError(f"未知的conditional_simple公式类型: {formula_type}")
+
+    def _calc_conditional_multiplier(self, calc_config, entry, multiplier):
+        """计算 conditional_simple multiplier 模式（金额×费率×系数）"""
+        custom_inputs = getattr(self, 'conditional_custom_inputs', {})
+        addon_amount_spin = custom_inputs.get("addonAmount")
+        addon_amount = addon_amount_spin.value() if addon_amount_spin else 0
+        if addon_amount <= 0:
+            raise ValueError("请输入本附加险保险金额")
+        main_si = getattr(self, 'main_sum_insured', 0)
+        if main_si <= 0:
+            raise ValueError("主险保额不能为0")
+        policy_rate = self.main_premium / main_si
+        premium = addon_amount * policy_rate * multiplier
+        desc = calc_config.get("description", "")
+        return {"type": "conditional_simple", "premium": premium,
+                "formulaDisplay": f"{desc}\n"
+                                  f"保险费 = {fmt_currency(addon_amount)} × "
+                                  f"({fmt_currency(self.main_premium)} ÷ {fmt_currency(main_si)}) × {multiplier}\n"
+                                  f"= {fmt_currency(premium)}"}
 
     def _calculate(self):
         entry = self.selected_entry
