@@ -1069,6 +1069,13 @@ class DefaultConfig:
         "陆上运输": "内陆运输扩展",
         "临时移动": "临时移动扩展",
         "厂区运输": "厂区间临时移动扩展",
+
+        # === v19.0: 雇主责任险相关 ===
+        "自动保障新增雇员": "员工自动承保",
+        "新增雇员自动保障": "员工自动承保",
+        "保费调整": "保费调整条款",
+        "就餐时间": "员工食堂",
+        "上下班途中": "通勤",
     }
 
     # ========================================
@@ -1161,12 +1168,19 @@ class DefaultConfig:
     PENALTY_KEYWORDS = ["打孔盗气"]
 
     NOISE_WORDS = [
-        "企业财产保险", "附加", "扩展", "条款", "险",
+        "中国太平洋财产保险股份有限公司",
+        "企业财产保险", "附加", "条款",
         "（A款）", "（B款）", "(A款)", "(B款)",
-        "2025版", "2024版", "2023版", "2022版", "版",
-        "clause", "extension", "cover", "insurance",
-        "特别", "责任", "保险", "费用",
+        "2025版", "2024版", "2023版", "2022版", "2026版",
+        "clause", "extension", "cover",
     ]
+
+    # v19.0: 险种类别前缀（用于上下文感知匹配）
+    CATEGORY_PREFIXES = {
+        "property": ["企业财产保险", "财产一切险", "财产综合险", "财产基本险",
+                      "机器损坏保险", "锅炉及压力容器", "营业中断保险", "珠宝商综合保险"],
+        "liability": ["雇主责任保险", "公众责任保险", "职业责任保险"],
+    }
 
     # ========================================
     # 语义聚类（用于更智能的匹配）
@@ -1543,8 +1557,33 @@ class ClauseMatcherLogic:
         self._tfidf_vectors = None
         self._tfidf_names = []
 
+        # v19.0: 险种上下文（由 MatchWorker 设置）
+        self._current_category: str = ""
+
         logger.info(f"匹配器初始化完成，外部配置: {self._use_external_config}")
         logger.info(f"jieba分词: {HAS_JIEBA}, sklearn(TF-IDF): {HAS_SKLEARN}")
+
+    @staticmethod
+    def detect_category_from_sheet(sheet_name: str) -> str:
+        """v19.0: 从 sheet 名称检测险种类别"""
+        if not sheet_name:
+            return ""
+        sheet_lower = sheet_name.lower()
+        if any(k in sheet_lower for k in ["liability", "责任", "雇主"]):
+            return "liability"
+        if any(k in sheet_lower for k in ["property", "财产", "企业"]):
+            return "property"
+        return ""
+
+    def _detect_lib_category(self, lib_name: str) -> str:
+        """v19.0: 从条款库名称检测险种类别"""
+        if not lib_name:
+            return ""
+        for category, prefixes in DefaultConfig.CATEGORY_PREFIXES.items():
+            for prefix in prefixes:
+                if prefix in lib_name:
+                    return category
+        return ""
 
     @classmethod
     def remove_boilerplate(cls, content: str) -> str:
@@ -2305,6 +2344,14 @@ class ClauseMatcherLogic:
             # 惩罚项
             if self._is_penalty_keyword(cached['original']) and not self._is_penalty_keyword(title_clean):
                 score -= 0.5
+
+            # v19.0: 险种上下文感知 - 同险种加分，跨险种减分
+            if self._current_category:
+                lib_category = self._detect_lib_category(l_name_original)
+                if lib_category == self._current_category:
+                    score += 0.15
+                elif lib_category and lib_category != self._current_category:
+                    score -= 0.25
 
             if score > self.thresholds.accept_min:
                 candidates.append((i, score, title_sim, content_sim))
@@ -3794,6 +3841,11 @@ class MatchWorker(QThread):
             lib_data = LibraryLoader.load_excel(self.excel_path, sheet_name=self.sheet_name)
             self.log_signal.emit(f"✓ 条款库 {len(lib_data)} 条", "success")
 
+            # v19.0: 设置险种上下文
+            logic._current_category = logic.detect_category_from_sheet(self.sheet_name)
+            if logic._current_category:
+                self.log_signal.emit(f"🏷️ 检测到险种类别: {logic._current_category}", "info")
+
             # 构建索引
             self.log_signal.emit("🔧 构建索引...", "info")
             index = logic.build_index(lib_data)
@@ -3945,6 +3997,11 @@ class BatchMatchWorker(QThread):
             self.log_signal.emit(f"📚 加载条款库{sheet_info}...", "info")
             lib_data = LibraryLoader.load_excel(self.excel_path, sheet_name=self.sheet_name)
             self.log_signal.emit(f"✓ 条款库 {len(lib_data)} 条", "success")
+
+            # v19.0: 设置险种上下文
+            logic._current_category = logic.detect_category_from_sheet(self.sheet_name)
+            if logic._current_category:
+                self.log_signal.emit(f"🏷️ 检测到险种类别: {logic._current_category}", "info")
 
             # 构建索引（只需一次）
             self.log_signal.emit("🔧 构建索引...", "info")
