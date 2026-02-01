@@ -1137,7 +1137,6679 @@ MC_PRODUCTS = {
                 ]
             }
         }
-    }
+    },
+    "machineryEquipment": {
+            "productName": "工程机械设备综合保险",
+            "productType": "property",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": None,
+            "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+            "formulaNote": "短期承保保险费＝年保险费×保险期间天数÷365",
+            "versions": {
+                "original": {
+                    "label": "工程机械设备综合保险费率",
+                    "baseRates": {
+                        "default": 0.0026
+                    },
+                    "coefficients": [
+                        {
+                            "id": "insuredAmountME",
+                            "name": "保险金额调整系数",
+                            "applicableTo": ["all"],
+                            "note": "平均每台设备保险金额；未列明金额可按线性插值法计算",
+                            "rows": [
+                                {
+                                    "parameter": "≤10万元",
+                                    "min": 1.3,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "20万元",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30万元",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "50万元",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "100万元",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥200万元",
+                                    "min": 0.7,
+                                    "max": 0.8,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "complexityME",
+                            "name": "设备结构复杂程度调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "简单",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "复杂",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "特别复杂",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossHistoryME",
+                            "name": "历史事故与损失情况调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "极少",
+                                    "min": 0.5,
+                                    "max": 0.7,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较少",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较多",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "很多",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "areaRiskME",
+                            "name": "作业区域风险调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "较低",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较高",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "originME",
+                            "name": "设备产地调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "国内",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "国外",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "managementME",
+                            "name": "管理水平调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "安全管理制度和措施完善，无明显缺陷",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "安全管理制度和措施较完善，但存在个别缺陷",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "安全管理制度和措施不完善或存在较多缺陷",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "renewalME",
+                            "name": "续保调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "新保",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保一年",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保两年",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保三年及以上",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountME",
+                            "name": "免赔额调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleME",
+                            "note": "未列明免赔额可按线性插值法计算；若同时约定免赔额和免赔率，以低者作为免赔调整系数",
+                            "rows": [
+                                {
+                                    "parameter": "0元",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1000元",
+                                    "value": 0.96,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2500元",
+                                    "value": 0.91,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥10000元",
+                                    "min": 0.7,
+                                    "max": 0.77,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductRateME",
+                            "name": "免赔率调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleME",
+                            "note": "未列明免赔率可按线性插值法计算",
+                            "rows": [
+                                {
+                                    "parameter": "0",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20%",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30%",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "40%",
+                                    "value": 0.6,
+                                    "type": "fixed"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "hiTechProperty2025": {
+            "productName": "高新技术企业财产保险（一切险2025版）",
+            "productType": "property",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": 0.7,
+            "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+            "formulaNote": "若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算；短期承保保险费根据条款所附短期费率表计收",
+            "versions": {
+                "original": {
+                    "label": "高新技术企业财产保险（一切险2025版）费率",
+                    "baseRates": {
+                        "default": 0.0038
+                    },
+                    "coefficients": [
+                        {
+                            "id": "industryHTP",
+                            "name": "行业调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "电子信息(0101-0106)",
+                                    "min": 1.0,
+                                    "max": 1.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "软件(0201-0203)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "航空航天(0301-0302)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "光机电一体化(0401-0402)",
+                                    "min": 0.8,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "生物、医药和医疗器械(0501-0505)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新材料(0601-0604)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新能源与高效节能(0701-0702)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "环境保护(0801-0805)",
+                                    "min": 1.0,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "地球、空间与海洋(0901-0905)",
+                                    "min": 1.1,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-优良动植物新品种(1101)",
+                                    "min": 0.7,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-家畜良种胚胎(1102)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-生物农药(1103)",
+                                    "min": 0.9,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-诊断试剂与疫苗(1104)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-饲料及添加剂(1105)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-新型肥料(1106)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农业工程设施(1107)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农副产品贮藏加工(1108)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionRiskHTP",
+                            "name": "区域灾害风险调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "低",
+                                    "min": 0.5,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "中",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "高",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "insuredAmountHTP",
+                            "name": "保险金额调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "＜1000万",
+                                    "min": 2.1,
+                                    "max": 5.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1000万，1亿）",
+                                    "min": 0.8,
+                                    "max": 2.1,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1亿，10亿）",
+                                    "min": 0.5,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "≥10亿",
+                                    "min": 0.2,
+                                    "max": 0.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountHTP",
+                            "name": "免赔额调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleHTP",
+                            "note": "免赔额与保险金额交叉查表；未列明可按线性插值法计算；若同时约定免赔额和免赔率，以低者为准",
+                            "rows": [
+                                {
+                                    "parameter": "1000元（保额≤1000万）",
+                                    "value": 0.96,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1000元（保额约1亿）",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额≤1000万）",
+                                    "value": 0.93,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额约1亿）",
+                                    "value": 0.96,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额约10亿）",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额＞10亿）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额≤1000万）",
+                                    "value": 0.87,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额约1亿）",
+                                    "value": 0.93,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额约10亿）",
+                                    "value": 0.96,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额＞10亿）",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额≤1000万）",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额约1亿）",
+                                    "value": 0.87,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额约10亿）",
+                                    "value": 0.93,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额＞10亿）",
+                                    "value": 0.96,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额≤1000万）",
+                                    "value": 0.66,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额约1亿）",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额约10亿）",
+                                    "value": 0.87,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额＞10亿）",
+                                    "value": 0.93,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额≤1000万）",
+                                    "value": 0.6,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额约1亿）",
+                                    "value": 0.66,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额约10亿）",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额＞10亿）",
+                                    "value": 0.87,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额≤1000万）",
+                                    "value": 0.52,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额约1亿）",
+                                    "value": 0.6,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额约10亿）",
+                                    "value": 0.66,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额＞10亿）",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额≤1000万）",
+                                    "value": 0.45,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额约1亿）",
+                                    "value": 0.52,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额约10亿）",
+                                    "value": 0.6,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额＞10亿）",
+                                    "value": 0.66,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30万元（保额约1亿）",
+                                    "value": 0.45,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30万元（保额约10亿）",
+                                    "value": 0.52,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30万元（保额＞10亿）",
+                                    "value": 0.6,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductRateHTP",
+                            "name": "免赔率调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleHTP",
+                            "note": "未列明免赔率可按线性插值法计算",
+                            "rows": [
+                                {
+                                    "parameter": "0",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20%",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30%",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "buildingHTP",
+                            "name": "建筑物结构调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "钢筋混凝土",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "钢结构",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "其他",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "riskMgmtHTP",
+                            "name": "风险管理水平调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "较高",
+                                    "min": 0.5,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较低",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossRatioHTP",
+                            "name": "赔付率调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "[0，20%]",
+                                    "min": 0.5,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（20%，45%]",
+                                    "min": 0.6,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（45%，70%]",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（70%，95%]",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "＞95%",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "hiTechRDEquip2025": {
+            "productName": "高新技术企业关键研发设备保险（2025版）",
+            "productType": "property",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": None,
+            "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+            "formulaNote": "短期承保保险费按条款所附短期费率表计收",
+            "versions": {
+                "original": {
+                    "label": "高新技术企业关键研发设备保险（2025版）费率",
+                    "baseRates": {
+                        "default": 0.0041
+                    },
+                    "coefficients": [
+                        {
+                            "id": "industryHTRD",
+                            "name": "行业调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "电子信息(0101-0106)",
+                                    "min": 1.2,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "航空航天(0301-0302)",
+                                    "min": 1.5,
+                                    "max": 5.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "光机电一体化(0401-0402)",
+                                    "min": 1.1,
+                                    "max": 2.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "生物、医药和医疗器械(0501-0505)",
+                                    "min": 1.2,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新材料(0601-0604)",
+                                    "min": 1.0,
+                                    "max": 2.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新能源与高效节能(0701-0702)",
+                                    "min": 1.2,
+                                    "max": 2.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "环境保护(0801-0805)",
+                                    "min": 0.8,
+                                    "max": 4.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "地球、空间与海洋(0901-0905)",
+                                    "min": 1.2,
+                                    "max": 3.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-优良动植物新品种(1101)",
+                                    "min": 0.7,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-家畜良种胚胎(1102)",
+                                    "min": 0.9,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-生物农药(1103)",
+                                    "min": 0.9,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-诊断试剂与疫苗(1104)",
+                                    "min": 1.2,
+                                    "max": 3.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-饲料及添加剂(1105)",
+                                    "min": 1.2,
+                                    "max": 2.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-新型肥料(1106)",
+                                    "min": 1.0,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农业工程设施(1107)",
+                                    "min": 0.8,
+                                    "max": 2.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农副产品贮藏加工(1108)",
+                                    "min": 0.8,
+                                    "max": 2.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "insuredAmountHTRD",
+                            "name": "保险金额调整系数",
+                            "applicableTo": ["all"],
+                            "note": "保险金额单位为万元",
+                            "rows": [
+                                {
+                                    "parameter": "＜50万",
+                                    "min": 2.1,
+                                    "max": 5.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[50，100）万",
+                                    "min": 1.2,
+                                    "max": 2.1,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[100，500）万",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[500，1000）万",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "≥1000万",
+                                    "min": 0.7,
+                                    "max": 0.8,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountHTRD",
+                            "name": "免赔额调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleHTRD",
+                            "note": "免赔额与保险金额交叉查表；保险金额单位为万元",
+                            "rows": [
+                                {
+                                    "parameter": "[1000,2000]元（保额＜50万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1000,2000]元（保额[50,100)万）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "(2000,5000]元（保额＜50万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(2000,5000]元（保额[50,100)万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5000,1万]元（保额＜50万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5000,1万]元（保额[50,100)万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5000,1万]元（保额[100,500)万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额＜50万）",
+                                    "min": 0.9,
+                                    "max": 0.97,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额[50,100)万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额[100,500)万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额[500,1000)万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额＜50万）",
+                                    "min": 0.84,
+                                    "max": 0.9,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额[50,100)万）",
+                                    "min": 0.9,
+                                    "max": 0.97,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额[100,500)万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额[500,1000)万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额≥1000万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额＜50万）",
+                                    "min": 0.67,
+                                    "max": 0.84,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额[50,100)万）",
+                                    "min": 0.84,
+                                    "max": 0.9,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额[100,500)万）",
+                                    "min": 0.9,
+                                    "max": 0.97,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额[500,1000)万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额≥1000万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(10万,20万]元（保额[100,500)万）",
+                                    "min": 0.84,
+                                    "max": 0.9,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(10万,20万]元（保额[500,1000)万）",
+                                    "min": 0.9,
+                                    "max": 0.97,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(10万,20万]元（保额≥1000万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(20万,30万]元（保额[100,500)万）",
+                                    "min": 0.67,
+                                    "max": 0.84,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(20万,30万]元（保额[500,1000)万）",
+                                    "min": 0.84,
+                                    "max": 0.9,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(20万,30万]元（保额≥1000万）",
+                                    "min": 0.9,
+                                    "max": 0.97,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "riskMgmtHTRD",
+                            "name": "风险管理水平调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "较高",
+                                    "min": 0.5,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较低",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossRatioHTRD",
+                            "name": "赔付率调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "[0，20%]",
+                                    "min": 0.5,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（20%，45%]",
+                                    "min": 0.6,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（45%，70%]",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（70%，95%]",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "＞95%",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "hiTechBI2025": {
+            "productName": "高新技术企业营业中断保险（2025版）",
+            "productType": "property",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": None,
+            "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+            "formulaNote": "短期承保保险费按条款所附短期费率表计收",
+            "versions": {
+                "original": {
+                    "label": "高新技术企业营业中断保险（2025版）费率",
+                    "baseRates": {
+                        "default": 0.003
+                    },
+                    "coefficients": [
+                        {
+                            "id": "industryHTBI",
+                            "name": "行业调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "电子信息(0101-0106)",
+                                    "min": 1.0,
+                                    "max": 1.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "软件(0201-0203)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "航空航天(0301-0302)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "光机电一体化(0401-0402)",
+                                    "min": 0.8,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "生物、医药和医疗器械(0501-0505)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新材料(0601-0604)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新能源与高效节能(0701-0702)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "环境保护(0801-0805)",
+                                    "min": 1.0,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "地球、空间与海洋(0901-0905)",
+                                    "min": 1.1,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-优良动植物新品种(1101)",
+                                    "min": 0.7,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-家畜良种胚胎(1102)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-生物农药(1103)",
+                                    "min": 0.9,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-诊断试剂与疫苗(1104)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-饲料及添加剂(1105)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-新型肥料(1106)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农业工程设施(1107)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农副产品贮藏加工(1108)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionRiskHTBI",
+                            "name": "区域灾害风险调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "较低",
+                                    "min": 0.5,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较高",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "rdTermHTBI",
+                            "name": "研发期限调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "＜0.5年",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[0.5，1）年",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[1，2）年",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥2年",
+                                    "min": 1.5,
+                                    "max": 1.8,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountHTBI",
+                            "name": "免赔额调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleHTBI",
+                            "note": "免赔额与保险金额交叉查表；若同时约定免赔额和免赔率，以低者为准",
+                            "rows": [
+                                {
+                                    "parameter": "[1000,2000]元（保额＜1000万）",
+                                    "min": 0.93,
+                                    "max": 0.96,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1000,2000]元（保额[1000万,1亿)）",
+                                    "min": 0.96,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(2000,5000]元（保额＜1000万）",
+                                    "min": 0.87,
+                                    "max": 0.93,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(2000,5000]元（保额[1000万,1亿)）",
+                                    "min": 0.93,
+                                    "max": 0.96,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(2000,5000]元（保额[1亿,10亿)）",
+                                    "min": 0.96,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(2000,5000]元（保额≥10亿）",
+                                    "min": 0.98,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5000,1万]元（保额＜1000万）",
+                                    "min": 0.8,
+                                    "max": 0.87,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5000,1万]元（保额[1000万,1亿)）",
+                                    "min": 0.87,
+                                    "max": 0.93,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5000,1万]元（保额[1亿,10亿)）",
+                                    "min": 0.93,
+                                    "max": 0.96,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5000,1万]元（保额≥10亿）",
+                                    "min": 0.96,
+                                    "max": 0.98,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额＜1000万）",
+                                    "min": 0.66,
+                                    "max": 0.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额[1000万,1亿)）",
+                                    "min": 0.8,
+                                    "max": 0.87,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额[1亿,10亿)）",
+                                    "min": 0.87,
+                                    "max": 0.93,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(1万,3万]元（保额≥10亿）",
+                                    "min": 0.93,
+                                    "max": 0.96,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额＜1000万）",
+                                    "min": 0.6,
+                                    "max": 0.66,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额[1000万,1亿)）",
+                                    "min": 0.66,
+                                    "max": 0.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额[1亿,10亿)）",
+                                    "min": 0.8,
+                                    "max": 0.87,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(3万,5万]元（保额≥10亿）",
+                                    "min": 0.87,
+                                    "max": 0.93,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额＜1000万）",
+                                    "min": 0.52,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额[1000万,1亿)）",
+                                    "min": 0.6,
+                                    "max": 0.66,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额[1亿,10亿)）",
+                                    "min": 0.66,
+                                    "max": 0.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(5万,10万]元（保额≥10亿）",
+                                    "min": 0.8,
+                                    "max": 0.87,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(10万,20万]元（保额＜1000万）",
+                                    "min": 0.45,
+                                    "max": 0.52,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(10万,20万]元（保额[1000万,1亿)）",
+                                    "min": 0.52,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(10万,20万]元（保额[1亿,10亿)）",
+                                    "min": 0.6,
+                                    "max": 0.66,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(10万,20万]元（保额≥10亿）",
+                                    "min": 0.66,
+                                    "max": 0.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(20万,30万]元（保额[1000万,1亿)）",
+                                    "min": 0.45,
+                                    "max": 0.52,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(20万,30万]元（保额[1亿,10亿)）",
+                                    "min": 0.52,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "(20万,30万]元（保额≥10亿）",
+                                    "min": 0.6,
+                                    "max": 0.66,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "riskMgmtHTBI",
+                            "name": "风险管理水平调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "较高",
+                                    "min": 0.5,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较低",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossRatioHTBI",
+                            "name": "赔付率调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "[0，20%]",
+                                    "min": 0.5,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（20%，45%]",
+                                    "min": 0.6,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（45%，70%]",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（70%，95%]",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "＞95%",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "techRDProtection2025": {
+            "productName": "科技企业研发保障保险（2025版）",
+            "productType": "composite",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": None,
+            "subRisks": ["rdExpense", "livingAllowance"],
+            "subRiskLabels": {
+                "rdExpense": "研发费用损失责任",
+                "livingAllowance": "生活补贴责任"
+            },
+            "formulaText": "保险费＝∑（分项责任保险金额×分项责任基准费率×各项适用的费率调整系数的乘积）",
+            "formulaNote": "",
+            "versions": {
+                "original": {
+                    "label": "科技企业研发保障保险（2025版）费率",
+                    "baseRates": {
+                        "rdExpense": 0.0306,
+                        "livingAllowance": 0.0332
+                    },
+                    "coefficients": [
+                        {
+                            "id": "projectRiskTRP",
+                            "name": "项目风险调整系数",
+                            "applicableTo": ["rdExpense", "livingAllowance"],
+                            "rows": [
+                                {
+                                    "parameter": "较低",
+                                    "min": 0.5,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较高",
+                                    "min": 1.5,
+                                    "max": 2.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "projectTermTRP",
+                            "name": "项目期限调整系数",
+                            "applicableTo": ["rdExpense", "livingAllowance"],
+                            "rows": [
+                                {
+                                    "parameter": "≤1年",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（1，2]年",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（2，3]年",
+                                    "min": 1.2,
+                                    "max": 1.4,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "＞3年",
+                                    "min": 1.4,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "rdExperienceTRP",
+                            "name": "研发经验调整系数",
+                            "applicableTo": ["rdExpense", "livingAllowance"],
+                            "rows": [
+                                {
+                                    "parameter": "有丰富的项目研发经验",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "有一定的项目研发经验",
+                                    "min": 1.0,
+                                    "max": 1.3,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "无项目研发经验",
+                                    "min": 1.3,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "managementTRP",
+                            "name": "管理水平调整系数",
+                            "applicableTo": ["rdExpense", "livingAllowance"],
+                            "rows": [
+                                {
+                                    "parameter": "管理人员的管理水平较高",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "管理人员的管理水平一般",
+                                    "min": 1.0,
+                                    "max": 1.3,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "管理人员的管理水平较低",
+                                    "min": 1.3,
+                                    "max": 1.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductRateTRP",
+                            "name": "免赔率调整系数",
+                            "applicableTo": ["rdExpense", "livingAllowance"],
+                            "linkedGroup": "deductibleTRP",
+                            "note": "若同时约定免赔率与免赔额，以低者为准",
+                            "rows": [
+                                {
+                                    "parameter": "0",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20%",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30%",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountRdTRP",
+                            "name": "免赔额调整系数（研发费用损失）",
+                            "applicableTo": ["rdExpense"],
+                            "linkedGroup": "deductibleTRP",
+                            "note": "未列明免赔额可按线性插值法计算",
+                            "rows": [
+                                {
+                                    "parameter": "0万元",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元",
+                                    "value": 0.99,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元",
+                                    "value": 0.97,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥10万元",
+                                    "min": 0.9,
+                                    "max": 0.93,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountLivTRP",
+                            "name": "免赔额调整系数（生活补贴）",
+                            "applicableTo": ["livingAllowance"],
+                            "linkedGroup": "deductibleTRP",
+                            "note": "未列明免赔额可按线性插值法计算",
+                            "rows": [
+                                {
+                                    "parameter": "0万元",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥2万元",
+                                    "min": 0.85,
+                                    "max": 0.9,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "energyStorage2025": {
+            "productName": "储能设施综合运营保险（2025版）",
+            "productType": "composite",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": None,
+            "subRisks": [
+                "storageAllRisk",
+                "equipDamage",
+                "biAllRisk",
+                "biEquip"
+            ],
+            "subRiskLabels": {
+                "storageAllRisk": "运营期一切险",
+                "equipDamage": "设备损失保险",
+                "biAllRisk": "营业中断(一切险)",
+                "biEquip": "营业中断(设备损失)"
+            },
+            "formulaText": "总保险费＝各项保险的年保险费之和",
+            "formulaNote": "各项保险的年保险费＝各项保险的保险金额×对应的基准费率×各项适用的费率调整系数的乘积",
+            "versions": {
+                "original": {
+                    "label": "储能设施综合运营保险（2025版）费率",
+                    "baseRates": {
+                        "storageAllRisk": 0.0021,
+                        "equipDamage": 0.0023,
+                        "biAllRisk": 0.0032,
+                        "biEquip": 0.0058
+                    },
+                    "coefficients": [
+                        {
+                            "id": "insuredAmountES",
+                            "name": "保险金额调整系数",
+                            "applicableTo": [
+                                "storageAllRisk",
+                                "equipDamage",
+                                "biAllRisk",
+                                "biEquip"
+                            ],
+                            "rows": [
+                                {
+                                    "parameter": "＜1000万",
+                                    "min": 1.1,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1000万，5000万）",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000万，1亿）",
+                                    "min": 0.95,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1亿，2亿）",
+                                    "min": 0.9,
+                                    "max": 0.95,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[2亿，5亿）",
+                                    "min": 0.85,
+                                    "max": 0.9,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "≥5亿",
+                                    "min": 0.8,
+                                    "max": 0.85,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossRatioES",
+                            "name": "赔付率调整系数",
+                            "applicableTo": [
+                                "storageAllRisk",
+                                "equipDamage",
+                                "biAllRisk",
+                                "biEquip"
+                            ],
+                            "rows": [
+                                {
+                                    "parameter": "[0，20%]",
+                                    "min": 0.5,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（20%，45%]",
+                                    "min": 0.6,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（45%，70%]",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（70%，95%]",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "＞95%",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "managementES",
+                            "name": "管理水平调整系数",
+                            "applicableTo": [
+                                "storageAllRisk",
+                                "equipDamage",
+                                "biAllRisk",
+                                "biEquip"
+                            ],
+                            "rows": [
+                                {
+                                    "parameter": "管理制度和事故防范措施完善",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "管理制度和事故防范措施较为完善",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "管理制度和事故防范措施缺陷较多",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossHistoryES",
+                            "name": "历史事故与损失情况调整系数",
+                            "applicableTo": [
+                                "storageAllRisk",
+                                "equipDamage",
+                                "biAllRisk",
+                                "biEquip"
+                            ],
+                            "rows": [
+                                {
+                                    "parameter": "极少",
+                                    "min": 0.5,
+                                    "max": 0.7,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较少",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.3,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较多",
+                                    "min": 1.3,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "很多",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "naturalDisasterES",
+                            "name": "自然灾害风险调整系数",
+                            "applicableTo": ["storageAllRisk", "biAllRisk"],
+                            "rows": [
+                                {
+                                    "parameter": "低",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "中",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "高",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireExplosionES",
+                            "name": "火灾爆炸风险调整系数",
+                            "applicableTo": ["storageAllRisk", "biAllRisk"],
+                            "rows": [
+                                {
+                                    "parameter": "较低",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较高",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireCapabilityES",
+                            "name": "消防能力调整系数",
+                            "applicableTo": ["storageAllRisk", "biAllRisk"],
+                            "rows": [
+                                {
+                                    "parameter": "消防设施设备及人员完备，能快速处置",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "消防设施设备及人员较完备，能较快处置",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "消防设施设备及人员不足或无法及时处置",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountARES",
+                            "name": "一切险免赔额调整系数",
+                            "applicableTo": ["storageAllRisk"],
+                            "linkedGroup": "deductibleAR_ES",
+                            "note": "若同时约定免赔额和免赔率，以低者为准",
+                            "rows": [
+                                {
+                                    "parameter": "0万元",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "0.5万元",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1.0万元",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1.5万元",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥2.0万元",
+                                    "min": 0.7,
+                                    "max": 0.8,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductRateARES",
+                            "name": "一切险免赔率调整系数",
+                            "applicableTo": ["storageAllRisk"],
+                            "linkedGroup": "deductibleAR_ES",
+                            "rows": [
+                                {
+                                    "parameter": "0%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20%",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30%",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "equipAgeES",
+                            "name": "主要设备已使用年数调整系数",
+                            "applicableTo": ["equipDamage", "biEquip"],
+                            "rows": [
+                                {
+                                    "parameter": "＜5年",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5，10）年",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10，15）年",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "≥15年",
+                                    "min": 2.0,
+                                    "max": 3.0,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "equipOriginES",
+                            "name": "主要设备产地调整系数",
+                            "applicableTo": ["equipDamage", "biEquip"],
+                            "rows": [
+                                {
+                                    "parameter": "国产",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "进口",
+                                    "min": 1.2,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountEDES",
+                            "name": "设备损失免赔额调整系数",
+                            "applicableTo": ["equipDamage"],
+                            "linkedGroup": "deductibleED_ES",
+                            "note": "若同时约定免赔额和免赔率，以低者为准",
+                            "rows": [
+                                {
+                                    "parameter": "0万元",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "0.5万元",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1.0万元",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1.5万元",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥2.0万元",
+                                    "min": 0.7,
+                                    "max": 0.8,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductRateEDES",
+                            "name": "设备损失免赔率调整系数",
+                            "applicableTo": ["equipDamage"],
+                            "linkedGroup": "deductibleED_ES",
+                            "rows": [
+                                {
+                                    "parameter": "0%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20%",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30%",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "compensationTermES",
+                            "name": "赔偿期限调整系数",
+                            "applicableTo": ["biAllRisk", "biEquip"],
+                            "note": "未列明赔偿期限可按线性插值法计算",
+                            "rows": [
+                                {
+                                    "parameter": "6个月",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "12个月",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "18个月",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "24个月",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountBIES",
+                            "name": "营业中断免赔额调整系数",
+                            "applicableTo": ["biAllRisk", "biEquip"],
+                            "linkedGroup": "deductibleBI_ES",
+                            "note": "免赔额÷营业中断保险金额；若同时约定免赔额、免赔率、免赔天数，以低者为准",
+                            "rows": [
+                                {
+                                    "parameter": "0",
+                                    "value": 1.3,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1%",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2%",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "6%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥9%",
+                                    "min": 0.7,
+                                    "max": 0.8,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductRateBIES",
+                            "name": "营业中断免赔率调整系数",
+                            "applicableTo": ["biAllRisk", "biEquip"],
+                            "linkedGroup": "deductibleBI_ES",
+                            "rows": [
+                                {
+                                    "parameter": "0%",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30%",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductDaysBIES",
+                            "name": "营业中断免赔天数调整系数",
+                            "applicableTo": ["biAllRisk", "biEquip"],
+                            "linkedGroup": "deductibleBI_ES",
+                            "rows": [
+                                {
+                                    "parameter": "0天",
+                                    "value": 1.3,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5天",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10天",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "15天",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20天",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "25天",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥30天",
+                                    "min": 0.7,
+                                    "max": 0.8,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "techCorpProperty": {
+            "productName": "科技型企业财产保险（一切险）",
+            "productType": "property",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": 0.7,
+            "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+            "formulaNote": "若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算",
+            "versions": {
+                "original": {
+                    "label": "科技型企业财产保险（一切险）费率",
+                    "baseRates": {
+                        "default": 0.0018
+                    },
+                    "coefficients": [
+                        {
+                            "id": "industryTCP",
+                            "name": "行业调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "电子信息(0101-0106)",
+                                    "min": 1.0,
+                                    "max": 1.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "软件(0201-0203)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "航空航天(0301-0302)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "光机电一体化(0401-0402)",
+                                    "min": 0.8,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "生物、医药和医疗器械(0501-0505)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新材料(0601-0604)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新能源与高效节能(0701-0702)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "环境保护(0801-0805)",
+                                    "min": 1.0,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "地球、空间与海洋(0901-0905)",
+                                    "min": 1.1,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-优良动植物新品种(1101)",
+                                    "min": 0.7,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-家畜良种胚胎(1102)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-生物农药(1103)",
+                                    "min": 0.9,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-诊断试剂与疫苗(1104)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-饲料及添加剂(1105)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-新型肥料(1106)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农业工程设施(1107)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农副产品贮藏加工(1108)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionStormTCP",
+                            "name": "暴风雨区域调整系数(占比22%)",
+                            "applicableTo": ["all"],
+                            "note": "区域调整系数＝暴风雨22%×本值+台风7%×台风值+洪水4%×洪水值+其他67%×其他值",
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、陕、青、宁、津)",
+                                    "min": 0.12,
+                                    "max": 0.54,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(晋、蒙、辽、连、吉、黑、沪、浙、甬、闽、厦、鲁、青岛、豫、鄂、粤、深、琼、渝、黔、藏、甘、新)",
+                                    "min": 0.52,
+                                    "max": 1.34,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(冀、苏、皖、赣、湘、桂、滇、川)",
+                                    "min": 1.27,
+                                    "max": 1.74,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionTyphoonTCP",
+                            "name": "台风区域调整系数(占比7%)",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、津、冀、晋、蒙、辽、连、吉、黑、皖、豫、鄂、川、渝、黔、滇、藏、陕、甘、青、宁、新)",
+                                    "min": 0.01,
+                                    "max": 0.05,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(鲁、青岛、赣、湘)",
+                                    "min": 0.1,
+                                    "max": 0.48,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(沪、苏、桂、琼)",
+                                    "min": 0.6,
+                                    "max": 2.44,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "四类(闽、厦、浙、甬、粤、深)",
+                                    "min": 2.61,
+                                    "max": 5.13,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionFloodTCP",
+                            "name": "洪水区域调整系数(占比4%)",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、津、沪、藏)",
+                                    "min": 0.01,
+                                    "max": 0.08,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(冀、晋、蒙、辽、连、吉、黑、苏、鲁、青岛、豫、粤、深、琼、陕、甘、青、宁、新、厦)",
+                                    "min": 0.11,
+                                    "max": 0.88,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(浙、甬、闽、川、渝、黔、滇)",
+                                    "min": 1.04,
+                                    "max": 1.92,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "四类(皖、赣、湘、桂、鄂)",
+                                    "min": 1.74,
+                                    "max": 4.45,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionOtherTCP",
+                            "name": "其他灾因区域调整系数(占比67%)",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、津、沪、陕、青、宁、吉、渝、川、闽、粤、琼、厦、深)",
+                                    "min": 0.85,
+                                    "max": 0.91,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(甘、新、晋、辽、黑、鄂、苏、皖、浙、黔、连、甬、藏)",
+                                    "min": 0.95,
+                                    "max": 1.05,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(赣、湘、桂、冀、鲁、豫、青岛)",
+                                    "min": 1.08,
+                                    "max": 1.14,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "四类(蒙、滇)",
+                                    "min": 1.17,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "insuredAmountTCP",
+                            "name": "保险金额调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "＜1000万",
+                                    "min": 2.1,
+                                    "max": 5.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1000万，1亿）",
+                                    "min": 0.8,
+                                    "max": 2.1,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1亿，10亿）",
+                                    "min": 0.5,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "≥10亿",
+                                    "min": 0.2,
+                                    "max": 0.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountTCP",
+                            "name": "免赔额调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleTCP",
+                            "note": "免赔额与保险金额交叉查表；若同时约定免赔额和免赔率，以低者为准",
+                            "rows": [
+                                {
+                                    "parameter": "1000元（保额≤1000万）",
+                                    "value": 0.97,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1000元（保额约1亿）",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额≤1000万）",
+                                    "value": 0.93,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额约1亿）",
+                                    "value": 0.96,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额约10亿）",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2000元（保额＞10亿）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额≤1000万）",
+                                    "value": 0.87,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额约1亿）",
+                                    "value": 0.92,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额约10亿）",
+                                    "value": 0.96,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5000元（保额＞10亿）",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额≤1000万）",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额约1亿）",
+                                    "value": 0.86,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额约10亿）",
+                                    "value": 0.94,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1万元（保额＞10亿）",
+                                    "value": 0.97,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额≤1000万）",
+                                    "value": 0.66,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额约1亿）",
+                                    "value": 0.73,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额约10亿）",
+                                    "value": 0.86,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3万元（保额＞10亿）",
+                                    "value": 0.94,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额≤1000万）",
+                                    "value": 0.6,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额约1亿）",
+                                    "value": 0.66,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额约10亿）",
+                                    "value": 0.82,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5万元（保额＞10亿）",
+                                    "value": 0.91,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额≤1000万）",
+                                    "value": 0.52,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额约1亿）",
+                                    "value": 0.57,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额约10亿）",
+                                    "value": 0.73,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10万元（保额＞10亿）",
+                                    "value": 0.87,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额≤1000万）",
+                                    "value": 0.45,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额约1亿）",
+                                    "value": 0.49,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额约10亿）",
+                                    "value": 0.64,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20万元（保额＞10亿）",
+                                    "value": 0.81,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30万元（保额约1亿）",
+                                    "value": 0.45,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30万元（保额约10亿）",
+                                    "value": 0.59,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30万元（保额＞10亿）",
+                                    "value": 0.77,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductRateTCP",
+                            "name": "免赔率调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleTCP",
+                            "rows": [
+                                {
+                                    "parameter": "0",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "20%",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30%",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "geoLocationTCP",
+                            "name": "地理位置调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "位于地势低洼处、山坡/山脚下、或临近江河海湖水库",
+                                    "min": 1.1,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "无上述情况",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "surroundingTCP",
+                            "name": "周边环境调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "周围存在火灾爆炸隐患或毗邻高风险建筑",
+                                    "min": 1.1,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "无上述情况",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "specialIndustryTCP",
+                            "name": "特定行业调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "生产工艺对环境要求极严格（如无尘、无菌）",
+                                    "min": 2.0,
+                                    "max": 4.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "其他行业",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "buildingTCP",
+                            "name": "建筑物结构调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "钢筋混凝土结构",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "钢结构",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "砖混结构",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "砖砌/石头",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "木质结构",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "其他",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "venueRiskTCP",
+                            "name": "场所占用性质调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "风险密集型公共营业场所（小商品市场、家具灯具城等）",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "其他",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lightningTCP",
+                            "name": "防雷避雷设施调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "缺少必要的防雷避雷设施",
+                                    "min": 1.05,
+                                    "max": 1.3,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "无上述情况",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireFacilityTCP",
+                            "name": "消防设施调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "消防设施齐备、有效",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "消防设施不太齐备或部分失效",
+                                    "min": 1.0,
+                                    "max": 1.3,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "消防设施不齐备或无效",
+                                    "min": 1.3,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "publicFireTCP",
+                            "name": "公共消防队调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "距离较近、级别较高、反应较快",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "有一定距离、级别中等、反应一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "距离较远、级别较低、反应较慢",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "floodFacilityTCP",
+                            "name": "防洪设施调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "防洪设施齐备、有效",
+                                    "min": 0.95,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "防洪设施不太齐备或部分失效",
+                                    "min": 1.0,
+                                    "max": 1.3,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "防洪设施不齐备或均无效",
+                                    "min": 1.3,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "managementTCP",
+                            "name": "管理水平调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "较高",
+                                    "min": 0.5,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较低",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossHistoryTCP",
+                            "name": "历史事故与损失情况调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "极少",
+                                    "min": 0.5,
+                                    "max": 0.7,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较少",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较多",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "很多",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "renewalTCP",
+                            "name": "续保调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "新保",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保一年",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保两年",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保三年及以上",
+                                    "value": 0.92,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "riskDispersionTCP",
+                            "name": "保险标的风险分散程度调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "分散程度较高",
+                                    "min": 0.85,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "分散程度较低",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "waterResistTCP",
+                            "name": "保险标的耐水性调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "较高",
+                                    "min": 0.95,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.3,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较低",
+                                    "min": 1.3,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "techCorpRDEquip": {
+            "productName": "科技型企业关键研发设备保险（2025版）",
+            "productType": "property",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": 0.7,
+            "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+            "formulaNote": "若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算",
+            "versions": {
+                "original": {
+                    "label": "科技型企业关键研发设备保险（2025版）费率",
+                    "baseRates": {
+                        "default": 0.0023
+                    },
+                    "coefficients": [
+                        {
+                            "id": "industryTCRE",
+                            "name": "行业调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "电子信息(0101-0106)",
+                                    "min": 1.2,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "航空航天(0301-0302)",
+                                    "min": 2.0,
+                                    "max": 5.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "光机电一体化(0401-0402)",
+                                    "min": 1.1,
+                                    "max": 2.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "生物、医药和医疗器械(0501-0505)",
+                                    "min": 1.2,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新材料(0601-0604)",
+                                    "min": 1.0,
+                                    "max": 2.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新能源与高效节能(0701-0702)",
+                                    "min": 1.2,
+                                    "max": 2.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "环境保护(0801-0805)",
+                                    "min": 0.8,
+                                    "max": 4.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "地球、空间与海洋(0901-0905)",
+                                    "min": 1.2,
+                                    "max": 3.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-优良动植物新品种(1101)",
+                                    "min": 0.7,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-家畜良种胚胎(1102)",
+                                    "min": 0.9,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-生物农药(1103)",
+                                    "min": 0.9,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-诊断试剂与疫苗(1104)",
+                                    "min": 1.2,
+                                    "max": 3.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-饲料及添加剂(1105)",
+                                    "min": 1.2,
+                                    "max": 2.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-新型肥料(1106)",
+                                    "min": 1.0,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农业工程设施(1107)",
+                                    "min": 0.8,
+                                    "max": 2.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农副产品贮藏加工(1108)",
+                                    "min": 0.8,
+                                    "max": 2.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "insuredAmountTCRE",
+                            "name": "保险金额调整系数",
+                            "applicableTo": ["all"],
+                            "note": "保险金额单位为万元",
+                            "rows": [
+                                {
+                                    "parameter": "≤50万",
+                                    "min": 3.0,
+                                    "max": 5.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（50，100]万",
+                                    "min": 2.0,
+                                    "max": 3.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（100，500]万",
+                                    "min": 1.0,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（500，1000]万",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "＞1000万",
+                                    "min": 0.6,
+                                    "max": 0.8,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountTCRE",
+                            "name": "免赔额调整系数",
+                            "applicableTo": ["all"],
+                            "linkedGroup": "deductibleTCRE",
+                            "note": "免赔额与保险金额交叉查表；保险金额单位为万元",
+                            "rows": [
+                                {
+                                    "parameter": "[1000,2000)元（保额≤50万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1000,2000)元（保额(50,100]万）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[2000,5000)元（保额≤50万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[2000,5000)元（保额(50,100]万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000,1万)元（保额≤50万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000,1万)元（保额(50,100]万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000,1万)元（保额(100,500]万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额≤50万）",
+                                    "min": 0.9,
+                                    "max": 0.97,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额(50,100]万）",
+                                    "min": 0.93,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额(100,500]万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额(500,1000]万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额≤50万）",
+                                    "min": 0.84,
+                                    "max": 0.9,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额(50,100]万）",
+                                    "min": 0.89,
+                                    "max": 0.93,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额(100,500]万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额(500,1000]万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额＞1000万）",
+                                    "min": 0.99,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额≤50万）",
+                                    "min": 0.67,
+                                    "max": 0.84,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额(50,100]万）",
+                                    "min": 0.78,
+                                    "max": 0.89,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额(100,500]万）",
+                                    "min": 0.95,
+                                    "max": 0.97,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额(500,1000]万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额＞1000万）",
+                                    "min": 0.98,
+                                    "max": 0.99,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10万,20万)元（保额(100,500]万）",
+                                    "min": 0.89,
+                                    "max": 0.95,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10万,20万)元（保额(500,1000]万）",
+                                    "min": 0.96,
+                                    "max": 0.97,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10万,20万)元（保额＞1000万）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[20万,30万]元（保额(100,500]万）",
+                                    "min": 0.84,
+                                    "max": 0.89,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[20万,30万]元（保额(500,1000]万）",
+                                    "min": 0.93,
+                                    "max": 0.96,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[20万,30万]元（保额＞1000万）",
+                                    "min": 0.95,
+                                    "max": 0.97,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "operatorTCRE",
+                            "name": "操作人员培训情况调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "充分培训并持证上岗",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "上岗前必要培训但无持证要求",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "缺少必要培训",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "maintenanceTCRE",
+                            "name": "维修保养情况调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "定期进行维修保养",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "不定期进行维修保养",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "缺少维修保养条件",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lightningTCRE",
+                            "name": "防雷避雷设施调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "布设了必要的防雷避雷设施",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "布设了部分防雷避雷设施",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "未布设防雷避雷设施",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "managementTCRE",
+                            "name": "管理水平调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "制定有相关管理规范并严格执行",
+                                    "min": 0.5,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "制定有相关管理规范并基本得到执行",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "缺少相关管理规范",
+                                    "min": 1.15,
+                                    "max": 2.0,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossHistoryTCRE",
+                            "name": "历史事故与损失情况调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "极少",
+                                    "min": 0.5,
+                                    "max": 0.7,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较少",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较多",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "很多",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "renewalTCRE",
+                            "name": "续保调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "新保",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保1年",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保2年",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保3年以上",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "riskDispersionTCRE",
+                            "name": "研发项目风险分散程度调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "高",
+                                    "min": 0.8,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "中",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "低",
+                                    "min": 1.15,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossRatioTCRE",
+                            "name": "赔付率调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "[0，20%]",
+                                    "min": 0.5,
+                                    "max": 0.6,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（20%，45%]",
+                                    "min": 0.6,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（45%，70%]",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "（70%，95%]",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "＞95%",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "techCorpBI": {
+            "productName": "科技型企业营业中断保险（2025版）",
+            "productType": "property",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": 0.7,
+            "formulaText": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+            "formulaNote": "若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算",
+            "versions": {
+                "original": {
+                    "label": "科技型企业营业中断保险（2025版）费率",
+                    "baseRates": {
+                        "default": 0.0029
+                    },
+                    "coefficients": [
+                        {
+                            "id": "industryTCBI",
+                            "name": "行业调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "电子信息(0101-0106)",
+                                    "min": 1.0,
+                                    "max": 1.8,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "软件(0201-0203)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "航空航天(0301-0302)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "光机电一体化(0401-0402)",
+                                    "min": 0.8,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "生物、医药和医疗器械(0501-0505)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新材料(0601-0604)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "新能源与高效节能(0701-0702)",
+                                    "min": 1.2,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "环境保护(0801-0805)",
+                                    "min": 1.0,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "地球、空间与海洋(0901-0905)",
+                                    "min": 1.1,
+                                    "max": 2.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-优良动植物新品种(1101)",
+                                    "min": 0.7,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-家畜良种胚胎(1102)",
+                                    "min": 0.9,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-生物农药(1103)",
+                                    "min": 0.9,
+                                    "max": 1.2,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-诊断试剂与疫苗(1104)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-饲料及添加剂(1105)",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-新型肥料(1106)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农业工程设施(1107)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "农业-农副产品贮藏加工(1108)",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionStormTCBI",
+                            "name": "暴风雨区域调整系数(占比31%)",
+                            "applicableTo": ["all"],
+                            "note": "区域调整系数＝暴风雨31%×本值+台风9%×台风值+洪水5%×洪水值+其他55%×其他值",
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、陕、青、宁、津)",
+                                    "min": 0.12,
+                                    "max": 0.54,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(晋、蒙、辽、连、吉、黑、沪、浙、甬、闽、厦、鲁、青岛、豫、鄂、粤、深、琼、渝、黔、藏、甘、新)",
+                                    "min": 0.52,
+                                    "max": 1.34,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(冀、苏、皖、赣、湘、桂、滇、川)",
+                                    "min": 1.27,
+                                    "max": 1.74,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionTyphoonTCBI",
+                            "name": "台风区域调整系数(占比9%)",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、津、冀、晋、蒙、辽、连、吉、黑、皖、豫、鄂、川、渝、黔、滇、藏、陕、甘、青、宁、新)",
+                                    "min": 0.01,
+                                    "max": 0.05,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(鲁、青岛、赣、湘)",
+                                    "min": 0.1,
+                                    "max": 0.48,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(沪、苏、桂、琼)",
+                                    "min": 0.6,
+                                    "max": 2.44,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "四类(闽、厦、浙、甬、粤、深)",
+                                    "min": 2.61,
+                                    "max": 5.13,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionFloodTCBI",
+                            "name": "洪水区域调整系数(占比5%)",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、津、沪、藏)",
+                                    "min": 0.01,
+                                    "max": 0.08,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(冀、晋、蒙、辽、连、吉、黑、苏、鲁、青岛、豫、粤、深、琼、陕、甘、青、宁、新、厦)",
+                                    "min": 0.11,
+                                    "max": 0.88,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(浙、甬、闽、川、渝、黔、滇)",
+                                    "min": 1.04,
+                                    "max": 1.92,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "四类(皖、赣、湘、桂、鄂)",
+                                    "min": 1.74,
+                                    "max": 4.45,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "regionOtherTCBI",
+                            "name": "其他灾因区域调整系数(占比55%)",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "一类(京、津、沪、陕、青、宁、吉、渝、川、闽、粤、琼、厦、深)",
+                                    "min": 0.85,
+                                    "max": 0.91,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "二类(甘、新、晋、辽、黑、鄂、苏、皖、浙、黔、连、甬、藏)",
+                                    "min": 0.95,
+                                    "max": 1.05,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "三类(赣、湘、桂、冀、鲁、豫、青岛)",
+                                    "min": 1.08,
+                                    "max": 1.14,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "四类(蒙、滇)",
+                                    "min": 1.17,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "rdTermTCBI",
+                            "name": "研发期限调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "半年以下（含）",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "半年至1年（含）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "1-2年（含）",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "2-3年（含）",
+                                    "value": 1.5,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "3年以上",
+                                    "min": 1.6,
+                                    "max": 5.0,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductAmountTCBI",
+                            "name": "绝对免赔额调整系数",
+                            "applicableTo": ["all"],
+                            "note": "免赔额与保险金额交叉查表",
+                            "rows": [
+                                {
+                                    "parameter": "[1000,2000)元（保额≤1000万）",
+                                    "min": 0.93,
+                                    "max": 0.97,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1000,2000)元（保额约1亿）",
+                                    "min": 0.96,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[2000,5000)元（保额≤1000万）",
+                                    "min": 0.87,
+                                    "max": 0.93,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[2000,5000)元（保额约1亿）",
+                                    "min": 0.92,
+                                    "max": 0.96,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[2000,5000)元（保额约10亿）",
+                                    "min": 0.96,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[2000,5000)元（保额＞10亿）",
+                                    "min": 0.98,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000,1万)元（保额≤1000万）",
+                                    "min": 0.8,
+                                    "max": 0.87,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000,1万)元（保额约1亿）",
+                                    "min": 0.86,
+                                    "max": 0.92,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000,1万)元（保额约10亿）",
+                                    "min": 0.94,
+                                    "max": 0.96,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5000,1万)元（保额＞10亿）",
+                                    "min": 0.97,
+                                    "max": 0.98,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额≤1000万）",
+                                    "min": 0.66,
+                                    "max": 0.8,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额约1亿）",
+                                    "min": 0.73,
+                                    "max": 0.86,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额约10亿）",
+                                    "min": 0.86,
+                                    "max": 0.94,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[1万,3万)元（保额＞10亿）",
+                                    "min": 0.94,
+                                    "max": 0.97,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额≤1000万）",
+                                    "min": 0.6,
+                                    "max": 0.66,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额约1亿）",
+                                    "min": 0.66,
+                                    "max": 0.73,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额约10亿）",
+                                    "min": 0.81,
+                                    "max": 0.86,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[3万,5万)元（保额＞10亿）",
+                                    "min": 0.91,
+                                    "max": 0.94,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额≤1000万）",
+                                    "min": 0.52,
+                                    "max": 0.6,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额约1亿）",
+                                    "min": 0.57,
+                                    "max": 0.66,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额约10亿）",
+                                    "min": 0.73,
+                                    "max": 0.81,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[5万,10万)元（保额＞10亿）",
+                                    "min": 0.87,
+                                    "max": 0.91,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10万,20万)元（保额≤1000万）",
+                                    "min": 0.45,
+                                    "max": 0.52,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10万,20万)元（保额约1亿）",
+                                    "min": 0.49,
+                                    "max": 0.57,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10万,20万)元（保额约10亿）",
+                                    "min": 0.64,
+                                    "max": 0.73,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[10万,20万)元（保额＞10亿）",
+                                    "min": 0.81,
+                                    "max": 0.87,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[20万,30万]元（保额约1亿）",
+                                    "min": 0.45,
+                                    "max": 0.49,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[20万,30万]元（保额约10亿）",
+                                    "min": 0.59,
+                                    "max": 0.64,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "[20万,30万]元（保额＞10亿）",
+                                    "min": 0.77,
+                                    "max": 0.81,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "geoLocationTCBI",
+                            "name": "地理位置风险状况调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "地势较高或远离江河海湖水库",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "地势低洼或临近江河海湖水库",
+                                    "min": 1.0,
+                                    "max": 1.3,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireRiskTCBI",
+                            "name": "火灾爆炸风险调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "无隐患，防火灭火装置齐备有效",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "存在一定隐患，装置不太齐备或部分有效",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "隐患较多，装置不齐备且无效",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "buildingTCBI",
+                            "name": "建筑物结构调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "钢筋混凝土结构",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "钢结构",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "砖混结构",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "砖砌/石头",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "木材",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "其他",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "venueRiskTCBI",
+                            "name": "营业场所风险密集程度",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "低",
+                                    "min": 0.8,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "中",
+                                    "min": 1.0,
+                                    "max": 1.5,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "高",
+                                    "min": 1.5,
+                                    "max": 3.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lightningTCBI",
+                            "name": "防雷避雷设施调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "布设了必要的防雷避雷设施",
+                                    "min": 0.8,
+                                    "max": 1.0,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "布设了部分防雷避雷设施",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "未布设防雷避雷设施",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "publicFireTCBI",
+                            "name": "公共消防队调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "距离较近、级别较高、反应较快",
+                                    "min": 0.8,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "有一定距离、级别中等、反应一般",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "距离较远、级别较低、反应较慢",
+                                    "min": 1.15,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "floodFacilityTCBI",
+                            "name": "防洪设施调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "防洪设施齐备、有效",
+                                    "min": 0.8,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "防洪设施不太齐备，部分有效",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "防洪设施不齐备或均无效",
+                                    "min": 1.15,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "managementTCBI",
+                            "name": "企业风险管理水平调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "制定有相关管理规范并严格执行",
+                                    "min": 0.5,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "制定有相关管理规范并基本得到执行",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "缺少相关管理规范",
+                                    "min": 1.15,
+                                    "max": 2.0,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "riskDispersionTCBI",
+                            "name": "研发项目风险分散程度调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "高",
+                                    "min": 0.8,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "中",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "低",
+                                    "min": 1.15,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "waterRiskTCBI",
+                            "name": "水损风险调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "不易受损",
+                                    "min": 0.5,
+                                    "max": 0.95,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.1,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较易受损",
+                                    "min": 1.15,
+                                    "max": 2.0,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "renewalTCBI",
+                            "name": "续保调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "新保",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保1年",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保2年",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "续保3年以上",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossHistoryTCBI",
+                            "name": "历史事故与损失情况调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "极少",
+                                    "min": 0.5,
+                                    "max": 0.7,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较少",
+                                    "min": 0.7,
+                                    "max": 1.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "min": 1.0,
+                                    "max": 1.2,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "较多",
+                                    "min": 1.2,
+                                    "max": 1.5,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "很多",
+                                    "min": 1.5,
+                                    "max": 2.0,
+                                    "minExclusive": True,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "commercialBuilding": {
+            "productName": "商业楼宇财产一切险",
+            "productType": "multiRiskSum",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": 0.5,
+            "formulaText": "年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)",
+            "formulaNote": "各费率调整系数乘积不应低于0.50",
+            "versions": {
+                "original": {
+                    "label": "商业楼宇财产一切险费率",
+                    "risks": [
+                        {
+                            "id": "fireExplosion",
+                            "name": "火灾、爆炸",
+                            "baseRateTable": {
+                                "type": "industryBuilding",
+                                "buildingTypes": [
+                                    {
+                                        "id": "fireproof",
+                                        "name": "防火建筑"
+                                    },
+                                    {
+                                        "id": "nonflammable",
+                                        "name": "不可燃建筑"
+                                    },
+                                    {
+                                        "id": "combustible",
+                                        "name": "可燃建筑"
+                                    },
+                                    {
+                                        "id": "flammable",
+                                        "name": "易燃建筑"
+                                    }
+                                ],
+                                "labels": {
+                                    "J6800": "J6800 银行业",
+                                    "J700": "J700 保险业",
+                                    "J6900": "J6900 证券业",
+                                    "J7100": "J7100 其他金融活动",
+                                    "L7300": "L7300 租赁业",
+                                    "L7400": "L7400 商务服务",
+                                    "L7410": "L7410 企业管理服务",
+                                    "L7420": "L7420 法律服务",
+                                    "L7430": "L7430 咨询与调查",
+                                    "L7439": "L7439 其他专业咨询",
+                                    "L7440": "L7440 广告业",
+                                    "L7450": "L7450 知识产权服务",
+                                    "L7460": "L7460 职业中介服务",
+                                    "L7480": "L7480 旅行社",
+                                    "L7491": "L7491 保安服务",
+                                    "L7490": "L7490 其他服务",
+                                    "I6600": "I6600 住宿业",
+                                    "I6610": "I6610 旅游饭店",
+                                    "I6620": "I6620 一般旅馆",
+                                    "I6620-1": "I6620-1 星级旅馆",
+                                    "I6690": "I6690 其他住宿服务",
+                                    "I6700": "I6700 餐饮业",
+                                    "I6710": "I6710 正餐服务",
+                                    "I6720": "I6720 快餐服务",
+                                    "I6730": "I6730 饮料及冷饮服务",
+                                    "M7500": "M7500 研究与试验发展",
+                                    "M7600": "M7600 专业技术服务",
+                                    "M7700": "M7700 科技交流和推广服务",
+                                    "N7900": "N7900 水利管理业",
+                                    "N8000": "N8000 环境管理业",
+                                    "N8010": "N8010 自然保护",
+                                    "N8021": "N8021 城市环卫管理",
+                                    "N8022": "N8022 水污染治理",
+                                    "N8100": "N8100 公共设施管理",
+                                    "O8220": "O8220 托儿所/养老院/保健服务",
+                                    "O8240": "O8240 理发美容",
+                                    "O8230": "O8230 洗染服务",
+                                    "O8250": "O8250 洗浴服务",
+                                    "O8270": "O8270 殡葬服务",
+                                    "O8280": "O8280 摄影扩印服务",
+                                    "O8290": "O8290 其他居民服务",
+                                    "O8311": "O8311 汽车摩托车维护保养",
+                                    "O8316": "O8316 电器修理",
+                                    "O8317": "O8317 钟表珠宝维修",
+                                    "O8318": "O8318 装潢家具维修",
+                                    "O8319": "O8319 其他日用品维修",
+                                    "O8320": "O8320 保洁服务",
+                                    "P8410": "P8410 学前初等中等教育",
+                                    "P8440": "P8440 高等教育",
+                                    "P8490": "P8490 其他教育",
+                                    "P8491": "P8491 图书馆和信息中心",
+                                    "Q8510-1": "Q8510-1 医院卫生院",
+                                    "Q8510-2": "Q8510-2 妇幼保健活动",
+                                    "Q8570": "Q8570 疾病防控活动",
+                                    "Q8511": "Q8511 疗养院",
+                                    "Q8590": "Q8590 其他卫生活动",
+                                    "Q8600": "Q8600 社会保障业",
+                                    "Q8700": "Q8700 社会福利业",
+                                    "R8810": "R8810 新闻出版业",
+                                    "R8900": "R8900 广播电视影像制作",
+                                    "R8931": "R8931 电影制作和发行",
+                                    "R8933": "R8933 电影放映",
+                                    "R9010": "R9010 文艺创作与表演",
+                                    "R9020": "R9020 艺术表演场馆",
+                                    "R9040": "R9040 文物与文化保护",
+                                    "R9050": "R9050 博物馆纪念馆",
+                                    "R9110": "R9110 体育组织",
+                                    "R9120": "R9120 体育场馆",
+                                    "R9210": "R9210 室内娱乐活动",
+                                    "R9220": "R9220 游乐园",
+                                    "R9230": "R9230 休闲健身活动",
+                                    "R9200-1": "R9200-1 其他休闲娱乐",
+                                    "F5521": "F5521 机场",
+                                    "F5700": "F5700 运输服务业",
+                                    "F5900": "F5900 邮政业",
+                                    "F5990": "F5990 其他寄递服务",
+                                    "G6010": "G6010 电信业",
+                                    "G6020": "G6020 互联网服务",
+                                    "G6040": "G6040 卫星传输服务",
+                                    "G6030": "G6030 广播电视传输服务",
+                                    "G6100": "G6100 计算机服务",
+                                    "G6200": "G6200 软件业",
+                                    "S9300": "S9300 中国共产党机关",
+                                    "S9400": "S9400 国家及政府机关",
+                                    "S9490": "S9490 公安局消防局",
+                                    "S9500": "S9500 人民政协和民主党派",
+                                    "S9600-1": "S9600-1 群众团体及社会团体",
+                                    "S9600-2": "S9600-2 宗教组织",
+                                    "S9600-3": "S9600-3 其他团体组织",
+                                    "K": "K 房地产业",
+                                    "H": "H 批发和零售业",
+                                    "T": "T 国际组织"
+                                },
+                                "data": {
+                                    "J6800": {
+                                        "fireproof": 0.000127,
+                                        "nonflammable": 0.000179,
+                                        "combustible": 0.000242,
+                                        "flammable": 0.000457
+                                    },
+                                    "J700": {
+                                        "fireproof": 0.000127,
+                                        "nonflammable": 0.000179,
+                                        "combustible": 0.000242,
+                                        "flammable": 0.000457
+                                    },
+                                    "J6900": {
+                                        "fireproof": 0.000127,
+                                        "nonflammable": 0.000179,
+                                        "combustible": 0.000242,
+                                        "flammable": 0.000457
+                                    },
+                                    "J7100": {
+                                        "fireproof": 0.000139,
+                                        "nonflammable": 0.000197,
+                                        "combustible": 0.000265,
+                                        "flammable": 0.000503
+                                    },
+                                    "L7300": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000338,
+                                        "flammable": 0.000641
+                                    },
+                                    "L7400": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000338,
+                                        "flammable": 0.000641
+                                    },
+                                    "L7410": {
+                                        "fireproof": 0.000139,
+                                        "nonflammable": 0.000197,
+                                        "combustible": 0.000267,
+                                        "flammable": 0.000504
+                                    },
+                                    "L7420": {
+                                        "fireproof": 0.000127,
+                                        "nonflammable": 0.000179,
+                                        "combustible": 0.000242,
+                                        "flammable": 0.000457
+                                    },
+                                    "L7430": {
+                                        "fireproof": 0.000139,
+                                        "nonflammable": 0.000197,
+                                        "combustible": 0.000267,
+                                        "flammable": 0.000504
+                                    },
+                                    "L7439": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000338,
+                                        "flammable": 0.000641
+                                    },
+                                    "L7440": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000338,
+                                        "flammable": 0.000641
+                                    },
+                                    "L7450": {
+                                        "fireproof": 0.000165,
+                                        "nonflammable": 0.000233,
+                                        "combustible": 0.000313,
+                                        "flammable": 0.000595
+                                    },
+                                    "L7460": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000339,
+                                        "flammable": 0.000642
+                                    },
+                                    "L7480": {
+                                        "fireproof": 0.000191,
+                                        "nonflammable": 0.000268,
+                                        "combustible": 0.000362,
+                                        "flammable": 0.000687
+                                    },
+                                    "L7491": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000338,
+                                        "flammable": 0.000641
+                                    },
+                                    "L7490": {
+                                        "fireproof": 0.000191,
+                                        "nonflammable": 0.000268,
+                                        "combustible": 0.000362,
+                                        "flammable": 0.000687
+                                    },
+                                    "I6600": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "I6610": {
+                                        "fireproof": 0.000217,
+                                        "nonflammable": 0.000304,
+                                        "combustible": 0.00041,
+                                        "flammable": 0.000777
+                                    },
+                                    "I6620": {
+                                        "fireproof": 0.000217,
+                                        "nonflammable": 0.000304,
+                                        "combustible": 0.00041,
+                                        "flammable": 0.000777
+                                    },
+                                    "I6620-1": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000339,
+                                        "flammable": 0.000642
+                                    },
+                                    "I6690": {
+                                        "fireproof": 0.000217,
+                                        "nonflammable": 0.000304,
+                                        "combustible": 0.00041,
+                                        "flammable": 0.000777
+                                    },
+                                    "I6700": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "I6710": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "I6720": {
+                                        "fireproof": 0.00028,
+                                        "nonflammable": 0.000394,
+                                        "combustible": 0.000532,
+                                        "flammable": 0.001005
+                                    },
+                                    "I6730": {
+                                        "fireproof": 0.000242,
+                                        "nonflammable": 0.000341,
+                                        "combustible": 0.00046,
+                                        "flammable": 0.000871
+                                    },
+                                    "M7500": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "M7600": {
+                                        "fireproof": 0.00023,
+                                        "nonflammable": 0.000323,
+                                        "combustible": 0.000436,
+                                        "flammable": 0.000825
+                                    },
+                                    "M7700": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "N7900": {
+                                        "fireproof": 0.000192,
+                                        "nonflammable": 0.00027,
+                                        "combustible": 0.000365,
+                                        "flammable": 0.000691
+                                    },
+                                    "N8000": {
+                                        "fireproof": 0.000176,
+                                        "nonflammable": 0.000247,
+                                        "combustible": 0.000332,
+                                        "flammable": 0.00063
+                                    },
+                                    "N8010": {
+                                        "fireproof": 0.000176,
+                                        "nonflammable": 0.000247,
+                                        "combustible": 0.000332,
+                                        "flammable": 0.00063
+                                    },
+                                    "N8021": {
+                                        "fireproof": 0.000189,
+                                        "nonflammable": 0.000265,
+                                        "combustible": 0.000359,
+                                        "flammable": 0.000678
+                                    },
+                                    "N8022": {
+                                        "fireproof": 0.000189,
+                                        "nonflammable": 0.000265,
+                                        "combustible": 0.000359,
+                                        "flammable": 0.000678
+                                    },
+                                    "N8100": {
+                                        "fireproof": 0.000192,
+                                        "nonflammable": 0.00027,
+                                        "combustible": 0.000365,
+                                        "flammable": 0.000691
+                                    },
+                                    "O8220": {
+                                        "fireproof": 0.000186,
+                                        "nonflammable": 0.000262,
+                                        "combustible": 0.000354,
+                                        "flammable": 0.000671
+                                    },
+                                    "O8240": {
+                                        "fireproof": 0.000248,
+                                        "nonflammable": 0.00035,
+                                        "combustible": 0.000472,
+                                        "flammable": 0.000895
+                                    },
+                                    "O8230": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "O8250": {
+                                        "fireproof": 0.000289,
+                                        "nonflammable": 0.000406,
+                                        "combustible": 0.000548,
+                                        "flammable": 0.001039
+                                    },
+                                    "O8270": {
+                                        "fireproof": 0.000313,
+                                        "nonflammable": 0.000441,
+                                        "combustible": 0.000595,
+                                        "flammable": 0.001128
+                                    },
+                                    "O8280": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "O8290": {
+                                        "fireproof": 0.000248,
+                                        "nonflammable": 0.00035,
+                                        "combustible": 0.000472,
+                                        "flammable": 0.000895
+                                    },
+                                    "O8311": {
+                                        "fireproof": 0.000289,
+                                        "nonflammable": 0.000406,
+                                        "combustible": 0.000548,
+                                        "flammable": 0.001039
+                                    },
+                                    "O8316": {
+                                        "fireproof": 0.000306,
+                                        "nonflammable": 0.00043,
+                                        "combustible": 0.00058,
+                                        "flammable": 0.001099
+                                    },
+                                    "O8317": {
+                                        "fireproof": 0.00023,
+                                        "nonflammable": 0.000323,
+                                        "combustible": 0.000436,
+                                        "flammable": 0.000825
+                                    },
+                                    "O8318": {
+                                        "fireproof": 0.00023,
+                                        "nonflammable": 0.000323,
+                                        "combustible": 0.000436,
+                                        "flammable": 0.000825
+                                    },
+                                    "O8319": {
+                                        "fireproof": 0.000306,
+                                        "nonflammable": 0.00043,
+                                        "combustible": 0.00058,
+                                        "flammable": 0.001099
+                                    },
+                                    "O8320": {
+                                        "fireproof": 0.000306,
+                                        "nonflammable": 0.00043,
+                                        "combustible": 0.00058,
+                                        "flammable": 0.001099
+                                    },
+                                    "P8410": {
+                                        "fireproof": 0.00018,
+                                        "nonflammable": 0.000254,
+                                        "combustible": 0.000344,
+                                        "flammable": 0.00065
+                                    },
+                                    "P8440": {
+                                        "fireproof": 0.00018,
+                                        "nonflammable": 0.000254,
+                                        "combustible": 0.000344,
+                                        "flammable": 0.00065
+                                    },
+                                    "P8490": {
+                                        "fireproof": 0.000209,
+                                        "nonflammable": 0.000294,
+                                        "combustible": 0.000397,
+                                        "flammable": 0.000753
+                                    },
+                                    "P8491": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000339,
+                                        "flammable": 0.000642
+                                    },
+                                    "Q8510-1": {
+                                        "fireproof": 0.000248,
+                                        "nonflammable": 0.00035,
+                                        "combustible": 0.000472,
+                                        "flammable": 0.000895
+                                    },
+                                    "Q8510-2": {
+                                        "fireproof": 0.000244,
+                                        "nonflammable": 0.000342,
+                                        "combustible": 0.000462,
+                                        "flammable": 0.000875
+                                    },
+                                    "Q8570": {
+                                        "fireproof": 0.000244,
+                                        "nonflammable": 0.000342,
+                                        "combustible": 0.000462,
+                                        "flammable": 0.000875
+                                    },
+                                    "Q8511": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "Q8590": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "Q8600": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "Q8700": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "R8810": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "R8900": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "R8931": {
+                                        "fireproof": 0.000306,
+                                        "nonflammable": 0.00043,
+                                        "combustible": 0.00058,
+                                        "flammable": 0.001099
+                                    },
+                                    "R8933": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "R9010": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "R9020": {
+                                        "fireproof": 0.000238,
+                                        "nonflammable": 0.000335,
+                                        "combustible": 0.000451,
+                                        "flammable": 0.000854
+                                    },
+                                    "R9040": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "R9050": {
+                                        "fireproof": 0.000179,
+                                        "nonflammable": 0.000251,
+                                        "combustible": 0.000339,
+                                        "flammable": 0.000642
+                                    },
+                                    "R9110": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "R9120": {
+                                        "fireproof": 0.000268,
+                                        "nonflammable": 0.000377,
+                                        "combustible": 0.000509,
+                                        "flammable": 0.000965
+                                    },
+                                    "R9210": {
+                                        "fireproof": 0.000294,
+                                        "nonflammable": 0.000412,
+                                        "combustible": 0.000557,
+                                        "flammable": 0.001055
+                                    },
+                                    "R9220": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "R9230": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "R9200-1": {
+                                        "fireproof": 0.000306,
+                                        "nonflammable": 0.00043,
+                                        "combustible": 0.00058,
+                                        "flammable": 0.001099
+                                    },
+                                    "F5521": {
+                                        "fireproof": 0.000192,
+                                        "nonflammable": 0.00027,
+                                        "combustible": 0.000365,
+                                        "flammable": 0.000691
+                                    },
+                                    "F5700": {
+                                        "fireproof": 0.00023,
+                                        "nonflammable": 0.000324,
+                                        "combustible": 0.000438,
+                                        "flammable": 0.00083
+                                    },
+                                    "F5900": {
+                                        "fireproof": 0.000254,
+                                        "nonflammable": 0.000359,
+                                        "combustible": 0.000483,
+                                        "flammable": 0.000916
+                                    },
+                                    "F5990": {
+                                        "fireproof": 0.000306,
+                                        "nonflammable": 0.00043,
+                                        "combustible": 0.00058,
+                                        "flammable": 0.001099
+                                    },
+                                    "G6010": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000733
+                                    },
+                                    "G6020": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000731
+                                    },
+                                    "G6040": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000733
+                                    },
+                                    "G6030": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000733
+                                    },
+                                    "G6100": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000733
+                                    },
+                                    "G6200": {
+                                        "fireproof": 0.000203,
+                                        "nonflammable": 0.000286,
+                                        "combustible": 0.000386,
+                                        "flammable": 0.000733
+                                    },
+                                    "S9300": {
+                                        "fireproof": 0.000176,
+                                        "nonflammable": 0.000247,
+                                        "combustible": 0.000332,
+                                        "flammable": 0.00063
+                                    },
+                                    "S9400": {
+                                        "fireproof": 0.000176,
+                                        "nonflammable": 0.000247,
+                                        "combustible": 0.000332,
+                                        "flammable": 0.00063
+                                    },
+                                    "S9490": {
+                                        "fireproof": 0.000157,
+                                        "nonflammable": 0.000221,
+                                        "combustible": 0.000298,
+                                        "flammable": 0.000565
+                                    },
+                                    "S9500": {
+                                        "fireproof": 0.000153,
+                                        "nonflammable": 0.000215,
+                                        "combustible": 0.000291,
+                                        "flammable": 0.00055
+                                    },
+                                    "S9600-1": {
+                                        "fireproof": 0.000159,
+                                        "nonflammable": 0.000224,
+                                        "combustible": 0.000303,
+                                        "flammable": 0.000572
+                                    },
+                                    "S9600-2": {
+                                        "fireproof": 0.000207,
+                                        "nonflammable": 0.000291,
+                                        "combustible": 0.000392,
+                                        "flammable": 0.000744
+                                    },
+                                    "S9600-3": {
+                                        "fireproof": 0.000176,
+                                        "nonflammable": 0.000247,
+                                        "combustible": 0.000332,
+                                        "flammable": 0.00063
+                                    },
+                                    "K": {
+                                        "fireproof": 0.000153,
+                                        "nonflammable": 0.000215,
+                                        "combustible": 0.000289,
+                                        "flammable": 0.000548
+                                    },
+                                    "H": {
+                                        "fireproof": 0.000282,
+                                        "nonflammable": 0.000397,
+                                        "combustible": 0.000535,
+                                        "flammable": 0.001015
+                                    },
+                                    "T": {
+                                        "fireproof": 0.000153,
+                                        "nonflammable": 0.000215,
+                                        "combustible": 0.000289,
+                                        "flammable": 0.000548
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "typhoonFloodRain",
+                            "name": "台风、洪水、暴雨",
+                            "baseRateTable": {
+                                "type": "zoneStructure",
+                                "zoneLabels": {
+                                    "zone1": "一类区（北京、青海、宁夏、天津）",
+                                    "zone2": "二类区（陕西、山西、内蒙古、辽宁、大连、吉林、黑龙江、上海、山东、青岛、河南、重庆、甘肃、新疆、西藏）",
+                                    "zone3": "三类区（江苏、湖北、河北、贵州、云南、四川、广东、深圳、海南）",
+                                    "zone4": "四类区（安徽、湖南、广西、江西、浙江、宁波、福建、厦门）"
+                                },
+                                "structures": [
+                                    {
+                                        "id": "steel",
+                                        "name": "钢结构"
+                                    },
+                                    {
+                                        "id": "rc",
+                                        "name": "钢筋混凝土"
+                                    },
+                                    {
+                                        "id": "mixed",
+                                        "name": "混合结构"
+                                    },
+                                    {
+                                        "id": "brickWood",
+                                        "name": "砖木结构"
+                                    },
+                                    {
+                                        "id": "other",
+                                        "name": "其他结构"
+                                    }
+                                ],
+                                "data": {
+                                    "zone1": {
+                                        "steel": 4.8e-05,
+                                        "rc": 7.3e-05,
+                                        "mixed": 0.000121,
+                                        "brickWood": 0.000218,
+                                        "other": 0.000363
+                                    },
+                                    "zone2": {
+                                        "steel": 6.1e-05,
+                                        "rc": 9.1e-05,
+                                        "mixed": 0.000151,
+                                        "brickWood": 0.000273,
+                                        "other": 0.000454
+                                    },
+                                    "zone3": {
+                                        "steel": 7.3e-05,
+                                        "rc": 0.000109,
+                                        "mixed": 0.000182,
+                                        "brickWood": 0.000327,
+                                        "other": 0.000545
+                                    },
+                                    "zone4": {
+                                        "steel": 9.1e-05,
+                                        "rc": 0.000136,
+                                        "mixed": 0.000227,
+                                        "brickWood": 0.000409,
+                                        "other": 0.000681
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "earthquakeTsunami",
+                            "name": "地震、海啸",
+                            "baseRateTable": {
+                                "type": "zoneStructure",
+                                "zoneLabels": {
+                                    "zone1": "一类区（黑龙江、吉林、贵州、湖北、湖南、江西、浙江、宁波、广东、深圳、广西）",
+                                    "zone2": "二类区（内蒙古、山东、青岛、河南、安徽、福建、厦门、江苏、上海、重庆）",
+                                    "zone3": "三类区（山西、陕西、辽宁、大连、海南）",
+                                    "zone4": "四类区（北京、天津、河北、宁夏、甘肃、青海、四川）",
+                                    "zone5": "五类区（新疆、西藏、云南）"
+                                },
+                                "structures": [
+                                    {
+                                        "id": "steel",
+                                        "name": "钢结构"
+                                    },
+                                    {
+                                        "id": "rc",
+                                        "name": "钢筋混凝土"
+                                    },
+                                    {
+                                        "id": "mixed",
+                                        "name": "混合结构"
+                                    },
+                                    {
+                                        "id": "brickWood",
+                                        "name": "砖木结构"
+                                    },
+                                    {
+                                        "id": "other",
+                                        "name": "其他结构"
+                                    }
+                                ],
+                                "data": {
+                                    "zone1": {
+                                        "steel": 3e-05,
+                                        "rc": 3.8e-05,
+                                        "mixed": 4.2e-05,
+                                        "brickWood": 8.5e-05,
+                                        "other": 0.000129
+                                    },
+                                    "zone2": {
+                                        "steel": 7.7e-05,
+                                        "rc": 9.2e-05,
+                                        "mixed": 0.000104,
+                                        "brickWood": 0.000214,
+                                        "other": 0.00032
+                                    },
+                                    "zone3": {
+                                        "steel": 0.000117,
+                                        "rc": 0.000136,
+                                        "mixed": 0.000156,
+                                        "brickWood": 0.00032,
+                                        "other": 0.00048
+                                    },
+                                    "zone4": {
+                                        "steel": 0.000139,
+                                        "rc": 0.000165,
+                                        "mixed": 0.000188,
+                                        "brickWood": 0.000382,
+                                        "other": 0.000575
+                                    },
+                                    "zone5": {
+                                        "steel": 0.000233,
+                                        "rc": 0.000274,
+                                        "mixed": 0.000313,
+                                        "brickWood": 0.000639,
+                                        "other": 0.000959
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "otherNatural",
+                            "name": "其它自然灾害",
+                            "baseRateTable": {
+                                "type": "manual"
+                            },
+                            "defaultRate": 3.8e-05,
+                            "rateRange": [4e-05, 0.00016]
+                        },
+                        {
+                            "id": "otherAccident",
+                            "name": "其它意外事故",
+                            "baseRateTable": {
+                                "type": "manual"
+                            },
+                            "defaultRate": 6.1e-05,
+                            "rateRange": [5e-05, 0.00015]
+                        }
+                    ],
+                    "coefficients": [
+                        {
+                            "id": "fireAmountAdj",
+                            "name": "火灾爆炸-保额调整系数",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "＜0.5亿",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[0.5, 2)亿",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[2, 10)亿",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[10, 20)亿",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥20亿",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "typhoonAmountAdj",
+                            "name": "台风洪水暴雨-保额调整系数",
+                            "applicableTo": ["typhoonFloodRain"],
+                            "rows": [
+                                {
+                                    "parameter": "＜0.5亿",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[0.5, 2)亿",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[2, 10)亿",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[10, 20)亿",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥20亿",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "quakeAmountAdj",
+                            "name": "地震海啸-保额调整系数",
+                            "applicableTo": ["earthquakeTsunami"],
+                            "rows": [
+                                {
+                                    "parameter": "＜0.5亿",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[0.5, 2)亿",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[2, 10)亿",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[10, 20)亿",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥20亿",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "typhoonThreat",
+                            "name": "台风侵袭可能性",
+                            "applicableTo": ["typhoonFloodRain"],
+                            "rows": [
+                                {
+                                    "parameter": "台风登陆区域",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "台风影响区域",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "台风无影响区域",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "floodThreat",
+                            "name": "洪水侵袭可能性",
+                            "applicableTo": ["typhoonFloodRain"],
+                            "rows": [
+                                {
+                                    "parameter": "危险程度高地区",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "危险程度较高地区",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "危险程度较小地区",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "quakeThreat",
+                            "name": "地震侵袭可能性",
+                            "applicableTo": ["earthquakeTsunami"],
+                            "rows": [
+                                {
+                                    "parameter": "高于当地抗震设计标准",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "符合当地抗震设计标准",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "低于当地抗震设计标准",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "otherNatThreat",
+                            "name": "其他自然灾害威胁",
+                            "applicableTo": ["otherNatural"],
+                            "rows": [
+                                {
+                                    "parameter": "威胁高",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "一般威胁",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "威胁低",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireTeamTime",
+                            "name": "消防队到达时间",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "5分钟以内",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "6-15分钟",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "16-30分钟",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "30分钟以上",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossRecord",
+                            "name": "损失记录",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "＜40%（N=1年）",
+                                    "value": 0.75,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "＜40%（N=2年）",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "＜40%（N≥3年）",
+                                    "value": 0.65,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[40%,50%)（N=1年）",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[40%,50%)（N=2年）",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[40%,50%)（N≥3年）",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[50%,60%)（N=1年）",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[50%,60%)（N=2年）",
+                                    "value": 1.02,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[50%,60%)（N≥3年）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[60%,70%)（N=1年）",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[60%,70%)（N=2年）",
+                                    "value": 1.12,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[60%,70%)（N≥3年）",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[70%,90%)（任意年限）",
+                                    "min": 1.15,
+                                    "max": 1.3,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "≥90%（任意年限）",
+                                    "min": 1.3,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "naturalDisasterMeasure",
+                            "name": "自然灾害防范措施",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "有防范措施（效率高）",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "有防范措施（效率一般）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "无防范措施",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "safetyAwareness",
+                            "name": "安全意识",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "好",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "一般",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "safetyFacility",
+                            "name": "安全设施",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "有防范措施（效率高）",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "有防范措施（效率一般）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "无防范措施",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductibleAmount",
+                            "name": "免赔额调整系数",
+                            "linkedGroup": "deductible",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "＜1000元",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[1000, 2000)元",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[2000, 5000)元",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[5000, 8000)元",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[8000, 12000)元",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥12000元",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "deductibleRate",
+                            "name": "免赔率调整系数",
+                            "linkedGroup": "deductible",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "＜5%",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[5%, 10%)",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[10%, 15%)",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[15%, 20%)",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "≥20%",
+                                    "value": 0.75,
+                                    "type": "fixed"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+    "petrochemical": {
+            "productName": "石油化工企业财产一切险",
+            "productType": "multiRiskSum",
+            "amountUnit": "元",
+            "amountLabel": "保险金额",
+            "premiumCap": None,
+            "formulaText": "年保费 = 保险金额 × Σ(灾因基准费率 × 灾因调整系数乘积 × 赔付率调整系数)",
+            "formulaNote": "适用于石油化工企业整体投保；多产品企业按产量加权计算生产类型及规模系数",
+            "versions": {
+                "original": {
+                    "label": "石油化工企业财产一切险费率",
+                    "risks": [
+                        {
+                            "id": "fireExplosion",
+                            "name": "火灾及爆炸",
+                            "baseRateTable": {
+                                "type": "plantType",
+                                "data": {
+                                    "炼油厂": 0.00061,
+                                    "石油化工厂": 0.00045
+                                }
+                            },
+                            "deductibleNote": "基准免赔额：50万元或损失的5%，两者以高者为准"
+                        },
+                        {
+                            "id": "rainFlood",
+                            "name": "暴雨及洪水",
+                            "baseRateTable": {
+                                "type": "plantType",
+                                "data": {
+                                    "炼油厂": 0.00027,
+                                    "石油化工厂": 0.00023
+                                }
+                            },
+                            "deductibleNote": "基准免赔额：50万或损失的5%，两者以高者为准"
+                        },
+                        {
+                            "id": "windNatural",
+                            "name": "风灾及其他自然灾害",
+                            "baseRateTable": {
+                                "type": "plantType",
+                                "data": {
+                                    "炼油厂": 0.00015,
+                                    "石油化工厂": 0.00015
+                                }
+                            },
+                            "deductibleNote": "基准免赔额：15万或损失的5%，两者以高者为准"
+                        },
+                        {
+                            "id": "humanError",
+                            "name": "人工疏忽及失误",
+                            "baseRateTable": {
+                                "type": "plantType",
+                                "data": {
+                                    "炼油厂": 0.0003,
+                                    "石油化工厂": 0.00027
+                                }
+                            },
+                            "deductibleNote": "基准免赔额：20万或损失的5%，两者以高者为准"
+                        }
+                    ],
+                    "coefficients": [
+                        {
+                            "id": "productionTypeScale",
+                            "name": "生产类型及规模",
+                            "applicableTo": ["fireExplosion", "humanError"],
+                            "rows": [
+                                {
+                                    "parameter": "炼油厂 年加工量＜300万吨",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "炼油厂 年加工量300-800万吨",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "炼油厂 年加工量≥800万吨",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 合成树脂及塑料＜20万吨",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 合成树脂及塑料≥20万吨",
+                                    "value": 1.03,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 合纤原料及聚合物/合成纤维＜20万吨",
+                                    "value": 1.03,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 合纤原料及聚合物/合成纤维≥20万吨",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 合成橡胶＜20万吨",
+                                    "value": 0.97,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 合成橡胶≥20万吨",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 基本有机原料＜30万吨",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 基本有机原料≥30万吨",
+                                    "value": 1.03,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "石化厂 其它产品",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "ethyleneCracking",
+                            "name": "乙烯裂解",
+                            "applicableTo": ["fireExplosion", "humanError"],
+                            "rows": [
+                                {
+                                    "parameter": "生产流程中包含乙烯裂解",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "生产流程中不包含乙烯裂解",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "equipAge",
+                            "name": "设备新旧程度",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "投产后1年以下",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "投产后1-8年",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "投产后8年及以上",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "equipMaintenance",
+                            "name": "设备大修情况",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "能按规定定期大修",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "不能按规定定期大修",
+                                    "min": 1.1,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireAccident5yr",
+                            "name": "5年内火灾事故",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "发生过两次及以上重特大火灾事故",
+                                    "value": 1.3,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "发生过一次重特大火灾事故",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "未发生重特大火灾事故",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "未发生火灾事故",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireDeductAmount",
+                            "name": "火灾爆炸-免赔额",
+                            "linkedGroup": "fireDeductible",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "基准免赔额",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的2倍",
+                                    "value": 0.925,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的5倍",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的10倍",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的30倍及以上",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireDeductRate",
+                            "name": "火灾爆炸-免赔率",
+                            "linkedGroup": "fireDeductible",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "5%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "enterpriseType",
+                            "name": "企业类型",
+                            "applicableTo": ["fireExplosion", "humanError"],
+                            "rows": [
+                                {
+                                    "parameter": "国际跨国公司独资或合资大型石化企业",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "国有大型石油公司所属石化企业",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "其它国有石化企业",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "民营石化企业",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lightningFacility",
+                            "name": "避雷设施",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "符合安全生产相关规定",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "不符合安全生产相关规定",
+                                    "min": 1.1,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireTeam",
+                            "name": "专业消防队",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "企业内组建专业消防队并配备专业消防车",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "未组建专业消防队或未配备专业消防车",
+                                    "min": 1.1,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "surroundingEnv",
+                            "name": "周边环境",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "周围不存在火灾爆炸隐患",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "周围存在火灾爆炸隐患",
+                                    "min": 1.1,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fireSafety",
+                            "name": "消防安全",
+                            "applicableTo": ["fireExplosion"],
+                            "rows": [
+                                {
+                                    "parameter": "完全满足安全生产相关规定",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "不能完全满足安全生产相关规定",
+                                    "min": 1.1,
+                                    "max": 1.3,
+                                    "type": "range"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "rainfall20yr",
+                            "name": "近20年最大日降水量",
+                            "applicableTo": ["rainFlood"],
+                            "rows": [
+                                {
+                                    "parameter": "500毫米以上",
+                                    "value": 1.08,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "400-500毫米",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "200-400毫米",
+                                    "value": 1.02,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "100-200毫米",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "50-100毫米",
+                                    "value": 0.98,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "50毫米以下",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "waterProximity",
+                            "name": "周边水域",
+                            "applicableTo": ["rainFlood"],
+                            "rows": [
+                                {
+                                    "parameter": "5公里范围内有水域",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "5公里范围内无水域",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "mudslide10yr",
+                            "name": "近10年泥石流",
+                            "applicableTo": ["rainFlood"],
+                            "rows": [
+                                {
+                                    "parameter": "从未发生过",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "发生过一次",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "发生过两次及以上",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "rainDeductAmount",
+                            "name": "暴雨洪水-免赔额",
+                            "linkedGroup": "rainDeductible",
+                            "applicableTo": ["rainFlood"],
+                            "rows": [
+                                {
+                                    "parameter": "基准免赔额",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的2倍",
+                                    "value": 0.925,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的5倍",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的10倍",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的30倍及以上",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "rainDeductRate",
+                            "name": "暴雨洪水-免赔率",
+                            "linkedGroup": "rainDeductible",
+                            "applicableTo": ["rainFlood"],
+                            "rows": [
+                                {
+                                    "parameter": "5%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "windProvince",
+                            "name": "风灾-工厂所在省份",
+                            "applicableTo": ["windNatural"],
+                            "rows": [
+                                {
+                                    "parameter": "浙江、广东、福建、海南",
+                                    "value": 1.5,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "广西、辽宁、江苏",
+                                    "value": 1.3,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "湖南、吉林、黑龙江、山东",
+                                    "value": 1.2,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "陕西、山西、四川、甘肃、云南、河南",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "其它省份",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "windDeductAmount",
+                            "name": "风灾-免赔额",
+                            "linkedGroup": "windDeductible",
+                            "applicableTo": ["windNatural"],
+                            "rows": [
+                                {
+                                    "parameter": "基准免赔额",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的2倍",
+                                    "value": 0.925,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的5倍",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的10倍",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的30倍及以上",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "windDeductRate",
+                            "name": "风灾-免赔率",
+                            "linkedGroup": "windDeductible",
+                            "applicableTo": ["windNatural"],
+                            "rows": [
+                                {
+                                    "parameter": "5%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "humanDeductAmount",
+                            "name": "人工疏忽-免赔额",
+                            "linkedGroup": "humanDeductible",
+                            "applicableTo": ["humanError"],
+                            "rows": [
+                                {
+                                    "parameter": "基准免赔额",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的2倍",
+                                    "value": 0.925,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的5倍",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的10倍",
+                                    "value": 0.8,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "基准免赔额的30倍及以上",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "humanDeductRate",
+                            "name": "人工疏忽-免赔率",
+                            "linkedGroup": "humanDeductible",
+                            "applicableTo": ["humanError"],
+                            "rows": [
+                                {
+                                    "parameter": "5%",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "10%",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lossRecord",
+                            "name": "赔付率调整系数",
+                            "applicableTo": ["all"],
+                            "rows": [
+                                {
+                                    "parameter": "＜40%（N=1年）",
+                                    "value": 0.75,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "＜40%（N=2年）",
+                                    "value": 0.7,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "＜40%（N≥3年）",
+                                    "value": 0.65,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[40%,50%)（N=1年）",
+                                    "value": 0.95,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[40%,50%)（N=2年）",
+                                    "value": 0.9,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[40%,50%)（N≥3年）",
+                                    "value": 0.85,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[50%,60%)（N=1年）",
+                                    "value": 1.05,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[50%,60%)（N=2年）",
+                                    "value": 1.02,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[50%,60%)（N≥3年）",
+                                    "value": 1.0,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[60%,70%)（N=1年）",
+                                    "value": 1.15,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[60%,70%)（N=2年）",
+                                    "value": 1.12,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[60%,70%)（N≥3年）",
+                                    "value": 1.1,
+                                    "type": "fixed"
+                                },
+                                {
+                                    "parameter": "[70%,90%)（任意年限）",
+                                    "min": 1.15,
+                                    "max": 1.3,
+                                    "type": "range"
+                                },
+                                {
+                                    "parameter": "≥90%（任意年限）",
+                                    "min": 1.3,
+                                    "max": 1.5,
+                                    "type": "range"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
 }
 
 MC_DISABILITY_TABLES = {
@@ -2444,6 +9116,7 @@ ADDON_TYPES = {
     "regulatory": {"label": "规范类", "color": "#9ca3af"},
     "included_in_main": {"label": "纳入主险", "color": "#64748b"},
     "daily_prorate": {"label": "按日计费", "color": "#ea580c"},
+    "main_premium_modifier": {"label": "主险保费调整", "color": "#dc2626"},
 }
 
 # 关键词映射：文件名关键词 → 附加险类型
@@ -2460,6 +9133,7 @@ ADDON_KEYWORD_MAP = [
     (["月申报", "员工自动承保", "每月申报"], "no_calc"),
     (["纳入主险保险金额"], "included_in_main"),
     (["按日比例计算", "按日比例收取"], "daily_prorate"),
+    (["每次事故赔偿限额"], "main_premium_modifier"),
 ]
 
 # 伤残调整系数 (劳务关系人员)
@@ -3314,6 +9988,43 @@ class AddonInsuranceTab(QWidget):
             hint.setStyleSheet(f"padding: 10px; background: #fdf2f8; border: 1px solid #f9a8d4; border-radius: 8px; font-size: 12px;")
             self.detail_layout.addWidget(hint)
 
+        elif rate_type == "main_premium_modifier":
+            warn_label = QLabel("⚠️ 此条款直接调整主险保费（优先计算）")
+            warn_label.setStyleSheet("padding: 12px; background: #fef2f2; border: 2px solid #dc2626; "
+                                     "border-radius: 8px; font-size: 14px; font-weight: 700; color: #dc2626;")
+            self.detail_layout.addWidget(warn_label)
+            if entry.get("formula"):
+                formula_mod = QLabel(entry["formula"])
+                formula_mod.setStyleSheet("padding: 8px; font-size: 12px; color: #991b1b;")
+                self.detail_layout.addWidget(formula_mod)
+            table = (entry.get("coefficientTables") or [{}])[0]
+            col_keys = table.get("columns", [])
+            col_labels = table.get("columnLabels", [])
+            if len(col_keys) > 1:
+                type_row = QHBoxLayout()
+                type_row.addWidget(QLabel("适用主险类型:"))
+                self.modifier_insurance_combo = QComboBox()
+                for ci in range(1, len(col_keys)):
+                    self.modifier_insurance_combo.addItem(col_labels[ci] if ci < len(col_labels) else col_keys[ci], col_keys[ci])
+                type_row.addWidget(self.modifier_insurance_combo)
+                type_row.addStretch()
+                type_w = QWidget()
+                type_w.setLayout(type_row)
+                self.detail_layout.addWidget(type_w)
+            ratio_row = QHBoxLayout()
+            input_label_text = table.get("inputLabel", "限额÷保额比例")
+            ratio_row.addWidget(QLabel(f"{input_label_text}:"))
+            self.modifier_ratio_input = QDoubleSpinBox()
+            self.modifier_ratio_input.setRange(0, 100)
+            self.modifier_ratio_input.setDecimals(1)
+            self.modifier_ratio_input.setSuffix(" %")
+            ratio_row.addWidget(self.modifier_ratio_input)
+            ratio_row.addStretch()
+            ratio_w = QWidget()
+            ratio_w.setLayout(ratio_row)
+            self.detail_layout.addWidget(ratio_w)
+            self._render_modifier_table(table)
+
         elif rate_type == "table_coefficient":
             if entry.get("basePremium"):
                 bp = entry["basePremium"]
@@ -3445,6 +10156,109 @@ class AddonInsuranceTab(QWidget):
         return product, details
 
     # ---------- 计算引擎 (重构版) ----------
+    # ---------- 主险保费调整条款：多列系数表渲染 ----------
+    def _render_modifier_table(self, table):
+        """渲染 main_premium_modifier 的多列系数参考表"""
+        col_labels = table.get("columnLabels", [])
+        col_keys = table.get("columns", [])
+        rows = table.get("rows", [])
+        if not rows:
+            return
+        card = GlassCard()
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(12, 10, 12, 10)
+        title = QLabel(table.get("name", "调整系数表"))
+        title.setStyleSheet("font-weight: 600; font-size: 13px;")
+        layout.addWidget(title)
+        if table.get("supportsInterpolation"):
+            interp = QLabel("支持线性插值（可输入表中未列明的比例值）")
+            interp.setStyleSheet("font-size: 11px; color: #3b82f6;")
+            layout.addWidget(interp)
+        # 表头
+        header_text = "  |  ".join(col_labels)
+        header_label = QLabel(header_text)
+        header_label.setStyleSheet("font-weight: 600; font-size: 11px; padding: 4px; "
+                                   "background: #f3f4f6; border-radius: 4px;")
+        layout.addWidget(header_label)
+        # 数据行
+        for row in rows:
+            cells = [row.get("parameter", "")]
+            for ci in range(1, len(col_keys)):
+                val = row.get(col_keys[ci], "-")
+                cells.append(str(val))
+            row_label = QLabel("  |  ".join(cells))
+            row_label.setStyleSheet("font-size: 11px; padding: 2px 4px; font-family: monospace;")
+            layout.addWidget(row_label)
+        self.detail_layout.addWidget(card)
+
+    # ---------- 主险保费调整条款：插值查表 ----------
+    @staticmethod
+    def _interpolate_modifier_table(table, col_key, ratio_percent):
+        """在多列系数表中按比例插值查表"""
+        rows = table.get("rows", [])
+        ratios = []
+        for row in rows:
+            pct_str = row.get("parameter", "").replace("%", "")
+            try:
+                pct = float(pct_str)
+            except ValueError:
+                continue
+            val = row.get(col_key)
+            if val is not None:
+                ratios.append((pct, float(val)))
+        ratios.sort(key=lambda x: x[0])
+        if not ratios:
+            raise ValueError(f"系数表中无有效数据列 '{col_key}'")
+        if ratio_percent <= ratios[0][0]:
+            return ratios[0][1]
+        if ratio_percent >= ratios[-1][0]:
+            return ratios[-1][1]
+        for i in range(len(ratios) - 1):
+            if ratios[i][0] <= ratio_percent <= ratios[i + 1][0]:
+                t = (ratio_percent - ratios[i][0]) / (ratios[i + 1][0] - ratios[i][0])
+                return ratios[i][1] + t * (ratios[i + 1][1] - ratios[i][1])
+        return ratios[-1][1]
+
+    # ---------- 主险保费调整条款：计算 ----------
+    def _calc_main_premium_modifier(self, entry):
+        """计算主险保费调整（冰雹/台风/暴雪/通用每次事故赔偿限额）"""
+        table = (entry.get("coefficientTables") or [{}])[0]
+        if not table.get("rows"):
+            raise ValueError("缺少系数表数据")
+        combo = getattr(self, 'modifier_insurance_combo', None)
+        col_key = combo.currentData() if combo else table.get("columns", ["", ""])[1]
+        ratio_input = getattr(self, 'modifier_ratio_input', None)
+        ratio_percent = ratio_input.value() if ratio_input else 0
+        if ratio_percent <= 0 or ratio_percent > 100:
+            raise ValueError("请输入有效的限额÷保额比例（0-100）")
+        col_label = ""
+        col_labels = table.get("columnLabels", [])
+        col_keys = table.get("columns", [])
+        for ci, ck in enumerate(col_keys):
+            if ck == col_key:
+                col_label = col_labels[ci] if ci < len(col_labels) else ck
+                break
+        lookup_value = self._interpolate_modifier_table(table, col_key, ratio_percent)
+        modifier_type = entry.get("modifierType", "coefficient")
+        if modifier_type == "deductionPercent":
+            deduct_ratio = lookup_value / 100
+            adjusted = self.main_premium * (1 - deduct_ratio)
+            formula = (f"【{col_label}】限额÷保额={ratio_percent}% → 减少比例={lookup_value:.1f}%\n"
+                       f"{fmt_currency(self.main_premium)} × (1 - {lookup_value:.1f}%) = {fmt_currency(adjusted)}")
+        else:
+            adjusted = self.main_premium * lookup_value
+            formula = (f"【{col_label}】限额÷保额={ratio_percent}% → 调整系数={lookup_value:.5f}\n"
+                       f"{fmt_currency(self.main_premium)} × {lookup_value:.5f} = {fmt_currency(adjusted)}")
+        return {
+            "type": "main_premium_modifier",
+            "premium": 0,
+            "adjustedPremium": adjusted,
+            "originalPremium": self.main_premium,
+            "coefficient": lookup_value,
+            "isMainModifier": True,
+            "formulaDisplay": formula,
+        }
+
     def _calculate(self):
         entry = self.selected_entry
         if not entry:
@@ -3469,6 +10283,7 @@ class AddonInsuranceTab(QWidget):
                 "formula_sum": self._calc_formula_sum,
                 "deduction": self._calc_deduction,
                 "table_coefficient": self._calc_table,
+                "main_premium_modifier": self._calc_main_premium_modifier,
             }.get(rate_type)
             if not calc_method:
                 self._log(f"未知计算类型: {rate_type}", "error")
@@ -3477,16 +10292,33 @@ class AddonInsuranceTab(QWidget):
         except Exception as e:
             self._log(f"计算错误: {e}", "error")
             return
-        premium_text = fmt_currency(result["premium"])
-        if result["premium"] < 0:
-            premium_text = f"-{fmt_currency(abs(result['premium']))}"
-        self.addon_result_label.setText(f"✅ {result['formulaDisplay']}\n保费: {premium_text}")
-        bg_color = "#fef2f2" if result["premium"] < 0 else "#ecfdf5"
-        fg_color = "#991b1b" if result["premium"] < 0 else "#065f46"
-        self.addon_result_label.setStyleSheet(f"font-size: 13px; padding: 12px; background: {bg_color}; border-radius: 8px; color: {fg_color};")
-        self.addon_result_label.show()
-        self._add_premium_item(entry["clauseName"], result["premium"], result["formulaDisplay"])
-        self._log(f"计算完成 [{ADDON_TYPES.get(rate_type, {}).get('label', '')}]: {premium_text}", "success")
+        if result.get("isMainModifier"):
+            adjusted = result["adjustedPremium"]
+            original = result["originalPremium"]
+            self.main_premium = adjusted
+            self.main_premium_input.setValue(adjusted)
+            self.addon_result_label.setText(
+                f"✅ {result['formulaDisplay']}\n"
+                f"原主险保费: {fmt_currency(original)} → 调整后: {fmt_currency(adjusted)}"
+            )
+            self.addon_result_label.setStyleSheet(
+                "font-size: 13px; padding: 12px; background: #fef2f2; "
+                "border-left: 4px solid #dc2626; border-radius: 8px; color: #991b1b;"
+            )
+            self.addon_result_label.show()
+            self._add_premium_item(entry["clauseName"], 0, result["formulaDisplay"])
+            self._log(f"主险保费已调整: {fmt_currency(original)} → {fmt_currency(adjusted)}", "success")
+        else:
+            premium_text = fmt_currency(result["premium"])
+            if result["premium"] < 0:
+                premium_text = f"-{fmt_currency(abs(result['premium']))}"
+            self.addon_result_label.setText(f"✅ {result['formulaDisplay']}\n保费: {premium_text}")
+            bg_color = "#fef2f2" if result["premium"] < 0 else "#ecfdf5"
+            fg_color = "#991b1b" if result["premium"] < 0 else "#065f46"
+            self.addon_result_label.setStyleSheet(f"font-size: 13px; padding: 12px; background: {bg_color}; border-radius: 8px; color: {fg_color};")
+            self.addon_result_label.show()
+            self._add_premium_item(entry["clauseName"], result["premium"], result["formulaDisplay"])
+            self._log(f"计算完成 [{ADDON_TYPES.get(rate_type, {}).get('label', '')}]: {premium_text}", "success")
 
     def _calc_simple(self, entry):
         pct = entry.get("percentage", 0)
@@ -3886,15 +10718,50 @@ class AddonInsuranceTab(QWidget):
         if not matched:
             self._log("无匹配条款可计算", "warn")
             return
-        self.main_premium = self.main_premium_input.value()
-        if self.main_premium <= 0:
+        original_premium = self.main_premium_input.value()
+        if original_premium <= 0:
             self._log("请先输入主险保费", "warn")
             return
+        self.main_premium = original_premium
         calc_count = 0
         skip_count = 0
+        modifier_count = 0
+
+        # 第一轮：优先计算 main_premium_modifier 类型（调整主险保费）
+        for item in matched:
+            entry = item["entry"]
+            if entry.get("rateType") != "main_premium_modifier":
+                continue
+            combo = getattr(self, 'modifier_insurance_combo', None)
+            ratio_input = getattr(self, 'modifier_ratio_input', None)
+            col_key = combo.currentData() if combo else None
+            ratio_val = ratio_input.value() if ratio_input else 0
+            if not col_key or ratio_val <= 0:
+                self._add_premium_item(entry["clauseName"], 0,
+                                       "⚠️ 需手动计算 [主险保费调整] — 请单选此条款后设置参数")
+                skip_count += 1
+                continue
+            try:
+                result = self._calc_main_premium_modifier(entry)
+                self.main_premium = result["adjustedPremium"]
+                self._add_premium_item(entry["clauseName"], 0, result["formulaDisplay"])
+                modifier_count += 1
+                calc_count += 1
+            except Exception as e:
+                self._add_premium_item(entry["clauseName"], 0, f"⚠️ 计算失败: {e}")
+                skip_count += 1
+
+        if modifier_count > 0:
+            self.main_premium_input.setValue(self.main_premium)
+            self._log(f"主险保费已调整: {fmt_currency(original_premium)} → "
+                      f"{fmt_currency(self.main_premium)}（{modifier_count} 条调整条款）", "info")
+
+        # 第二轮：用调整后的主险保费计算其余附加险
         for item in matched:
             entry = item["entry"]
             rt = entry.get("rateType", "")
+            if rt == "main_premium_modifier":
+                continue
             if rt in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
                 skip_count += 1
                 continue
@@ -3910,4 +10777,7 @@ class AddonInsuranceTab(QWidget):
                 self._add_premium_item(entry["clauseName"], 0,
                                        f"需手动计算 [{ADDON_TYPES.get(rt, {}).get('label', rt)}]")
                 skip_count += 1
-        self._log(f"批量计算完成: {calc_count} 条已计算, {skip_count} 条需手动处理", "success")
+        msg = f"批量计算完成: {calc_count} 条已计算, {skip_count} 条需手动处理"
+        if modifier_count > 0:
+            msg += f" (含 {modifier_count} 条主险调整)"
+        self._log(msg, "success")
