@@ -2721,6 +2721,15 @@
                             oninput="rc_policyDays=parseInt(this.value)||365"
                             style="height:40px;border-radius:8px;border:1px solid var(--border-color);padding:0 12px;font-size:15px;font-weight:600;width:100%;">
                     </div>
+                    <div class="mc-input-group" style="flex:1;min-width:160px;">
+                        <label style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">主险类型（批量计算用）</label>
+                        <select id="rc_batchInsuranceType"
+                            style="height:40px;border-radius:8px;border:1px solid var(--border-color);padding:0 10px;font-size:14px;width:100%;">
+                            <option value="财产基本险">财产基本险</option>
+                            <option value="财产综合险">财产综合险</option>
+                            <option value="财产一切险" selected>财产一切险</option>
+                        </select>
+                    </div>
                     <div id="rc_mainPremiumDisplay" style="flex:1;min-width:200px;display:flex;gap:12px;">
                     </div>
                 </div>
@@ -9908,9 +9917,40 @@ ${fileList}
             }
 
             if (rt === 'simple_percentage') {
-                html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;"><strong>费率: </strong>';
-                html += e.multiplier ? ('主险保费 × ' + e.multiplier) : ('主险保费 × ' + e.percentage + '%');
-                html += '</div>';
+                if (e.insuranceTypeRates) {
+                    // 按险种差异化费率
+                    var itrTypes = Object.keys(e.insuranceTypeRates);
+                    var itrOptions = itrTypes.map(function(t) {
+                        var r = e.insuranceTypeRates[t];
+                        return '<option value="' + rc_escHtml(t) + '">' + rc_escHtml(t) + (r === 0 ? ' (规范类,不加收)' : ' (' + r + '%)') + '</option>';
+                    }).join('');
+                    html += '<div class="rc-extra-inputs" style="margin-bottom:12px;"><label>选择主险类型</label>' +
+                        '<select id="rc_insuranceTypeSelect" style="height:34px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;">' +
+                        itrOptions + '</select></div>';
+                    html += '<div style="padding:8px;background:#fff7ed;border:1px solid #fdba74;border-radius:6px;margin-bottom:12px;font-size:12px;">' +
+                        '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+                        '<tr style="background:#fed7aa;"><th style="padding:4px 8px;text-align:left;">主险类型</th><th style="padding:4px 8px;text-align:right;">附加险费率</th></tr>' +
+                        itrTypes.map(function(t) {
+                            var r = e.insuranceTypeRates[t];
+                            return '<tr><td style="padding:4px 8px;">' + rc_escHtml(t) + '</td><td style="padding:4px 8px;text-align:right;font-weight:600;">' +
+                                (r === 0 ? '规范类,不加收' : r + '%') + '</td></tr>';
+                        }).join('') + '</table></div>';
+                    // customInputs for this type (e.g. 铁路道路桥梁)
+                    if (e.customInputs && e.customInputs.length) {
+                        html += '<div style="margin-bottom:12px;">';
+                        for (var ci = 0; ci < e.customInputs.length; ci++) {
+                            var inp = e.customInputs[ci];
+                            html += '<div class="rc-extra-inputs" style="margin-bottom:8px;"><label>' + rc_escHtml(inp.label) + (inp.unit ? ' (' + inp.unit + ')' : '') + '</label>' +
+                                '<input type="number" id="rc_customInput_' + rc_escHtml(inp.key) + '" step="0.01" placeholder="请输入' + rc_escHtml(inp.label) + '" ' +
+                                'style="height:34px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;width:100%;"></div>';
+                        }
+                        html += '</div>';
+                    }
+                } else {
+                    html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;"><strong>费率: </strong>';
+                    html += e.multiplier ? ('主险保费 × ' + e.multiplier) : ('主险保费 × ' + e.percentage + '%');
+                    html += '</div>';
+                }
             }
             if (rt === 'modifier_coeff') {
                 html += '<div style="padding:12px;background:#fef2f2;border:2px solid #dc2626;border-radius:8px;margin-bottom:12px;">' +
@@ -10045,6 +10085,25 @@ ${fileList}
             }
             if (rt === 'table_coefficient') {
                 if (e.basePremium) html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;"><strong>基准保险费: </strong>' + rc_escHtml(e.basePremium.description) + '</div>';
+                // insuranceTypeRates: 按险种差异化费率选择
+                if (e.insuranceTypeRates) {
+                    var itrTypes = Object.keys(e.insuranceTypeRates);
+                    var itrOptions = itrTypes.map(function(t) {
+                        var r = e.insuranceTypeRates[t];
+                        return '<option value="' + rc_escHtml(t) + '">' + rc_escHtml(t) + (r === 0 ? ' (规范类,不加收)' : ' (' + r + '%)') + '</option>';
+                    }).join('');
+                    html += '<div class="rc-extra-inputs" style="margin-bottom:12px;"><label>选择主险类型（决定基准费率）</label>' +
+                        '<select id="rc_insuranceTypeSelect" style="height:34px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;">' +
+                        itrOptions + '</select></div>';
+                    html += '<div style="padding:8px;background:#fff7ed;border:1px solid #fdba74;border-radius:6px;margin-bottom:12px;font-size:12px;">' +
+                        '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+                        '<tr style="background:#fed7aa;"><th style="padding:4px 8px;text-align:left;">主险类型</th><th style="padding:4px 8px;text-align:right;">基准费率</th></tr>' +
+                        itrTypes.map(function(t) {
+                            var r = e.insuranceTypeRates[t];
+                            return '<tr><td style="padding:4px 8px;">' + rc_escHtml(t) + '</td><td style="padding:4px 8px;text-align:right;font-weight:600;">' +
+                                (r === 0 ? '规范类,不加收' : '主险保费 × ' + r + '%') + '</td></tr>';
+                        }).join('') + '</table></div>';
+                }
                 // customInputs 渲染（机器设备保额、赔偿限额等）
                 if (e.customInputs && e.customInputs.length) {
                     html += '<div style="margin-bottom:12px;">';
@@ -10066,7 +10125,8 @@ ${fileList}
                     html += '<div style="padding:8px;background:#eff6ff;border:1px solid #93c5fd;border-radius:6px;margin-bottom:12px;font-size:12px;color:#1e40af;">' +
                         '💡 ' + rc_escHtml(e.ratioHint.label) + (e.ratioHint.helpText ? '<br>' + rc_escHtml(e.ratioHint.helpText) : '') + '</div>';
                 }
-                if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
+                var tableStart = e.insuranceTypeRates ? 1 : 0; // 有insuranceTypeRates时跳过第一个系数表（已被下拉选择器替代）
+                if (e.coefficientTables) for (let ti = tableStart; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
             }
 
             if (rt !== 'regulatory' && rt !== 'no_calc' && rt !== 'included_in_main' && rt !== 'daily_prorate' && rt !== 'formula_conditional') {
@@ -10530,9 +10590,8 @@ ${fileList}
         function rc_calcMainPremiumModifier(e) {
             // simple_deduction 分支：按险种直接减免百分比
             if (e.modifierType === 'simple_deduction') {
-                var insTypeEl = document.getElementById('rc_deductionInsuranceType');
-                if (!insTypeEl) throw new Error('请选择主险类型');
-                var selectedType = insTypeEl.value;
+                var selectedType = rc_getSelectedInsuranceType();
+                if (!selectedType) throw new Error('请选择主险类型');
                 var deductPct = (e.insuranceTypeDeductions || {})[selectedType];
                 if (deductPct == null) throw new Error('未找到对应险种的减免比例');
                 if (deductPct === 0) {
@@ -10619,11 +10678,12 @@ ${fileList}
         }
 
         // --- 通用系数乘积 ---
-        function rc_getCoeffProduct(e) {
+        function rc_getCoeffProduct(e, startIndex) {
             let product = 1.0;
             const details = [];
             const tableCount = e.coefficientTables ? e.coefficientTables.length : 0;
-            for (let ti = 0; ti < tableCount; ti++) {
+            var si = startIndex || 0;
+            for (let ti = si; ti < tableCount; ti++) {
                 const sel = rc_coeffSelections[ti];
                 if (!sel) throw new Error('请选择「' + e.coefficientTables[ti].name + '」的系数值');
                 product *= sel.value;
@@ -10683,12 +10743,44 @@ ${fileList}
             }
         }
 
+        // 获取当前选中的主险类型（支持多个选择器fallback）
+        function rc_getSelectedInsuranceType() {
+            var selEl = document.getElementById('rc_insuranceTypeSelect')
+                || document.getElementById('rc_deductionInsuranceType')
+                || document.getElementById('rc_batchInsuranceType');
+            return selEl ? selEl.value : null;
+        }
+
         function rc_calcSimple(e) {
-            const rate = e.multiplier ? e.multiplier : (e.percentage / 100);
-            const premium = rc_mainPremium * rate;
-            const formulaStr = e.multiplier
-                ? rc_formatCurrency(rc_mainPremium) + ' × ' + e.multiplier + ' = ' + rc_formatCurrency(premium)
-                : rc_formatCurrency(rc_mainPremium) + ' × ' + e.percentage + '% = ' + rc_formatCurrency(premium);
+            var pct = e.percentage;
+            var selectedInsType = '';
+            // insuranceTypeRates: 按险种差异化费率
+            if (e.insuranceTypeRates) {
+                selectedInsType = rc_getSelectedInsuranceType();
+                if (!selectedInsType) throw new Error('请选择主险类型');
+                pct = e.insuranceTypeRates[selectedInsType];
+                if (pct == null) throw new Error('未找到' + selectedInsType + '的费率');
+                if (pct === 0) {
+                    return { type: 'simple_percentage', premium: 0,
+                        formulaDisplay: '【' + selectedInsType + '】规范类，不涉及保险费的调整' };
+                }
+            }
+            var rate = e.multiplier ? e.multiplier : (pct / 100);
+            var premium = rc_mainPremium * rate;
+            // ratioMultiplier 支持（如铁路道路桥梁）
+            var ratioStr = '';
+            if (e.ratioMultiplier) {
+                var numEl = document.getElementById('rc_customInput_' + e.ratioMultiplier.numeratorKey);
+                var numerator = numEl ? parseFloat(numEl.value) : 0;
+                if (!numerator || numerator <= 0) throw new Error('请输入' + (e.ratioMultiplier.label || '自定义金额'));
+                if (!rc_mainSumInsured || rc_mainSumInsured <= 0) throw new Error('请输入主险保险金额');
+                var ratioMult = numerator / rc_mainSumInsured;
+                premium = premium * ratioMult;
+                ratioStr = ' × ' + rc_formatCurrency(numerator) + '÷' + rc_formatCurrency(rc_mainSumInsured) + '(' + (ratioMult * 100).toFixed(2) + '%)';
+            }
+            var formulaStr = e.multiplier
+                ? rc_formatCurrency(rc_mainPremium) + ' × ' + e.multiplier + ratioStr + ' = ' + rc_formatCurrency(premium)
+                : (selectedInsType ? '【' + selectedInsType + '】' : '') + rc_formatCurrency(rc_mainPremium) + ' × ' + pct + '%' + ratioStr + ' = ' + rc_formatCurrency(premium);
             return { type: 'simple_percentage', premium, formulaDisplay: formulaStr };
         }
 
@@ -10832,10 +10924,36 @@ ${fileList}
 
         function rc_calcTable(e) {
             let basePremium = rc_mainPremium;
-            if (e.basePremium) {
-                if (e.basePremium.multiplier) basePremium = rc_mainPremium * e.basePremium.multiplier;
-                else if (e.basePremium.percentage) basePremium = rc_mainPremium * (e.basePremium.percentage / 100);
+            var baseStr = rc_formatCurrency(rc_mainPremium);
+            var coeffStartIndex = 0;
+            var selectedInsType = '';
+
+            // insuranceTypeRates: 按险种费率替代第一个系数表
+            if (e.insuranceTypeRates) {
+                selectedInsType = rc_getSelectedInsuranceType();
+                if (!selectedInsType) throw new Error('请选择主险类型');
+                var pct = e.insuranceTypeRates[selectedInsType];
+                if (pct == null) throw new Error('未找到【' + selectedInsType + '】的费率');
+                if (pct === 0) {
+                    return {
+                        type: 'table_coefficient', premium: 0,
+                        formulaDisplay: '【' + selectedInsType + '】规范类，不涉及保险费的调整',
+                        details: { mainPremium: rc_mainPremium, basePremium: 0, ratioMult: 1, coeffProduct: 0, coeffDetails: [] }
+                    };
+                }
+                basePremium = rc_mainPremium * (pct / 100);
+                baseStr = rc_formatCurrency(rc_mainPremium) + ' × ' + pct + '%';
+                coeffStartIndex = 1; // 跳过第一个系数表（已被insuranceTypeRates替代）
+            } else if (e.basePremium) {
+                if (e.basePremium.multiplier) {
+                    basePremium = rc_mainPremium * e.basePremium.multiplier;
+                    baseStr = rc_formatCurrency(rc_mainPremium) + ' × ' + e.basePremium.multiplier;
+                } else if (e.basePremium.percentage) {
+                    basePremium = rc_mainPremium * (e.basePremium.percentage / 100);
+                    baseStr = rc_formatCurrency(rc_mainPremium) + ' × ' + e.basePremium.percentage + '%';
+                }
             }
+
             // ratioMultiplier 支持: 自定义金额÷主险保额
             var ratioMult = 1.0;
             var ratioStr = '';
@@ -10847,15 +10965,13 @@ ${fileList}
                 ratioMult = numerator / rc_mainSumInsured;
                 ratioStr = ' × ' + rc_formatCurrency(numerator) + '÷' + rc_formatCurrency(rc_mainSumInsured) + '(' + (ratioMult * 100).toFixed(2) + '%)';
             }
-            const { product, details } = rc_getCoeffProduct(e);
+            const { product, details } = rc_getCoeffProduct(e, coeffStartIndex);
             const premium = basePremium * ratioMult * product;
-            const baseStr = e.basePremium && e.basePremium.multiplier
-                ? rc_formatCurrency(rc_mainPremium) + ' × ' + e.basePremium.multiplier
-                : (e.basePremium && e.basePremium.percentage ? rc_formatCurrency(rc_mainPremium) + ' × ' + e.basePremium.percentage + '%' : rc_formatCurrency(rc_mainPremium));
-            const coeffStr = details.map(c => c.value.toFixed(4)).join(' × ');
+            const coeffStr = details.length > 0 ? details.map(c => c.value.toFixed(4)).join(' × ') : '1';
             return {
                 type: 'table_coefficient', premium,
-                formulaDisplay: '基准 ' + baseStr + ' = ' + rc_formatCurrency(basePremium) + ratioStr + ' × 系数 (' + coeffStr + ') = ' + rc_formatCurrency(premium),
+                formulaDisplay: '基准 ' + baseStr + ' = ' + rc_formatCurrency(basePremium) + ratioStr +
+                    (details.length > 0 ? ' × 系数 (' + coeffStr + ')' : '') + ' = ' + rc_formatCurrency(premium),
                 details: { mainPremium: rc_mainPremium, basePremium, ratioMult, coeffProduct: product, coeffDetails: details }
             };
         }
