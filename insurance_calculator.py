@@ -9102,7 +9102,7 @@ class MainInsuranceTab(QWidget):
 # =============================================
 
 ADDON_TYPES = {
-    "modifier_coeff": {"label": "主险系数调整", "color": "#8b5cf6"},
+    "modifier_coeff": {"label": "主险系数调整", "color": "#dc2626"},
     "sudden_death": {"label": "突发疾病身故", "color": "#ef4444"},
     "per_person_rate": {"label": "每人费率", "color": "#f59e0b"},
     "per_person_base": {"label": "每人定额", "color": "#06b6d4"},
@@ -9837,9 +9837,12 @@ class AddonInsuranceTab(QWidget):
             self.detail_layout.addWidget(info)
 
         elif rate_type == "modifier_coeff":
-            hint = QLabel("⚡ 优先级最高：此条款调整主险保费系数\n选择免赔天数对应的调整系数后计算")
-            hint.setWordWrap(True)
-            hint.setStyleSheet(f"padding: 10px; background: #faf5ff; border: 1px solid #c084fc; border-radius: 8px; font-size: 12px; color: #7c3aed;")
+            warn_label = QLabel("⚠️ 此条款直接调整主险保费（优先计算）")
+            warn_label.setStyleSheet("padding: 12px; background: #fef2f2; border: 2px solid #dc2626; "
+                                     "border-radius: 8px; font-size: 14px; font-weight: 700; color: #dc2626;")
+            self.detail_layout.addWidget(warn_label)
+            hint = QLabel("选择免赔天数对应的调整系数后计算")
+            hint.setStyleSheet("padding: 6px; font-size: 12px; color: #991b1b;")
             self.detail_layout.addWidget(hint)
             for ti, table in enumerate(entry.get("coefficientTables", [])):
                 self._render_addon_coeff_table(table, ti)
@@ -10334,14 +10337,21 @@ class AddonInsuranceTab(QWidget):
         return {"type": "simple_percentage", "premium": premium, "formulaDisplay": formula_str}
 
     def _calc_modifier_coeff(self, entry):
-        """误工费: 调整主险保费系数"""
+        """误工费: 调整主险保费系数（直接调整主险保费）"""
         product, details = self._get_coeff_product(entry)
         adjusted = self.main_premium * product
-        diff = adjusted - self.main_premium
         coeff_str = " × ".join(f"{d['value']:.4f}" for d in details)
-        formula_str = (f"调整后主险保费 = {fmt_currency(self.main_premium)} × {coeff_str} = {fmt_currency(adjusted)}\n"
-                       f"差额: {'+' if diff >= 0 else ''}{fmt_currency(diff)}")
-        return {"type": "modifier_coeff", "premium": diff, "formulaDisplay": formula_str}
+        formula_str = (f"调整系数: {coeff_str}\n"
+                       f"{fmt_currency(self.main_premium)} × {coeff_str} = {fmt_currency(adjusted)}")
+        return {
+            "type": "modifier_coeff",
+            "premium": 0,
+            "adjustedPremium": adjusted,
+            "originalPremium": self.main_premium,
+            "coefficient": product,
+            "isMainModifier": True,
+            "formulaDisplay": formula_str,
+        }
 
     def _calc_sudden_death(self, entry):
         """突发疾病身故: 6.6% × (限额差异)"""
@@ -10727,10 +10737,28 @@ class AddonInsuranceTab(QWidget):
         skip_count = 0
         modifier_count = 0
 
-        # 第一轮：优先计算 main_premium_modifier 类型（调整主险保费）
+        # 第一轮：优先计算主险保费调整类型（main_premium_modifier + modifier_coeff）
         for item in matched:
             entry = item["entry"]
-            if entry.get("rateType") != "main_premium_modifier":
+            rt = entry.get("rateType", "")
+            if rt == "modifier_coeff":
+                # modifier_coeff 需要系数表选择
+                if not self.coeff_selections:
+                    self._add_premium_item(entry["clauseName"], 0,
+                                           "⚠️ 需手动计算 [主险系数调整] — 请单选此条款后选择系数")
+                    skip_count += 1
+                    continue
+                try:
+                    result = self._calc_modifier_coeff(entry)
+                    self.main_premium = result["adjustedPremium"]
+                    self._add_premium_item(entry["clauseName"], 0, result["formulaDisplay"])
+                    modifier_count += 1
+                    calc_count += 1
+                except Exception as e:
+                    self._add_premium_item(entry["clauseName"], 0, f"⚠️ 计算失败: {e}")
+                    skip_count += 1
+                continue
+            if rt != "main_premium_modifier":
                 continue
             combo = getattr(self, 'modifier_insurance_combo', None)
             ratio_input = getattr(self, 'modifier_ratio_input', None)
@@ -10760,7 +10788,7 @@ class AddonInsuranceTab(QWidget):
         for item in matched:
             entry = item["entry"]
             rt = entry.get("rateType", "")
-            if rt == "main_premium_modifier":
+            if rt in ("main_premium_modifier", "modifier_coeff"):
                 continue
             if rt in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
                 skip_count += 1

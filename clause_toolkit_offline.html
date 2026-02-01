@@ -9354,7 +9354,7 @@ ${fileList}
         // --- 状态 ---
         // === 附加险分类常量 ===
         const RC_ADDON_TYPES = {
-            modifier_coeff: { label: '主险系数调整', color: '#8b5cf6' },
+            modifier_coeff: { label: '主险系数调整', color: '#dc2626' },
             sudden_death: { label: '突发疾病身故', color: '#ef4444' },
             per_person_rate: { label: '每人费率', color: '#f59e0b' },
             per_person_base: { label: '每人定额', color: '#06b6d4' },
@@ -9896,8 +9896,9 @@ ${fileList}
                 html += '</div>';
             }
             if (rt === 'modifier_coeff') {
-                html += '<div style="padding:10px;background:#faf5ff;border:1px solid #c084fc;border-radius:8px;margin-bottom:12px;font-size:12px;color:#7c3aed;">' +
-                    '⚡ 优先级最高：此条款调整主险保费系数<br>选择免赔天数对应的调整系数后计算</div>';
+                html += '<div style="padding:12px;background:#fef2f2;border:2px solid #dc2626;border-radius:8px;margin-bottom:12px;">' +
+                    '<div style="font-size:14px;font-weight:700;color:#dc2626;margin-bottom:6px;">⚠️ 此条款直接调整主险保费（优先计算）</div>' +
+                    '<div style="font-size:12px;color:#991b1b;">选择免赔天数对应的调整系数后计算</div></div>';
                 if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
             }
             if (rt === 'sudden_death') {
@@ -10260,11 +10261,18 @@ ${fileList}
         function rc_calcModifierCoeff(e) {
             const { product, details } = rc_getCoeffProduct(e);
             const adjusted = rc_mainPremium * product;
-            const diff = adjusted - rc_mainPremium;
             const coeffStr = details.map(d => d.value.toFixed(4)).join(' × ');
-            const formulaStr = '调整后主险保费 = ' + rc_formatCurrency(rc_mainPremium) + ' × ' + coeffStr + ' = ' + rc_formatCurrency(adjusted) +
-                '\n差额: ' + (diff >= 0 ? '+' : '') + rc_formatCurrency(diff);
-            return { type: 'modifier_coeff', premium: diff, formulaDisplay: formulaStr };
+            const formulaStr = '调整系数: ' + coeffStr + '\n' +
+                rc_formatCurrency(rc_mainPremium) + ' × ' + coeffStr + ' = ' + rc_formatCurrency(adjusted);
+            return {
+                type: 'modifier_coeff',
+                premium: 0,
+                adjustedPremium: adjusted,
+                originalPremium: rc_mainPremium,
+                coefficient: product,
+                isMainModifier: true,
+                formulaDisplay: formulaStr
+            };
         }
 
         function rc_calcSuddenDeath(e) {
@@ -10869,9 +10877,35 @@ ${fileList}
             var skipCount = 0;
             var modifierCount = 0;
 
-            // 第一轮：优先计算 main_premium_modifier 类型（调整主险保费）
+            // 第一轮：优先计算主险保费调整类型（main_premium_modifier + modifier_coeff）
             rc_multiSelectedEntries.forEach(function (entry) {
-                if (entry.rateType !== 'main_premium_modifier') return;
+                var rt = entry.rateType;
+                if (rt === 'modifier_coeff') {
+                    // modifier_coeff 需要系数表选择，检查是否已选
+                    var hasSelection = false;
+                    var tableCount = entry.coefficientTables ? entry.coefficientTables.length : 0;
+                    for (var ti = 0; ti < tableCount; ti++) {
+                        if (rc_coeffSelections[ti]) { hasSelection = true; break; }
+                    }
+                    if (!hasSelection) {
+                        rc_addPremiumItem(entry.clauseName, 0, '⚠️ 需手动计算 [主险系数调整] — 请单选此条款后选择系数');
+                        skipCount++;
+                        return;
+                    }
+                    try {
+                        var result = rc_calcModifierCoeff(entry);
+                        adjustedMainPremium = result.adjustedPremium;
+                        rc_mainPremium = adjustedMainPremium;
+                        rc_addPremiumItem(entry.clauseName, 0, result.formulaDisplay);
+                        modifierCount++;
+                        calcCount++;
+                    } catch (err) {
+                        rc_addPremiumItem(entry.clauseName, 0, '⚠️ 计算失败: ' + err.message);
+                        skipCount++;
+                    }
+                    return;
+                }
+                if (rt !== 'main_premium_modifier') return;
                 // 批量模式下需要用户预设参数，否则跳过提示手动
                 var table = entry.coefficientTables && entry.coefficientTables[0];
                 if (!table) { skipCount++; return; }
@@ -10909,7 +10943,7 @@ ${fileList}
             // 第二轮：用调整后的主险保费计算其余附加险
             rc_multiSelectedEntries.forEach(function (entry) {
                 var rt = entry.rateType;
-                if (rt === 'main_premium_modifier') return;
+                if (rt === 'main_premium_modifier' || rt === 'modifier_coeff') return;
                 if (rt === 'regulatory' || rt === 'no_calc' || rt === 'included_in_main' || rt === 'daily_prorate') { skipCount++; return; }
 
                 if (rt === 'simple_percentage') {
