@@ -13101,48 +13101,15 @@
       "clauseName": "附加系列损失",
       "fullName": "企业财产保险附加系列损失条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
-      "basePremium": {
-        "description": "若主险为机器损坏保险，则本附加险可减少主险保险费的1%；若主险为财产基本险、财产综合险或财产一切险，则按下表加收保险费。",
-        "percentage": 1.0
+      "rateType": "simple_percentage",
+      "insuranceTypeRates": { "财产基本险": 20, "财产综合险": 10, "财产一切险": 10 },
+      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "ratioMultiplier": {
+        "numeratorKey": "machineryAmount",
+        "denominatorSource": "mainSumInsured",
+        "label": "机器设备保险金额÷总保险金额"
       },
-      "coefficientTables": [
-        {
-          "name": "主险",
-          "headerRow": [
-            "主险",
-            "本附加险保险费"
-          ],
-          "supportsInterpolation": false,
-          "rows": [
-            {
-              "parameter": "财产基本险",
-              "coefficient": "主险保险费×20%×机器设备保险金额÷总保险金额",
-              "parsedValue": {
-                "type": "text",
-                "display": "主险保险费×20%×机器设备保险金额÷总保险金额"
-              }
-            },
-            {
-              "parameter": "财产综合险",
-              "coefficient": "主险保险费×10%×机器设备保险金额÷总保险金额",
-              "parsedValue": {
-                "type": "text",
-                "display": "主险保险费×10%×机器设备保险金额÷总保险金额"
-              }
-            },
-            {
-              "parameter": "财产一切险",
-              "coefficient": "主险保险费×10%×机器设备保险金额÷总保险金额",
-              "parsedValue": {
-                "type": "text",
-                "display": "主险保险费×10%×机器设备保险金额÷总保险金额"
-              }
-            }
-          ]
-        }
-      ],
-      "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
+      "formula": "保险费 = 主险保险费 × 费率% × 机器设备保险金额÷总保险金额",
       "description": "若主险为机器损坏保险，则本附加险可减少主险保险费的1%；若主险为财产基本险、财产综合险或财产一切险，则按下表加收保险费。",
       "sourceFile": "企业财产保险附加系列损失条款费率方案.docx"
     },
