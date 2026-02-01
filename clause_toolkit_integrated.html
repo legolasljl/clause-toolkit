@@ -1121,6 +1121,299 @@
             border-color: #eab308;
         }
 
+        /* 伤残赔偿比例Tab + 弹出式UI */
+        .mc-disability-row {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .mc-disability-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .mc-disability-left label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .mc-disability-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 3px;
+        }
+        .mc-disability-tab {
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-tertiary);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .mc-disability-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.5);
+        }
+        .mc-disability-tab.active {
+            background: #fff;
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .mc-disability-tab.active[data-key="none"] {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        .mc-disability-ratio-popup {
+            flex: 1;
+            min-width: 200px;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+        }
+        .mc-disability-ratio-popup.show {
+            max-height: 400px;
+            opacity: 1;
+        }
+        .mc-disability-ratio-inner {
+            padding: 12px 16px;
+            background: var(--info-bg);
+            border: 1px solid rgba(90,122,154,0.2);
+            border-radius: 10px;
+        }
+        .mc-disability-ratio-inner .mc-coeff-table {
+            margin: 0;
+        }
+        .mc-disability-prompt {
+            grid-column: 1 / -1;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.2s ease;
+        }
+        .mc-disability-prompt.show {
+            max-height: 80px;
+            opacity: 1;
+        }
+        .mc-disability-prompt-inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: var(--warning-bg);
+            border: 1px solid rgba(217,165,87,0.3);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-primary);
+            flex-wrap: wrap;
+        }
+        .mc-disability-prompt-inner span {
+            flex: 1;
+            min-width: 200px;
+        }
+        .mc-prompt-btn {
+            padding: 5px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .mc-prompt-btn-yes {
+            background: var(--accent-primary);
+            color: #fff;
+        }
+        .mc-prompt-btn-yes:hover {
+            background: var(--accent-secondary);
+        }
+        .mc-prompt-btn-no {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        .mc-prompt-btn-no:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* 15列赔偿比例模态框 */
+        .mc-addon-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .mc-addon-modal.show {
+            display: flex;
+        }
+        .mc-addon-dialog {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 960px;
+            width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modal-pop 0.3s ease-out;
+        }
+        .mc-addon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .mc-addon-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .mc-addon-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mc-addon-close:hover {
+            background: var(--error-bg);
+            color: var(--error-color);
+        }
+        .mc-addon-table-wrap {
+            overflow-x: auto;
+            margin-bottom: 12px;
+        }
+        .mc-addon-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 700px;
+        }
+        .mc-addon-table th,
+        .mc-addon-table td {
+            padding: 6px 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        .mc-addon-table th {
+            font-weight: 600;
+            font-size: 11px;
+            position: sticky;
+            top: 0;
+        }
+        .mc-addon-table th.mc-group-a {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .mc-addon-table th.mc-group-b {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .mc-addon-table th.mc-group-c {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+        .mc-addon-table td.mc-group-a { background: rgba(220,252,231,0.3); }
+        .mc-addon-table td.mc-group-b { background: rgba(219,234,254,0.3); }
+        .mc-addon-table td.mc-group-c { background: rgba(252,231,243,0.3); }
+        .mc-addon-table th.mc-row-header,
+        .mc-addon-table td.mc-row-header {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+        .mc-addon-table .mc-col-selectable {
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .mc-addon-table .mc-col-selectable:hover {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: -2px;
+        }
+        .mc-addon-table .mc-col-selected {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: -2px;
+            font-weight: 700;
+        }
+        .mc-addon-table tr.mc-coeff-row td {
+            font-weight: 700;
+            border-top: 2px solid var(--border-dark);
+        }
+        .mc-addon-table tr.mc-coeff-row td.mc-coeff-highlight {
+            background: var(--warning-bg);
+            color: var(--warning-color);
+        }
+        .mc-addon-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        /* 已选方案摘要卡片 */
+        .mc-addon-summary {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--info-bg);
+            border: 1px solid rgba(90,122,154,0.2);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+        .mc-addon-summary-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .mc-addon-summary-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--info-color);
+        }
+        .mc-addon-summary-btn {
+            margin-left: auto;
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .mc-addon-summary-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
         .query-modal {
             display: none;
             position: fixed;
@@ -2526,19 +2819,36 @@
                         <label>保险天数</label>
                         <input type="number" id="mc_days" value="180" min="1" max="364">
                     </div>
-                    <div class="mc-input-group">
-                        <label>伤残赔偿比例附表</label>
-                        <select id="mc_disabilityTable" onchange="mc_onDisabilityTableChange()">
-                            <option value="none">不启用</option>
-                            <option value="table1">附表1</option>
-                            <option value="table2">附表2</option>
-                            <option value="table3">附表3</option>
-                        </select>
-                    </div>
                 </div>
 
-                <!-- 伤残赔偿比例表展示区 -->
-                <div id="mc_disabilityTableDisplay" style="max-height:0;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s ease;opacity:0;"></div>
+                <!-- 伤残赔偿比例Tab区域 -->
+                <select id="mc_disabilityTable" style="display:none;">
+                    <option value="none">不启用</option>
+                    <option value="table1">附表1</option>
+                    <option value="table2">附表2</option>
+                    <option value="table3">附表3</option>
+                </select>
+                <div class="mc-disability-row">
+                    <div class="mc-disability-left">
+                        <label>主险伤残赔偿比例</label>
+                        <div class="mc-disability-tabs" id="mc_disabilityTabs">
+                            <button class="mc-disability-tab active" data-key="none" onclick="mc_onDisabilityTabClick('none')">不启用</button>
+                            <button class="mc-disability-tab" data-key="table1" onclick="mc_onDisabilityTabClick('table1')">附表1</button>
+                            <button class="mc-disability-tab" data-key="table2" onclick="mc_onDisabilityTabClick('table2')">附表2</button>
+                            <button class="mc-disability-tab" data-key="table3" onclick="mc_onDisabilityTabClick('table3')">附表3</button>
+                        </div>
+                    </div>
+                    <div class="mc-disability-ratio-popup" id="mc_disabilityRatioPopup">
+                        <div class="mc-disability-ratio-inner" id="mc_disabilityRatioInner"></div>
+                    </div>
+                </div>
+                <div class="mc-disability-prompt" id="mc_disabilityPrompt">
+                    <div class="mc-disability-prompt-inner">
+                        <span>是否附加雇主责任保险附加伤残赔偿金赔偿限额比例条款（2026版）？</span>
+                        <button class="mc-prompt-btn mc-prompt-btn-yes" onclick="mc_onAddonPromptAnswer(true)">是</button>
+                        <button class="mc-prompt-btn mc-prompt-btn-no" onclick="mc_onAddonPromptAnswer(false)">否</button>
+                    </div>
+                </div>
             </div>
 
             <!-- 系数调整 -->
@@ -2680,6 +2990,18 @@
         <!-- 页脚 -->
         <div class="footer">
             智能条款工具箱 v18.8 · 作者: Dachi_Yijin · 2026
+        </div>
+    </div>
+
+    <!-- 附加伤残赔偿比例选择模态框 -->
+    <div class="mc-addon-modal" id="mcAddonModal" onclick="mc_hideAddonModal(event)">
+        <div class="mc-addon-dialog" onclick="event.stopPropagation()">
+            <div class="mc-addon-header">
+                <div class="mc-addon-title">附加伤残赔偿金赔偿限额比例条款（2026版）</div>
+                <button class="mc-addon-close" onclick="mc_hideAddonModal()">&times;</button>
+            </div>
+            <div class="mc-addon-hint">点击任意列选择该方案，系数将根据当前主险附表自动确定</div>
+            <div class="mc-addon-table-wrap" id="mcAddonTableWrap"></div>
         </div>
     </div>
 
@@ -11786,92 +12108,174 @@ ${fileList}
             document.getElementById('mc_daysGroup').style.display = termType === 'short' ? '' : 'none';
         }
 
-        // --- 伤残赔偿比例附表切换 ---
-        function mc_onDisabilityTableChange() {
-            var sel = document.getElementById('mc_disabilityTable');
-            mc_selectedDisabilityTable = sel.value;
+        // --- 伤残赔偿比例Tab切换 ---
+        function mc_onDisabilityTabClick(tableKey) {
+            mc_selectedDisabilityTable = tableKey;
             mc_selectedDisabilityOption = -1;
-            var display = document.getElementById('mc_disabilityTableDisplay');
+            // 同步隐藏select
+            document.getElementById('mc_disabilityTable').value = tableKey;
 
-            if (mc_selectedDisabilityTable === 'none') {
-                display.style.maxHeight = '0';
-                display.style.opacity = '0';
-                display.style.marginTop = '0';
+            // 更新tab选中态
+            var tabs = document.querySelectorAll('#mc_disabilityTabs .mc-disability-tab');
+            tabs.forEach(function (t) {
+                t.classList.toggle('active', t.getAttribute('data-key') === tableKey);
+            });
+
+            var popup = document.getElementById('mc_disabilityRatioPopup');
+            var prompt = document.getElementById('mc_disabilityPrompt');
+
+            if (tableKey === 'none') {
+                popup.classList.remove('show');
+                prompt.classList.remove('show');
                 mc_renderCoefficients();
                 mc_log('已关闭伤残赔偿比例附表', 'info');
                 return;
             }
 
-            var tbl = MC_DISABILITY_TABLES[mc_selectedDisabilityTable];
-            var html = '<div style="margin-top:16px;padding:16px;background:var(--info-bg);border-radius:10px;border:1px solid var(--info-color);">';
-            html += '<div style="font-size:14px;font-weight:600;color:var(--info-color);margin-bottom:10px;">📋 主险伤残赔偿比例 · ' + mc_escHtml(tbl.label) + '</div>';
-            html += '<table class="mc-coeff-table" style="margin:0;"><thead><tr><th>伤残等级</th><th>赔偿比例</th></tr></thead><tbody>';
+            // 渲染右侧附表比例
+            var tbl = MC_DISABILITY_TABLES[tableKey];
+            var html = '<div style="font-size:13px;font-weight:600;color:var(--info-color);margin-bottom:8px;">' + mc_escHtml(tbl.label) + ' · 伤残赔偿比例</div>';
+            html += '<table class="mc-coeff-table" style="margin:0;font-size:12px;"><thead><tr><th>伤残等级</th><th>比例</th></tr></thead><tbody>';
             tbl.ratios.forEach(function (r) {
                 html += '<tr><td>' + r.level + '</td><td>' + r.pct + '%</td></tr>';
             });
-            html += '</tbody></table></div>';
+            html += '</tbody></table>';
+            document.getElementById('mc_disabilityRatioInner').innerHTML = html;
 
-            display.innerHTML = html;
-            // 触发动画
+            // 动画显示
             requestAnimationFrame(function () {
-                display.style.maxHeight = '500px';
-                display.style.opacity = '1';
-                display.style.marginTop = '12px';
+                popup.classList.add('show');
+            });
+
+            // 显示"是否附加"提示条
+            requestAnimationFrame(function () {
+                prompt.classList.add('show');
             });
 
             mc_renderCoefficients();
             mc_log('选择伤残赔偿比例: ' + tbl.label, 'info');
         }
 
-        // --- 渲染伤残赔偿比例调整系数选择 ---
+        // 兼容旧函数名
+        function mc_onDisabilityTableChange() {
+            mc_onDisabilityTabClick(document.getElementById('mc_disabilityTable').value);
+        }
+
+        // --- "是否附加"提示应答 ---
+        function mc_onAddonPromptAnswer(yes) {
+            if (yes) {
+                mc_showAddonModal();
+            } else {
+                mc_selectedDisabilityOption = -1;
+                mc_renderCoefficients();
+                document.getElementById('mc_disabilityPrompt').classList.remove('show');
+                mc_log('未附加伤残赔偿比例条款', 'info');
+            }
+        }
+
+        // --- 附加险模态框 ---
+        function mc_showAddonModal() {
+            mc_renderAddonTable();
+            document.getElementById('mcAddonModal').classList.add('show');
+        }
+
+        function mc_hideAddonModal(ev) {
+            if (ev && ev.target !== ev.currentTarget) return;
+            document.getElementById('mcAddonModal').classList.remove('show');
+        }
+
+        // --- 渲染15列赔偿比例表 ---
+        function mc_renderAddonTable() {
+            var levels = ['一级', '二级', '三级', '四级', '五级', '六级', '七级', '八级', '九级', '十级'];
+            // 构建15列完整比例数据
+            var groupDefs = {
+                A: [100, 80, 70, 60, 50, 40, 30, 20],
+                B: [100, 80, 65, 55, 45, 25, 15, 10],
+                C: [100, 90, 80, 70, 60, 50, 40, 30]
+            };
+
+            var html = '<table class="mc-addon-table">';
+            // 表头
+            html += '<thead><tr><th class="mc-row-header">伤残等级</th>';
+            MC_DISABILITY_ADDON_OPTIONS.forEach(function (opt, idx) {
+                var gc = opt.group === 'A' ? 'mc-group-a' : opt.group === 'B' ? 'mc-group-b' : 'mc-group-c';
+                var sel = idx === mc_selectedDisabilityOption ? ' mc-col-selected' : '';
+                html += '<th class="' + gc + sel + ' mc-col-selectable" onclick="mc_selectAddonColumn(' + idx + ')">' + opt.group + '-' + (idx + 1) + '</th>';
+            });
+            html += '</tr></thead><tbody>';
+
+            // 每行: 一级~十级
+            levels.forEach(function (lvl, li) {
+                html += '<tr><td class="mc-row-header">' + lvl + '伤残</td>';
+                MC_DISABILITY_ADDON_OPTIONS.forEach(function (opt, idx) {
+                    var gc = opt.group === 'A' ? 'mc-group-a' : opt.group === 'B' ? 'mc-group-b' : 'mc-group-c';
+                    var sel = idx === mc_selectedDisabilityOption ? ' mc-col-selected' : '';
+                    var pct;
+                    if (li <= 7) {
+                        pct = groupDefs[opt.group][li];
+                    } else if (li === 8) {
+                        pct = opt.p9;
+                    } else {
+                        pct = opt.p10;
+                    }
+                    html += '<td class="' + gc + sel + ' mc-col-selectable" onclick="mc_selectAddonColumn(' + idx + ')">' + pct + '%</td>';
+                });
+                html += '</tr>';
+            });
+
+            // 调整系数行（按当前附表高亮）
+            var coeffKeys = ['table1', 'table2', 'table3'];
+            var coeffLabels = ['附表1系数', '附表2系数', '附表3系数'];
+            coeffKeys.forEach(function (ck, ci) {
+                html += '<tr class="mc-coeff-row"><td class="mc-row-header">' + coeffLabels[ci] + '</td>';
+                MC_DISABILITY_ADDON_OPTIONS.forEach(function (opt, idx) {
+                    var gc = opt.group === 'A' ? 'mc-group-a' : opt.group === 'B' ? 'mc-group-b' : 'mc-group-c';
+                    var sel = idx === mc_selectedDisabilityOption ? ' mc-col-selected' : '';
+                    var highlight = ck === mc_selectedDisabilityTable ? ' mc-coeff-highlight' : '';
+                    html += '<td class="' + gc + sel + highlight + ' mc-col-selectable" onclick="mc_selectAddonColumn(' + idx + ')">' + mc_fmtNum(opt.coeff[ck], 3) + '</td>';
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('mcAddonTableWrap').innerHTML = html;
+        }
+
+        // --- 选中某列方案 ---
+        function mc_selectAddonColumn(colIdx) {
+            mc_selectedDisabilityOption = colIdx;
+            var opt = MC_DISABILITY_ADDON_OPTIONS[colIdx];
+            mc_hideAddonModal();
+            document.getElementById('mc_disabilityPrompt').classList.remove('show');
+            mc_renderCoefficients();
+            mc_log('选择伤残赔偿比例方案: ' + opt.label + ' → 系数 ' + mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3), 'info');
+            mc_showToast('已选择 ' + opt.group + '组方案，系数 ' + mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3), 'success');
+        }
+
+        // 兼容旧调用
+        function mc_selectDisabilityOption(idx) {
+            mc_selectAddonColumn(idx);
+        }
+
+        // --- 渲染伤残赔偿比例调整系数区（简洁摘要卡片） ---
         function mc_renderDisabilityCoeffSection() {
             if (mc_selectedDisabilityTable === 'none') return '';
 
-            var html = '<div class="mc-coeff-section" style="border:2px solid var(--info-color);border-radius:10px;padding:16px;margin-bottom:16px;background:var(--info-bg);">';
-            html += '<h4 style="color:var(--info-color);">附加伤残赔偿金赔偿限额比例调整系数';
             if (mc_selectedDisabilityOption >= 0) {
                 var opt = MC_DISABILITY_ADDON_OPTIONS[mc_selectedDisabilityOption];
-                html += ' <span class="mc-coeff-badge">' + mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3) + '</span>';
-            } else {
-                html += ' <span class="mc-coeff-badge" style="background:var(--bg-tertiary);color:var(--text-tertiary);">未选</span>';
+                var coeffVal = mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3);
+                var html = '<div class="mc-coeff-section">';
+                html += '<div class="mc-addon-summary">';
+                html += '<div><span class="mc-addon-summary-label">附加伤残赔偿比例条款</span></div>';
+                html += '<div><span class="mc-addon-summary-label">' + MC_DISABILITY_TABLES[mc_selectedDisabilityTable].label + ' · ' + opt.group + '组 · 九级' + opt.p9 + '% 十级' + opt.p10 + '%</span></div>';
+                html += '<div><span class="mc-addon-summary-label">调整系数: </span><span class="mc-addon-summary-value">' + coeffVal + '</span></div>';
+                html += '<button class="mc-addon-summary-btn" onclick="mc_showAddonModal()">重新选择</button>';
+                html += '</div></div>';
+                return html;
             }
-            html += '</h4>';
-            html += '<p style="font-size:12px;color:var(--text-tertiary);margin:4px 0 8px;line-height:1.5;">公式: 扩展后主险保费 = 原主险保费 × 调整系数（基于' + MC_DISABILITY_TABLES[mc_selectedDisabilityTable].label + '）</p>';
 
-            // 分组渲染
-            var groups = ['A', 'B', 'C'];
-            groups.forEach(function (g) {
-                var groupOpts = [];
-                MC_DISABILITY_ADDON_OPTIONS.forEach(function (opt, idx) {
-                    if (opt.group === g) groupOpts.push({ opt: opt, idx: idx });
-                });
-
-                html += '<div style="margin-bottom:10px;">';
-                html += '<div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">' + g + '组 · 一级100% ' + mc_escHtml(MC_DISABILITY_GROUP_DESC[g]) + '</div>';
-                html += '<table class="mc-coeff-table"><thead><tr><th>方案</th><th>调整系数</th></tr></thead><tbody>';
-
-                groupOpts.forEach(function (item) {
-                    var isSelected = mc_selectedDisabilityOption === item.idx;
-                    var coeffVal = item.opt.coeff[mc_selectedDisabilityTable];
-                    html += '<tr class="' + (isSelected ? 'mc-selected' : '') + '" ' +
-                        'onclick="mc_selectDisabilityOption(' + item.idx + ')" style="cursor:pointer;">';
-                    html += '<td>九级' + item.opt.p9 + '% 十级' + item.opt.p10 + '%</td>';
-                    html += '<td>' + mc_fmtNum(coeffVal, 3) + '</td>';
-                    html += '</tr>';
-                });
-
-                html += '</tbody></table></div>';
-            });
-
-            html += '</div>';
-            return html;
-        }
-
-        function mc_selectDisabilityOption(idx) {
-            mc_selectedDisabilityOption = idx;
-            mc_renderCoefficients();
-            var opt = MC_DISABILITY_ADDON_OPTIONS[idx];
-            mc_log('选择伤残赔偿比例方案: ' + opt.label + ' → 系数 ' + mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3), 'info');
+            // 已选附表但未选方案 — 不显示旧的A/B/C表格
+            return '';
         }
 
         // --- 行业分类速查 ---
@@ -12373,10 +12777,13 @@ ${fileList}
             mc_selectedDisabilityTable = 'none';
             mc_selectedDisabilityOption = -1;
             document.getElementById('mc_disabilityTable').value = 'none';
-            var disDisplay = document.getElementById('mc_disabilityTableDisplay');
-            disDisplay.style.maxHeight = '0';
-            disDisplay.style.opacity = '0';
-            disDisplay.style.marginTop = '0';
+            // 重置tab按钮
+            var tabs = document.querySelectorAll('#mc_disabilityTabs .mc-disability-tab');
+            tabs.forEach(function (t) {
+                t.classList.toggle('active', t.getAttribute('data-key') === 'none');
+            });
+            document.getElementById('mc_disabilityRatioPopup').classList.remove('show');
+            document.getElementById('mc_disabilityPrompt').classList.remove('show');
             mc_renderCoefficients();
             mc_log('已重置参数和系数选择（险种/版本不变）', 'info');
         }
