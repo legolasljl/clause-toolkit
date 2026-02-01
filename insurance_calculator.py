@@ -10521,6 +10521,7 @@ class AddonInsuranceTab(QWidget):
     def _render_base_rate_formula(self, entry):
         """渲染 base_rate_formula 类型的详情面板"""
         has_sub = bool(entry.get("subFormulas"))
+        has_multi_instance = bool(entry.get("maxInstances") and entry.get("serviceTypes"))
 
         # 顶部信息框
         info_card = GlassCard()
@@ -10530,9 +10531,25 @@ class AddonInsuranceTab(QWidget):
         title = QLabel("📊 基准费率计算条款")
         title.setStyleSheet("font-size: 14px; font-weight: 700; color: #0891b2;")
         info_layout.addWidget(title)
-        if not has_sub:
+        if has_multi_instance:
+            max_inst = entry.get("maxInstances", 5)
+            cap_text = f" | 费率上限: {entry['rateCap']}%" if entry.get("rateCap") else ""
+            rate_label = QLabel(f"多实例服务 (最多 {max_inst} 个){cap_text}")
+            rate_label.setStyleSheet("font-size: 12px; color: #155e75;")
+            info_layout.addWidget(rate_label)
+        elif not has_sub:
             rate_val = entry.get("baseRate")
-            rate_text = f"{rate_val}%" if rate_val is not None else ("同主险基准费率" if entry.get("baseRateIsMainRate") else "见系数表")
+            formula_type = entry.get("formulaType", "")
+            if rate_val is not None:
+                rate_text = f"{rate_val}%"
+            elif entry.get("baseRateIsMainRate"):
+                rate_text = "同主险基准费率"
+            elif formula_type in ("policy_rate_prorate", "policy_rate_simple", "auto_appreciation_c"):
+                rate_text = "保单费率(自动计算)"
+            elif formula_type in ("auto_appreciation", "auto_appreciation_b"):
+                rate_text = "主险保费×升值率×50%"
+            else:
+                rate_text = "见系数表"
             cap_text = f" | 费率上限: {entry['rateCap']}%" if entry.get("rateCap") else ""
             rate_label = QLabel(f"基准费率: {rate_text}{cap_text}")
             rate_label.setStyleSheet("font-size: 12px; color: #155e75;")
@@ -10543,6 +10560,15 @@ class AddonInsuranceTab(QWidget):
             fl.setStyleSheet("font-size: 12px; color: #0e7490; margin-top: 4px;")
             info_layout.addWidget(fl)
         self.detail_layout.addWidget(info_card)
+
+        # 法律服务多实例模式
+        if has_multi_instance:
+            self._render_legal_service_multi(entry)
+            # 系数表（跳过前几个服务项目表）
+            for ti, table in enumerate(entry.get("coefficientTables", [])):
+                if ti >= 4:
+                    self._render_addon_coeff_table(table, ti)
+            return
 
         # 多责任子公式选择
         self.brf_sub_inputs = []
@@ -10615,6 +10641,177 @@ class AddonInsuranceTab(QWidget):
         for ti, table in enumerate(entry.get("coefficientTables", [])):
             self._render_addon_coeff_table(table, ti)
 
+    def _render_legal_service_multi(self, entry):
+        """渲染法律服务多实例UI"""
+        self.legal_service_instances = []
+        self.legal_service_widgets = []
+        self.legal_service_entry = entry
+
+        # 实例容器
+        self.legal_instances_container = QWidget()
+        self.legal_instances_layout = QVBoxLayout(self.legal_instances_container)
+        self.legal_instances_layout.setContentsMargins(0, 0, 0, 0)
+        self.detail_layout.addWidget(self.legal_instances_container)
+
+        # 添加按钮
+        add_btn = QPushButton(f"+ 添加服务实例 (最多 {entry.get('maxInstances', 5)} 个)")
+        add_btn.setStyleSheet(
+            "QPushButton { background: #0891b2; color: white; border: none; "
+            "border-radius: 6px; padding: 8px 16px; font-weight: 600; }"
+            "QPushButton:hover { background: #0e7490; }"
+        )
+        add_btn.clicked.connect(self._add_legal_service_instance)
+        self.detail_layout.addWidget(add_btn)
+
+        # 默认添加一个实例
+        self._add_legal_service_instance()
+
+    def _add_legal_service_instance(self):
+        """添加一个法律服务实例"""
+        entry = self.legal_service_entry
+        max_inst = entry.get("maxInstances", 5)
+        if len(self.legal_service_instances) >= max_inst:
+            self._log(f"已达最大实例数: {max_inst}", "warn")
+            return
+
+        idx = len(self.legal_service_instances)
+        instance = {"serviceKey": entry["serviceTypes"][0]["key"], "liabilityLimit": 0, "serviceCount": 1}
+        self.legal_service_instances.append(instance)
+
+        # 实例UI卡片
+        card = GlassCard()
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(10, 8, 10, 8)
+        card.setStyleSheet("background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px;")
+
+        # 标题行+删除按钮
+        header = QHBoxLayout()
+        header.addWidget(QLabel(f"<b>服务实例 #{idx + 1}</b>"))
+        header.addStretch()
+        del_btn = QPushButton("✕")
+        del_btn.setFixedSize(24, 24)
+        del_btn.setStyleSheet("QPushButton { background: none; border: none; color: #dc2626; font-size: 14px; }"
+                              "QPushButton:hover { color: #991b1b; }")
+        del_btn.clicked.connect(lambda checked, i=idx: self._remove_legal_service_instance(i))
+        header.addWidget(del_btn)
+        header_w = QWidget()
+        header_w.setLayout(header)
+        card_layout.addWidget(header_w)
+
+        # 服务类型下拉
+        svc_row = QHBoxLayout()
+        svc_row.addWidget(QLabel("服务类型:"))
+        svc_combo = QComboBox()
+        for svc in entry["serviceTypes"]:
+            svc_combo.addItem(f"{svc['label']} ({svc['baseRate']}%)", svc["key"])
+        svc_combo.currentIndexChanged.connect(
+            lambda ci, i=idx, cb=svc_combo: self._on_legal_svc_changed(i, cb))
+        svc_row.addWidget(svc_combo)
+        svc_w = QWidget()
+        svc_w.setLayout(svc_row)
+        card_layout.addWidget(svc_w)
+
+        # 限额和次数
+        inputs_row = QHBoxLayout()
+        inputs_row.addWidget(QLabel("每次事故责任限额 (元):"))
+        limit_spin = QDoubleSpinBox()
+        limit_spin.setRange(0, 999999999999)
+        limit_spin.setDecimals(2)
+        limit_spin.setSuffix(" 元")
+        limit_spin.valueChanged.connect(lambda v, i=idx: self._on_legal_limit_changed(i, v))
+        inputs_row.addWidget(limit_spin)
+        inputs_row.addWidget(QLabel("服务次数:"))
+        count_spin = QSpinBox()
+        count_spin.setRange(1, 9999)
+        count_spin.setValue(1)
+        count_spin.valueChanged.connect(lambda v, i=idx: self._on_legal_count_changed(i, v))
+        inputs_row.addWidget(count_spin)
+        inputs_w = QWidget()
+        inputs_w.setLayout(inputs_row)
+        card_layout.addWidget(inputs_w)
+
+        self.legal_instances_layout.addWidget(card)
+        self.legal_service_widgets.append({
+            "card": card, "svc_combo": svc_combo,
+            "limit_spin": limit_spin, "count_spin": count_spin
+        })
+
+    def _remove_legal_service_instance(self, idx):
+        """删除法律服务实例"""
+        if idx >= len(self.legal_service_instances):
+            return
+        self.legal_service_instances.pop(idx)
+        w = self.legal_service_widgets.pop(idx)
+        w["card"].setParent(None)
+        w["card"].deleteLater()
+        # 更新剩余实例的索引标题
+        for i, wgt in enumerate(self.legal_service_widgets):
+            for child in wgt["card"].findChildren(QLabel):
+                if child.text().startswith("<b>服务实例"):
+                    child.setText(f"<b>服务实例 #{i + 1}</b>")
+                    break
+
+    def _on_legal_svc_changed(self, idx, combo):
+        if idx < len(self.legal_service_instances):
+            self.legal_service_instances[idx]["serviceKey"] = combo.currentData()
+
+    def _on_legal_limit_changed(self, idx, val):
+        if idx < len(self.legal_service_instances):
+            self.legal_service_instances[idx]["liabilityLimit"] = val
+
+    def _on_legal_count_changed(self, idx, val):
+        if idx < len(self.legal_service_instances):
+            self.legal_service_instances[idx]["serviceCount"] = val
+
+    def _calc_legal_service(self, entry):
+        """计算法律服务多实例保费"""
+        instances = getattr(self, "legal_service_instances", [])
+        if not instances:
+            raise ValueError("请至少添加一个法律服务实例")
+
+        coeff_product = 1.0
+        coeff_details = []
+        tables = entry.get("coefficientTables", [])
+        if tables and len(tables) > 5 and hasattr(self, "coeff_selections"):
+            for ti, sel in self.coeff_selections.items():
+                if ti >= 4 and sel is not None:
+                    coeff_product *= float(sel)
+                    coeff_details.append({"name": tables[ti].get("name", ""), "value": float(sel)})
+
+        total_premium = 0.0
+        formula_parts = []
+        for i, inst in enumerate(instances):
+            svc_type = None
+            for s in entry["serviceTypes"]:
+                if s["key"] == inst["serviceKey"]:
+                    svc_type = s
+                    break
+            if not svc_type:
+                raise ValueError(f"未找到服务类型: {inst['serviceKey']}")
+            base_rate = svc_type["baseRate"] / 100
+            limit_val = inst["liabilityLimit"]
+            count_val = inst["serviceCount"]
+            if not limit_val or limit_val <= 0:
+                raise ValueError(f"服务实例 #{i + 1}: 请输入有效的责任限额")
+            if not count_val or count_val <= 0:
+                raise ValueError(f"服务实例 #{i + 1}: 请输入有效的服务次数")
+            inst_premium = limit_val * count_val * base_rate * coeff_product
+            total_premium += inst_premium
+            formula_parts.append(
+                f"#{i + 1} {svc_type['label']}: "
+                f"{fmt_currency(limit_val)} × {count_val}次 × {svc_type['baseRate']}% = "
+                f"{fmt_currency(limit_val * count_val * base_rate)}")
+
+        if coeff_details:
+            coeff_str = " × ".join(f"{d['value']:.4f}" for d in coeff_details)
+            formula_parts.append(f"系数积: {coeff_str} = {coeff_product:.6f}")
+        if entry.get("rateCap"):
+            formula_parts.append(f"(费率上限: {entry['rateCap']}%)")
+        formula_parts.append(f"合计保费 = {fmt_currency(total_premium)}")
+
+        return {"type": "base_rate_formula", "premium": total_premium,
+                "formulaDisplay": "\n".join(formula_parts)}
+
     def _on_brf_sub_changed(self, idx):
         """切换子公式时更新输入区"""
         entry = self.selected_entry
@@ -10660,6 +10857,8 @@ class AddonInsuranceTab(QWidget):
 
     def _calc_base_rate_formula(self, entry):
         """计算 base_rate_formula 类型"""
+        if entry.get("maxInstances") and entry.get("serviceTypes"):
+            return self._calc_legal_service(entry)
         has_sub = bool(entry.get("subFormulas"))
         if has_sub:
             sub_idx = self.brf_sub_combo.currentData() if hasattr(self, "brf_sub_combo") else 0
@@ -11694,6 +11893,11 @@ class AddonInsuranceTab(QWidget):
             if rt == "conditional_simple":
                 self._add_premium_item(entry["clauseName"], 0,
                                        "条件勾选类 — 默认主险已包含，不加收（需手动勾选后单独计算）")
+                skip_count += 1
+                continue
+            if rt == "base_rate_formula" and entry.get("maxInstances"):
+                self._add_premium_item(entry["clauseName"], 0,
+                                       "⚠️ 需手动计算 [多服务实例] — 请单选此条款后配置各服务实例")
                 skip_count += 1
                 continue
             batch_calc_fn = {
