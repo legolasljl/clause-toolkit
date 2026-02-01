@@ -1930,11 +1930,11 @@
             <button class="main-tab" onclick="switchMainTab('output', event)">
                 <span class="main-tab-icon">📝</span>条款输出
             </button>
-            <button class="main-tab" onclick="switchMainTab('rateCalc', event)">
-                <span class="main-tab-icon">💰</span>附加险计算
-            </button>
             <button class="main-tab" onclick="switchMainTab('mainCalc', event)">
                 <span class="main-tab-icon">🏢</span>主险计算
+            </button>
+            <button class="main-tab" onclick="switchMainTab('rateCalc', event)">
+                <span class="main-tab-icon">💰</span>附加险计算
             </button>
         </div>
 
@@ -9396,7 +9396,7 @@ ${fileList}
                 }
                 return { ...entry, rateType: 'property_loss', basePremium: basePremium, baseRatePercent: baseRatePct,
                     coefficientTables: coeffTables, description: substantive[0] || '',
-                    formula: '保费 = max(每人赔偿限额 × ' + baseRatePct + '%, ' + basePremium + '元) × 人数 × 系数' };
+                    formula: '保费 = (' + basePremium + '元 + 每人赔偿限额 × ' + baseRatePct + '%) × 系数积 × 承保人数' };
             }
 
             if (detectedType === 'formula_sum') {
@@ -9653,7 +9653,7 @@ ${fileList}
                 const defCount1 = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
                 html += '<div class="rc-extra-inputs" style="margin-bottom:12px;"><label>适用人数</label>' +
                     '<input type="number" id="rc_addonCountInput" min="1" step="1" value="' + defCount1 + '" ' +
-                    'style="height:34px;width:140px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;"> 人</div>';
+                    'style="height:34px;width:140px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;"></div>';
                 if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
             }
             if (rt === 'per_person_base') {
@@ -9670,19 +9670,20 @@ ${fileList}
                 const defCount3 = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
                 html += '<div class="rc-extra-inputs" style="margin-bottom:12px;"><label>适用人数</label>' +
                     '<input type="number" id="rc_addonCountInput" min="1" step="1" value="' + defCount3 + '" ' +
-                    'style="height:34px;width:140px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;"> 人</div>';
+                    'style="height:34px;width:140px;border:1px solid var(--border-color);border-radius:6px;padding:0 10px;"></div>';
             }
             if (rt === 'property_loss') {
                 const bp = e.basePremium || 20;
                 const br = e.baseRatePercent || 1.5;
                 html += '<div style="padding:10px;background:#f0fdfa;border:1px solid #5eead4;border-radius:8px;margin-bottom:12px;font-size:12px;">' +
-                    '基本保险费 = 基准保险费 = ' + bp + '元<br>基准费率: ' + br + '%<br>需输入本附加险的每次事故每人赔偿限额</div>';
+                    '公式: 保费 = (基本保险费 + 每次事故每人赔偿限额 × 基准费率) × 系数积 × 承保人数<br>' +
+                    '基本保险费: ' + bp + '元，基准费率: ' + br + '%</div>';
                 const defCount4 = rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1;
                 html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">' +
                     '<div class="rc-extra-inputs"><label>每次事故每人赔偿限额 (万元)</label>' +
                     '<input type="number" id="rc_propertyLimitInput" step="0.1" min="0" placeholder="万元"></div>' +
                     '<div class="rc-extra-inputs"><label>适用人数</label>' +
-                    '<input type="number" id="rc_addonCountInput" min="1" step="1" value="' + defCount4 + '"> 人</div></div>';
+                    '<input type="number" id="rc_addonCountInput" min="1" step="1" value="' + defCount4 + '"></div></div>';
                 if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
             }
             if (rt === 'formula_sum') {
@@ -9698,6 +9699,26 @@ ${fileList}
             if (rt === 'table_coefficient') {
                 if (e.basePremium) html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;"><strong>基准保险费: </strong>' + rc_escHtml(e.basePremium.description) + '</div>';
                 if (e.coefficientTables) for (let ti = 0; ti < e.coefficientTables.length; ti++) html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
+            }
+            if (rt === 'conditional_simple') {
+                var cbLabel = e.checkboxLabel || '主险未包含本附加险责任';
+                var cbChecked = e.defaultChecked ? ' checked' : '';
+                html += '<div style="padding:10px;background:#f5f3ff;border:1px solid #a78bfa;border-radius:8px;margin-bottom:12px;">' +
+                    '<label style="font-size:13px;font-weight:600;color:#5b21b6;cursor:pointer;">' +
+                    '<input type="checkbox" id="rc_conditionalCB"' + cbChecked + ' style="margin-right:8px;transform:scale(1.2);">' +
+                    rc_escHtml(cbLabel) + '</label></div>';
+                if (e.customInputs && e.customInputs.length > 0) {
+                    for (var ci = 0; ci < e.customInputs.length; ci++) {
+                        var inp = e.customInputs[ci];
+                        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+                            '<label style="font-size:12px;white-space:nowrap;">' + rc_escHtml(inp.label) + ':</label>' +
+                            '<input type="number" id="rc_ci_' + inp.key + '" step="0.01" value="0" min="0" ' +
+                            'style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;">' +
+                            (inp.unit ? '<span style="font-size:12px;color:var(--text-secondary);">' + rc_escHtml(inp.unit) + '</span>' : '') +
+                            '</div>';
+                    }
+                }
+                if (e.formula) html += '<div style="padding:10px;background:#eff6ff;border-radius:8px;font-size:12px;color:#1e40af;">📐 ' + rc_escHtml(e.formula) + '</div>';
             }
 
             if (rt !== 'regulatory' && rt !== 'no_calc') {
@@ -9831,7 +9852,8 @@ ${fileList}
                 property_loss: rc_calcPropertyLoss,
                 formula_sum: rc_calcFormulaSum,
                 deduction: rc_calcDeduction,
-                table_coefficient: rc_calcTable
+                table_coefficient: rc_calcTable,
+                conditional_simple: rc_calcConditionalSimple
             };
             const calcFn = calcMethods[rt];
             if (!calcFn) { rc_log('❌ 未知计算类型: ' + rt, 'error'); return; }
@@ -9947,16 +9969,16 @@ ${fileList}
             const countEl = document.getElementById('rc_addonCountInput');
             const count = countEl ? (parseInt(countEl.value) || 1) : (rc_fullMainData ? (rc_fullMainData.employeeCount || 1) : 1);
             const limitYuan = limitVal * 10000;
-            const calcPremium = limitYuan * baseRatePct / 100;
-            const perPerson = Math.max(calcPremium, basePremium);
+            const ratePart = limitYuan * baseRatePct / 100;
+            const perPerson = basePremium + ratePart;
             let cprod = 1.0, cstr = '';
             if (e.coefficientTables && e.coefficientTables.length) {
                 const { product, details } = rc_getCoeffProduct(e);
                 cprod = product; cstr = ' × ' + details.map(d => d.value.toFixed(4)).join(' × ');
             }
-            const premium = perPerson * count * cprod;
-            const formulaStr = 'max(' + limitVal + '万×' + baseRatePct + '%=' + rc_formatCurrency(calcPremium) + ', 基本保险费' + basePremium + '元) = ' +
-                rc_formatCurrency(perPerson) + '/人 × ' + count + '人' + cstr + ' = ' + rc_formatCurrency(premium);
+            const premium = perPerson * cprod * count;
+            const formulaStr = '(' + basePremium + '元 + ' + limitVal + '万×' + baseRatePct + '%) × 系数' + cstr.replace(/^ × /, '') + ' × ' + count + '人 = ' +
+                '(' + basePremium + ' + ' + rc_formatCurrency(ratePart) + ') × ' + cprod.toFixed(4) + ' × ' + count + ' = ' + rc_formatCurrency(premium);
             return { type: 'property_loss', premium, formulaDisplay: formulaStr };
         }
 
@@ -10000,6 +10022,40 @@ ${fileList}
             const coeffStr = details.map(c => c.value.toFixed(4)).join(' × ');
             return { type: 'table_coefficient', premium, formulaDisplay: '基准 ' + baseStr + ' = ' + rc_formatCurrency(basePremium) + ' × 系数 (' + coeffStr + ') = ' + rc_formatCurrency(premium),
                 details: { mainPremium: rc_mainPremium, basePremium, coeffProduct: product, coeffDetails: details } };
+        }
+
+        function rc_calcConditionalSimple(e) {
+            var cb = document.getElementById('rc_conditionalCB');
+            var isChecked = cb ? cb.checked : false;
+            var cfg = isChecked ? (e.whenChecked || null) : (e.whenUnchecked || null);
+            if (!cfg) return { type: 'conditional_simple', premium: 0, formulaDisplay: '主险已包含本附加险责任，不涉及保险费调整' };
+            var ft = cfg.formulaType || '';
+            if (ft === 'simple_pct') {
+                var pct = cfg.percentage;
+                var premium = rc_mainPremium * (pct / 100);
+                return { type: 'conditional_simple', premium: premium, formulaDisplay: '主险保费 × ' + pct + '%\n' + rc_formatCurrency(rc_mainPremium) + ' × ' + pct + '% = ' + rc_formatCurrency(premium) };
+            }
+            if (ft === 'base_rate_division') {
+                if (cfg.multiplier != null) {
+                    var addonEl = document.getElementById('rc_ci_addonAmount');
+                    var addonAmt = addonEl ? parseFloat(addonEl.value) || 0 : 0;
+                    if (addonAmt <= 0) throw new Error('请输入本附加险保险金额');
+                    if (rc_mainSumInsured <= 0) throw new Error('主险保额不能为0');
+                    var policyRate = rc_mainPremium / rc_mainSumInsured;
+                    var premium = addonAmt * policyRate * cfg.multiplier;
+                    return { type: 'conditional_simple', premium: premium,
+                        formulaDisplay: (cfg.description || '') + '\n' + rc_formatCurrency(addonAmt) + ' × (' + rc_formatCurrency(rc_mainPremium) + ' ÷ ' + rc_formatCurrency(rc_mainSumInsured) + ') × ' + cfg.multiplier + ' = ' + rc_formatCurrency(premium) };
+                }
+                var baseRates = cfg.baseRates || {};
+                var insTypes = Object.keys(baseRates);
+                if (insTypes.length === 0) throw new Error('缺少基准费率配置');
+                var insType = insTypes[0];
+                var baseRate = baseRates[insType] / 100;
+                var numPct = cfg.numeratorPct;
+                var premium = rc_mainPremium * (numPct / 100) / baseRate;
+                return { type: 'conditional_simple', premium: premium, formulaDisplay: '【' + insType + '】主险保费 × ' + numPct + '% ÷ 基准费率(' + (baseRates[insType]) + '%)\n' + rc_formatCurrency(rc_mainPremium) + ' × ' + numPct + '% ÷ ' + (baseRates[insType]) + '% = ' + rc_formatCurrency(premium) };
+            }
+            throw new Error('未知的conditional_simple公式类型: ' + ft);
         }
 
         // --- Render Result ---

@@ -1252,6 +1252,311 @@
             background: var(--error-bg);
             color: var(--error-color);
         }
+
+        /* ==================== 费率计算器样式 ==================== */
+        .rc-load-section { margin-top: 8px; }
+        .rc-load-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .rc-load-status {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .rc-search-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .rc-search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            font-family: var(--font-sans);
+            transition: border-color 0.2s;
+        }
+        .rc-search-box:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        .rc-filter-select {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            background: var(--bg-primary);
+            font-family: var(--font-sans);
+            cursor: pointer;
+        }
+        .rc-result-count {
+            color: var(--text-secondary);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .rc-main-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .rc-clause-list-panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 12px;
+            max-height: 700px;
+            overflow-y: auto;
+        }
+        .rc-clause-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .rc-clause-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .rc-clause-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .rc-clause-card.selected {
+            border-color: var(--accent-primary);
+            background: var(--warning-bg);
+            box-shadow: var(--shadow-md);
+        }
+        .rc-clause-card-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .rc-clause-card-meta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .rc-type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .rc-type-badge.simple_percentage { background: #e0f2fe; color: #0369a1; }
+        .rc-type-badge.formula_conditional { background: #fef3c7; color: #92400e; }
+        .rc-type-badge.table_coefficient { background: #d1fae5; color: #065f46; }
+        .rc-type-badge.regulatory { background: #f3f4f6; color: #6b7280; }
+        .rc-industry-tag {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+        .rc-detail-panel {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 500px;
+        }
+        .rc-detail-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 400px;
+            color: var(--text-secondary);
+            gap: 12px;
+        }
+        .rc-detail-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .rc-detail-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .rc-input-group {
+            margin-bottom: 16px;
+        }
+        .rc-input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .rc-input-group input[type="number"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+        }
+        .rc-input-group input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        .rc-coeff-section {
+            margin-bottom: 16px;
+        }
+        .rc-coeff-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .rc-coeff-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .rc-coeff-table th {
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .rc-coeff-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .rc-coeff-table tr:hover td {
+            background: var(--info-bg);
+        }
+        .rc-coeff-table tr.selected td {
+            background: var(--warning-bg);
+            font-weight: 600;
+        }
+        .rc-coeff-table tr.selected td:first-child::before {
+            content: "✓ ";
+            color: var(--accent-primary);
+        }
+        .rc-range-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .rc-range-control label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .rc-range-control input[type="range"] {
+            flex: 1;
+        }
+        .rc-range-control .rc-range-value {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            min-width: 50px;
+            text-align: right;
+        }
+        .rc-actions {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .rc-result-panel {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-top: 16px;
+        }
+        .rc-result-panel.success {
+            background: var(--success-bg);
+            border: 1px solid var(--success-color);
+        }
+        .rc-result-formula {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-family: var(--font-mono);
+        }
+        .rc-result-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--success-color);
+            font-family: var(--font-mono);
+        }
+        .rc-result-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        .rc-condition-card {
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .rc-condition-card .condition-label {
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+        .rc-extra-inputs {
+            margin: 12px 0;
+            padding: 12px 14px;
+            background: var(--info-bg);
+            border-radius: 8px;
+        }
+        .rc-extra-inputs label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--info-color);
+            margin-bottom: 4px;
+        }
+        .rc-extra-inputs input {
+            width: 100%;
+            max-width: 250px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: var(--font-mono);
+        }
+
+        @media (max-width: 800px) {
+            .rc-main-layout {
+                grid-template-columns: 1fr;
+            }
+            .rc-clause-list-panel {
+                max-height: 300px;
+            }
+        }
     </style>
 </head>
 
@@ -1296,6 +1601,9 @@
             </button>
             <button class="main-tab" onclick="switchMainTab('output', event)">
                 <span class="main-tab-icon">📝</span>条款输出
+            </button>
+            <button class="main-tab" onclick="switchMainTab('rateCalc', event)">
+                <span class="main-tab-icon">💰</span>费率计算
             </button>
         </div>
 
@@ -1658,6 +1966,66 @@
             </div>
         </div>
 
+        <!-- ==================== 费率计算面板 ==================== -->
+        <div id="rateCalcPanel" class="tab-panel">
+            <!-- 数据加载区 -->
+            <div class="card">
+                <div class="card-title">💰 费率计算器</div>
+                <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">
+                    加载费率方案数据，搜索条款，选择系数，自动计算保险费。
+                </p>
+                <div class="rc-load-section">
+                    <div class="rc-load-row">
+                        <button class="btn btn-primary" onclick="rc_triggerJsonUpload()">📂 加载 JSON 数据</button>
+                        <button class="btn" onclick="rc_triggerFolderUpload()">📁 加载 docx 文件夹</button>
+                        <input type="file" id="rc_jsonInput" class="hidden" accept=".json" onchange="rc_handleJsonFile(event)">
+                        <input type="file" id="rc_folderInput" class="hidden" webkitdirectory multiple onchange="rc_handleFolderFiles(event)">
+                        <span class="rc-load-status" id="rc_loadStatus">未加载数据</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搜索筛选区 -->
+            <div class="card" id="rc_searchCard" style="display:none;">
+                <div class="rc-search-row">
+                    <input type="text" id="rc_searchInput" class="rc-search-box" placeholder="搜索条款名称..." oninput="rc_onSearch()">
+                    <select id="rc_industryFilter" class="rc-filter-select" onchange="rc_onSearch()">
+                        <option value="">全部行业</option>
+                    </select>
+                    <select id="rc_typeFilter" class="rc-filter-select" onchange="rc_onSearch()">
+                        <option value="">全部类型</option>
+                        <option value="simple_percentage">简单百分比</option>
+                        <option value="formula_conditional">条件公式</option>
+                        <option value="table_coefficient">系数表</option>
+                        <option value="regulatory">规范类</option>
+                    </select>
+                    <span class="rc-result-count" id="rc_resultCount"></span>
+                </div>
+            </div>
+
+            <!-- 主内容区：左列表 + 右详情 -->
+            <div class="rc-main-layout" id="rc_mainLayout" style="display:none;">
+                <!-- 条款列表 -->
+                <div class="rc-clause-list-panel">
+                    <div class="rc-clause-list" id="rc_clauseList"></div>
+                </div>
+
+                <!-- 费率详情 -->
+                <div class="rc-detail-panel" id="rc_detailPanel">
+                    <div class="rc-detail-placeholder">
+                        <span style="font-size:48px;">📊</span>
+                        <p>请从左侧选择一个费率方案</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日志区域 -->
+            <div class="card log-card">
+                <div class="card-title">📋 费率计算日志</div>
+                <div class="log-container" id="rc_logContainer"></div>
+            </div>
+        </div>
+
         <!-- 页脚 -->
         <div class="footer">
             智能条款工具箱 v18.8 · 作者: Dachi_Yijin · 2026
@@ -1970,6 +2338,8 @@
                 document.getElementById('comparisonPanel').classList.add('active');
             } else if (tabName === 'output') {
                 document.getElementById('outputPanel').classList.add('active');
+            } else if (tabName === 'rateCalc') {
+                document.getElementById('rateCalcPanel').classList.add('active');
             }
         }
 
@@ -8245,7 +8615,814 @@ ${fileList}
             // ========== 输出器初始化 ==========
             out_log('📝 条款输出工具已就绪', 'info');
             out_log('   选择Excel比对报告，生成Word文档', 'info');
+
+            // ========== 费率计算器初始化 ==========
+            rc_log('💰 费率计算工具已就绪', 'info');
+            rc_log('   请加载 JSON 数据或 docx 文件夹', 'info');
         });
+
+        // ==========================================
+        // ========== 费率计算器模块 ==========
+        // ==========================================
+
+        // --- 状态 ---
+        let rc_rateData = null;
+        let rc_filteredEntries = [];
+        let rc_selectedEntry = null;
+        let rc_coeffSelections = {};
+        let rc_mainPremium = 0;
+        let rc_lastResult = null;
+
+        // --- 日志 ---
+        function rc_log(msg, level) {
+            const container = document.getElementById('rc_logContainer');
+            if (!container) return;
+            const line = document.createElement('div');
+            line.className = 'log-line' + (level ? ' log-' + level : '');
+            const time = new Date().toLocaleTimeString('zh-CN');
+            line.textContent = '[' + time + '] ' + msg;
+            container.appendChild(line);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // --- 数据加载 ---
+        function rc_triggerJsonUpload() {
+            document.getElementById('rc_jsonInput').click();
+        }
+        function rc_triggerFolderUpload() {
+            document.getElementById('rc_folderInput').click();
+        }
+
+        function rc_handleJsonFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            rc_log('📂 正在加载: ' + file.name, 'info');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.entries || !Array.isArray(data.entries)) {
+                        throw new Error('JSON 格式无效: 缺少 entries 数组');
+                    }
+                    rc_rateData = data;
+                    rc_filteredEntries = data.entries.slice();
+                    rc_log('✅ 加载成功: ' + data.entries.length + ' 个费率方案', 'success');
+                    document.getElementById('rc_loadStatus').textContent =
+                        '已加载 ' + data.entries.length + ' 条 (' + file.name + ')';
+                    rc_initUI();
+                } catch (err) {
+                    rc_log('❌ JSON 解析失败: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function rc_handleFolderFiles(event) {
+            const files = Array.from(event.target.files).filter(f =>
+                f.name.includes('费率方案') && f.name.endsWith('.docx')
+            );
+            if (files.length === 0) {
+                rc_log('⚠️ 未找到费率方案 docx 文件', 'warning');
+                return;
+            }
+            rc_log('📁 发现 ' + files.length + ' 个费率方案文件，开始解析...', 'info');
+            const entries = [];
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    const entry = await rc_parseDocxFile(files[i]);
+                    if (entry) entries.push(entry);
+                    if ((i + 1) % 10 === 0) {
+                        rc_log('   已处理 ' + (i + 1) + '/' + files.length, 'info');
+                    }
+                } catch (err) {
+                    rc_log('⚠️ 解析失败: ' + files[i].name + ' - ' + err.message, 'warning');
+                }
+            }
+            rc_rateData = {
+                version: '1.0-browser',
+                generatedAt: new Date().toISOString(),
+                totalEntries: entries.length,
+                entries: entries
+            };
+            rc_filteredEntries = entries.slice();
+            rc_log('✅ 解析完成: ' + entries.length + ' 个费率方案', 'success');
+            document.getElementById('rc_loadStatus').textContent =
+                '已加载 ' + entries.length + ' 条 (文件夹)';
+            rc_initUI();
+        }
+
+        async function rc_parseDocxFile(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
+            const docXml = await zip.file('word/document.xml').async('string');
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(docXml, 'application/xml');
+            const ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+            const paragraphs = [];
+            const tables = [];
+
+            const pNodes = xmlDoc.getElementsByTagNameNS(ns, 'p');
+            for (let i = 0; i < pNodes.length; i++) {
+                let text = '';
+                const runs = pNodes[i].getElementsByTagNameNS(ns, 't');
+                for (let j = 0; j < runs.length; j++) {
+                    text += runs[j].textContent || '';
+                }
+                text = text.trim();
+                if (text && !/PAGE\s+/i.test(text) && !/NUMPAGES/i.test(text) &&
+                    !/MERGEFORMAT/i.test(text) && !/^\d+$/.test(text)) {
+                    paragraphs.push(text);
+                }
+            }
+
+            const tblNodes = xmlDoc.getElementsByTagNameNS(ns, 'tbl');
+            for (let t = 0; t < tblNodes.length; t++) {
+                const rows = [];
+                const trNodes = tblNodes[t].getElementsByTagNameNS(ns, 'tr');
+                for (let r = 0; r < trNodes.length; r++) {
+                    const cells = [];
+                    const tcNodes = trNodes[r].getElementsByTagNameNS(ns, 'tc');
+                    for (let c = 0; c < tcNodes.length; c++) {
+                        let cellText = '';
+                        const tNodes = tcNodes[c].getElementsByTagNameNS(ns, 't');
+                        for (let tt = 0; tt < tNodes.length; tt++) {
+                            cellText += tNodes[tt].textContent || '';
+                        }
+                        cells.push(cellText.trim());
+                    }
+                    rows.push(cells);
+                }
+                if (rows.length > 0) tables.push(rows);
+            }
+
+            return rc_classifyEntry(file.name, paragraphs, tables);
+        }
+
+        function rc_classifyEntry(filename, paragraphs, tables) {
+            const name = filename.replace('.docx', '').replace('中国太平洋财产保险股份有限公司', '');
+            const fullText = paragraphs.join(' ');
+            let clauseName = name.replace('费率方案', '').trim();
+            const m = clauseName.match(/附加(.+?)(?:条款|保险)?$/);
+            if (m) clauseName = '附加' + m[1];
+
+            const entry = {
+                clauseName: clauseName,
+                fullName: filename.replace('.docx', ''),
+                industry: rc_detectIndustry(filename),
+                sourceFile: filename
+            };
+
+            const substantive = paragraphs.filter(p =>
+                !p.includes('中国太平洋财产保险股份有限公司') &&
+                !(p.endsWith('费率方案') && p.length < 100)
+            );
+
+            const regKeywords = ['不涉及保险费的调整', '属于规范类', '不涉及费率', '不另收保险费'];
+            const isPurelyReg = !tables.length && substantive.length > 0 &&
+                substantive.every(p => regKeywords.some(kw => p.includes(kw)) ||
+                    p.includes('保单最终保险费') || p.includes('工资总额'));
+            if (isPurelyReg) {
+                return { ...entry, rateType: 'regulatory', description: substantive[0] || '' };
+            }
+
+            if (tables.length > 0) {
+                const coeffTables = [];
+                for (const rawTable of tables) {
+                    if (rawTable.length < 2) continue;
+                    const header = rawTable[0];
+                    const rows = [];
+                    for (let i = 1; i < rawTable.length; i++) {
+                        if (rawTable[i].length < 2) continue;
+                        const param = rawTable[i][0];
+                        const coeff = rawTable[i][1];
+                        if (!param || !coeff) continue;
+                        rows.push({
+                            parameter: param,
+                            coefficient: coeff,
+                            parsedValue: rc_parseCoeffValue(coeff)
+                        });
+                    }
+                    if (rows.length > 0) {
+                        coeffTables.push({
+                            name: header[0] || '调整系数',
+                            headerRow: header,
+                            supportsInterpolation: fullText.includes('线性插值') || fullText.includes('插值'),
+                            rows: rows
+                        });
+                    }
+                }
+                if (coeffTables.length > 0) {
+                    let basePremium = { description: '未找到基准保险费描述' };
+                    for (const p of paragraphs) {
+                        const pctM = p.match(/([\d.]+)\s*[%％]/);
+                        if ((p.includes('基准保险费') || p.includes('主险保险费的')) && pctM) {
+                            basePremium = { description: p, percentage: parseFloat(pctM[1]) };
+                            break;
+                        }
+                        const multM = p.match(/主险保险费的\s*([\d.]+)\s*倍/);
+                        if (multM) {
+                            basePremium = { description: p, multiplier: parseFloat(multM[1]) };
+                            break;
+                        }
+                    }
+                    let formula = '保险费 = 基准保险费 × 各项费率调整系数的乘积';
+                    for (const p of paragraphs) {
+                        if (p.includes('保险费') && (p.includes('×') || p.includes('＝') || p.includes('乘积'))) {
+                            formula = p;
+                            break;
+                        }
+                    }
+                    return {
+                        ...entry,
+                        rateType: 'table_coefficient',
+                        basePremium: basePremium,
+                        coefficientTables: coeffTables,
+                        formula: formula,
+                        description: substantive[0] || ''
+                    };
+                }
+            }
+
+            const hasCondition = substantive.some(p => p.includes('若') || p.includes('如果'));
+            const hasFormula = substantive.some(p => p.includes('＝') || p.includes('×'));
+            if (hasCondition || hasFormula) {
+                const conditions = [];
+                for (const p of substantive) {
+                    if ((p.includes('若') || p.includes('如果')) &&
+                        (p.includes('＝') || p.includes('×') || p.includes('%') || p.includes('减收') || p.includes('加收') || p.includes('减少'))) {
+                        conditions.push({ condition: p, formula: p, fullText: p });
+                    } else if (p.includes('不涉及保险费的调整') || p.includes('则不涉及')) {
+                        conditions.push({ condition: p, formula: '不调整', fullText: p });
+                    }
+                }
+                let baseRate = null;
+                for (const p of paragraphs) {
+                    const pctM = p.match(/([\d.]+)\s*[%％]/);
+                    if (pctM) { baseRate = parseFloat(pctM[1]); break; }
+                }
+                return {
+                    ...entry,
+                    rateType: 'formula_conditional',
+                    baseRatePercent: baseRate,
+                    conditions: conditions,
+                    description: substantive[0] || ''
+                };
+            }
+
+            for (const p of paragraphs) {
+                const pctM = p.match(/([\d.]+)\s*[%％]/);
+                if (pctM) {
+                    return { ...entry, rateType: 'simple_percentage', percentage: parseFloat(pctM[1]), description: p };
+                }
+                const multM = p.match(/主险保险费的\s*([\d.]+)\s*倍/);
+                if (multM) {
+                    const mult = parseFloat(multM[1]);
+                    return { ...entry, rateType: 'simple_percentage', percentage: mult * 100, multiplier: mult, description: p };
+                }
+            }
+
+            return { ...entry, rateType: 'regulatory', description: fullText.substring(0, 200) };
+        }
+
+        function rc_detectIndustry(filename) {
+            const patterns = [
+                [/四川省建筑施工/, '四川省建筑施工企业雇主责任保险'],
+                [/网约配送员/, '网约配送员雇主责任保险'],
+                [/石油石化/, '石油石化行业雇主责任保险'],
+                [/集成电路/, '集成电路行业雇主责任保险'],
+                [/特种设备/, '特种设备安全责任保险'],
+                [/护理服务/, '护理服务责任保险'],
+                [/民宿经营/, '民宿经营责任保险'],
+                [/燃气气瓶/, '燃气气瓶安全责任保险'],
+            ];
+            for (const [pat, ind] of patterns) {
+                if (pat.test(filename)) return ind;
+            }
+            return '雇主责任保险';
+        }
+
+        function rc_parseCoeffValue(text) {
+            text = text.trim().replace(/，/g, ',').replace(/（/g, '(').replace(/）/g, ')');
+            const rangeM = text.match(/[\[(]?\s*([\d.]+)\s*[,]\s*([\d.]+)\s*[\])]?/);
+            if (rangeM) {
+                return { type: 'range', min: parseFloat(rangeM[1]), max: parseFloat(rangeM[2]), display: text };
+            }
+            const numM = text.match(/^([\d.]+)$/);
+            if (numM) {
+                return { type: 'fixed', value: parseFloat(numM[1]), display: text };
+            }
+            return { type: 'text', display: text };
+        }
+
+        function rc_initUI() {
+            document.getElementById('rc_searchCard').style.display = '';
+            document.getElementById('rc_mainLayout').style.display = '';
+
+            const industries = [...new Set(rc_rateData.entries.map(e => e.industry))].sort();
+            const sel = document.getElementById('rc_industryFilter');
+            sel.innerHTML = '<option value="">全部行业</option>';
+            for (const ind of industries) {
+                sel.innerHTML += '<option value="' + ind + '">' + ind + '</option>';
+            }
+
+            rc_onSearch();
+        }
+
+        function rc_onSearch() {
+            const query = (document.getElementById('rc_searchInput').value || '').trim().toLowerCase();
+            const industry = document.getElementById('rc_industryFilter').value;
+            const typeFilter = document.getElementById('rc_typeFilter').value;
+
+            rc_filteredEntries = rc_rateData.entries.filter(e => {
+                if (query && !e.clauseName.toLowerCase().includes(query) &&
+                    !e.fullName.toLowerCase().includes(query)) return false;
+                if (industry && e.industry !== industry) return false;
+                if (typeFilter && e.rateType !== typeFilter) return false;
+                return true;
+            });
+
+            document.getElementById('rc_resultCount').textContent =
+                rc_filteredEntries.length + ' / ' + rc_rateData.entries.length;
+            rc_renderClauseList();
+        }
+
+        function rc_renderClauseList() {
+            const container = document.getElementById('rc_clauseList');
+            if (rc_filteredEntries.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">无匹配结果</div>';
+                return;
+            }
+            const typeLabels = {
+                simple_percentage: '百分比',
+                formula_conditional: '条件公式',
+                table_coefficient: '系数表',
+                regulatory: '规范类'
+            };
+            let html = '';
+            for (let i = 0; i < rc_filteredEntries.length; i++) {
+                const e = rc_filteredEntries[i];
+                const selected = rc_selectedEntry && rc_selectedEntry.sourceFile === e.sourceFile ? ' selected' : '';
+                html += '<div class="rc-clause-card' + selected + '" onclick="rc_selectEntry(' + i + ')">' +
+                    '<div class="rc-clause-card-name">' + rc_escHtml(e.clauseName) + '</div>' +
+                    '<div class="rc-clause-card-meta">' +
+                    '<span class="rc-type-badge ' + e.rateType + '">' + (typeLabels[e.rateType] || e.rateType) + '</span>' +
+                    '<span class="rc-industry-tag">' + rc_escHtml(e.industry) + '</span>' +
+                    '</div></div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function rc_escHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function rc_selectEntry(idx) {
+            rc_selectedEntry = rc_filteredEntries[idx];
+            rc_coeffSelections = {};
+            rc_lastResult = null;
+            rc_renderClauseList();
+            rc_renderDetail();
+            rc_log('📋 选中: ' + rc_selectedEntry.clauseName + ' [' + rc_selectedEntry.rateType + ']', 'info');
+        }
+
+        function rc_renderDetail() {
+            const panel = document.getElementById('rc_detailPanel');
+            const e = rc_selectedEntry;
+            if (!e) {
+                panel.innerHTML = '<div class="rc-detail-placeholder"><span style="font-size:48px;">📊</span><p>请从左侧选择一个费率方案</p></div>';
+                return;
+            }
+
+            let html = '<div class="rc-detail-title">' + rc_escHtml(e.clauseName) + '</div>';
+            html += '<div class="rc-detail-desc">' + rc_escHtml(e.description || '') + '</div>';
+
+            if (e.rateType === 'regulatory') {
+                html += '<div style="padding:20px;text-align:center;color:var(--text-secondary);">' +
+                    '<p style="font-size:16px;">📋 规范类条款</p>' +
+                    '<p>本条款不涉及保险费的调整</p></div>';
+                panel.innerHTML = html;
+                return;
+            }
+
+            html += '<div class="rc-input-group">' +
+                '<label>主险保险费 (元)</label>' +
+                '<input type="number" id="rc_mainPremiumInput" value="' + (rc_mainPremium || '') + '" ' +
+                'placeholder="请输入主险保险费金额" oninput="rc_mainPremium=parseFloat(this.value)||0">' +
+                '</div>';
+
+            if (e.rateType === 'simple_percentage') {
+                html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;">' +
+                    '<strong>费率: </strong>';
+                if (e.multiplier) {
+                    html += '主险保险费的 ' + e.multiplier + ' 倍';
+                } else {
+                    html += '主险保险费的 ' + e.percentage + '%';
+                }
+                html += '</div>';
+            }
+
+            if (e.rateType === 'formula_conditional') {
+                html += '<div class="rc-coeff-section"><div class="rc-coeff-title">条件公式</div>';
+                if (e.conditions && e.conditions.length > 0) {
+                    for (const cond of e.conditions) {
+                        html += '<div class="rc-condition-card">' + rc_escHtml(cond.fullText || cond.condition) + '</div>';
+                    }
+                }
+                html += '<div class="rc-extra-inputs">' +
+                    '<label>附加险赔偿限额 (元)</label>' +
+                    '<input type="number" id="rc_condLimitInput" placeholder="每人赔偿限额">' +
+                    '</div>';
+                html += '<div class="rc-extra-inputs">' +
+                    '<label>主险每人死亡/伤残赔偿限额 (元)</label>' +
+                    '<input type="number" id="rc_mainLimitInput" placeholder="主险赔偿限额">' +
+                    '</div>';
+                html += '</div>';
+            }
+
+            if (e.rateType === 'table_coefficient') {
+                if (e.basePremium) {
+                    html += '<div style="padding:12px;background:var(--info-bg);border-radius:8px;margin-bottom:16px;">' +
+                        '<strong>基准保险费: </strong>' + rc_escHtml(e.basePremium.description) + '</div>';
+                }
+                if (e.coefficientTables) {
+                    for (let ti = 0; ti < e.coefficientTables.length; ti++) {
+                        html += rc_renderCoefficientTable(e.coefficientTables[ti], ti);
+                    }
+                }
+                if (e.formula) {
+                    html += '<div style="padding:10px 14px;background:var(--bg-secondary);border-radius:8px;margin-bottom:12px;font-size:13px;">' +
+                        '<strong>公式: </strong>' + rc_escHtml(e.formula) + '</div>';
+                }
+            }
+            if (e.rateType === 'conditional_simple') {
+                var cbLabel = e.checkboxLabel || '主险未包含本附加险责任';
+                var cbChecked = e.defaultChecked ? ' checked' : '';
+                html += '<div style="padding:10px;background:#f5f3ff;border:1px solid #a78bfa;border-radius:8px;margin-bottom:12px;">' +
+                    '<label style="font-size:13px;font-weight:600;color:#5b21b6;cursor:pointer;">' +
+                    '<input type="checkbox" id="rc_conditionalCB"' + cbChecked + ' style="margin-right:8px;transform:scale(1.2);">' +
+                    rc_escHtml(cbLabel) + '</label></div>';
+                if (e.customInputs && e.customInputs.length > 0) {
+                    for (var ci = 0; ci < e.customInputs.length; ci++) {
+                        var inp = e.customInputs[ci];
+                        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+                            '<label style="font-size:12px;white-space:nowrap;">' + rc_escHtml(inp.label) + ':</label>' +
+                            '<input type="number" id="rc_ci_' + inp.key + '" step="0.01" value="0" min="0" ' +
+                            'style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;">' +
+                            (inp.unit ? '<span style="font-size:12px;color:var(--text-secondary);">' + rc_escHtml(inp.unit) + '</span>' : '') +
+                            '</div>';
+                    }
+                }
+                if (e.formula) html += '<div style="padding:10px;background:#eff6ff;border-radius:8px;font-size:12px;color:#1e40af;">📐 ' + rc_escHtml(e.formula) + '</div>';
+            }
+
+            html += '<div class="rc-actions">' +
+                '<button class="btn btn-primary" onclick="rc_calculate()">🧮 计算保险费</button>' +
+                '<button class="btn" onclick="rc_exportExcel()">📊 导出 Excel</button>' +
+                '</div>';
+
+            html += '<div id="rc_resultArea"></div>';
+
+            panel.innerHTML = html;
+        }
+
+        function rc_renderCoefficientTable(table, tableIdx) {
+            let html = '<div class="rc-coeff-section">' +
+                '<div class="rc-coeff-title">' + rc_escHtml(table.name) + '</div>';
+
+            if (table.supportsInterpolation) {
+                html += '<div style="font-size:11px;color:var(--info-color);margin-bottom:6px;">支持线性插值</div>';
+            }
+
+            html += '<table class="rc-coeff-table"><thead><tr>';
+            if (table.headerRow) {
+                for (const h of table.headerRow) {
+                    html += '<th>' + rc_escHtml(h) + '</th>';
+                }
+            } else {
+                html += '<th>参数</th><th>系数</th>';
+            }
+            html += '</tr></thead><tbody>';
+
+            for (let ri = 0; ri < table.rows.length; ri++) {
+                const row = table.rows[ri];
+                const sel = rc_coeffSelections[tableIdx];
+                const isSelected = sel && sel.rowIdx === ri;
+                html += '<tr class="' + (isSelected ? 'selected' : '') + '" onclick="rc_selectCoeffRow(' + tableIdx + ',' + ri + ')">';
+                html += '<td>' + rc_escHtml(row.parameter) + '</td>';
+                html += '<td>' + rc_escHtml(row.coefficient) + '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+
+            const sel = rc_coeffSelections[tableIdx];
+            if (sel && sel.parsedValue && sel.parsedValue.type === 'range') {
+                const pv = sel.parsedValue;
+                const currentVal = sel.value || pv.min;
+                html += '<div class="rc-range-control">' +
+                    '<label>精确系数:</label>' +
+                    '<input type="range" min="' + pv.min + '" max="' + pv.max + '" step="0.01" value="' + currentVal + '" ' +
+                    'oninput="rc_updateRangeValue(' + tableIdx + ', parseFloat(this.value))">' +
+                    '<span class="rc-range-value" id="rc_rangeVal_' + tableIdx + '">' + currentVal.toFixed(2) + '</span>' +
+                    '</div>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function rc_selectCoeffRow(tableIdx, rowIdx) {
+            const table = rc_selectedEntry.coefficientTables[tableIdx];
+            const row = table.rows[rowIdx];
+            const pv = row.parsedValue;
+            let value = 1.0;
+            if (pv.type === 'fixed') value = pv.value;
+            else if (pv.type === 'range') value = pv.min;
+
+            rc_coeffSelections[tableIdx] = {
+                rowIdx: rowIdx,
+                value: value,
+                parsedValue: pv,
+                parameter: row.parameter,
+                coefficient: row.coefficient
+            };
+            rc_renderDetail();
+        }
+
+        function rc_updateRangeValue(tableIdx, value) {
+            if (rc_coeffSelections[tableIdx]) {
+                rc_coeffSelections[tableIdx].value = value;
+            }
+            const valEl = document.getElementById('rc_rangeVal_' + tableIdx);
+            if (valEl) valEl.textContent = value.toFixed(2);
+        }
+
+        function rc_calculate() {
+            const e = rc_selectedEntry;
+            if (!e) {
+                rc_log('⚠️ 请先选择费率方案', 'warning');
+                return;
+            }
+            rc_mainPremium = parseFloat(document.getElementById('rc_mainPremiumInput').value) || 0;
+            if (rc_mainPremium <= 0 && e.rateType !== 'regulatory') {
+                rc_log('⚠️ 请输入有效的主险保险费', 'warning');
+                return;
+            }
+
+            let result = null;
+            try {
+                if (e.rateType === 'simple_percentage') {
+                    result = rc_calcSimple(e);
+                } else if (e.rateType === 'formula_conditional') {
+                    result = rc_calcFormula(e);
+                } else if (e.rateType === 'table_coefficient') {
+                    result = rc_calcTable(e);
+                } else if (e.rateType === 'conditional_simple') {
+                    result = rc_calcConditionalSimple(e);
+                } else {
+                    rc_log('ℹ️ 规范类条款不涉及保险费计算', 'info');
+                    return;
+                }
+            } catch (err) {
+                rc_log('❌ 计算错误: ' + err.message, 'error');
+                return;
+            }
+
+            rc_lastResult = result;
+            rc_renderResult(result);
+            rc_log('✅ 计算完成: ' + rc_formatCurrency(result.premium), 'success');
+        }
+
+        function rc_calcSimple(e) {
+            const rate = e.multiplier ? e.multiplier : (e.percentage / 100);
+            const premium = rc_mainPremium * rate;
+            const formulaStr = e.multiplier
+                ? rc_formatCurrency(rc_mainPremium) + ' × ' + e.multiplier + ' = ' + rc_formatCurrency(premium)
+                : rc_formatCurrency(rc_mainPremium) + ' × ' + e.percentage + '% = ' + rc_formatCurrency(premium);
+            return {
+                type: 'simple_percentage',
+                premium: premium,
+                formulaDisplay: formulaStr,
+                details: { mainPremium: rc_mainPremium, rate: rate }
+            };
+        }
+
+        function rc_calcFormula(e) {
+            const condLimitEl = document.getElementById('rc_condLimitInput');
+            const mainLimitEl = document.getElementById('rc_mainLimitInput');
+            const condLimit = condLimitEl ? parseFloat(condLimitEl.value) || 0 : 0;
+            const mainLimit = mainLimitEl ? parseFloat(mainLimitEl.value) || 0 : 0;
+
+            if (e.percentage && !condLimit && !mainLimit) {
+                const premium = rc_mainPremium * (e.percentage / 100);
+                return {
+                    type: 'formula_conditional',
+                    premium: premium,
+                    formulaDisplay: rc_formatCurrency(rc_mainPremium) + ' × ' + e.percentage + '% = ' + rc_formatCurrency(premium),
+                    details: { mainPremium: rc_mainPremium }
+                };
+            }
+
+            if (e.baseRatePercent && condLimit > 0 && mainLimit > 0) {
+                const baseRate = e.baseRatePercent / 100;
+                const ratio = condLimit / mainLimit;
+                let premium = 0;
+                let desc = '';
+                if (condLimit < mainLimit) {
+                    premium = rc_mainPremium * baseRate * (1 - ratio);
+                    desc = '减收 ' + rc_formatCurrency(premium);
+                    premium = -premium;
+                } else if (condLimit > mainLimit) {
+                    premium = rc_mainPremium * baseRate * (ratio - 1);
+                    desc = '加收 ' + rc_formatCurrency(premium);
+                } else {
+                    premium = 0;
+                    desc = '不调整';
+                }
+                return {
+                    type: 'formula_conditional',
+                    premium: premium,
+                    formulaDisplay: desc + ' (比例=' + ratio.toFixed(4) + ')',
+                    details: { mainPremium: rc_mainPremium, condLimit, mainLimit, ratio, baseRate: e.baseRatePercent }
+                };
+            }
+
+            const pct = e.baseRatePercent || e.percentage || 0;
+            const premium = rc_mainPremium * (pct / 100);
+            return {
+                type: 'formula_conditional',
+                premium: premium,
+                formulaDisplay: '按基准费率 ' + pct + '% 计算 = ' + rc_formatCurrency(premium),
+                details: { mainPremium: rc_mainPremium }
+            };
+        }
+
+        function rc_calcTable(e) {
+            let basePremium = rc_mainPremium;
+            if (e.basePremium) {
+                if (e.basePremium.multiplier) {
+                    basePremium = rc_mainPremium * e.basePremium.multiplier;
+                } else if (e.basePremium.percentage) {
+                    basePremium = rc_mainPremium * (e.basePremium.percentage / 100);
+                }
+            }
+
+            let product = 1.0;
+            const coeffDetails = [];
+            const tableCount = e.coefficientTables ? e.coefficientTables.length : 0;
+
+            for (let ti = 0; ti < tableCount; ti++) {
+                const sel = rc_coeffSelections[ti];
+                if (!sel) {
+                    throw new Error('请选择"' + e.coefficientTables[ti].name + '"的系数值');
+                }
+                product *= sel.value;
+                coeffDetails.push({
+                    table: e.coefficientTables[ti].name,
+                    parameter: sel.parameter,
+                    value: sel.value
+                });
+            }
+
+            const premium = basePremium * product;
+            const baseStr = e.basePremium && e.basePremium.multiplier
+                ? rc_formatCurrency(rc_mainPremium) + ' × ' + e.basePremium.multiplier
+                : (e.basePremium && e.basePremium.percentage
+                    ? rc_formatCurrency(rc_mainPremium) + ' × ' + e.basePremium.percentage + '%'
+                    : rc_formatCurrency(rc_mainPremium));
+            const coeffStr = coeffDetails.map(c => c.value.toFixed(4)).join(' × ');
+
+            return {
+                type: 'table_coefficient',
+                premium: premium,
+                formulaDisplay: '基准 ' + baseStr + ' = ' + rc_formatCurrency(basePremium) +
+                    ' × 系数 (' + coeffStr + ') = ' + rc_formatCurrency(premium),
+                details: {
+                    mainPremium: rc_mainPremium,
+                    basePremium: basePremium,
+                    coeffProduct: product,
+                    coeffDetails: coeffDetails
+                }
+            };
+        }
+
+        function rc_calcConditionalSimple(e) {
+            var cb = document.getElementById('rc_conditionalCB');
+            var isChecked = cb ? cb.checked : false;
+            var cfg = isChecked ? (e.whenChecked || null) : (e.whenUnchecked || null);
+            if (!cfg) return { type: 'conditional_simple', premium: 0, formulaDisplay: '主险已包含本附加险责任，不涉及保险费调整' };
+            var ft = cfg.formulaType || '';
+            if (ft === 'simple_pct') {
+                var pct = cfg.percentage;
+                var premium = rc_mainPremium * (pct / 100);
+                return { type: 'conditional_simple', premium: premium, formulaDisplay: '主险保费 × ' + pct + '%\n' + rc_formatCurrency(rc_mainPremium) + ' × ' + pct + '% = ' + rc_formatCurrency(premium) };
+            }
+            if (ft === 'base_rate_division') {
+                if (cfg.multiplier != null) {
+                    var addonEl = document.getElementById('rc_ci_addonAmount');
+                    var addonAmt = addonEl ? parseFloat(addonEl.value) || 0 : 0;
+                    if (addonAmt <= 0) throw new Error('请输入本附加险保险金额');
+                    if (rc_mainSumInsured <= 0) throw new Error('主险保额不能为0');
+                    var policyRate = rc_mainPremium / rc_mainSumInsured;
+                    var premium = addonAmt * policyRate * cfg.multiplier;
+                    return { type: 'conditional_simple', premium: premium,
+                        formulaDisplay: (cfg.description || '') + '\n' + rc_formatCurrency(addonAmt) + ' × (' + rc_formatCurrency(rc_mainPremium) + ' ÷ ' + rc_formatCurrency(rc_mainSumInsured) + ') × ' + cfg.multiplier + ' = ' + rc_formatCurrency(premium) };
+                }
+                var baseRates = cfg.baseRates || {};
+                var insTypes = Object.keys(baseRates);
+                if (insTypes.length === 0) throw new Error('缺少基准费率配置');
+                var insType = insTypes[0];
+                var baseRate = baseRates[insType] / 100;
+                var numPct = cfg.numeratorPct;
+                var premium = rc_mainPremium * (numPct / 100) / baseRate;
+                return { type: 'conditional_simple', premium: premium, formulaDisplay: '【' + insType + '】主险保费 × ' + numPct + '% ÷ 基准费率(' + (baseRates[insType]) + '%)\n' + rc_formatCurrency(rc_mainPremium) + ' × ' + numPct + '% ÷ ' + (baseRates[insType]) + '% = ' + rc_formatCurrency(premium) };
+            }
+            throw new Error('未知的conditional_simple公式类型: ' + ft);
+        }
+
+        function rc_renderResult(result) {
+            const area = document.getElementById('rc_resultArea');
+            if (!area) return;
+            const sign = result.premium >= 0 ? '' : '-';
+            const absVal = Math.abs(result.premium);
+            area.innerHTML = '<div class="rc-result-panel success">' +
+                '<div class="rc-result-formula">' + rc_escHtml(result.formulaDisplay) + '</div>' +
+                '<div class="rc-result-amount">' + sign + '¥ ' + rc_formatNumber(absVal) + '</div>' +
+                (result.premium < 0 ? '<div class="rc-result-details" style="color:var(--info-color);">负值表示减收保险费</div>' : '') +
+                '</div>';
+        }
+
+        function rc_exportExcel() {
+            if (!rc_lastResult) {
+                rc_log('⚠️ 请先执行计算', 'warning');
+                return;
+            }
+            try {
+                const e = rc_selectedEntry;
+                const r = rc_lastResult;
+
+                const ws1Data = [
+                    ['费率计算结果'],
+                    [],
+                    ['条款名称', e.clauseName],
+                    ['完整名称', e.fullName],
+                    ['行业', e.industry],
+                    ['费率类型', e.rateType],
+                    ['主险保险费', rc_mainPremium],
+                    [],
+                    ['计算公式', r.formulaDisplay],
+                    ['保险费结果', r.premium],
+                ];
+
+                if (r.details && r.details.coeffDetails) {
+                    ws1Data.push([]);
+                    ws1Data.push(['系数详情']);
+                    ws1Data.push(['系数表', '选择参数', '系数值']);
+                    for (const cd of r.details.coeffDetails) {
+                        ws1Data.push([cd.table, cd.parameter, cd.value]);
+                    }
+                }
+
+                const ws1 = XLSX.utils.aoa_to_sheet(ws1Data);
+                ws1['!cols'] = [{ wch: 20 }, { wch: 50 }];
+
+                const ws2Data = [['系数表详情']];
+                if (e.coefficientTables) {
+                    for (const ct of e.coefficientTables) {
+                        ws2Data.push([]);
+                        ws2Data.push([ct.name]);
+                        ws2Data.push(ct.headerRow || ['参数', '系数']);
+                        for (const row of ct.rows) {
+                            ws2Data.push([row.parameter, row.coefficient]);
+                        }
+                    }
+                }
+                const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
+                ws2['!cols'] = [{ wch: 30 }, { wch: 20 }];
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws1, '费率计算结果');
+                XLSX.utils.book_append_sheet(wb, ws2, '系数表详情');
+
+                const fileName = '费率计算_' + e.clauseName.substring(0, 20) + '_' +
+                    new Date().toISOString().slice(0, 10) + '.xlsx';
+                XLSX.writeFile(wb, fileName);
+                rc_log('📊 已导出: ' + fileName, 'success');
+            } catch (err) {
+                rc_log('❌ 导出失败: ' + err.message, 'error');
+            }
+        }
+
+        function rc_formatCurrency(num) {
+            if (num === null || num === undefined || isNaN(num)) return '¥0.00';
+            return '¥' + rc_formatNumber(Math.abs(num));
+        }
+
+        function rc_formatNumber(num) {
+            return num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
     </script>
 </body>
