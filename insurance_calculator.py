@@ -7,7 +7,7 @@ Insurance Calculator Module
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
     QPushButton, QComboBox, QDoubleSpinBox, QSpinBox,
-    QScrollArea, QFrame, QSlider, QFileDialog, QLineEdit,
+    QScrollArea, QFrame, QSlider, QSplitter, QFileDialog, QLineEdit,
     QListWidget, QListWidgetItem, QDateEdit, QTextEdit,
     QGraphicsDropShadowEffect, QMessageBox, QGroupBox,
     QSizePolicy, QAbstractItemView
@@ -7909,6 +7909,7 @@ def get_common_styles():
             color: {AnthropicColors.TEXT_PRIMARY};
             font-size: 13px;
             min-height: 20px;
+            min-width: 100px;
         }}
         QComboBox:focus {{
             border-color: {AnthropicColors.ACCENT};
@@ -7925,6 +7926,7 @@ def get_common_styles():
             color: {AnthropicColors.TEXT_PRIMARY};
             font-size: 13px;
             min-height: 20px;
+            min-width: 90px;
         }}
         QSpinBox:focus, QDoubleSpinBox:focus {{
             border-color: {AnthropicColors.ACCENT};
@@ -8091,6 +8093,8 @@ class MainInsuranceTab(QWidget):
         layout.addStretch()
         import_btn = QPushButton("📂 导入费率方案")
         import_btn.setCursor(Qt.PointingHandCursor)
+        import_btn.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        import_btn.setMinimumWidth(140)
         import_btn.clicked.connect(self._import_rate_plan)
         layout.addWidget(import_btn)
         self.scroll_layout.addWidget(card)
@@ -9184,82 +9188,93 @@ class AddonInsuranceTab(QWidget):
         main_layout.setSpacing(8)
         main_layout.setContentsMargins(10, 8, 10, 8)
 
-        # 顶栏: 主险信息 + 导入按钮
+        # 顶栏: 主险信息 + 导入按钮 (两行 GridLayout)
         top_bar = GlassCard()
-        top_layout = QHBoxLayout(top_bar)
-        top_layout.setContentsMargins(16, 10, 16, 10)
+        top_grid = QGridLayout(top_bar)
+        top_grid.setContentsMargins(16, 10, 16, 10)
+        top_grid.setHorizontalSpacing(8)
+        top_grid.setVerticalSpacing(6)
 
-        top_layout.addWidget(QLabel("主险保费:"))
+        # Row 0: 参数输入
+        top_grid.addWidget(QLabel("主险保费:"), 0, 0)
         self.main_premium_input = QDoubleSpinBox()
         self.main_premium_input.setRange(0, 999999999999)
         self.main_premium_input.setDecimals(2)
         self.main_premium_input.setSuffix(" 元")
+        self.main_premium_input.setMinimumWidth(100)
         self.main_premium_input.valueChanged.connect(lambda v: setattr(self, 'main_premium', v))
-        top_layout.addWidget(self.main_premium_input)
+        top_grid.addWidget(self.main_premium_input, 0, 1)
 
-        top_layout.addWidget(QLabel("主险保额:"))
+        top_grid.addWidget(QLabel("主险保额:"), 0, 2)
         self.main_sum_insured_input = QDoubleSpinBox()
         self.main_sum_insured_input.setRange(0, 999999999999)
         self.main_sum_insured_input.setDecimals(2)
         self.main_sum_insured_input.setSuffix(" 元")
+        self.main_sum_insured_input.setMinimumWidth(100)
         self.main_sum_insured_input.valueChanged.connect(lambda v: setattr(self, 'main_sum_insured', v))
-        top_layout.addWidget(self.main_sum_insured_input)
+        top_grid.addWidget(self.main_sum_insured_input, 0, 3)
 
-        top_layout.addWidget(QLabel("每人保费:"))
+        top_grid.addWidget(QLabel("每人保费:"), 0, 4)
         self.per_person_input = QDoubleSpinBox()
         self.per_person_input.setRange(0, 999999999999)
         self.per_person_input.setDecimals(2)
         self.per_person_input.setSuffix(" 元")
+        self.per_person_input.setMinimumWidth(100)
         self.per_person_input.valueChanged.connect(lambda v: setattr(self, 'per_person_premium', v))
-        top_layout.addWidget(self.per_person_input)
+        top_grid.addWidget(self.per_person_input, 0, 5)
 
-        top_layout.addWidget(QLabel("保单天数:"))
+        top_grid.addWidget(QLabel("保单天数:"), 0, 6)
         self.policy_days_input = QSpinBox()
         self.policy_days_input.setRange(1, 9999)
         self.policy_days_input.setValue(365)
         self.policy_days_input.setSuffix(" 天")
+        self.policy_days_input.setMinimumWidth(100)
         self.policy_days_input.valueChanged.connect(lambda v: setattr(self, 'policy_days', v))
-        top_layout.addWidget(self.policy_days_input)
+        top_grid.addWidget(self.policy_days_input, 0, 7)
 
-        top_layout.addWidget(QLabel("保险类型:"))
+        # Row 1: 保险类型 + 状态 + 按钮
+        top_grid.addWidget(QLabel("保险类型:"), 1, 0)
         self.batch_insurance_combo = QComboBox()
         self.batch_insurance_combo.addItem("财产基本险")
         self.batch_insurance_combo.addItem("财产综合险")
         self.batch_insurance_combo.addItem("财产一切险")
         self.batch_insurance_combo.setCurrentIndex(2)  # Default to 财产一切险
-        top_layout.addWidget(self.batch_insurance_combo)
+        top_grid.addWidget(self.batch_insurance_combo, 1, 1)
 
         # 主险数据状态指示
         self.main_data_status = QLabel("⚪ 未接收主险数据")
         self.main_data_status.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_TERTIARY};")
-        top_layout.addWidget(self.main_data_status)
-
-        top_layout.addStretch()
+        top_grid.addWidget(self.main_data_status, 1, 2, 1, 2)
 
         folder_btn = QPushButton("📁 导入文件夹")
         folder_btn.setCursor(Qt.PointingHandCursor)
         folder_btn.clicked.connect(self._load_folder)
-        top_layout.addWidget(folder_btn)
+        top_grid.addWidget(folder_btn, 1, 5)
 
         json_btn = QPushButton("📂 导入JSON")
         json_btn.setCursor(Qt.PointingHandCursor)
         json_btn.clicked.connect(self._load_json)
-        top_layout.addWidget(json_btn)
+        top_grid.addWidget(json_btn, 1, 6)
 
         inquiry_btn = QPushButton("📋 导入询价")
         inquiry_btn.setCursor(Qt.PointingHandCursor)
         inquiry_btn.clicked.connect(self._handle_inquiry_import)
-        top_layout.addWidget(inquiry_btn)
+        top_grid.addWidget(inquiry_btn, 1, 7)
+
+        # 奇数列(输入框列)设置弹性拉伸
+        for col in (1, 3, 5, 7):
+            top_grid.setColumnStretch(col, 1)
 
         main_layout.addWidget(top_bar)
 
-        # 三列布局
-        content = QHBoxLayout()
-        content.setSpacing(8)
+        # 三列布局 (QSplitter 支持拖拽调整)
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.setHandleWidth(4)
 
         # 左列: 搜索 + 条款列表
         left_panel = QWidget()
-        left_panel.setFixedWidth(340)
+        left_panel.setMinimumWidth(250)
+        left_panel.setMaximumWidth(450)
         left_layout = QVBoxLayout(left_panel)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(6)
@@ -9309,7 +9324,7 @@ class AddonInsuranceTab(QWidget):
         self.batch_calc_btn.hide()
         left_layout.addWidget(self.batch_calc_btn)
 
-        content.addWidget(left_panel)
+        splitter.addWidget(left_panel)
 
         # 中列: 详情 + 计算
         mid_scroll = QScrollArea()
@@ -9327,11 +9342,12 @@ class AddonInsuranceTab(QWidget):
         self.detail_layout.addWidget(self.detail_placeholder)
         self.detail_layout.addStretch()
 
-        content.addWidget(mid_scroll, 1)
+        splitter.addWidget(mid_scroll)
 
         # 右列: 保费汇总
         right_panel = QWidget()
-        right_panel.setFixedWidth(280)
+        right_panel.setMinimumWidth(220)
+        right_panel.setMaximumWidth(400)
         right_layout = QVBoxLayout(right_panel)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(6)
@@ -9394,8 +9410,15 @@ class AddonInsuranceTab(QWidget):
         short_layout.addWidget(self.short_term_result)
         right_layout.addWidget(short_card)
 
-        content.addWidget(right_panel)
-        main_layout.addLayout(content, 1)
+        splitter.addWidget(right_panel)
+
+        # Splitter 伸缩策略: 左右固定，中间弹性
+        splitter.setStretchFactor(0, 0)  # 左列不自动伸展
+        splitter.setStretchFactor(1, 1)  # 中间弹性
+        splitter.setStretchFactor(2, 0)  # 右列不自动伸展
+        splitter.setSizes([300, 500, 280])
+
+        main_layout.addWidget(splitter, 1)
 
         # 底部日志
         self.log_display = QTextEdit()
