@@ -959,6 +959,168 @@
         }
 
         /* 条款查询模态框 */
+        .industry-lookup-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .industry-lookup-modal.show {
+            display: flex;
+        }
+
+        .industry-lookup-dialog {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 860px;
+            width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modal-pop 0.3s ease-out;
+        }
+
+        .industry-lookup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .industry-lookup-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .industry-lookup-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .industry-lookup-close:hover {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+        }
+
+        .industry-lookup-search {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            box-sizing: border-box;
+        }
+
+        .industry-lookup-search:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .industry-class-section {
+            margin-bottom: 16px;
+        }
+
+        .industry-class-header {
+            font-size: 15px;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .industry-class-header.class1 {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .industry-class-header.class2 {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .industry-class-header.class3 {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .industry-sub-item {
+            padding: 8px 14px;
+            margin: 4px 0;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.6;
+            background: var(--bg-secondary);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .industry-sub-item:hover {
+            border-color: var(--accent-color);
+            background: var(--accent-bg);
+        }
+
+        .industry-sub-code {
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-right: 6px;
+        }
+
+        .industry-sub-detail {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .industry-lookup-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            font-size: 11px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+            cursor: pointer;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .industry-lookup-btn:hover {
+            background: var(--accent-bg);
+            border-color: var(--accent-color);
+        }
+
+        .industry-sub-item.highlight {
+            background: #fef9c3;
+            border-color: #eab308;
+        }
+
         .query-modal {
             display: none;
             position: fixed;
@@ -2327,7 +2489,7 @@
                 <!-- 基本参数 -->
                 <div class="mc-input-grid">
                     <div class="mc-input-group">
-                        <label>行业类别</label>
+                        <label>行业类别 <button class="industry-lookup-btn" onclick="mc_showIndustryLookup()">📋 速查</button></label>
                         <select id="mc_industryClass" onchange="mc_renderCoefficients()">
                             <option value="class1">1类（低风险）</option>
                             <option value="class2">2类（中风险）</option>
@@ -2518,6 +2680,18 @@
         <!-- 页脚 -->
         <div class="footer">
             智能条款工具箱 v18.8 · 作者: Dachi_Yijin · 2026
+        </div>
+    </div>
+
+    <!-- 行业分类速查模态框 -->
+    <div class="industry-lookup-modal" id="industryLookupModal" onclick="mc_hideIndustryLookup(event)">
+        <div class="industry-lookup-dialog" onclick="event.stopPropagation()">
+            <div class="industry-lookup-header">
+                <div class="industry-lookup-title">雇主责任保险行业分类表</div>
+                <button class="industry-lookup-close" onclick="mc_hideIndustryLookup()">&times;</button>
+            </div>
+            <input type="text" class="industry-lookup-search" id="industryLookupSearch" placeholder="搜索行业关键词，如：建筑、餐饮、软件..." oninput="mc_filterIndustry()">
+            <div id="industryLookupContent"></div>
         </div>
     </div>
 
@@ -11698,6 +11872,114 @@ ${fileList}
             mc_renderCoefficients();
             var opt = MC_DISABILITY_ADDON_OPTIONS[idx];
             mc_log('选择伤残赔偿比例方案: ' + opt.label + ' → 系数 ' + mc_fmtNum(opt.coeff[mc_selectedDisabilityTable], 3), 'info');
+        }
+
+        // --- 行业分类速查 ---
+        var mc_industryData = [
+            {
+                className: '一类（低风险）', classValue: 'class1', cssClass: 'class1',
+                subs: [
+                    { code: '1.1', name: '金融保险业', detail: '银行业、证券业、保险业、其他金融活动业' },
+                    { code: '1.2', name: '邮政电信业', detail: '邮政业、电信和其他传输服务业' },
+                    { code: '1.3', name: '商务服务业', detail: '租赁业、住宿业、餐饮业、批发业、零售业、仓储业' },
+                    { code: '1.4', name: '电子服务业', detail: '计算机服务业、软件业' },
+                    { code: '1.5', name: '公共服务业', detail: '城市公共交通业、社会保障业、社会福利业、教育、研究与试验发展、科技交流和推广服务业、专业技术业' },
+                    { code: '1.6', name: '影音服务业', detail: '新闻出版业、广播、电视、电影和音像业、文化艺术业' },
+                    { code: '1.7', name: '其他服务业', detail: '居民服务业、其他服务业' }
+                ]
+            },
+            {
+                className: '二类（中风险）', classValue: 'class2', cssClass: 'class2',
+                subs: [
+                    { code: '2.1', name: '公共服务业', detail: '房地产业、体育、娱乐业、水利管理业、环境管理业、公共设施管理业' },
+                    { code: '2.2', name: '食品加工业', detail: '农副食品加工业、食品制造业、饮料制造业、烟草制品业' },
+                    { code: '2.3', name: '普通制造业', detail: '纺织业、纺织服装/鞋/帽制造业、皮革/毛皮/羽绒及制品业、木材加工及木竹藤草制品业、家具制造业、造纸及纸制品业、印刷业、文教体育用品制造业、通信设备/计算机及其他电子设备制造业' },
+                    { code: '2.4', name: '农林牧渔业', detail: '林业、农业、畜牧业、渔业、农林牧渔服务业' },
+                    { code: '2.5', name: '化工制造业', detail: '化学纤维制造业、医药制造业、橡胶制品业、塑料制品业' },
+                    { code: '2.6', name: '机械制造业', detail: '通用机械制造业、专用机械制造业、交通运输设备制造业、电气机械及器材制造业、仪器仪表及文化办公用机械制造业' },
+                    { code: '2.7', name: '金属及非金属制造业', detail: '非金属矿物制品业、金属制品业' },
+                    { code: '2.8', name: '资源生产供应业', detail: '废弃资源和废旧材料回收加工业、电力/热力的生产和供应业、燃气生产和供应业、水的生产和供应业' },
+                    { code: '2.9', name: '建筑安装及相关行业', detail: '房屋和土木工程建筑业、建筑安装业、建筑装饰业、其他建筑业、地质勘查业' },
+                    { code: '2.10', name: '运输服务业', detail: '铁路运输业、道路运输业、水上运输业、航空运输业、管道运输业、装卸搬运和其他运输服务业' }
+                ]
+            },
+            {
+                className: '三类（高风险）', classValue: 'class3', cssClass: 'class3',
+                subs: [
+                    { code: '3.1', name: '石油化工加工业', detail: '石油加工、炼焦及核燃料加工业、化学原料及化学制品制造业' },
+                    { code: '3.2', name: '金属冶炼及加工业', detail: '黑色金属冶炼及压延加工业、有色金属冶炼及压延加工业' },
+                    { code: '3.3', name: '石油天然气及矿山开采业', detail: '石油和天然气开采业、黑色金属矿采选业、有色金属矿采选业、非金属矿采选业、煤炭开采和洗选业、其他采矿业' }
+                ]
+            }
+        ];
+
+        function mc_showIndustryLookup() {
+            var modal = document.getElementById('industryLookupModal');
+            var search = document.getElementById('industryLookupSearch');
+            modal.classList.add('show');
+            search.value = '';
+            mc_renderIndustryLookup('');
+            setTimeout(function () { search.focus(); }, 100);
+        }
+
+        function mc_hideIndustryLookup(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('industryLookupModal').classList.remove('show');
+        }
+
+        function mc_filterIndustry() {
+            var keyword = document.getElementById('industryLookupSearch').value.trim();
+            mc_renderIndustryLookup(keyword);
+        }
+
+        function mc_renderIndustryLookup(keyword) {
+            var container = document.getElementById('industryLookupContent');
+            var html = '';
+            var kw = keyword.toLowerCase();
+
+            mc_industryData.forEach(function (cls) {
+                var filteredSubs = cls.subs.filter(function (sub) {
+                    if (!kw) return true;
+                    return sub.name.toLowerCase().indexOf(kw) >= 0 ||
+                        sub.detail.toLowerCase().indexOf(kw) >= 0 ||
+                        sub.code.indexOf(kw) >= 0;
+                });
+
+                if (filteredSubs.length === 0) return;
+
+                html += '<div class="industry-class-section">';
+                html += '<div class="industry-class-header ' + cls.cssClass + '">' +
+                    cls.className + '（共' + cls.subs.length + '个子类）</div>';
+
+                filteredSubs.forEach(function (sub) {
+                    var highlightClass = '';
+                    if (kw) {
+                        highlightClass = ' highlight';
+                    }
+                    html += '<div class="industry-sub-item' + highlightClass + '" onclick="mc_selectIndustryClass(\'' + cls.classValue + '\')">' +
+                        '<div><span class="industry-sub-code">' + sub.code + '</span>' + sub.name + '</div>' +
+                        '<div class="industry-sub-detail">' + sub.detail + '</div>' +
+                        '</div>';
+                });
+
+                html += '</div>';
+            });
+
+            if (!html) {
+                html = '<div style="text-align:center;padding:40px;color:var(--text-tertiary);font-size:13px;">未找到匹配的行业</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function mc_selectIndustryClass(classValue) {
+            var select = document.getElementById('mc_industryClass');
+            if (select) {
+                select.value = classValue;
+                mc_renderCoefficients();
+            }
+            mc_hideIndustryLookup();
+            mc_log('已选择行业类别: ' + select.options[select.selectedIndex].text, 'info');
         }
 
         // --- 渲染系数表 ---
