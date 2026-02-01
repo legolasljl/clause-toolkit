@@ -35,9 +35,9 @@ except ImportError:
         ACCENT_DARK = "#c6613f"
         ACCENT_LIGHT = "#e8956f"
         TEXT_PRIMARY = "#141413"
-        TEXT_SECONDARY = "#b0aea5"
-        TEXT_TERTIARY = "#8a8880"
-        TEXT_LIGHT = "#faf9f5"
+        TEXT_SECONDARY = "#6b6960"
+        TEXT_TERTIARY = "#57554e"
+        TEXT_LIGHT = "#ffffff"
         BORDER = "#d8d6ce"
         BORDER_DARK = "#c0beb6"
 
@@ -7961,6 +7961,12 @@ def get_common_styles():
             color: {AnthropicColors.TEXT_PRIMARY};
             font-size: 12px;
         }}
+        QListWidget {{
+            color: {AnthropicColors.TEXT_PRIMARY};
+        }}
+        QListWidget::item {{
+            color: {AnthropicColors.TEXT_PRIMARY};
+        }}
         QScrollArea {{
             border: none;
             background: transparent;
@@ -9243,17 +9249,20 @@ class AddonInsuranceTab(QWidget):
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
                 font-size: 12px;
+                color: {AnthropicColors.TEXT_PRIMARY};
             }}
             QListWidget::item {{
                 padding: 8px 12px;
                 border-bottom: 1px solid {AnthropicColors.BORDER};
+                color: {AnthropicColors.TEXT_PRIMARY};
             }}
             QListWidget::item:selected {{
                 background: {AnthropicColors.ACCENT};
-                color: {AnthropicColors.TEXT_LIGHT};
+                color: #ffffff;
             }}
             QListWidget::item:hover:!selected {{
                 background: {AnthropicColors.BG_CARD};
+                color: {AnthropicColors.TEXT_PRIMARY};
             }}
         """)
         self.clause_list.currentRowChanged.connect(self._on_clause_selected)
