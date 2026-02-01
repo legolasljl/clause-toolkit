@@ -10282,8 +10282,7 @@ ${fileList}
 
             if (rt !== 'regulatory' && rt !== 'no_calc' && rt !== 'included_in_main' && rt !== 'daily_prorate' && rt !== 'formula_conditional') {
                 html += '<div class="rc-actions">' +
-                    '<button class="btn btn-primary" onclick="rc_calculate()">🧮 计算附加险保费</button>' +
-                    '<button class="btn" onclick="rc_exportExcel()">📊 导出 Excel</button></div>';
+                    '<button class="btn btn-primary" onclick="rc_calculate()">🧮 计算附加险保费</button></div>';
             }
             html += '<div id="rc_resultArea"></div>';
             html += rc_renderManualSection();
@@ -11458,6 +11457,11 @@ ${fileList}
             html += '<div id="rc_shortTermResult"></div>';
             html += '</div></div>';
 
+            // 导出汇总Excel按钮
+            html += '<div style="margin-top:12px;">' +
+                '<button class="btn" onclick="rc_exportSummaryExcel()" style="width:100%;justify-content:center;gap:6px;font-size:13px;padding:10px;">📊 导出保费汇总 Excel</button>' +
+                '</div>';
+
             container.innerHTML = html;
         }
 
@@ -11919,62 +11923,64 @@ ${fileList}
         }
 
         // --- Excel Export ---
-        function rc_exportExcel() {
-            if (!rc_lastResult) {
-                rc_log('⚠️ 请先执行计算', 'warning');
+        function rc_exportSummaryExcel() {
+            if (rc_premiumItems.length === 0) {
+                rc_log('⚠️ 暂无附加险保费数据，请先计算', 'warning');
                 return;
             }
             try {
-                const e = rc_selectedEntry;
-                const r = rc_lastResult;
+                var mainPremVal = parseFloat(document.getElementById('rc_mainPremiumInput').value) || 0;
+                var addonTotal = 0;
 
-                // Sheet 1: 计算结果
-                const ws1Data = [
-                    ['费率计算结果'],
+                var wsData = [
+                    ['附加险保费汇总'],
+                    ['导出时间', new Date().toLocaleString('zh-CN')],
                     [],
-                    ['条款名称', e.clauseName],
-                    ['完整名称', e.fullName],
-                    ['行业', e.industry],
-                    ['费率类型', e.rateType],
-                    ['主险保险费', rc_mainPremium],
-                    [],
-                    ['计算公式', r.formulaDisplay],
-                    ['保险费结果', r.premium],
+                    ['序号', '条款名称', '计算公式', '保费金额（元）']
                 ];
 
-                if (r.details && r.details.coeffDetails) {
-                    ws1Data.push([]);
-                    ws1Data.push(['系数详情']);
-                    ws1Data.push(['系数表', '选择参数', '系数值']);
-                    for (const cd of r.details.coeffDetails) {
-                        ws1Data.push([cd.table, cd.parameter, cd.value]);
+                rc_premiumItems.forEach(function (item, idx) {
+                    addonTotal += item.premium;
+                    wsData.push([idx + 1, item.clauseName, item.formula || '', item.premium]);
+                });
+
+                wsData.push([]);
+                wsData.push(['', '', '附加险合计', addonTotal]);
+
+                var annualTotal = mainPremVal + addonTotal;
+                wsData.push([]);
+                wsData.push(['', '', '主险保费', mainPremVal]);
+                wsData.push(['', '', '+ 附加险合计', addonTotal]);
+                wsData.push(['', '', '保单预估年保费', annualTotal]);
+
+                // 短期保费（如有）
+                var startInput = document.getElementById('rc_shortStartDate');
+                var endInput = document.getElementById('rc_shortEndDate');
+                if (startInput && endInput && startInput.value && endInput.value) {
+                    var startDate = new Date(startInput.value);
+                    var endDate = new Date(endInput.value);
+                    if (endDate > startDate) {
+                        var days = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+                        var year = startDate.getFullYear();
+                        var daysInYear = rc_isLeapYear(year) ? 366 : 365;
+                        var shortRate = days / daysInYear;
+                        var shortPremium = annualTotal * shortRate;
+                        wsData.push([]);
+                        wsData.push(['', '', '短期保费计算', '']);
+                        wsData.push(['', '', '保险期间', startInput.value + ' 至 ' + endInput.value]);
+                        wsData.push(['', '', '天数 / 年天数', days + ' / ' + daysInYear]);
+                        wsData.push(['', '', '短期费率', (shortRate * 100).toFixed(4) + '%']);
+                        wsData.push(['', '', '短期保费', Math.round(shortPremium * 100) / 100]);
                     }
                 }
 
-                const ws1 = XLSX.utils.aoa_to_sheet(ws1Data);
-                ws1['!cols'] = [{ wch: 20 }, { wch: 50 }];
+                var ws = XLSX.utils.aoa_to_sheet(wsData);
+                ws['!cols'] = [{ wch: 8 }, { wch: 35 }, { wch: 40 }, { wch: 18 }];
 
-                // Sheet 2: 系数表详情
-                const ws2Data = [['系数表详情']];
-                if (e.coefficientTables) {
-                    for (const ct of e.coefficientTables) {
-                        ws2Data.push([]);
-                        ws2Data.push([ct.name]);
-                        ws2Data.push(ct.headerRow || ['参数', '系数']);
-                        for (const row of ct.rows) {
-                            ws2Data.push([row.parameter, row.coefficient]);
-                        }
-                    }
-                }
-                const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
-                ws2['!cols'] = [{ wch: 30 }, { wch: 20 }];
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, '附加险保费汇总');
 
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws1, '费率计算结果');
-                XLSX.utils.book_append_sheet(wb, ws2, '系数表详情');
-
-                const fileName = '费率计算_' + e.clauseName.substring(0, 20) + '_' +
-                    new Date().toISOString().slice(0, 10) + '.xlsx';
+                var fileName = '附加险保费汇总_' + new Date().toISOString().slice(0, 10) + '.xlsx';
                 XLSX.writeFile(wb, fileName);
                 rc_log('📊 已导出: ' + fileName, 'success');
             } catch (err) {
