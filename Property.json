@@ -2,18 +2,18 @@
   "version": "2.1",
   "generatedAt": "2026-01-31 22:12:06",
   "sourceDirectory": "/Users/jinlei/Library/Mobile Documents/com~apple~CloudDocs/Documents/归档/附加条款及费率方案/企业财产保险",
-  "totalEntries": 591,
+  "totalEntries": 609,
   "stats": {
-    "table_coefficient": 146,
+    "table_coefficient": 148,
     "deduction": 1,
-    "base_rate_formula": 27,
-    "included_in_main": 22,
-    "regulatory": 217,
-    "formula_conditional": 36,
-    "simple_percentage": 130,
-    "daily_prorate": 4,
-    "main_premium_modifier": 6,
-    "conditional_simple": 4
+    "base_rate_formula": 32,
+    "included_in_main": 21,
+    "regulatory": 219,
+    "formula_conditional": 33,
+    "simple_percentage": 135,
+    "main_premium_modifier": 11,
+    "conditional_simple": 5,
+    "daily_prorate": 4
   },
   "entries": [
     {
@@ -658,15 +658,43 @@
       "rateCap": 70,
       "maxInstances": 5,
       "serviceTypes": [
-        {"key": "onlineConsult", "label": "线上法律咨询服务", "baseRate": 28.32},
-        {"key": "contractReview", "label": "合同及商业文件审核", "baseRate": 8.33},
-        {"key": "legalOpinion", "label": "出具法律意见书", "baseRate": 6.67},
-        {"key": "lawyerLetter", "label": "发送律师函", "baseRate": 3.33},
-        {"key": "offlineGuidance", "label": "线下律师法律指导意见", "baseRate": 4.99}
+        {
+          "key": "onlineConsult",
+          "label": "线上法律咨询服务",
+          "baseRate": 28.32
+        },
+        {
+          "key": "contractReview",
+          "label": "合同及商业文件审核",
+          "baseRate": 8.33
+        },
+        {
+          "key": "legalOpinion",
+          "label": "出具法律意见书",
+          "baseRate": 6.67
+        },
+        {
+          "key": "lawyerLetter",
+          "label": "发送律师函",
+          "baseRate": 3.33
+        },
+        {
+          "key": "offlineGuidance",
+          "label": "线下律师法律指导意见",
+          "baseRate": 4.99
+        }
       ],
       "perInstanceInputs": [
-        {"key": "liabilityLimit", "label": "每次事故责任限额", "unit": "元"},
-        {"key": "serviceCount", "label": "服务次数", "unit": "次"}
+        {
+          "key": "liabilityLimit",
+          "label": "每次事故责任限额",
+          "unit": "元"
+        },
+        {
+          "key": "serviceCount",
+          "label": "服务次数",
+          "unit": "次"
+        }
       ],
       "subFormulas": [
         {
@@ -1213,7 +1241,13 @@
       "formula": "保险费＝基准保险费×赔偿限额调整系数",
       "description": "一、基准保险费：主险保险费的1%",
       "sourceFile": "企业财产保险附加不具名供应商及顾客扩展条款费率方案.docx",
-      "customInputs": [{"key": "compensationLimit", "label": "赔偿限额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "compensationLimit",
+          "label": "赔偿限额",
+          "unit": "元"
+        }
+      ],
       "ratioHint": {
         "numeratorKey": "compensationLimit",
         "denominatorSource": "mainSumInsured",
@@ -1810,7 +1844,11 @@
       "formula": "保险费＝基准保险费×各项费率调整系数的乘积",
       "description": "一、基准保险费",
       "sourceFile": "企业财产保险附加任何水浸损坏条款费率方案.docx",
-      "insuranceTypeRates": { "财产基本险": 30, "财产综合险": 0.2, "财产一切险": 0 }
+      "insuranceTypeRates": {
+        "财产基本险": 30,
+        "财产综合险": 0.2,
+        "财产一切险": 0
+      }
     },
     {
       "clauseName": "附加优先使用原供应商条款（2025版",
@@ -3728,8 +3766,16 @@
       "policyRateMultiplier": 1.0,
       "useGlobalPolicyDays": true,
       "customInputs": [
-        {"key": "storageAmount", "label": "每次临时储存的保险金额", "unit": "元"},
-        {"key": "storageDays", "label": "每次临时储存保险期间天数", "unit": "天"}
+        {
+          "key": "storageAmount",
+          "label": "每次临时储存的保险金额",
+          "unit": "元"
+        },
+        {
+          "key": "storageDays",
+          "label": "每次临时储存保险期间天数",
+          "unit": "天"
+        }
       ],
       "formula": "每次临时储存的保险费＝每次临时储存的保险金额×保单保险费率×每次临时储存保险期间天数÷保单保险天数",
       "description": "每次临时储存的保险费＝每次临时储存的保险金额×保单保险费率×每次临时储存保险期间天数÷保单保险天数",
@@ -4033,8 +4079,16 @@
       "policyRateMultiplier": 1.0,
       "useGlobalPolicyDays": true,
       "customInputs": [
-        {"key": "excessAmount", "label": "超额保险财产的保险金额", "unit": "元"},
-        {"key": "excessDays", "label": "保险期限内超额保险财产的保险天数", "unit": "天"}
+        {
+          "key": "excessAmount",
+          "label": "超额保险财产的保险金额",
+          "unit": "元"
+        },
+        {
+          "key": "excessDays",
+          "label": "保险期限内超额保险财产的保险天数",
+          "unit": "天"
+        }
       ],
       "formula": "每次收取的保险费＝超额保险金额×保单保险费率×超额天数÷保单天数",
       "description": "每次收取的保险费＝超额保险财产的保险金额×保单保险费率×保险期限内超额保险财产的保险天数÷保单保险天数",
@@ -4615,9 +4669,21 @@
       "rateType": "main_premium_modifier",
       "modifierType": "regional_deduction",
       "regions": [
-        {"key": "landing", "label": "近30年台风曾登陆的省、自治区、直辖市", "deductPct": 25},
-        {"key": "passing", "label": "近30年任一台风中心曾经过的省、自治区、直辖市", "deductPct": 3},
-        {"key": "other", "label": "其他省、自治区、直辖市", "deductPct": 0.1}
+        {
+          "key": "landing",
+          "label": "近30年台风曾登陆的省、自治区、直辖市",
+          "deductPct": 25
+        },
+        {
+          "key": "passing",
+          "label": "近30年任一台风中心曾经过的省、自治区、直辖市",
+          "deductPct": 3
+        },
+        {
+          "key": "other",
+          "label": "其他省、自治区、直辖市",
+          "deductPct": 0.1
+        }
       ],
       "insuranceTypeOverrides": {
         "财产基本险": 0
@@ -4966,8 +5032,16 @@
       "rateCap": 70,
       "useGlobalPolicyDays": true,
       "customInputs": [
-        {"key": "vehicleAmount", "label": "参与试车地铁运营车辆的保险金额", "unit": "元"},
-        {"key": "trialDays", "label": "本附加险保险期间天数", "unit": "天"}
+        {
+          "key": "vehicleAmount",
+          "label": "参与试车地铁运营车辆的保险金额",
+          "unit": "元"
+        },
+        {
+          "key": "trialDays",
+          "label": "本附加险保险期间天数",
+          "unit": "天"
+        }
       ],
       "formula": "保险费＝保险金额×保单保险费率×1.5×试车天数÷保单天数（若费率×1.5>70%则按70%）",
       "description": "地铁运营车辆每次试车期保险费＝参与试车地铁运营车辆的保险金额×保单保险费率×1.5×本附加险保险期间天数÷保单保险期间天数",
@@ -8147,7 +8221,13 @@
       "formula": "保险费＝基准保险费×工程合同价限额÷主险保险金额调整系数",
       "description": "若主险为财产基本险，则本附加险保险费为主险保险费的1%；若主险为财产综合险或财产一切险，则本附加条款属于规范类，不涉及保险费的调整。",
       "sourceFile": "企业财产保险附加扩展承保与建筑安装工程交叉责任条款费率方案.docx",
-      "customInputs": [{"key": "contractRatio", "label": "工程合同价限额÷主险保险金额", "unit": "%"}],
+      "customInputs": [
+        {
+          "key": "contractRatio",
+          "label": "工程合同价限额÷主险保险金额",
+          "unit": "%"
+        }
+      ],
       "coefficientTableLookupKey": "contractRatio"
     },
     {
@@ -8288,7 +8368,13 @@
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×主险调整系数",
       "description": "一、基准保险费：主险保险费的80%",
       "sourceFile": "企业财产保险附加扩展机器设备损坏条款（2025版）费率方案.docx",
-      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "machineryAmount",
+          "label": "机器设备保险金额",
+          "unit": "元"
+        }
+      ],
       "ratioMultiplier": {
         "numeratorKey": "machineryAmount",
         "denominatorSource": "mainSumInsured",
@@ -9549,7 +9635,13 @@
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×各项费率调整系数的乘积",
       "description": "一、基准保险费：主险保险费的80%",
       "sourceFile": "企业财产保险附加机器损坏保险（2025版C款）费率方案.docx",
-      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "machineryAmount",
+          "label": "机器设备保险金额",
+          "unit": "元"
+        }
+      ],
       "ratioMultiplier": {
         "numeratorKey": "machineryAmount",
         "denominatorSource": "mainSumInsured",
@@ -9607,7 +9699,13 @@
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×主险调整系数",
       "description": "一、基准保险费：主险保险费的80%",
       "sourceFile": "企业财产保险附加机器损坏保险（B款）费率方案.docx",
-      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "machineryAmount",
+          "label": "机器设备保险金额",
+          "unit": "元"
+        }
+      ],
       "ratioMultiplier": {
         "numeratorKey": "machineryAmount",
         "denominatorSource": "mainSumInsured",
@@ -9665,7 +9763,13 @@
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×主险调整系数",
       "description": "一、基准保险费：主险保险费的80%",
       "sourceFile": "企业财产保险附加机器设备损坏条款费率方案.docx",
-      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "machineryAmount",
+          "label": "机器设备保险金额",
+          "unit": "元"
+        }
+      ],
       "ratioMultiplier": {
         "numeratorKey": "machineryAmount",
         "denominatorSource": "mainSumInsured",
@@ -9855,11 +9959,51 @@
       "rateType": "main_premium_modifier",
       "modifierType": "water_level_deduction",
       "waterLevelTable": {
-        "heights": [20, 30, 40, 50, 60, 70, 80, 90, 100],
+        "heights": [
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90,
+          100
+        ],
         "rates": {
-          "财产基本险": [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          "财产综合险": [0.2, 0.9, 3.2, 6.5, 12.7, 15.7, 16.5, 16.7, 17.1],
-          "财产一切险": [0.1, 0.6, 2.3, 4.7, 9.1, 11.2, 11.8, 12.0, 12.2]
+          "财产基本险": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "财产综合险": [
+            0.2,
+            0.9,
+            3.2,
+            6.5,
+            12.7,
+            15.7,
+            16.5,
+            16.7,
+            17.1
+          ],
+          "财产一切险": [
+            0.1,
+            0.6,
+            2.3,
+            4.7,
+            9.1,
+            11.2,
+            11.8,
+            12.0,
+            12.2
+          ]
         },
         "supportsInterpolation": true,
         "unit": "cm"
@@ -12876,7 +13020,13 @@
       "industry": "企业财产保险",
       "rateType": "base_rate_formula",
       "formulaType": "policy_rate_simple",
-      "customInputs": [{"key": "rentAmount", "label": "保险期限内的租金金额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "rentAmount",
+          "label": "保险期限内的租金金额",
+          "unit": "元"
+        }
+      ],
       "formula": "本附加险保险费＝保险期限内的租金金额×保单保险费率",
       "description": "本附加险保险费＝保险期限内的租金金额×保单保险费率",
       "sourceFile": "企业财产保险附加租金条款费率方案.docx"
@@ -13103,8 +13253,18 @@
       "fullName": "企业财产保险附加系列损失条款费率方案",
       "industry": "企业财产保险",
       "rateType": "simple_percentage",
-      "insuranceTypeRates": { "财产基本险": 20, "财产综合险": 10, "财产一切险": 10 },
-      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "insuranceTypeRates": {
+        "财产基本险": 20,
+        "财产综合险": 10,
+        "财产一切险": 10
+      },
+      "customInputs": [
+        {
+          "key": "machineryAmount",
+          "label": "机器设备保险金额",
+          "unit": "元"
+        }
+      ],
       "ratioMultiplier": {
         "numeratorKey": "machineryAmount",
         "denominatorSource": "mainSumInsured",
@@ -13374,7 +13534,13 @@
       "industry": "企业财产保险",
       "rateType": "base_rate_formula",
       "formulaType": "auto_appreciation",
-      "customInputs": [{"key": "appreciationRate", "label": "升值率", "unit": "%"}],
+      "customInputs": [
+        {
+          "key": "appreciationRate",
+          "label": "升值率",
+          "unit": "%"
+        }
+      ],
       "formula": "本附加险保险费＝主险保险费×升值率×50%",
       "description": "本附加险保险费＝主险保险费×升值率×50%",
       "sourceFile": "企业财产保险附加自动升值条款费率方案.docx"
@@ -13386,8 +13552,16 @@
       "rateType": "base_rate_formula",
       "formulaType": "auto_appreciation_b",
       "customInputs": [
-        {"key": "appreciationRate", "label": "保险金额升值比例", "unit": "%"},
-        {"key": "inventoryAmount", "label": "存货保险金额", "unit": "元"}
+        {
+          "key": "appreciationRate",
+          "label": "保险金额升值比例",
+          "unit": "%"
+        },
+        {
+          "key": "inventoryAmount",
+          "label": "存货保险金额",
+          "unit": "元"
+        }
       ],
       "formula": "本附加险保险费＝主险保险费×升值比例×50%×（总保险金额-存货保险金额）÷总保险金额",
       "description": "本附加险保险费＝主险保险费×保险金额升值比例×50%×（总保险金额-存货保险金额）÷总保险金额",
@@ -13399,7 +13573,13 @@
       "industry": "企业财产保险",
       "rateType": "base_rate_formula",
       "formulaType": "auto_appreciation_c",
-      "customInputs": [{"key": "appreciationAmount", "label": "增值部分的保险金额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "appreciationAmount",
+          "label": "增值部分的保险金额",
+          "unit": "元"
+        }
+      ],
       "formula": "本附加险保险费＝增值部分的保险金额×保单保险费率×50%",
       "description": "本附加险保险费＝增值部分的保险金额×保单保险费率×50%",
       "sourceFile": "企业财产保险附加自动升值条款（C款）费率方案.docx"
@@ -13411,8 +13591,16 @@
       "rateType": "base_rate_formula",
       "formulaType": "auto_appreciation_b",
       "customInputs": [
-        {"key": "appreciationRate", "label": "保险金额升值比例", "unit": "%"},
-        {"key": "inventoryAmount", "label": "存货保险金额", "unit": "元"}
+        {
+          "key": "appreciationRate",
+          "label": "保险金额升值比例",
+          "unit": "%"
+        },
+        {
+          "key": "inventoryAmount",
+          "label": "存货保险金额",
+          "unit": "元"
+        }
       ],
       "formula": "本附加险保险费＝主险保险费×升值率×50%×（总保险金额-存货保险金额）÷总保险金额",
       "description": "本附加险保险费＝主险保险费×升值率×50%×（总保险金额-存货保险金额）÷总保险金额",
@@ -13569,7 +13757,11 @@
       "formula": "保险费＝基准保险费×各项费率调整系数的乘积",
       "description": "一、基准保险费",
       "sourceFile": "企业财产保险附加自动喷淋水损条款费率方案.docx",
-      "insuranceTypeRates": { "财产基本险": 0.4, "财产综合险": 0.2, "财产一切险": 0 }
+      "insuranceTypeRates": {
+        "财产基本险": 0.4,
+        "财产综合险": 0.2,
+        "财产一切险": 0
+      }
     },
     {
       "clauseName": "附加自动喷淋系统水损扩展条款（2025版C款",
@@ -16524,7 +16716,13 @@
         "财产综合险": 5,
         "财产一切险": 0
       },
-      "customInputs": [{"key": "addonSumInsured", "label": "本附加险对应保险标的的保险金额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "本附加险对应保险标的的保险金额",
+          "unit": "元"
+        }
+      ],
       "ratioMultiplier": {
         "numeratorKey": "addonSumInsured",
         "denominatorSource": "mainSumInsured",
@@ -17514,7 +17712,13 @@
       "formula": "保险费＝基准保险费×赔偿限额调整系数",
       "description": "一、基准保险费：主险保险费的1%",
       "sourceFile": "企业财产保险附加顾客、供应商条款费率方案.docx",
-      "customInputs": [{"key": "compensationLimit", "label": "赔偿限额", "unit": "元"}],
+      "customInputs": [
+        {
+          "key": "compensationLimit",
+          "label": "赔偿限额",
+          "unit": "元"
+        }
+      ],
       "ratioHint": {
         "numeratorKey": "compensationLimit",
         "denominatorSource": "mainSumInsured",
@@ -18052,6 +18256,573 @@
       "formula": "主险保险费＝原主险保险费×(1-减少比例)",
       "description": "承保本附加条款后，在主险以及承保的其他附加险保险费基础上减少对应比例。此条款优先于其他附加险计算。",
       "sourceFile": "企业财产保险附加每次事故赔偿限额条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加无分摊条款（2025版）",
+      "fullName": "中国太平洋财产保险股份有限公司珠宝商综合保险附加无分摊条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加无分摊条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加保费未及时缴纳条款（2025版）",
+      "fullName": "机器损坏保险附加保费未及时缴纳条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于机器损坏保险。",
+      "sourceFile": "机器损坏保险附加保费未及时缴纳条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加机器设备保护系统拒动、误动损失条款（2025版）",
+      "fullName": "机器损坏保险附加机器设备保护系统拒动、误动损失条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于机器损坏保险。",
+      "sourceFile": "机器损坏保险附加机器设备保护系统拒动、误动损失条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加不忠诚除外条款（2025版）",
+      "fullName": "珠宝商综合保险附加不忠诚除外条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加不忠诚除外条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加外部委托除外条款（2025版）",
+      "fullName": "珠宝商综合保险附加外部委托除外条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加外部委托除外条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加安全保证条款（2025版）",
+      "fullName": "珠宝商综合保险附加安全保证条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加安全保证条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加展示柜上锁条款（2025版）",
+      "fullName": "珠宝商综合保险附加展示柜上锁条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加展示柜上锁条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加特别除外条款（2025版）",
+      "fullName": "珠宝商综合保险附加特别除外条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加特别除外条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加理赔基础条款（2025版）",
+      "fullName": "珠宝商综合保险附加理赔基础条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加理赔基础条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加运送除外条款（2025版）",
+      "fullName": "珠宝商综合保险附加运送除外条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加运送除外条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加除外或限制条款（2025版）",
+      "fullName": "珠宝商综合保险附加除外或限制条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "regulatory",
+      "description": "本附加条款属于规范类，不涉及保险费的调整。适用于珠宝商综合保险。",
+      "sourceFile": "珠宝商综合保险附加除外或限制条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加公共设施条款（2025版）",
+      "fullName": "中国太平洋财产保险股份有限公司财产一切险附加公共设施条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "simple_percentage",
+      "percentage": 0.2,
+      "description": "本附加险保险费为主险保险费的0.2%。适用于财产一切险。",
+      "sourceFile": "财产一切险附加公共设施条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加设计错误条款",
+      "fullName": "营业中断保险附加设计错误条款费率方案",
+      "industry": "企业财产保险",
+      "rateType": "simple_percentage",
+      "percentage": 0.2,
+      "description": "本附加险保险费为主险保险费的0.2%。适用于营业中断保险。",
+      "sourceFile": "营业中断保险附加设计错误条款费率方案.docx"
+    },
+    {
+      "clauseName": "附加在建工程致损条款（2025版）",
+      "fullName": "财产一切险附加在建工程致损条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "table_coefficient",
+      "basePremium": {
+        "description": "主险保险费的0.2%",
+        "percentage": 0.2
+      },
+      "coefficientTables": [
+        {
+          "name": "每次事故赔偿限额÷主险保险金额",
+          "headerRow": [
+            "每次事故赔偿限额÷主险保险金额",
+            "调整系数"
+          ],
+          "supportsInterpolation": true,
+          "rows": [
+            {
+              "parameter": "≤0.25%",
+              "coefficient": "[0.8, 0.9]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.8,
+                "max": 0.9,
+                "display": "[0.8,0.9]"
+              }
+            },
+            {
+              "parameter": "0.5%",
+              "coefficient": "1.0",
+              "parsedValue": {
+                "type": "fixed",
+                "value": 1.0
+              }
+            },
+            {
+              "parameter": "≥1.0%",
+              "coefficient": "[1.2, 1.3]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.2,
+                "max": 1.3,
+                "display": "[1.2,1.3]"
+              }
+            }
+          ]
+        }
+      ],
+      "formula": "保险费＝基准保险费×每次事故赔偿限额调整系数。基准保险费＝主险保险费的0.2%。",
+      "description": "基准保险费为主险保险费的0.2%，乘以每次事故赔偿限额调整系数。适用于财产一切险。",
+      "sourceFile": "财产一切险附加在建工程致损条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加临时境外储存条款（2025版）",
+      "fullName": "财产一切险附加临时境外储存条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "base_rate_formula",
+      "rateData": {
+        "formulaType": "policy_rate_prorate",
+        "customInputs": [
+          {
+            "key": "storageAmount",
+            "label": "每次临时境外储存保险金额",
+            "unit": "元"
+          },
+          {
+            "key": "storageDays",
+            "label": "每次临时境外储存保险期间天数",
+            "unit": "天"
+          }
+        ]
+      },
+      "formula": "每次临时境外储存保险费＝每次临时境外储存保险金额×保单保险费率×每次临时境外储存保险期间天数÷主险保险期间天数",
+      "description": "按日比例计算：每次临时境外储存保险费＝储存保险金额×保单费率×储存天数÷主险保险期间天数。适用于财产一切险。",
+      "sourceFile": "财产一切险附加临时境外储存条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加由第三人照管财产条款（2025版）",
+      "fullName": "财产一切险附加由第三人照管财产条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "conditional_simple",
+      "checkboxLabel": "主险保险金额已包含第三人照管财产",
+      "defaultChecked": false,
+      "whenChecked": {
+        "formulaType": "base_rate_division",
+        "description": "已包含：保险费＝本附加险保险金额×主险保险费率×0.2",
+        "multiplier": 0.2
+      },
+      "whenUnchecked": {
+        "formulaType": "base_rate_division",
+        "description": "未包含：保险费＝本附加险保险金额×主险保险费率×1.2",
+        "multiplier": 1.2
+      },
+      "formula": "主险已包含：保险费＝本附加险保险金额×主险保险费率×0.2；主险未包含：保险费＝本附加险保险金额×主险保险费率×1.2",
+      "customInputs": [
+        {
+          "key": "addonAmount",
+          "label": "本附加险保险金额",
+          "unit": "元"
+        }
+      ],
+      "description": "主险已包含第三人照管财产时系数0.2，未包含时系数1.2。适用于财产一切险。",
+      "sourceFile": "财产一切险附加由第三人照管财产条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加增加资产扩展条款（2025版）",
+      "fullName": "财产一切险附加增加资产扩展条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "formula_conditional",
+      "baseRatePercent": null,
+      "conditions": [
+        {
+          "condition": "增加资产总额在原投保资产总额的10%及以内",
+          "formula": "不加收保险费（除非另行书面约定补缴）",
+          "fullText": "增加资产总额在原投保资产总额的10%及以内时，不加收保险费（除非另行书面约定补缴）。"
+        },
+        {
+          "condition": "增加资产总额超过原投保资产总额的10%",
+          "formula": "按条款约定的计算方式加收保险费",
+          "fullText": "增加资产总额超过原投保资产总额的10%时，按条款约定的计算方式加收保险费。"
+        }
+      ],
+      "description": "增加资产总额在原投保资产总额10%以内不加收保险费，超过10%时按约定加收。适用于财产一切险。",
+      "sourceFile": "财产一切险附加增加资产扩展条款（2025版）费率方案.docx"
+    },
+    {
+      "clauseName": "附加特定原因条款（2025版）",
+      "fullName": "中国太平洋财产保险股份有限公司营业中断保险附加特定原因条款（2025版）费率方案",
+      "industry": "企业财产保险",
+      "rateType": "table_coefficient",
+      "basePremium": {
+        "description": "分项责任保险金额×对应基准费率",
+        "customInputs": [
+          {
+            "key": "liabilityAmount1",
+            "label": "法定代表人/配偶责任保险金额",
+            "unit": "元"
+          },
+          {
+            "key": "liabilityAmount2",
+            "label": "第三者责任保险金额",
+            "unit": "元"
+          }
+        ],
+        "baseRates": {
+          "法定代表人或其配偶罹患疾病住院或意外伤害": 4.38,
+          "第三者发生意外伤害": 0.13
+        }
+      },
+      "coefficientTables": [
+        {
+          "name": "健康状况调整系数",
+          "headerRow": [
+            "健康状况",
+            "调整系数"
+          ],
+          "applicableTo": "法定代表人或其配偶责任",
+          "supportsInterpolation": false,
+          "rows": [
+            {
+              "parameter": "良好",
+              "coefficient": "[0.7, 1.0]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.7,
+                "max": 1.0,
+                "display": "[0.7,1.0]"
+              }
+            },
+            {
+              "parameter": "一般",
+              "coefficient": "(1.0, 1.2]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.0,
+                "max": 1.2,
+                "display": "(1.0,1.2]"
+              }
+            },
+            {
+              "parameter": "较差",
+              "coefficient": "(1.2, 1.5]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.2,
+                "max": 1.5,
+                "display": "(1.2,1.5]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "免赔天数调整系数",
+          "headerRow": [
+            "免赔天数",
+            "调整系数"
+          ],
+          "applicableTo": "法定代表人或其配偶责任",
+          "supportsInterpolation": false,
+          "rows": [
+            {
+              "parameter": "0天",
+              "coefficient": "1.0",
+              "parsedValue": {
+                "type": "fixed",
+                "value": 1.0
+              }
+            },
+            {
+              "parameter": "5天",
+              "coefficient": "0.9",
+              "parsedValue": {
+                "type": "fixed",
+                "value": 0.9
+              }
+            },
+            {
+              "parameter": "≥10天",
+              "coefficient": "[0.7, 0.8]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.7,
+                "max": 0.8,
+                "display": "[0.7,0.8]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "人员密集程度调整系数",
+          "headerRow": [
+            "人员密集程度",
+            "调整系数"
+          ],
+          "applicableTo": "第三者责任",
+          "supportsInterpolation": false,
+          "rows": [
+            {
+              "parameter": "较低",
+              "coefficient": "[0.7, 1.0]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.7,
+                "max": 1.0,
+                "display": "[0.7,1.0]"
+              }
+            },
+            {
+              "parameter": "一般",
+              "coefficient": "(1.0, 1.2]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.0,
+                "max": 1.2,
+                "display": "(1.0,1.2]"
+              }
+            },
+            {
+              "parameter": "较高",
+              "coefficient": "(1.2, 1.5]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.2,
+                "max": 1.5,
+                "display": "(1.2,1.5]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "管理水平调整系数",
+          "headerRow": [
+            "管理水平",
+            "调整系数"
+          ],
+          "applicableTo": "第三者责任",
+          "supportsInterpolation": false,
+          "rows": [
+            {
+              "parameter": "较好",
+              "coefficient": "[0.7, 1.0]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.7,
+                "max": 1.0,
+                "display": "[0.7,1.0]"
+              }
+            },
+            {
+              "parameter": "一般",
+              "coefficient": "(1.0, 1.2]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.0,
+                "max": 1.2,
+                "display": "(1.0,1.2]"
+              }
+            },
+            {
+              "parameter": "较差",
+              "coefficient": "(1.2, 1.5]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.2,
+                "max": 1.5,
+                "display": "(1.2,1.5]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "赔付率调整系数",
+          "headerRow": [
+            "赔付率",
+            "调整系数"
+          ],
+          "applicableTo": "通用",
+          "supportsInterpolation": true,
+          "rows": [
+            {
+              "parameter": "[0, 20%]",
+              "coefficient": "[0.5, 0.6]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.5,
+                "max": 0.6,
+                "display": "[0.5,0.6]"
+              }
+            },
+            {
+              "parameter": "(20%, 45%]",
+              "coefficient": "(0.6, 0.8]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.6,
+                "max": 0.8,
+                "display": "(0.6,0.8]"
+              }
+            },
+            {
+              "parameter": "(45%, 70%]",
+              "coefficient": "(0.8, 1.0]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.8,
+                "max": 1.0,
+                "display": "(0.8,1.0]"
+              }
+            },
+            {
+              "parameter": "(70%, 95%]",
+              "coefficient": "(1.0, 1.2]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.0,
+                "max": 1.2,
+                "display": "(1.0,1.2]"
+              }
+            },
+            {
+              "parameter": ">95%",
+              "coefficient": "(1.2, 1.5]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.2,
+                "max": 1.5,
+                "display": "(1.2,1.5]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "分项责任保险金额÷年毛利润额调整系数",
+          "headerRow": [
+            "分项责任保险金额÷年毛利润额",
+            "调整系数"
+          ],
+          "applicableTo": "通用",
+          "supportsInterpolation": true,
+          "rows": [
+            {
+              "parameter": "≤0.25",
+              "coefficient": "2.4",
+              "parsedValue": {
+                "type": "fixed",
+                "value": 2.4
+              }
+            },
+            {
+              "parameter": "0.5",
+              "coefficient": "1.6",
+              "parsedValue": {
+                "type": "fixed",
+                "value": 1.6
+              }
+            },
+            {
+              "parameter": "0.75",
+              "coefficient": "1.2",
+              "parsedValue": {
+                "type": "fixed",
+                "value": 1.2
+              }
+            },
+            {
+              "parameter": "1.0",
+              "coefficient": "1.0",
+              "parsedValue": {
+                "type": "fixed",
+                "value": 1.0
+              }
+            }
+          ]
+        },
+        {
+          "name": "历史事故情况调整系数",
+          "headerRow": [
+            "历史事故情况",
+            "调整系数"
+          ],
+          "applicableTo": "通用",
+          "supportsInterpolation": false,
+          "rows": [
+            {
+              "parameter": "未发生",
+              "coefficient": "[0.7, 1.0]",
+              "parsedValue": {
+                "type": "range",
+                "min": 0.7,
+                "max": 1.0,
+                "display": "[0.7,1.0]"
+              }
+            },
+            {
+              "parameter": "一次",
+              "coefficient": "(1.0, 1.2]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.0,
+                "max": 1.2,
+                "display": "(1.0,1.2]"
+              }
+            },
+            {
+              "parameter": "两次及以上",
+              "coefficient": "(1.2, 1.5]",
+              "parsedValue": {
+                "type": "range",
+                "min": 1.2,
+                "max": 1.5,
+                "display": "(1.2,1.5]"
+              }
+            }
+          ]
+        }
+      ],
+      "formula": "各项责任年保险费＝分项责任保险金额×对应基准费率×各适用调整系数的乘积。短期保费＝年保费×天数÷365。总保费＝各项责任保费之和。",
+      "description": "两项责任分别计算：法定代表人/配偶责任基准费率4.38%，第三者责任基准费率0.13%，各乘以适用调整系数。适用于营业中断保险。",
+      "sourceFile": "营业中断保险附加特定原因条款（2025版）费率方案.docx"
     }
   ]
 }
