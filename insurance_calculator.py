@@ -9166,10 +9166,12 @@ class AddonInsuranceTab(QWidget):
         self.filtered_entries = []
         self.selected_entry = None
         self.coeff_selections = {}
+        self.custom_input_widgets = {}  # 自定义输入控件映射
         # 主险数据
         self.main_premium = 0.0
         self.main_sum_insured = 0.0
         self.per_person_premium = 0.0
+        self.policy_days = 365  # 保单天数，默认365天
         self.full_main_data = None  # 完整主险计算结果
         # 保费汇总
         self.premium_items = []
@@ -9209,6 +9211,14 @@ class AddonInsuranceTab(QWidget):
         self.per_person_input.setSuffix(" 元")
         self.per_person_input.valueChanged.connect(lambda v: setattr(self, 'per_person_premium', v))
         top_layout.addWidget(self.per_person_input)
+
+        top_layout.addWidget(QLabel("保单天数:"))
+        self.policy_days_input = QSpinBox()
+        self.policy_days_input.setRange(1, 9999)
+        self.policy_days_input.setValue(365)
+        self.policy_days_input.setSuffix(" 天")
+        self.policy_days_input.valueChanged.connect(lambda v: setattr(self, 'policy_days', v))
+        top_layout.addWidget(self.policy_days_input)
 
         # 主险数据状态指示
         self.main_data_status = QLabel("⚪ 未接收主险数据")
@@ -10021,33 +10031,58 @@ class AddonInsuranceTab(QWidget):
                 formula_mod = QLabel(entry["formula"])
                 formula_mod.setStyleSheet("padding: 8px; font-size: 12px; color: #991b1b;")
                 self.detail_layout.addWidget(formula_mod)
-            table = (entry.get("coefficientTables") or [{}])[0]
-            col_keys = table.get("columns", [])
-            col_labels = table.get("columnLabels", [])
-            if len(col_keys) > 1:
+
+            # simple_deduction 处理
+            if entry.get("modifierType") == "simple_deduction":
+                deductions = entry.get("insuranceTypeDeductions", {})
                 type_row = QHBoxLayout()
-                type_row.addWidget(QLabel("适用主险类型:"))
-                self.modifier_insurance_combo = QComboBox()
-                for ci in range(1, len(col_keys)):
-                    self.modifier_insurance_combo.addItem(col_labels[ci] if ci < len(col_labels) else col_keys[ci], col_keys[ci])
-                type_row.addWidget(self.modifier_insurance_combo)
+                type_row.addWidget(QLabel("主险类型:"))
+                self.deduction_insurance_combo = QComboBox()
+                for ins_type in deductions.keys():
+                    self.deduction_insurance_combo.addItem(ins_type)
+                type_row.addWidget(self.deduction_insurance_combo)
                 type_row.addStretch()
                 type_w = QWidget()
                 type_w.setLayout(type_row)
                 self.detail_layout.addWidget(type_w)
-            ratio_row = QHBoxLayout()
-            input_label_text = table.get("inputLabel", "限额÷保额比例")
-            ratio_row.addWidget(QLabel(f"{input_label_text}:"))
-            self.modifier_ratio_input = QDoubleSpinBox()
-            self.modifier_ratio_input.setRange(0, 100)
-            self.modifier_ratio_input.setDecimals(1)
-            self.modifier_ratio_input.setSuffix(" %")
-            ratio_row.addWidget(self.modifier_ratio_input)
-            ratio_row.addStretch()
-            ratio_w = QWidget()
-            ratio_w.setLayout(ratio_row)
-            self.detail_layout.addWidget(ratio_w)
-            self._render_modifier_table(table)
+
+                # 显示减免表
+                deduct_label = QLabel("减免比例:")
+                deduct_label.setStyleSheet("font-weight: 700; margin-top: 8px;")
+                self.detail_layout.addWidget(deduct_label)
+                deduct_text = "\n".join([f"  {k}: {v}%" for k, v in deductions.items()])
+                deduct_info = QLabel(deduct_text)
+                deduct_info.setStyleSheet("padding: 8px; background: #fef2f2; border-radius: 6px; font-size: 12px;")
+                self.detail_layout.addWidget(deduct_info)
+            else:
+                # 原有的系数表逻辑
+                table = (entry.get("coefficientTables") or [{}])[0]
+                col_keys = table.get("columns", [])
+                col_labels = table.get("columnLabels", [])
+                if len(col_keys) > 1:
+                    type_row = QHBoxLayout()
+                    type_row.addWidget(QLabel("适用主险类型:"))
+                    self.modifier_insurance_combo = QComboBox()
+                    for ci in range(1, len(col_keys)):
+                        self.modifier_insurance_combo.addItem(col_labels[ci] if ci < len(col_labels) else col_keys[ci], col_keys[ci])
+                    type_row.addWidget(self.modifier_insurance_combo)
+                    type_row.addStretch()
+                    type_w = QWidget()
+                    type_w.setLayout(type_row)
+                    self.detail_layout.addWidget(type_w)
+                ratio_row = QHBoxLayout()
+                input_label_text = table.get("inputLabel", "限额÷保额比例")
+                ratio_row.addWidget(QLabel(f"{input_label_text}:"))
+                self.modifier_ratio_input = QDoubleSpinBox()
+                self.modifier_ratio_input.setRange(0, 100)
+                self.modifier_ratio_input.setDecimals(1)
+                self.modifier_ratio_input.setSuffix(" %")
+                ratio_row.addWidget(self.modifier_ratio_input)
+                ratio_row.addStretch()
+                ratio_w = QWidget()
+                ratio_w.setLayout(ratio_row)
+                self.detail_layout.addWidget(ratio_w)
+                self._render_modifier_table(table)
 
         elif rate_type == "base_rate_formula":
             self._render_base_rate_formula(entry)
@@ -10070,6 +10105,40 @@ class AddonInsuranceTab(QWidget):
                 bp_label.setWordWrap(True)
                 bp_label.setStyleSheet(f"padding: 10px; background: #eff6ff; border-radius: 8px; font-size: 12px;")
                 self.detail_layout.addWidget(bp_label)
+
+            # customInputs 支持
+            if not hasattr(self, 'custom_input_widgets'):
+                self.custom_input_widgets = {}
+            custom_inputs = entry.get("customInputs", [])
+            for ci_item in custom_inputs:
+                ci_key = ci_item.get("key", "")
+                ci_label = ci_item.get("label", "自定义输入")
+                ci_unit = ci_item.get("unit", "")
+                row = QHBoxLayout()
+                unit_text = f" ({ci_unit})" if ci_unit else ""
+                row.addWidget(QLabel(f"{ci_label}{unit_text}:"))
+                spin = QDoubleSpinBox()
+                spin.setRange(0, 999999999999)
+                spin.setDecimals(2)
+                if ci_unit == "元":
+                    spin.setSuffix(" 元")
+                elif ci_unit:
+                    spin.setSuffix(f" {ci_unit}")
+                row.addWidget(spin)
+                row.addStretch()
+                row_w = QWidget()
+                row_w.setLayout(row)
+                self.detail_layout.addWidget(row_w)
+                if ci_key:
+                    self.custom_input_widgets[ci_key] = spin
+
+            # ratioHint 支持
+            if entry.get("ratioMultiplier") and entry["ratioMultiplier"].get("ratioHint"):
+                hint_label = QLabel(entry["ratioMultiplier"]["ratioHint"])
+                hint_label.setWordWrap(True)
+                hint_label.setStyleSheet("padding: 8px; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 6px; font-size: 12px;")
+                self.detail_layout.addWidget(hint_label)
+
             for ti, table in enumerate(entry.get("coefficientTables", [])):
                 self._render_addon_coeff_table(table, ti)
 
@@ -10384,6 +10453,42 @@ class AddonInsuranceTab(QWidget):
                     coeff_details.append({"name": tables[ti].get("name", ""), "value": float(sel)})
                     coeff_product *= float(sel)
 
+        # 保单费率按天分摊
+        if formula_type == "policy_rate_prorate":
+            main_si = getattr(self, 'main_sum_insured', 0)
+            if not main_si or main_si <= 0:
+                raise ValueError("请输入主险保险金额")
+            if self.main_premium <= 0:
+                raise ValueError("请输入主险保险费")
+            policy_rate = self.main_premium / main_si
+            effective_rate = policy_rate * (entry.get("policyRateMultiplier") or 1.0)
+            rate_was_capped = False
+            rate_cap = entry.get("rateCap")
+            if rate_cap and effective_rate > rate_cap / 100:
+                effective_rate = rate_cap / 100
+                rate_was_capped = True
+            # Read custom inputs: first=amount, second=days
+            if len(input_values) < 2:
+                raise ValueError("需要金额和天数两个输入")
+            amount = input_values[0]
+            days = input_values[1]
+            p_days = self.policy_days if entry.get("useGlobalPolicyDays") else 365
+            if p_days <= 0:
+                p_days = 365
+            premium = amount * effective_rate * (days / p_days)
+            parts = [f"保单费率 = {fmt_currency(self.main_premium)} ÷ {fmt_currency(main_si)} = {policy_rate*100:.6f}%"]
+            mult = entry.get("policyRateMultiplier", 1.0)
+            if mult != 1.0:
+                parts.append(f"费率乘数: ×{mult}")
+                parts.append(f"有效费率: {effective_rate*100:.6f}%")
+            if rate_was_capped:
+                parts.append(f"⚠️ 费率 {policy_rate*mult*100:.4f}% > 上限 {rate_cap}%，按 {rate_cap}% 计算")
+            parts.append(f"{input_labels[0]}: {fmt_currency(amount)}")
+            parts.append(f"{input_labels[1]}: {days}天")
+            parts.append(f"保单天数: {p_days}天")
+            parts.append(f"保费 = {fmt_currency(amount)} × {effective_rate*100:.6f}% × {days} ÷ {p_days} = {fmt_currency(premium)}")
+            return {"type": "base_rate_formula", "premium": premium, "formulaDisplay": "\n".join(parts)}
+
         # 特殊公式：主险保费比例
         if formula_type == "main_premium_ratio":
             custom_amount = input_values[0] if input_values else 0
@@ -10498,6 +10603,26 @@ class AddonInsuranceTab(QWidget):
     # ---------- 主险保费调整条款：计算 ----------
     def _calc_main_premium_modifier(self, entry):
         """计算主险保费调整（冰雹/台风/暴雪/通用每次事故赔偿限额）"""
+        # simple_deduction: 按险种直接减免
+        if entry.get("modifierType") == "simple_deduction":
+            deduction_combo = getattr(self, 'deduction_insurance_combo', None)
+            if not deduction_combo:
+                raise ValueError("请选择主险类型")
+            selected_type = deduction_combo.currentText()
+            deductions = entry.get("insuranceTypeDeductions", {})
+            deduct_pct = deductions.get(selected_type)
+            if deduct_pct is None:
+                raise ValueError(f"未找到{selected_type}的减免比例")
+            if deduct_pct == 0:
+                return {"type": "main_premium_modifier", "isMainModifier": True, "premium": 0,
+                        "originalPremium": self.main_premium, "adjustedPremium": self.main_premium,
+                        "formulaDisplay": f"【{selected_type}】不涉及保费调整"}
+            adjusted = self.main_premium * (1 - deduct_pct / 100)
+            return {"type": "main_premium_modifier", "isMainModifier": True, "premium": 0,
+                    "originalPremium": self.main_premium, "adjustedPremium": adjusted,
+                    "formulaDisplay": f"【{selected_type}】减收 {deduct_pct}%\n"
+                                     f"{fmt_currency(self.main_premium)} × (1 - {deduct_pct}%) = {fmt_currency(adjusted)}"}
+
         table = (entry.get("coefficientTables") or [{}])[0]
         if not table.get("rows"):
             raise ValueError("缺少系数表数据")
@@ -10779,14 +10904,33 @@ class AddonInsuranceTab(QWidget):
             base_premium = self.main_premium * bp["multiplier"]
         elif bp.get("percentage"):
             base_premium = self.main_premium * (bp["percentage"] / 100)
+
+        # ratioMultiplier 支持
+        ratio_mult = 1.0
+        ratio_str = ""
+        if entry.get("ratioMultiplier"):
+            rm = entry["ratioMultiplier"]
+            numerator_key = rm.get("numeratorKey", "")
+            # Try to find the custom input widget
+            numerator = 0
+            if hasattr(self, 'custom_input_widgets') and numerator_key in self.custom_input_widgets:
+                numerator = self.custom_input_widgets[numerator_key].value()
+            if numerator <= 0:
+                raise ValueError(f"请输入{rm.get('label', '自定义金额')}")
+            main_si = getattr(self, 'main_sum_insured', 0)
+            if not main_si or main_si <= 0:
+                raise ValueError("请输入主险保险金额")
+            ratio_mult = numerator / main_si
+            ratio_str = f" × {fmt_currency(numerator)}÷{fmt_currency(main_si)}({ratio_mult*100:.2f}%)"
+
         product, details = self._get_coeff_product(entry)
-        premium = base_premium * product
+        premium = base_premium * ratio_mult * product
         base_str = (f"{fmt_currency(self.main_premium)} × {bp['multiplier']}" if bp.get("multiplier")
                     else f"{fmt_currency(self.main_premium)} × {bp['percentage']}%" if bp.get("percentage")
                     else fmt_currency(self.main_premium))
         coeff_str = " × ".join(f"{c['value']:.4f}" for c in details)
         return {"type": "table_coefficient", "premium": premium,
-                "formulaDisplay": f"基准 {base_str} = {fmt_currency(base_premium)} × 系数 ({coeff_str}) = {fmt_currency(premium)}"}
+                "formulaDisplay": f"基准 {base_str} = {fmt_currency(base_premium)}{ratio_str} × 系数 ({coeff_str}) = {fmt_currency(premium)}"}
 
     # ---------- 保费汇总管理 ----------
     def _add_premium_item(self, clause_name, premium, formula):
