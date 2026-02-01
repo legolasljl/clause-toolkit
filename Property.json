@@ -4,11 +4,12 @@
   "sourceDirectory": "/Users/jinlei/Library/Mobile Documents/com~apple~CloudDocs/Documents/归档/附加条款及费率方案/企业财产保险",
   "totalEntries": 591,
   "stats": {
-    "table_coefficient": 160,
+    "table_coefficient": 148,
     "deduction": 1,
+    "base_rate_formula": 22,
     "included_in_main": 22,
-    "regulatory": 221,
-    "formula_conditional": 50,
+    "regulatory": 220,
+    "formula_conditional": 41,
     "simple_percentage": 129,
     "daily_prorate": 4,
     "main_premium_modifier": 4
@@ -139,7 +140,7 @@
       "clauseName": "附加法律服务保险（2025版",
       "fullName": "中国太平洋财产保险股份有限公司企业财产保险附加法律服务保险（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -648,7 +649,28 @@
       ],
       "formula": "各服务项目年保险费＝该服务项目每次事故责任限额×该服务项目服务次数×该服务项目对应的基准费率×各项适用的费率调整系数的乘积",
       "description": "一、基准费率",
-      "sourceFile": "中国太平洋财产保险股份有限公司企业财产保险附加法律服务保险（2025版）费率方案.docx"
+      "sourceFile": "中国太平洋财产保险股份有限公司企业财产保险附加法律服务保险（2025版）费率方案.docx",
+      "rateCap": 70,
+      "subFormulas": [
+        {
+          "name": "法律服务（按服务项目）",
+          "baseRate": null,
+          "baseRateNote": "各服务项目有不同基准费率，参见系数表",
+          "customInputs": [
+            {
+              "key": "serviceLimit",
+              "label": "该服务项目每次事故责任限额",
+              "unit": "元"
+            },
+            {
+              "key": "serviceTimes",
+              "label": "该服务项目服务次数",
+              "unit": "次"
+            }
+          ],
+          "formula": "各服务项目年保险费＝该服务项目每次事故责任限额×该服务项目服务次数×该服务项目对应的基准费率×各项适用的费率调整系数的乘积"
+        }
+      ]
     },
     {
       "clauseName": "附加灭火费用条款（E款",
@@ -1793,7 +1815,7 @@
       "clauseName": "附加传染病疫情防控营业中断",
       "fullName": "企业财产保险附加传染病疫情防控营业中断保险费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -2183,13 +2205,56 @@
       ],
       "formula": "雇员工资赔偿责任：年保险费＝月工资总额×基准费率×各项适用的费率调整系数的乘积",
       "description": "一、基准费率",
-      "sourceFile": "企业财产保险附加传染病疫情防控营业中断保险费率方案.docx"
+      "sourceFile": "企业财产保险附加传染病疫情防控营业中断保险费率方案.docx",
+      "rateCap": 75,
+      "subFormulas": [
+        {
+          "name": "雇员工资赔偿责任",
+          "baseRate": 1.43,
+          "customInputs": [
+            {
+              "key": "monthlyWage",
+              "label": "月工资总额",
+              "unit": "元"
+            }
+          ],
+          "formula": "年保险费＝月工资总额×基准费率(1.43%)×各项适用的费率调整系数的乘积",
+          "applicableTables": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "name": "隔离费用赔偿责任",
+          "baseRate": 2.88,
+          "customInputs": [
+            {
+              "key": "quarantineLimit",
+              "label": "隔离费用累计赔偿限额",
+              "unit": "元"
+            }
+          ],
+          "formula": "年保险费＝隔离费用累计赔偿限额×基准费率(2.88%)×各项适用的费率调整系数的乘积",
+          "applicableTables": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            6
+          ]
+        }
+      ]
     },
     {
       "clauseName": "附加传染病疫情防控财产损失",
       "fullName": "企业财产保险附加传染病疫情防控财产损失保险费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -2579,7 +2644,50 @@
       ],
       "formula": "雇员工资赔偿责任：年保险费＝月工资总额×基准费率×各项适用的费率调整系数的乘积",
       "description": "一、基准费率",
-      "sourceFile": "企业财产保险附加传染病疫情防控财产损失保险费率方案.docx"
+      "sourceFile": "企业财产保险附加传染病疫情防控财产损失保险费率方案.docx",
+      "rateCap": 75,
+      "subFormulas": [
+        {
+          "name": "雇员工资赔偿责任",
+          "baseRate": 1.43,
+          "customInputs": [
+            {
+              "key": "monthlyWage",
+              "label": "月工资总额",
+              "unit": "元"
+            }
+          ],
+          "formula": "年保险费＝月工资总额×基准费率(1.43%)×各项适用的费率调整系数的乘积",
+          "applicableTables": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "name": "隔离费用赔偿责任",
+          "baseRate": 2.88,
+          "customInputs": [
+            {
+              "key": "quarantineLimit",
+              "label": "隔离费用累计赔偿限额",
+              "unit": "元"
+            }
+          ],
+          "formula": "年保险费＝隔离费用累计赔偿限额×基准费率(2.88%)×各项适用的费率调整系数的乘积",
+          "applicableTables": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            6
+          ]
+        }
+      ]
     },
     {
       "clauseName": "附加传染风险除外条款（2025版",
@@ -2593,11 +2701,22 @@
       "clauseName": "附加传输设备非正常损坏",
       "fullName": "企业财产保险附加传输设备非正常损坏条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": 0.2,
       "conditions": [],
       "description": "本附加险保险费＝主险保险费×0.2%×煤炭传输设备保险金额÷主险保险金额",
-      "sourceFile": "企业财产保险附加传输设备非正常损坏条款费率方案.docx"
+      "sourceFile": "企业财产保险附加传输设备非正常损坏条款费率方案.docx",
+      "baseRate": 0.2,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "coalTransmitAmount",
+          "label": "煤炭传输设备保险金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "本附加险保险费＝主险保险费×0.2%×煤炭传输设备保险金额÷主险保险金额",
+      "formulaType": "main_premium_ratio"
     },
     {
       "clauseName": "附加传送带、刀具扩展条款（2025版",
@@ -3231,11 +3350,22 @@
       "clauseName": "附加公共服务设施",
       "fullName": "企业财产保险附加公共服务设施条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": null,
       "conditions": [],
       "description": "一、基准费率：同主险基准费率",
-      "sourceFile": "企业财产保险附加公共服务设施条款费率方案.docx"
+      "sourceFile": "企业财产保险附加公共服务设施条款费率方案.docx",
+      "baseRate": null,
+      "baseRateIsMainRate": true,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "accidentLimit",
+          "label": "每次事故赔偿限额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝每次事故赔偿限额×基准费率(同主险)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加公共设备供应中断",
@@ -3847,7 +3977,7 @@
       "clauseName": "附加发射场人员操作不当（火箭发射项目）保险（2025版",
       "fullName": "企业财产保险附加发射场人员操作不当（火箭发射项目）保险（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -4390,9 +4520,18 @@
           ]
         }
       ],
-      "formula": "每次发射保险费＝累计赔偿限额×基准费率×各项费率调整系数的乘积",
+      "formula": "每次发射保险费＝累计赔偿限额×基准费率(1.02%)×各项费率调整系数的乘积",
       "description": "一、基准费率：1.02%",
-      "sourceFile": "企业财产保险附加发射场人员操作不当（火箭发射项目）保险（2025版）费率方案.docx"
+      "sourceFile": "企业财产保险附加发射场人员操作不当（火箭发射项目）保险（2025版）费率方案.docx",
+      "baseRate": 1.02,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "cumulativeLimit",
+          "label": "累计赔偿限额",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加取费标准",
@@ -4605,7 +4744,7 @@
       "clauseName": "附加园林、绿化条款（2025版",
       "fullName": "企业财产保险附加园林、绿化条款（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": 0.5,
       "conditions": [
         {
@@ -4615,7 +4754,17 @@
         }
       ],
       "description": "一、基准费率：0.5%",
-      "sourceFile": "企业财产保险附加园林、绿化条款（2025版）费率方案.docx"
+      "sourceFile": "企业财产保险附加园林、绿化条款（2025版）费率方案.docx",
+      "baseRate": 0.5,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "本附加险保险金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝本附加险保险金额×基准费率(0.5%)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加在制品损失",
@@ -5602,7 +5751,7 @@
       "clauseName": "附加媒介物、易损易耗品扩展条款（2022版",
       "fullName": "企业财产保险附加媒介物、易损易耗品扩展条款（2022版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": 15.3,
       "conditions": [
         {
@@ -5612,7 +5761,17 @@
         }
       ],
       "description": "一、基准费率：15.3%",
-      "sourceFile": "企业财产保险附加媒介物、易损易耗品扩展条款（2022版）费率方案.docx"
+      "sourceFile": "企业财产保险附加媒介物、易损易耗品扩展条款（2022版）费率方案.docx",
+      "baseRate": 15.3,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "本附加险保险金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝本附加险保险金额×基准费率(15.3%)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加子公司定义",
@@ -6327,7 +6486,7 @@
       "clauseName": "附加工程机械设备安装及拆卸损失保险（2025版",
       "fullName": "企业财产保险附加工程机械设备安装及拆卸损失保险（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -6756,9 +6915,18 @@
           ]
         }
       ],
-      "formula": "每次安装或拆卸保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+      "formula": "每次安装或拆卸保险费＝保险金额×基准费率(0.14%)×各项费率调整系数的乘积",
       "description": "一、基准费率：0.14%",
-      "sourceFile": "企业财产保险附加工程机械设备安装及拆卸损失保险（2025版）费率方案.docx"
+      "sourceFile": "企业财产保险附加工程机械设备安装及拆卸损失保险（2025版）费率方案.docx",
+      "baseRate": 0.14,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "equipSumInsured",
+          "label": "保险金额",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加广告牌、告示牌及装饰物扩展",
@@ -7540,7 +7708,7 @@
       "clauseName": "附加扩展变压器损失条款（2025版",
       "fullName": "企业财产保险附加扩展变压器损失条款（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -7902,9 +8070,18 @@
           ]
         }
       ],
-      "formula": "年保险费＝保险金额×基准费率×各项费率调整系数的乘积",
+      "formula": "年保险费＝保险金额×基准费率(2.62%)×各项费率调整系数的乘积",
       "description": "一、基准费率：2.62%",
-      "sourceFile": "企业财产保险附加扩展变压器损失条款（2025版）费率方案.docx"
+      "sourceFile": "企业财产保险附加扩展变压器损失条款（2025版）费率方案.docx",
+      "baseRate": 2.62,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "保险金额",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加扩展承保与建筑安装工程交叉责任",
@@ -8066,7 +8243,7 @@
       "clauseName": "附加扩展疏散费用条款（2025版",
       "fullName": "企业财产保险附加扩展疏散费用条款（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -8159,9 +8336,19 @@
           ]
         }
       ],
-      "formula": "保险费＝累计赔偿限额×基准费率×各项费率调整系数的乘积",
+      "formula": "保险费＝累计赔偿限额×基准费率(同主险)×各项费率调整系数的乘积",
       "description": "一、基准费率：同主险保险费率",
-      "sourceFile": "企业财产保险附加扩展疏散费用条款（2025版）费率方案.docx"
+      "sourceFile": "企业财产保险附加扩展疏散费用条款（2025版）费率方案.docx",
+      "baseRate": null,
+      "baseRateIsMainRate": true,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "cumulativeLimit",
+          "label": "累计赔偿限额",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加扩展私人住宅",
@@ -10705,7 +10892,7 @@
       "clauseName": "附加清除污染费用",
       "fullName": "企业财产保险附加清除污染费用条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -10831,9 +11018,18 @@
           ]
         }
       ],
-      "formula": "保险费＝本附加险赔偿限额×基准费率×各项费率调整系数的乘积",
+      "formula": "保险费＝本附加险赔偿限额×基准费率(2%)×各项费率调整系数的乘积",
       "description": "一、基准费率：2%",
-      "sourceFile": "企业财产保险附加清除污染费用条款费率方案.docx"
+      "sourceFile": "企业财产保险附加清除污染费用条款费率方案.docx",
+      "baseRate": 2.0,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "compensationLimit",
+          "label": "本附加险赔偿限额",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加渗漏",
@@ -12791,11 +12987,21 @@
       "clauseName": "附加管道破裂及物料放空损失",
       "fullName": "企业财产保险附加管道破裂及物料放空损失保险费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": 0.2,
       "conditions": [],
       "description": "一、基准费率：0.2%",
-      "sourceFile": "企业财产保险附加管道破裂及物料放空损失保险费率方案.docx"
+      "sourceFile": "企业财产保险附加管道破裂及物料放空损失保险费率方案.docx",
+      "baseRate": 0.2,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "保险金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝保险金额×基准费率(0.2%)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加系列损失",
@@ -13418,7 +13624,7 @@
       "clauseName": "附加自动承保新的营业场所",
       "fullName": "企业财产保险附加自动承保新的营业场所条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -13462,9 +13668,19 @@
           ]
         }
       ],
-      "formula": "保险费＝Σ（每次新增资产保险金额×基准费率×新增资产起保日期至保单终止日期天数÷保单保险期间天数×赔偿限额调整系数）",
+      "formula": "保险费＝新增资产保险金额×基准费率(同主险)×赔偿限额调整系数",
       "description": "一、基准费率：同主险保险费率",
-      "sourceFile": "企业财产保险附加自动承保新的营业场所条款费率方案.docx"
+      "sourceFile": "企业财产保险附加自动承保新的营业场所条款费率方案.docx",
+      "baseRate": null,
+      "baseRateIsMainRate": true,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "newAssetAmount",
+          "label": "新增资产保险金额合计",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加自动承保新租金收入",
@@ -13505,11 +13721,21 @@
       "clauseName": "附加自然灾害扩展",
       "fullName": "企业财产保险附加自然灾害扩展条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": 0.1,
       "conditions": [],
       "description": "一、基准费率：0.1%",
-      "sourceFile": "企业财产保险附加自然灾害扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加自然灾害扩展条款费率方案.docx",
+      "baseRate": 0.1,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "accidentLimit",
+          "label": "本附加险每次事故赔偿限额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝本附加险每次事故赔偿限额×基准费率(0.1%)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加自然灾害等原因",
@@ -13863,7 +14089,7 @@
       "clauseName": "附加草木特约条款（2022版",
       "fullName": "企业财产保险附加草木特约条款（2022版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": 0.5,
       "conditions": [
         {
@@ -13873,7 +14099,17 @@
         }
       ],
       "description": "一、基准费率：0.5%",
-      "sourceFile": "企业财产保险附加草木特约条款（2022版）费率方案.docx"
+      "sourceFile": "企业财产保险附加草木特约条款（2022版）费率方案.docx",
+      "baseRate": 0.5,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "本附加险保险金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝本附加险保险金额×基准费率(0.5%)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加营业中断险责任范围扩展",
@@ -14032,11 +14268,22 @@
       "clauseName": "附加被保管照顾及管理的财产",
       "fullName": "企业财产保险附加被保管照顾及管理的财产条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": null,
       "conditions": [],
       "description": "一、基准费率：同主险基准费率",
-      "sourceFile": "企业财产保险附加被保管照顾及管理的财产条款费率方案.docx"
+      "sourceFile": "企业财产保险附加被保管照顾及管理的财产条款费率方案.docx",
+      "baseRate": null,
+      "baseRateIsMainRate": true,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "本附加险保险金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝本附加险保险金额×基准费率(同主险)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加被保险人权益丧失",
@@ -14301,7 +14548,7 @@
       "clauseName": "附加调查、谈判和辩护费用条款（2025版",
       "fullName": "企业财产保险附加调查、谈判和辩护费用条款（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -14411,9 +14658,18 @@
           ]
         }
       ],
-      "formula": "保险费=本附加险每次事故赔偿限额×本附加险基准费率×各项费率调整系数的乘积",
+      "formula": "保险费＝本附加险每次事故赔偿限额×基准费率(1.2%)×各项费率调整系数的乘积",
       "description": "一、基准费率：1.2%",
-      "sourceFile": "企业财产保险附加调查、谈判和辩护费用条款（2025版）费率方案.docx"
+      "sourceFile": "企业财产保险附加调查、谈判和辩护费用条款（2025版）费率方案.docx",
+      "baseRate": 1.2,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "accidentLimit",
+          "label": "每次事故赔偿限额",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加谋杀等",
@@ -14906,7 +15162,7 @@
       "clauseName": "附加超额碳排放保障",
       "fullName": "企业财产保险附加超额碳排放保障条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -15306,9 +15562,24 @@
           ]
         }
       ],
-      "formula": "保险费＝累计超额碳排放赔偿限额（吨）×每吨碳排放价格（元）×基准费率×各项费率调整系数的乘积",
+      "formula": "保险费＝累计超额碳排放赔偿限额(吨)×每吨碳排放价格(元)×基准费率(20.2%)×各项费率调整系数的乘积",
       "description": "一、基准费率：20.2%",
-      "sourceFile": "企业财产保险附加超额碳排放保障条款费率方案.docx"
+      "sourceFile": "企业财产保险附加超额碳排放保障条款费率方案.docx",
+      "baseRate": 20.2,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "carbonLimitTons",
+          "label": "累计超额碳排放赔偿限额",
+          "unit": "吨"
+        },
+        {
+          "key": "carbonPricePerTon",
+          "label": "每吨碳排放价格",
+          "unit": "元/吨"
+        }
+      ],
+      "customInputProduct": true
     },
     {
       "clauseName": "附加足额保险特别约定",
@@ -15331,7 +15602,7 @@
       "clauseName": "附加车载式系统产品路试扩展",
       "fullName": "企业财产保险附加车载式系统产品路试扩展条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
+      "rateType": "base_rate_formula",
       "baseRatePercent": 1.0,
       "conditions": [
         {
@@ -15341,7 +15612,17 @@
         }
       ],
       "description": "一、基准费率：1.0%",
-      "sourceFile": "企业财产保险附加车载式系统产品路试扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加车载式系统产品路试扩展条款费率方案.docx",
+      "baseRate": 1.0,
+      "rateCap": 70,
+      "customInputs": [
+        {
+          "key": "declaredAmount",
+          "label": "申报的投保金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝申报的投保金额×基准费率(1.0%)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加车载货物",
@@ -15373,9 +15654,19 @@
       "clauseName": "附加车辆露天存放、脱轨或冲突扩展",
       "fullName": "企业财产保险附加车辆露天存放、脱轨或冲突扩展条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
-      "description": "若主险已包含本附加险责任，则本附加险属于规范类，不涉及保险费的调整；若主险未包含本附加险责任，则本附加险的基准费率为0.15%，年保险费＝本附加险保险金额×基准费率×各项费率调整系数的乘积（费率调整系数参照主险费率方案并可独立取值，短期承保保险费计算方式同主险）。",
-      "sourceFile": "企业财产保险附加车辆露天存放、脱轨或冲突扩展条款费率方案.docx"
+      "rateType": "base_rate_formula",
+      "description": "若主险已包含本附加险责任，则不涉及保险费调整；若未包含，按下方公式计算",
+      "sourceFile": "企业财产保险附加车辆露天存放、脱轨或冲突扩展条款费率方案.docx",
+      "baseRate": 0.15,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "addonSumInsured",
+          "label": "本附加险保险金额",
+          "unit": "元"
+        }
+      ],
+      "formula": "年保险费＝本附加险保险金额×基准费率(0.15%)×各项费率调整系数的乘积"
     },
     {
       "clauseName": "附加轨道毁坏",
@@ -16894,7 +17185,7 @@
       "clauseName": "附加顾客、供应商、承包商",
       "fullName": "企业财产保险附加顾客、供应商、承包商条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
+      "rateType": "base_rate_formula",
       "basePremium": {
         "description": "未找到基准保险费描述"
       },
@@ -16992,9 +17283,19 @@
           ]
         }
       ],
-      "formula": "保险费=本附加险累计赔偿限额×本附加险基准费率×调整系数乘积",
+      "formula": "保险费＝本附加险累计赔偿限额×基准费率(同主险)×调整系数乘积",
       "description": "一、基准费率",
-      "sourceFile": "企业财产保险附加顾客、供应商、承包商条款费率方案.docx"
+      "sourceFile": "企业财产保险附加顾客、供应商、承包商条款费率方案.docx",
+      "baseRate": null,
+      "baseRateIsMainRate": true,
+      "rateCap": null,
+      "customInputs": [
+        {
+          "key": "cumulativeLimit",
+          "label": "本附加险累计赔偿限额",
+          "unit": "元"
+        }
+      ]
     },
     {
       "clauseName": "附加顾客、供应商",
