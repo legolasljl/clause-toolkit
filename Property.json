@@ -4,15 +4,16 @@
   "sourceDirectory": "/Users/jinlei/Library/Mobile Documents/com~apple~CloudDocs/Documents/归档/附加条款及费率方案/企业财产保险",
   "totalEntries": 591,
   "stats": {
-    "table_coefficient": 148,
+    "table_coefficient": 146,
     "deduction": 1,
-    "base_rate_formula": 22,
+    "base_rate_formula": 27,
     "included_in_main": 22,
-    "regulatory": 220,
-    "formula_conditional": 41,
-    "simple_percentage": 129,
+    "regulatory": 217,
+    "formula_conditional": 36,
+    "simple_percentage": 130,
     "daily_prorate": 4,
-    "main_premium_modifier": 4
+    "main_premium_modifier": 6,
+    "conditional_simple": 4
   },
   "entries": [
     {
@@ -4603,57 +4604,18 @@
       "clauseName": "附加台风、飓风除外条款（A款",
       "fullName": "企业财产保险附加台风、飓风除外条款（A款）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
-      "basePremium": {
-        "description": "未找到基准保险费描述"
-      },
-      "coefficientTables": [
-        {
-          "name": "主险险种",
-          "headerRow": [
-            "主险险种",
-            "承保地点",
-            "费率方案"
-          ],
-          "supportsInterpolation": false,
-          "rows": [
-            {
-              "parameter": "财产基本险",
-              "coefficient": "不限",
-              "parsedValue": {
-                "type": "text",
-                "display": "不限"
-              }
-            },
-            {
-              "parameter": "财产综合险、财产一切险",
-              "coefficient": "近30年台风曾登陆的省、自治区、直辖市",
-              "parsedValue": {
-                "type": "text",
-                "display": "近30年台风曾登陆的省、自治区、直辖市"
-              }
-            },
-            {
-              "parameter": "财产综合险、财产一切险",
-              "coefficient": "近30年任一台风中心（包含减弱为低气压后）曾经过的省、自治区、直辖市",
-              "parsedValue": {
-                "type": "text",
-                "display": "近30年任一台风中心(包含减弱为低气压后)曾经过的省、自治区、直辖市"
-              }
-            },
-            {
-              "parameter": "财产综合险、财产一切险",
-              "coefficient": "其他省、自治区、直辖市",
-              "parsedValue": {
-                "type": "text",
-                "display": "其他省、自治区、直辖市"
-              }
-            }
-          ]
-        }
+      "rateType": "main_premium_modifier",
+      "modifierType": "regional_deduction",
+      "regions": [
+        {"key": "landing", "label": "近30年台风曾登陆的省、自治区、直辖市", "deductPct": 25},
+        {"key": "passing", "label": "近30年任一台风中心曾经过的省、自治区、直辖市", "deductPct": 3},
+        {"key": "other", "label": "其他省、自治区、直辖市", "deductPct": 0.1}
       ],
-      "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
-      "description": "",
+      "insuranceTypeOverrides": {
+        "财产基本险": 0
+      },
+      "formula": "财产基本险不调整；财产综合险/一切险按地区减收主险保费",
+      "description": "附加本条款后，按主险险种和承保地点减收主险保险费",
       "sourceFile": "企业财产保险附加台风、飓风除外条款（A款）费率方案.docx"
     },
     {
@@ -9870,96 +9832,19 @@
       "clauseName": "附加水损赔付责任水位线条款（2025版",
       "fullName": "企业财产保险附加水损赔付责任水位线条款（2025版）费率方案",
       "industry": "企业财产保险",
-      "rateType": "table_coefficient",
-      "basePremium": {
-        "description": "未找到基准保险费描述"
+      "rateType": "main_premium_modifier",
+      "modifierType": "water_level_deduction",
+      "waterLevelTable": {
+        "heights": [20, 30, 40, 50, 60, 70, 80, 90, 100],
+        "rates": {
+          "财产基本险": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "财产综合险": [0.2, 0.9, 3.2, 6.5, 12.7, 15.7, 16.5, 16.7, 17.1],
+          "财产一切险": [0.1, 0.6, 2.3, 4.7, 9.1, 11.2, 11.8, 12.0, 12.2]
+        },
+        "supportsInterpolation": true,
+        "unit": "cm"
       },
-      "coefficientTables": [
-        {
-          "name": "水位线高度",
-          "headerRow": [
-            "水位线高度",
-            "财产综合险减少主险的保险费比例",
-            "财产一切险减少主险的保险费比例"
-          ],
-          "supportsInterpolation": true,
-          "rows": [
-            {
-              "parameter": "20cm",
-              "coefficient": "0.2%",
-              "parsedValue": {
-                "type": "text",
-                "display": "0.2%"
-              }
-            },
-            {
-              "parameter": "30cm",
-              "coefficient": "0.9%",
-              "parsedValue": {
-                "type": "text",
-                "display": "0.9%"
-              }
-            },
-            {
-              "parameter": "40cm",
-              "coefficient": "3.2%",
-              "parsedValue": {
-                "type": "text",
-                "display": "3.2%"
-              }
-            },
-            {
-              "parameter": "50cm",
-              "coefficient": "6.5%",
-              "parsedValue": {
-                "type": "text",
-                "display": "6.5%"
-              }
-            },
-            {
-              "parameter": "60cm",
-              "coefficient": "12.7%",
-              "parsedValue": {
-                "type": "text",
-                "display": "12.7%"
-              }
-            },
-            {
-              "parameter": "70cm",
-              "coefficient": "15.7%",
-              "parsedValue": {
-                "type": "text",
-                "display": "15.7%"
-              }
-            },
-            {
-              "parameter": "80cm",
-              "coefficient": "16.5%",
-              "parsedValue": {
-                "type": "text",
-                "display": "16.5%"
-              }
-            },
-            {
-              "parameter": "90cm",
-              "coefficient": "16.7%",
-              "parsedValue": {
-                "type": "text",
-                "display": "16.7%"
-              }
-            },
-            {
-              "parameter": "100cm",
-              "coefficient": "17.1%",
-              "parsedValue": {
-                "type": "text",
-                "display": "17.1%"
-              }
-            }
-          ]
-        }
-      ],
-      "formula": "保险费 = 基准保险费 × 各项费率调整系数的乘积",
+      "formula": "承保本条款后，按水位线高度和险种减少主险保险费",
       "description": "承保本附加本条款后，在主险保险费基础上按照如下比例减少主险保险费：",
       "sourceFile": "企业财产保险附加水损赔付责任水位线条款（2025版）费率方案.docx"
     },
