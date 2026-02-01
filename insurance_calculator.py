@@ -9125,6 +9125,7 @@ ADDON_TYPES = {
     "main_premium_modifier": {"label": "主险保费调整", "color": "#dc2626"},
     "base_rate_formula": {"label": "基准费率", "color": "#0891b2"},
     "formula_conditional": {"label": "条件公式", "color": "#6366f1"},
+    "conditional_simple": {"label": "条件勾选", "color": "#8b5cf6"},
 }
 
 # 关键词映射：文件名关键词 → 附加险类型
@@ -9421,21 +9422,49 @@ class AddonInsuranceTab(QWidget):
         self.per_person_premium = data.get("perPersonPremium", 0)
         self.main_premium_input.setValue(self.main_premium)
         self.per_person_input.setValue(self.per_person_premium)
+        # 设置总保额
+        insured_amount = data.get("insuredAmount", 0)
+        if insured_amount > 0:
+            self.main_sum_insured = insured_amount
+            self.main_sum_insured_input.setValue(insured_amount)
         method = data.get("method", "")
         base_rate = data.get("baseRate", 0)
+        adjusted_rate = data.get("adjustedRate", 0)
         coeff_product = data.get("coeffProduct", 1)
         count = data.get("employeeCount", 0)
         industry = data.get("industryClass", "")
         limit_val = data.get("perPersonLimit", 0)
         salary_val = data.get("annualSalary", 0)
         dis_table = data.get("disabilityTable", "none")
-        self.main_data_status.setText(
-            f"🟢 {method}制 · {industry}类 · 基准{base_rate:.6f} · 系数积{coeff_product:.4f} · "
-            f"{'限额' + fmt_currency(limit_val) if limit_val else '工资' + fmt_currency(salary_val)} · "
-            f"{count}人 · 伤残{dis_table}"
-        )
+        product_name = data.get("selectedProduct", "")
+        # 格式化费率显示（可能是对象）
+        def fmt_rate(r):
+            if isinstance(r, dict):
+                return " | ".join(f"{k}: {v*100:.4f}%" if isinstance(v, (int, float)) else f"{k}: {v}" for k, v in r.items())
+            if isinstance(r, (int, float)):
+                return f"{r*100:.4f}%"
+            return str(r) if r else "—"
+        status_parts = [f"🟢 {product_name or method}"]
+        if industry:
+            status_parts.append(f"{industry}类")
+        status_parts.append(f"基准{fmt_rate(base_rate)}")
+        if adjusted_rate:
+            status_parts.append(f"调整后{fmt_rate(adjusted_rate)}")
+        status_parts.append(f"系数积{coeff_product:.4f}")
+        if insured_amount > 0:
+            status_parts.append(f"保额{fmt_currency(insured_amount)}")
+        if limit_val:
+            status_parts.append(f"限额{fmt_currency(limit_val)}")
+        elif salary_val:
+            status_parts.append(f"工资{fmt_currency(salary_val)}")
+        if count > 0:
+            status_parts.append(f"{count}人")
+        if dis_table != "none":
+            status_parts.append(f"伤残{dis_table}")
+        self.main_data_status.setText(" · ".join(status_parts))
         self.main_data_status.setStyleSheet(f"font-size: 11px; color: #10b981;")
-        self._log(f"收到主险完整数据: 基准费率={base_rate:.6f}, 系数积={coeff_product:.4f}, {count}人", "success")
+        self._log(f"收到主险完整数据: 险种={product_name}, 基准费率={fmt_rate(base_rate)}, "
+                  f"调整后费率={fmt_rate(adjusted_rate)}, 保额={fmt_currency(insured_amount)}", "success")
 
     # ---------- 日志 ----------
     def _log(self, msg, level="info"):
@@ -10125,6 +10154,81 @@ class AddonInsuranceTab(QWidget):
                 deduct_info = QLabel(deduct_text)
                 deduct_info.setStyleSheet("padding: 8px; background: #fef2f2; border-radius: 6px; font-size: 12px;")
                 self.detail_layout.addWidget(deduct_info)
+
+            elif entry.get("modifierType") == "water_level_deduction":
+                wlt = entry.get("waterLevelTable", {})
+                ins_types = list(wlt.get("rates", {}).keys())
+                # 险种下拉
+                type_row = QHBoxLayout()
+                type_row.addWidget(QLabel("主险类型:"))
+                self.insurance_type_combo = QComboBox()
+                for ins_type in ins_types:
+                    self.insurance_type_combo.addItem(ins_type)
+                type_row.addWidget(self.insurance_type_combo)
+                type_row.addStretch()
+                type_w = QWidget()
+                type_w.setLayout(type_row)
+                self.detail_layout.addWidget(type_w)
+                # 水位输入
+                wl_row = QHBoxLayout()
+                unit = wlt.get("unit", "cm")
+                wl_row.addWidget(QLabel(f"水位线高度 ({unit}):"))
+                self.water_level_input = QDoubleSpinBox()
+                self.water_level_input.setRange(0, 200)
+                self.water_level_input.setDecimals(1)
+                self.water_level_input.setSuffix(f" {unit}")
+                wl_row.addWidget(self.water_level_input)
+                wl_row.addStretch()
+                wl_w = QWidget()
+                wl_w.setLayout(wl_row)
+                self.detail_layout.addWidget(wl_w)
+                # 水位减费率表格
+                heights = wlt.get("heights", [])
+                table_text = f"水位({unit})" + "".join(f"  |  {t}" for t in ins_types) + "\n"
+                for wi, h in enumerate(heights):
+                    row_text = f"  {h}"
+                    for t in ins_types:
+                        r = wlt["rates"][t][wi]
+                        row_text += f"  |  {'—' if r == 0 else f'{r}%'}"
+                    table_text += row_text + "\n"
+                table_label = QLabel(table_text.strip())
+                table_label.setStyleSheet("padding: 8px; background: #dbeafe; border: 1px solid #93c5fd; "
+                                          "border-radius: 6px; font-size: 11px; font-family: monospace;")
+                self.detail_layout.addWidget(table_label)
+
+            elif entry.get("modifierType") == "regional_deduction":
+                regions = entry.get("regions", [])
+                ins_types = ["财产基本险", "财产综合险", "财产一切险"]
+                overrides = entry.get("insuranceTypeOverrides", {})
+                # 险种下拉
+                type_row = QHBoxLayout()
+                type_row.addWidget(QLabel("主险类型:"))
+                self.insurance_type_combo = QComboBox()
+                for ins_type in ins_types:
+                    suffix = " (不调整)" if overrides.get(ins_type) == 0 else ""
+                    self.insurance_type_combo.addItem(f"{ins_type}{suffix}", ins_type)
+                type_row.addWidget(self.insurance_type_combo)
+                type_row.addStretch()
+                type_w = QWidget()
+                type_w.setLayout(type_row)
+                self.detail_layout.addWidget(type_w)
+                # 地区单选
+                from PyQt5.QtWidgets import QRadioButton, QButtonGroup
+                region_label = QLabel("承保地点区域:")
+                region_label.setStyleSheet("font-weight: 600; margin-top: 8px;")
+                self.detail_layout.addWidget(region_label)
+                self.region_combo = QComboBox()
+                for reg in regions:
+                    self.region_combo.addItem(f"{reg['label']} (减{reg['deductPct']}%)", reg["key"])
+                self.detail_layout.addWidget(self.region_combo)
+                # 减费表格
+                table_text = "\n".join([f"  {r['label']}: 减{r['deductPct']}%" for r in regions])
+                table_info = QLabel(table_text)
+                table_info.setWordWrap(True)
+                table_info.setStyleSheet("padding: 8px; background: #fef3c7; border: 1px solid #fbbf24; "
+                                         "border-radius: 6px; font-size: 12px;")
+                self.detail_layout.addWidget(table_info)
+
             else:
                 # 原有的系数表逻辑
                 table = (entry.get("coefficientTables") or [{}])[0]
@@ -10154,6 +10258,34 @@ class AddonInsuranceTab(QWidget):
                 ratio_w.setLayout(ratio_row)
                 self.detail_layout.addWidget(ratio_w)
                 self._render_modifier_table(table)
+
+        elif rate_type == "conditional_simple":
+            # 勾选条件计算
+            from PyQt5.QtWidgets import QCheckBox
+            self.conditional_checkbox = QCheckBox(entry.get("checkboxLabel", "主险未包含本附加险责任"))
+            self.conditional_checkbox.setChecked(entry.get("defaultChecked", False))
+            self.conditional_checkbox.setStyleSheet("font-size: 13px; font-weight: 600; color: #5b21b6; padding: 8px; "
+                                                     "background: #f5f3ff; border: 1px solid #a78bfa; border-radius: 8px;")
+            self.detail_layout.addWidget(self.conditional_checkbox)
+            # 险种选择（base_rate_division需要）
+            wc = entry.get("whenChecked", {})
+            if wc.get("formulaType") == "base_rate_division" and wc.get("baseRates"):
+                type_row = QHBoxLayout()
+                type_row.addWidget(QLabel("主险类型:"))
+                self.insurance_type_combo = QComboBox()
+                for ins_type, br in wc["baseRates"].items():
+                    self.insurance_type_combo.addItem(f"{ins_type} (基准费率 {br}%)", ins_type)
+                type_row.addWidget(self.insurance_type_combo)
+                type_row.addStretch()
+                type_w = QWidget()
+                type_w.setLayout(type_row)
+                self.detail_layout.addWidget(type_w)
+            # 公式说明
+            if entry.get("formula"):
+                formula_hint = QLabel(f"📐 {entry['formula']}")
+                formula_hint.setWordWrap(True)
+                formula_hint.setStyleSheet("padding: 10px; background: #eff6ff; border-radius: 8px; font-size: 12px; color: #1e40af;")
+                self.detail_layout.addWidget(formula_hint)
 
         elif rate_type == "base_rate_formula":
             self._render_base_rate_formula(entry)
@@ -10611,6 +10743,68 @@ class AddonInsuranceTab(QWidget):
             parts.append(f"保费 = {fmt_currency(amount)} × {effective_rate*100:.6f}% × {days} ÷ {p_days} = {fmt_currency(premium)}")
             return {"type": "base_rate_formula", "premium": premium, "formulaDisplay": "\n".join(parts)}
 
+        # policy_rate_simple: 金额 × 保单费率
+        if formula_type == "policy_rate_simple":
+            main_si = getattr(self, 'main_sum_insured', 0)
+            if not main_si or main_si <= 0:
+                raise ValueError("请输入主险保险金额")
+            if self.main_premium <= 0:
+                raise ValueError("请输入主险保险费")
+            policy_rate = self.main_premium / main_si
+            amount = input_values[0] if input_values else 0
+            if amount <= 0:
+                raise ValueError(f"请输入{input_labels[0] if input_labels else '金额'}")
+            premium = amount * policy_rate
+            lbl = input_labels[0] if input_labels else "金额"
+            return {"type": "base_rate_formula", "premium": premium,
+                    "formulaDisplay": f"保单费率 = {fmt_currency(self.main_premium)} ÷ {fmt_currency(main_si)} = {policy_rate*100:.6f}%\n"
+                                     f"{lbl}: {fmt_currency(amount)}\n"
+                                     f"保费 = {fmt_currency(amount)} × {policy_rate*100:.6f}% = {fmt_currency(premium)}"}
+
+        # auto_appreciation: 主险保费 × 升值率 × 50%
+        if formula_type == "auto_appreciation":
+            rate = input_values[0] if input_values else 0
+            if rate <= 0:
+                raise ValueError("请输入升值率")
+            premium = self.main_premium * (rate / 100) * 0.5
+            return {"type": "base_rate_formula", "premium": premium,
+                    "formulaDisplay": f"主险保费 × 升值率 × 50%\n"
+                                     f"{fmt_currency(self.main_premium)} × {rate}% × 50% = {fmt_currency(premium)}"}
+
+        # auto_appreciation_b: 主险保费 × 升值比例 × 50% × (总保额-存货)÷总保额
+        if formula_type == "auto_appreciation_b":
+            rate = input_values[0] if input_values else 0
+            inventory = input_values[1] if len(input_values) > 1 else 0
+            if rate <= 0:
+                raise ValueError("请输入升值比例")
+            main_si = getattr(self, 'main_sum_insured', 0)
+            if not main_si or main_si <= 0:
+                raise ValueError("请输入主险保险金额")
+            ratio = max(0, (main_si - inventory) / main_si)
+            premium = self.main_premium * (rate / 100) * 0.5 * ratio
+            return {"type": "base_rate_formula", "premium": premium,
+                    "formulaDisplay": f"主险保费 × 升值比例 × 50% × (总保额-存货)÷总保额\n"
+                                     f"{fmt_currency(self.main_premium)} × {rate}% × 50% × "
+                                     f"({fmt_currency(main_si)}-{fmt_currency(inventory)})÷{fmt_currency(main_si)}\n"
+                                     f"= {fmt_currency(self.main_premium)} × {rate}% × 50% × {ratio*100:.2f}% = {fmt_currency(premium)}"}
+
+        # auto_appreciation_c: 增值保额 × 保单费率 × 50%
+        if formula_type == "auto_appreciation_c":
+            main_si = getattr(self, 'main_sum_insured', 0)
+            if not main_si or main_si <= 0:
+                raise ValueError("请输入主险保险金额")
+            if self.main_premium <= 0:
+                raise ValueError("请输入主险保险费")
+            amount = input_values[0] if input_values else 0
+            if amount <= 0:
+                raise ValueError("请输入增值部分的保险金额")
+            policy_rate = self.main_premium / main_si
+            premium = amount * policy_rate * 0.5
+            return {"type": "base_rate_formula", "premium": premium,
+                    "formulaDisplay": f"增值保额 × 保单费率 × 50%\n"
+                                     f"保单费率 = {fmt_currency(self.main_premium)} ÷ {fmt_currency(main_si)} = {policy_rate*100:.6f}%\n"
+                                     f"{fmt_currency(amount)} × {policy_rate*100:.6f}% × 50% = {fmt_currency(premium)}"}
+
         # 特殊公式：主险保费比例
         if formula_type == "main_premium_ratio":
             custom_amount = input_values[0] if input_values else 0
@@ -10744,6 +10938,66 @@ class AddonInsuranceTab(QWidget):
                     "formulaDisplay": f"【{selected_type}】减收 {deduct_pct}%\n"
                                      f"{fmt_currency(self.main_premium)} × (1 - {deduct_pct}%) = {fmt_currency(adjusted)}"}
 
+        # water_level_deduction: 水位线减费
+        if entry.get("modifierType") == "water_level_deduction":
+            wlt = entry.get("waterLevelTable", {})
+            ins_type = self._get_selected_insurance_type()
+            if not ins_type:
+                raise ValueError("请选择主险类型")
+            water_level = getattr(self, 'water_level_input', None)
+            water_val = water_level.value() if water_level else 0
+            if water_val <= 0:
+                raise ValueError("请输入有效的水位线高度")
+            type_rates = wlt.get("rates", {}).get(ins_type, [])
+            heights = wlt.get("heights", [])
+            if not type_rates or all(r == 0 for r in type_rates):
+                return {"type": "main_premium_modifier", "isMainModifier": True, "premium": 0,
+                        "originalPremium": self.main_premium, "adjustedPremium": self.main_premium,
+                        "formulaDisplay": f"【{ins_type}】不涉及保费调整（减免比例为0）"}
+            # 线性插值
+            deduct_pct = 0.0
+            if water_val <= heights[0]:
+                deduct_pct = type_rates[0]
+            elif water_val >= heights[-1]:
+                deduct_pct = type_rates[-1]
+            else:
+                for wi in range(len(heights) - 1):
+                    if heights[wi] <= water_val <= heights[wi + 1]:
+                        t = (water_val - heights[wi]) / (heights[wi + 1] - heights[wi])
+                        deduct_pct = type_rates[wi] + t * (type_rates[wi + 1] - type_rates[wi])
+                        break
+            adjusted = self.main_premium * (1 - deduct_pct / 100)
+            unit = wlt.get("unit", "cm")
+            return {"type": "main_premium_modifier", "isMainModifier": True, "premium": 0,
+                    "originalPremium": self.main_premium, "adjustedPremium": adjusted,
+                    "formulaDisplay": f"【{ins_type}】水位线 {water_val}{unit} → 减免比例 {deduct_pct:.2f}%\n"
+                                     f"{fmt_currency(self.main_premium)} × (1 - {deduct_pct:.2f}%) = {fmt_currency(adjusted)}"}
+
+        # regional_deduction: 地区减费
+        if entry.get("modifierType") == "regional_deduction":
+            ins_type = self._get_selected_insurance_type()
+            if not ins_type:
+                raise ValueError("请选择主险类型")
+            overrides = entry.get("insuranceTypeOverrides", {})
+            if overrides.get(ins_type) == 0:
+                return {"type": "main_premium_modifier", "isMainModifier": True, "premium": 0,
+                        "originalPremium": self.main_premium, "adjustedPremium": self.main_premium,
+                        "formulaDisplay": f"【{ins_type}】不涉及保费调整"}
+            region_combo = getattr(self, 'region_combo', None)
+            if not region_combo:
+                raise ValueError("请选择承保地点区域")
+            region_key = region_combo.currentData()
+            regions = entry.get("regions", [])
+            region = next((r for r in regions if r["key"] == region_key), None)
+            if not region:
+                raise ValueError("未找到对应地区")
+            deduct_pct = region["deductPct"]
+            adjusted = self.main_premium * (1 - deduct_pct / 100)
+            return {"type": "main_premium_modifier", "isMainModifier": True, "premium": 0,
+                    "originalPremium": self.main_premium, "adjustedPremium": adjusted,
+                    "formulaDisplay": f"【{ins_type}】{region['label']} → 减收 {deduct_pct}%\n"
+                                     f"{fmt_currency(self.main_premium)} × (1 - {deduct_pct}%) = {fmt_currency(adjusted)}"}
+
         table = (entry.get("coefficientTables") or [{}])[0]
         if not table.get("rows"):
             raise ValueError("缺少系数表数据")
@@ -10781,6 +11035,37 @@ class AddonInsuranceTab(QWidget):
             "formulaDisplay": formula,
         }
 
+    def _calc_conditional_simple(self, entry):
+        """计算 conditional_simple 类型（勾选条件计算）"""
+        checkbox = getattr(self, 'conditional_checkbox', None)
+        if not checkbox or not checkbox.isChecked():
+            return {"type": "conditional_simple", "premium": 0,
+                    "formulaDisplay": "主险已包含本附加险责任，不涉及保险费调整"}
+        wc = entry.get("whenChecked", {})
+        if not wc:
+            raise ValueError("条款配置缺少whenChecked")
+        if wc.get("formulaType") == "simple_pct":
+            pct = wc["percentage"]
+            premium = self.main_premium * (pct / 100)
+            return {"type": "conditional_simple", "premium": premium,
+                    "formulaDisplay": f"主险保费 × {pct}%\n"
+                                     f"{fmt_currency(self.main_premium)} × {pct}% = {fmt_currency(premium)}"}
+        if wc.get("formulaType") == "base_rate_division":
+            ins_type = self._get_selected_insurance_type()
+            if not ins_type:
+                raise ValueError("请选择主险类型")
+            base_rates = wc.get("baseRates", {})
+            base_rate = base_rates.get(ins_type)
+            if not base_rate:
+                raise ValueError(f"未找到{ins_type}的基准费率")
+            base_rate_decimal = base_rate / 100
+            numerator_pct = wc["numeratorPct"]
+            premium = self.main_premium * (numerator_pct / 100) / base_rate_decimal
+            return {"type": "conditional_simple", "premium": premium,
+                    "formulaDisplay": f"【{ins_type}】主险保费 × {numerator_pct}% ÷ 基准费率({base_rate}%)\n"
+                                     f"{fmt_currency(self.main_premium)} × {numerator_pct}% ÷ {base_rate}% = {fmt_currency(premium)}"}
+        raise ValueError(f"未知的conditional_simple公式类型: {wc.get('formulaType')}")
+
     def _calculate(self):
         entry = self.selected_entry
         if not entry:
@@ -10790,7 +11075,7 @@ class AddonInsuranceTab(QWidget):
         rate_type = entry.get("rateType", "")
         if rate_type in ("regulatory", "no_calc", "included_in_main", "daily_prorate"):
             return
-        if self.main_premium <= 0 and rate_type not in ("per_person_base", "property_loss", "base_rate_formula"):
+        if self.main_premium <= 0 and rate_type not in ("per_person_base", "property_loss", "base_rate_formula", "conditional_simple"):
             self._log("请输入有效的主险保费", "warn")
             return
         try:
@@ -10807,6 +11092,7 @@ class AddonInsuranceTab(QWidget):
                 "table_coefficient": self._calc_table,
                 "main_premium_modifier": self._calc_main_premium_modifier,
                 "base_rate_formula": self._calc_base_rate_formula,
+                "conditional_simple": self._calc_conditional_simple,
             }.get(rate_type)
             if not calc_method:
                 self._log(f"未知计算类型: {rate_type}", "error")
@@ -11361,6 +11647,17 @@ class AddonInsuranceTab(QWidget):
                 continue
             if rt != "main_premium_modifier":
                 continue
+            # water_level_deduction / regional_deduction: 需手动参数
+            if entry.get("modifierType") == "water_level_deduction":
+                self._add_premium_item(entry["clauseName"], 0,
+                                       "⚠️ 需手动计算 [水位线减费] — 请单选此条款后输入水位高度")
+                skip_count += 1
+                continue
+            if entry.get("modifierType") == "regional_deduction":
+                self._add_premium_item(entry["clauseName"], 0,
+                                       "⚠️ 需手动计算 [地区减费] — 请单选此条款后选择地区")
+                skip_count += 1
+                continue
             combo = getattr(self, 'modifier_insurance_combo', None)
             ratio_input = getattr(self, 'modifier_ratio_input', None)
             col_key = combo.currentData() if combo else None
@@ -11392,6 +11689,11 @@ class AddonInsuranceTab(QWidget):
             if rt in ("main_premium_modifier", "modifier_coeff"):
                 continue
             if rt in ("regulatory", "no_calc", "included_in_main", "daily_prorate", "formula_conditional"):
+                skip_count += 1
+                continue
+            if rt == "conditional_simple":
+                self._add_premium_item(entry["clauseName"], 0,
+                                       "条件勾选类 — 默认主险已包含，不加收（需手动勾选后单独计算）")
                 skip_count += 1
                 continue
             batch_calc_fn = {
