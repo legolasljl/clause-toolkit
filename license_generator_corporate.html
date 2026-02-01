@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业版激活码生成器 - 管理员工具</title>
+    <style>
+        :root {
+            --bg-primary: #faf9f5;
+            --accent-primary: #1e3a5f;
+            --accent-hover: #2c5282;
+            --text-primary: #141413;
+            --border-color: #d8d6ce;
+            --success-color: #5a9a7a;
+            --error-color: #c75050;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; color: var(--accent-primary); margin-bottom: 30px; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card-title { font-weight: 600; margin-bottom: 16px; color: var(--text-primary); }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-size: 14px; color: #666; }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent-primary); }
+        .btn {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn-verify { background: var(--success-color); }
+        .btn-verify:hover { background: #4a8a6a; }
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f0f9f0;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            user-select: all;
+            cursor: pointer;
+        }
+        .result.error { background: #fdf0f0; color: var(--error-color); }
+        .info { font-size: 12px; color: #888; margin-top: 8px; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .copy-btn {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .warning {
+            background: #e8edf3;
+            border: 1px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1e3a5f;
+        }
+        .badge {
+            display: inline-block;
+            background: var(--accent-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 企业版激活码生成器 <span class="badge">CORPORATE</span></h1>
+
+        <div class="warning">
+            ⚠️ <strong>管理员专用工具</strong> — 此生成器仅适用于 <strong>v19.0 企业版</strong>，
+            生成的激活码与个人版（v18.x）<strong>不通用</strong>。
+            <br><br>
+            📋 每个激活码仅限在一台设备上激活使用，激活后绑定设备。
+        </div>
+
+        <div class="card">
+            <div class="card-title">生成新激活码</div>
+
+            <div class="form-group">
+                <label>有效期类型</label>
+                <select id="licenseType" onchange="updateDateRange()">
+                    <option value="30">30天</option>
+                    <option value="90">90天（季度）</option>
+                    <option value="180">180天（半年）</option>
+                    <option value="365" selected>365天（一年）</option>
+                    <option value="730">730天（两年）</option>
+                    <option value="permanent">永久</option>
+                    <option value="custom">自定义日期</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="customDateGroup" style="display:none;">
+                <label>截止日期</label>
+                <input type="date" id="expiryDate">
+            </div>
+
+            <div class="form-group">
+                <label>客户/公司名称（可选，用于区分）</label>
+                <input type="text" id="userId" placeholder="例如：XX保险经纪公司">
+            </div>
+
+            <button class="btn" onclick="generateLicense()">生成激活码</button>
+
+            <div id="result" class="result" style="display:none;"></div>
+            <div id="resultInfo" class="info" style="display:none;"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">验证激活码</div>
+            <div class="form-group">
+                <label>输入激活码</label>
+                <input type="text" id="verifyCode" placeholder="XXXX-XXXX-XXXX-XXXX"
+                       oninput="formatLicenseInput(this)" maxlength="19">
+            </div>
+            <button class="btn btn-verify" onclick="verifyLicense()">验证</button>
+            <div id="verifyResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">生成历史</div>
+            <div id="historyList">
+                <div style="color:#888;font-size:13px;">暂无记录</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 企业版激活码生成算法
+        // 密钥与个人版不同，生成的激活码互不通用
+        // ============================================
+
+        const SECRET_KEY = 'CNexusCorp@2026#Ent!Secure';
+        const CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash);
+        }
+
+        function encodeNum(num, length) {
+            let result = '';
+            const base = CHARSET.length;
+            while (result.length < length) {
+                result = CHARSET[num % base] + result;
+                num = Math.floor(num / base);
+            }
+            return result;
+        }
+
+        function decodeNum(str) {
+            let result = 0;
+            const base = CHARSET.length;
+            for (let i = 0; i < str.length; i++) {
+                result = result * base + CHARSET.indexOf(str[i]);
+            }
+            return result;
+        }
+
+        function generateLicenseCode(expiryDate, userId) {
+            userId = userId || '';
+            const baseDate = new Date('2020-01-01');
+            const expiry = new Date(expiryDate);
+            const days = Math.floor((expiry - baseDate) / (1000 * 60 * 60 * 24));
+            const effectiveDays = days > 9000 ? 9999 : days;
+
+            const part1 = encodeNum(effectiveDays, 4);
+            const part2 = encodeNum(simpleHash(userId + SECRET_KEY) % 1048576, 4);
+            const part3 = encodeNum(simpleHash(part1 + part2 + SECRET_KEY) % 1048576, 4);
+            const part4 = encodeNum(simpleHash(part1 + part2 + part3 + SECRET_KEY) % 1048576, 4);
+
+            return part1 + '-' + part2 + '-' + part3 + '-' + part4;
+        }
+
+        function verifyLicenseCode(code) {
+            code = code.replace(/[\s-]/g, '').toUpperCase();
+
+            if (code.length !== 16) {
+                return { valid: false, message: '激活码格式错误' };
+            }
+
+            for (var i = 0; i < code.length; i++) {
+                if (CHARSET.indexOf(code[i]) === -1) {
+                    return { valid: false, message: '激活码包含无效字符' };
+                }
+            }
+
+            var part1 = code.substring(0, 4);
+            var part2 = code.substring(4, 8);
+            var part3 = code.substring(8, 12);
+            var part4 = code.substring(12, 16);
+
+            var expectedPart3 = encodeNum(simpleHash(part1 + part2 + SECRET_KEY) % 1048576, 4);
+            var expectedPart4 = encodeNum(simpleHash(part1 + part2 + part3 + SECRET_KEY) % 1048576, 4);
+
+            if (part3 !== expectedPart3 || part4 !== expectedPart4) {
+                return { valid: false, message: '激活码无效（此生成器仅适用于企业版）' };
+            }
+
+            var days = decodeNum(part1);
+
+            if (days === 9999) {
+                return { valid: true, message: '永久许可证', expiry: '永久有效', isPermanent: true };
+            }
+
+            var baseDate = new Date('2020-01-01');
+            var expiryDate = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
+            var today = new Date();
+
+            if (today > expiryDate) {
+                return {
+                    valid: false,
+                    message: '许可证已过期',
+                    expiry: expiryDate.toISOString().split('T')[0],
+                    expired: true
+                };
+            }
+
+            var remainingDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+            return {
+                valid: true,
+                message: '许可证有效，剩余 ' + remainingDays + ' 天',
+                expiry: expiryDate.toISOString().split('T')[0],
+                remainingDays: remainingDays
+            };
+        }
+
+        // ============================================
+        // UI 交互函数
+        // ============================================
+
+        function updateDateRange() {
+            var type = document.getElementById('licenseType').value;
+            document.getElementById('customDateGroup').style.display = type === 'custom' ? 'block' : 'none';
+        }
+
+        function generateLicense() {
+            var type = document.getElementById('licenseType').value;
+            var userId = document.getElementById('userId').value.trim();
+            var expiryDate;
+            var today = new Date();
+
+            if (type === 'permanent') {
+                expiryDate = '2099-12-31';
+            } else if (type === 'custom') {
+                expiryDate = document.getElementById('expiryDate').value;
+                if (!expiryDate) { alert('请选择截止日期'); return; }
+            } else {
+                var days = parseInt(type);
+                var expiry = new Date(today.getTime() + days * 24 * 60 * 60 * 1000);
+                expiryDate = expiry.toISOString().split('T')[0];
+            }
+
+            var code = generateLicenseCode(expiryDate, userId);
+            var resultEl = document.getElementById('result');
+            var infoEl = document.getElementById('resultInfo');
+            var isPermanent = type === 'permanent';
+
+            resultEl.textContent = code;
+            resultEl.style.display = 'block';
+            resultEl.className = 'result';
+
+            infoEl.innerHTML = '有效期至: <strong>' + (isPermanent ? '永久' : expiryDate) + '</strong>' +
+                (userId ? ' | 客户: ' + userId : '') + '<br>点击激活码可复制';
+            infoEl.style.display = 'block';
+
+            addToHistory(code, expiryDate, userId);
+
+            resultEl.onclick = function() {
+                navigator.clipboard.writeText(code).then(function() { alert('已复制到剪贴板'); });
+            };
+        }
+
+        function verifyLicense() {
+            var code = document.getElementById('verifyCode').value;
+            var result = verifyLicenseCode(code);
+            var resultEl = document.getElementById('verifyResult');
+            resultEl.style.display = 'block';
+
+            if (result.valid) {
+                resultEl.className = 'result';
+                resultEl.style.background = '#f0f9f0';
+                resultEl.style.color = '#2e7d32';
+                resultEl.innerHTML = '&#10004; ' + result.message + '<br><small>有效期至: ' + result.expiry + '</small>';
+            } else {
+                resultEl.className = 'result error';
+                resultEl.innerHTML = '&#10008; ' + result.message;
+                if (result.expired) {
+                    resultEl.innerHTML += '<br><small>过期日期: ' + result.expiry + '</small>';
+                }
+            }
+        }
+
+        function formatLicenseInput(input) {
+            var value = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            var formatted = '';
+            for (var i = 0; i < value.length && i < 16; i++) {
+                if (i > 0 && i % 4 === 0) formatted += '-';
+                formatted += value[i];
+            }
+            input.value = formatted;
+        }
+
+        // 历史记录
+        var history = [];
+        try { history = JSON.parse(localStorage.getItem('corpLicenseHistory') || '[]'); } catch(e) {}
+
+        function addToHistory(code, expiry, userId) {
+            history.unshift({ code: code, expiry: expiry, userId: userId, created: new Date().toISOString().split('T')[0] });
+            if (history.length > 30) history = history.slice(0, 30);
+            localStorage.setItem('corpLicenseHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            var container = document.getElementById('historyList');
+            if (history.length === 0) {
+                container.innerHTML = '<div style="color:#888;font-size:13px;">暂无记录</div>';
+                return;
+            }
+            container.innerHTML = history.map(function(item) {
+                return '<div class="history-item"><div>' +
+                    '<div style="font-family:monospace;letter-spacing:1px;">' + item.code + '</div>' +
+                    '<div style="color:#888;font-size:11px;">' + item.created + ' | 至 ' + item.expiry +
+                    (item.userId ? ' | ' + item.userId : '') + '</div></div>' +
+                    '<button class="copy-btn" onclick="copyCode(\'' + item.code + '\')">复制</button></div>';
+            }).join('');
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(function() { alert('已复制: ' + code); });
+        }
+
+        renderHistory();
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 365);
+        document.getElementById('expiryDate').value = tomorrow.toISOString().split('T')[0];
+    </script>
+</body>
+</html>
