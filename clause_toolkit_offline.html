@@ -2957,7 +2957,7 @@
                 <div class="mc-input-grid">
                     <div class="mc-input-group">
                         <label>行业类别 <button class="industry-lookup-btn" onclick="mc_showIndustryLookup()">📋 速查</button></label>
-                        <select id="mc_industryClass" onchange="mc_renderCoefficients()">
+                        <select id="mc_industryClass" onchange="mc_renderCoefficients();mc_updateFormulaDisplay()">
                             <option value="class1">1类（低风险）</option>
                             <option value="class2">2类（中风险）</option>
                             <option value="class3">3类（高风险）</option>
@@ -12504,6 +12504,8 @@ ${fileList}
                 amountUnit: '万元',
                 amountLabel: '每人限额',
                 premiumCap: 0.70,
+                formulaText: '固定限额：年保费＝每人限额×基准费率×各项系数乘积×承保人数；工资总额：年保费＝年度工资总额×基准费率×各项系数乘积',
+                formulaNote: '若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算；短期承保保险费＝年保费×保险期间天数÷365',
                 versions: {
                     original: {
                         label: '雇主责任险费率',
@@ -15879,11 +15881,28 @@ ${fileList}
 
             // 基准费率和公式展示
             var formulaDiv = document.getElementById('mc_formulaDisplay');
-            if (!isLiability && product.formulaText) {
+            if (product.formulaText) {
                 formulaDiv.style.display = '';
                 var baseRateText = '基准费率：';
                 var ver = product.versions && product.versions[mc_selectedVersion];
-                if (isComposite && ver && ver.baseRates && product.subRisks) {
+                if (isLiability && ver && ver.baseRates) {
+                    // 雇主责任险：按计费方式+行业类别显示
+                    var method = document.getElementById('mc_pricingMethod').value;
+                    var indClass = document.getElementById('mc_industryClass').value;
+                    var methodLabel = method === 'fixed' ? '固定限额' : '工资总额';
+                    var classLabels = { class1: '一类', class2: '二类', class3: '三类' };
+                    var rates = ver.baseRates[method];
+                    if (rates) {
+                        var currentRate = rates[indClass];
+                        baseRateText += methodLabel + ' · ' + (classLabels[indClass] || indClass) + ' ' + (currentRate * 100).toFixed(2) + '%';
+                        // 显示全部费率供参考
+                        var allRates = [];
+                        Object.keys(rates).forEach(function (k) {
+                            allRates.push((classLabels[k] || k) + ' ' + (rates[k] * 100).toFixed(2) + '%');
+                        });
+                        baseRateText += '（' + methodLabel + '全部：' + allRates.join(' / ') + '）';
+                    }
+                } else if (isComposite && ver && ver.baseRates && product.subRisks) {
                     var srParts = [];
                     product.subRisks.forEach(function (rid) {
                         var lbl = (product.subRiskLabels || {})[rid] || rid;
@@ -15914,6 +15933,31 @@ ${fileList}
             } else {
                 formulaDiv.style.display = 'none';
             }
+        }
+
+        // --- 单独刷新公式展示（计费方式/行业类别切换时调用） ---
+        function mc_updateFormulaDisplay() {
+            var product = MC_PRODUCTS[mc_selectedProduct] || {};
+            var formulaDiv = document.getElementById('mc_formulaDisplay');
+            if (!formulaDiv || !product.formulaText) return;
+            var isLiability = (product.productType === 'liability');
+            if (!isLiability) return; // 非liability的公式不依赖计费方式/行业，无需刷新
+            var ver = product.versions && product.versions[mc_selectedVersion];
+            if (!ver || !ver.baseRates) return;
+            var method = document.getElementById('mc_pricingMethod').value;
+            var indClass = document.getElementById('mc_industryClass').value;
+            var methodLabel = method === 'fixed' ? '固定限额' : '工资总额';
+            var classLabels = { class1: '一类', class2: '二类', class3: '三类' };
+            var rates = ver.baseRates[method];
+            if (!rates) return;
+            var currentRate = rates[indClass];
+            var baseRateText = '基准费率：' + methodLabel + ' · ' + (classLabels[indClass] || indClass) + ' ' + (currentRate * 100).toFixed(2) + '%';
+            var allRates = [];
+            Object.keys(rates).forEach(function (k) {
+                allRates.push((classLabels[k] || k) + ' ' + (rates[k] * 100).toFixed(2) + '%');
+            });
+            baseRateText += '（' + methodLabel + '全部：' + allRates.join(' / ') + '）';
+            document.getElementById('mc_formulaBaseRate').textContent = baseRateText;
         }
 
         // --- 险种切换 ---
@@ -16338,6 +16382,7 @@ ${fileList}
             document.getElementById('mc_annualSalaryGroup').style.display = method === 'salary' ? '' : 'none';
             mc_coeffSelections = {};
             mc_renderCoefficients();
+            mc_updateFormulaDisplay();
             mc_log('切换计费方式: ' + (method === 'fixed' ? '固定限额' : '工资总额'), 'info');
         }
 
