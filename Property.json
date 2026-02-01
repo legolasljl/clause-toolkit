@@ -2869,7 +2869,14 @@
       "clauseName": "附加供水、供气、管道破裂损失",
       "fullName": "企业财产保险附加供水、供气、管道破裂损失条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "conditional_simple",
+      "checkboxLabel": "主险未包含本附加险责任",
+      "defaultChecked": false,
+      "whenChecked": {
+        "formulaType": "simple_pct",
+        "percentage": 0.2
+      },
+      "formula": "主险保险费×0.2%",
       "description": "若主险包含本附加险责任，则本附加险属于规范类，不涉及保险费的调整；若主险未包含本附加险责任，则本附加险保险费为主险保险费的0.2%",
       "sourceFile": "企业财产保险附加供水、供气、管道破裂损失条款费率方案.docx"
     },
@@ -5974,7 +5981,19 @@
       "clauseName": "附加完全洪水",
       "fullName": "企业财产保险附加完全洪水条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "conditional_simple",
+      "checkboxLabel": "主险未包含本附加险责任",
+      "defaultChecked": false,
+      "whenChecked": {
+        "formulaType": "base_rate_division",
+        "numeratorPct": 0.05,
+        "baseRates": {
+          "财产基本险": 0.2,
+          "财产综合险": 0.17,
+          "财产一切险": 0.2
+        }
+      },
+      "formula": "本附加险保险费＝主险保险费×0.05%÷主险基准费率",
       "description": "若主险包含本附加险责任，则本附加险属于规范类，不涉及保险费的调整；若主险未包含本附加险责任，则本附加险保险费＝主险保险费×0.05%÷主险基准费率",
       "sourceFile": "企业财产保险附加完全洪水条款费率方案.docx"
     },
@@ -10597,7 +10616,14 @@
       "clauseName": "附加消防洒水装置渗漏",
       "fullName": "企业财产保险附加消防洒水装置渗漏条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "conditional_simple",
+      "checkboxLabel": "主险未包含本附加险责任",
+      "defaultChecked": false,
+      "whenChecked": {
+        "formulaType": "simple_pct",
+        "percentage": 0.2
+      },
+      "formula": "主险保险费×0.2%",
       "description": "若主险包含本附加险责任，则本附加险属于规范类，不涉及保险费的调整；若主险未包含本附加险责任，则本附加险保险费为主险保险费的0.2%",
       "sourceFile": "企业财产保险附加消防洒水装置渗漏条款费率方案.docx"
     },
@@ -11688,7 +11714,14 @@
       "clauseName": "附加特种设备责任",
       "fullName": "企业财产保险附加特种设备责任条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "conditional_simple",
+      "checkboxLabel": "主险未包含本附加险责任",
+      "defaultChecked": false,
+      "whenChecked": {
+        "formulaType": "simple_pct",
+        "percentage": 0.2
+      },
+      "formula": "主险保险费×0.2%",
       "description": "若主险包含本附加险责任，则本附加险属于规范类，不涉及保险费的调整；若主险未包含本附加险责任，则本附加险保险费为主险保险费的0.2%",
       "sourceFile": "企业财产保险附加特种设备责任条款费率方案.docx"
     },
