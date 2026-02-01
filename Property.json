@@ -651,6 +651,18 @@
       "description": "一、基准费率",
       "sourceFile": "中国太平洋财产保险股份有限公司企业财产保险附加法律服务保险（2025版）费率方案.docx",
       "rateCap": 70,
+      "maxInstances": 5,
+      "serviceTypes": [
+        {"key": "onlineConsult", "label": "线上法律咨询服务", "baseRate": 28.32},
+        {"key": "contractReview", "label": "合同及商业文件审核", "baseRate": 8.33},
+        {"key": "legalOpinion", "label": "出具法律意见书", "baseRate": 6.67},
+        {"key": "lawyerLetter", "label": "发送律师函", "baseRate": 3.33},
+        {"key": "offlineGuidance", "label": "线下律师法律指导意见", "baseRate": 4.99}
+      ],
+      "perInstanceInputs": [
+        {"key": "liabilityLimit", "label": "每次事故责任限额", "unit": "元"},
+        {"key": "serviceCount", "label": "服务次数", "unit": "次"}
+      ],
       "subFormulas": [
         {
           "name": "法律服务（按服务项目）",
@@ -1195,7 +1207,14 @@
       ],
       "formula": "保险费＝基准保险费×赔偿限额调整系数",
       "description": "一、基准保险费：主险保险费的1%",
-      "sourceFile": "企业财产保险附加不具名供应商及顾客扩展条款费率方案.docx"
+      "sourceFile": "企业财产保险附加不具名供应商及顾客扩展条款费率方案.docx",
+      "customInputs": [{"key": "compensationLimit", "label": "赔偿限额", "unit": "元"}],
+      "ratioHint": {
+        "numeratorKey": "compensationLimit",
+        "denominatorSource": "mainSumInsured",
+        "label": "赔偿限额÷主险保险金额",
+        "helpText": "输入赔偿限额后自动计算比例，辅助选择系数"
+      }
     },
     {
       "clauseName": "附加不受控制",
@@ -2821,7 +2840,13 @@
       "clauseName": "附加供应中断除外条款（A款",
       "fullName": "企业财产保险附加供应中断除外条款（A款）费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "main_premium_modifier",
+      "modifierType": "simple_deduction",
+      "insuranceTypeDeductions": {
+        "财产基本险": 0,
+        "财产综合险": 0.5,
+        "财产一切险": 0.45
+      },
       "description": "若主险为财产基本险，本附加条款属于规范类，不涉及保险费的调整；若主险为财产综合险，附加本条款后可减收主险保险费的0.5%；若主险为财产一切险，附加本条款后可减收主险保险费的0.45%.",
       "sourceFile": "企业财产保险附加供应中断除外条款（A款）费率方案.docx"
     },
@@ -3001,10 +3026,8 @@
       "clauseName": "附加保单不得注销",
       "fullName": "企业财产保险附加保单不得注销条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
-      "baseRatePercent": null,
-      "conditions": [],
-      "description": "投保人通知保险人注销本保险单时，应退还的保险费＝保单保险费×（1-保单已经过天数÷保单原保险天数）",
+      "rateType": "regulatory",
+      "description": "投保人通知保险人注销本保险单时，应退还的保险费＝保单保险费×（1-保单已经过天数÷保单原保险天数）。本条款不涉及额外保险费计算。",
       "sourceFile": "企业财产保险附加保单不得注销条款费率方案.docx"
     },
     {
@@ -3678,9 +3701,15 @@
       "clauseName": "附加出口设备临时储存扩展",
       "fullName": "企业财产保险附加出口设备临时储存扩展条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
-      "baseRatePercent": null,
-      "conditions": [],
+      "rateType": "base_rate_formula",
+      "formulaType": "policy_rate_prorate",
+      "policyRateMultiplier": 1.0,
+      "useGlobalPolicyDays": true,
+      "customInputs": [
+        {"key": "storageAmount", "label": "每次临时储存的保险金额", "unit": "元"},
+        {"key": "storageDays", "label": "每次临时储存保险期间天数", "unit": "天"}
+      ],
+      "formula": "每次临时储存的保险费＝每次临时储存的保险金额×保单保险费率×每次临时储存保险期间天数÷保单保险天数",
       "description": "每次临时储存的保险费＝每次临时储存的保险金额×保单保险费率×每次临时储存保险期间天数÷保单保险天数",
       "sourceFile": "企业财产保险附加出口设备临时储存扩展条款费率方案.docx"
     },
@@ -3967,9 +3996,15 @@
       "clauseName": "附加发付红利",
       "fullName": "企业财产保险附加发付红利条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
-      "baseRatePercent": null,
-      "conditions": [],
+      "rateType": "base_rate_formula",
+      "formulaType": "policy_rate_prorate",
+      "policyRateMultiplier": 1.0,
+      "useGlobalPolicyDays": true,
+      "customInputs": [
+        {"key": "excessAmount", "label": "超额保险财产的保险金额", "unit": "元"},
+        {"key": "excessDays", "label": "保险期限内超额保险财产的保险天数", "unit": "天"}
+      ],
+      "formula": "每次收取的保险费＝超额保险金额×保单保险费率×超额天数÷保单天数",
       "description": "每次收取的保险费＝超额保险财产的保险金额×保单保险费率×保险期限内超额保险财产的保险天数÷保单保险天数",
       "sourceFile": "企业财产保险附加发付红利条款费率方案.docx"
     },
@@ -4932,15 +4967,16 @@
       "clauseName": "附加地铁车辆试车",
       "fullName": "企业财产保险附加地铁车辆试车条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "formula_conditional",
-      "baseRatePercent": 70.0,
-      "conditions": [
-        {
-          "condition": "注：若保单保险费率×1.5＞70%",
-          "formula": "则按70%参与保险费的计算",
-          "fullText": "注：若保单保险费率×1.5＞70%，则按70%参与保险费的计算"
-        }
+      "rateType": "base_rate_formula",
+      "formulaType": "policy_rate_prorate",
+      "policyRateMultiplier": 1.5,
+      "rateCap": 70,
+      "useGlobalPolicyDays": true,
+      "customInputs": [
+        {"key": "vehicleAmount", "label": "参与试车地铁运营车辆的保险金额", "unit": "元"},
+        {"key": "trialDays", "label": "本附加险保险期间天数", "unit": "天"}
       ],
+      "formula": "保险费＝保险金额×保单保险费率×1.5×试车天数÷保单天数（若费率×1.5>70%则按70%）",
       "description": "地铁运营车辆每次试车期保险费＝参与试车地铁运营车辆的保险金额×保单保险费率×1.5×本附加险保险期间天数÷保单保险期间天数",
       "sourceFile": "企业财产保险附加地铁车辆试车条款费率方案.docx"
     },
@@ -8087,9 +8123,17 @@
       "clauseName": "附加扩展承保与建筑安装工程交叉责任",
       "fullName": "企业财产保险附加扩展承保与建筑安装工程交叉责任条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "table_coefficient",
+      "basePremium": {
+        "description": "一、基准保险费：主险保险费的1%（仅财产基本险）",
+        "percentage": 1.0
+      },
+      "coefficientTables": [],
+      "formula": "保险费＝基准保险费×工程合同价限额÷主险保险金额调整系数",
       "description": "若主险为财产基本险，则本附加险保险费为主险保险费的1%；若主险为财产综合险或财产一切险，则本附加条款属于规范类，不涉及保险费的调整。",
-      "sourceFile": "企业财产保险附加扩展承保与建筑安装工程交叉责任条款费率方案.docx"
+      "sourceFile": "企业财产保险附加扩展承保与建筑安装工程交叉责任条款费率方案.docx",
+      "customInputs": [{"key": "contractRatio", "label": "工程合同价限额÷主险保险金额", "unit": "%"}],
+      "coefficientTableLookupKey": "contractRatio"
     },
     {
       "clauseName": "附加扩展承保中国境内未列明保险地点",
@@ -8228,7 +8272,13 @@
       ],
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×主险调整系数",
       "description": "一、基准保险费：主险保险费的80%",
-      "sourceFile": "企业财产保险附加扩展机器设备损坏条款（2025版）费率方案.docx"
+      "sourceFile": "企业财产保险附加扩展机器设备损坏条款（2025版）费率方案.docx",
+      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "ratioMultiplier": {
+        "numeratorKey": "machineryAmount",
+        "denominatorSource": "mainSumInsured",
+        "label": "机器设备保险金额÷总保险金额"
+      }
     },
     {
       "clauseName": "附加扩展玻璃破碎条款（2025版",
@@ -9477,7 +9527,13 @@
       ],
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×各项费率调整系数的乘积",
       "description": "一、基准保险费：主险保险费的80%",
-      "sourceFile": "企业财产保险附加机器损坏保险（2025版C款）费率方案.docx"
+      "sourceFile": "企业财产保险附加机器损坏保险（2025版C款）费率方案.docx",
+      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "ratioMultiplier": {
+        "numeratorKey": "machineryAmount",
+        "denominatorSource": "mainSumInsured",
+        "label": "机器设备保险金额÷总保险金额"
+      }
     },
     {
       "clauseName": "附加机器损坏保险（B款",
@@ -9529,7 +9585,13 @@
       ],
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×主险调整系数",
       "description": "一、基准保险费：主险保险费的80%",
-      "sourceFile": "企业财产保险附加机器损坏保险（B款）费率方案.docx"
+      "sourceFile": "企业财产保险附加机器损坏保险（B款）费率方案.docx",
+      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "ratioMultiplier": {
+        "numeratorKey": "machineryAmount",
+        "denominatorSource": "mainSumInsured",
+        "label": "机器设备保险金额÷总保险金额"
+      }
     },
     {
       "clauseName": "附加机器设备损坏",
@@ -9581,7 +9643,13 @@
       ],
       "formula": "保险费＝基准保险费×机器设备保险金额÷总保险金额×主险调整系数",
       "description": "一、基准保险费：主险保险费的80%",
-      "sourceFile": "企业财产保险附加机器设备损坏条款费率方案.docx"
+      "sourceFile": "企业财产保险附加机器设备损坏条款费率方案.docx",
+      "customInputs": [{"key": "machineryAmount", "label": "机器设备保险金额", "unit": "元"}],
+      "ratioMultiplier": {
+        "numeratorKey": "machineryAmount",
+        "denominatorSource": "mainSumInsured",
+        "label": "机器设备保险金额÷总保险金额"
+      }
     },
     {
       "clauseName": "附加机器设备运行必然引起的后果损失",
@@ -10379,7 +10447,13 @@
       "clauseName": "附加洪水除外条款（A款",
       "fullName": "企业财产保险附加洪水除外条款（A款）费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "main_premium_modifier",
+      "modifierType": "simple_deduction",
+      "insuranceTypeDeductions": {
+        "财产基本险": 0,
+        "财产综合险": 5,
+        "财产一切险": 4
+      },
       "description": "若主险为财产基本险，本附加条款属于规范类，不涉及保险费的调整；若主险为财产综合险，附加本条款后可减收主险保险费的5%；若主险为财产一切险，附加本条款后可减收主险保险费的4%.",
       "sourceFile": "企业财产保险附加洪水除外条款（A款）费率方案.docx"
     },
@@ -10387,7 +10461,13 @@
       "clauseName": "附加洪水除外特约",
       "fullName": "企业财产保险附加洪水除外特约条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "regulatory",
+      "rateType": "main_premium_modifier",
+      "modifierType": "simple_deduction",
+      "insuranceTypeDeductions": {
+        "财产基本险": 0,
+        "财产综合险": 1,
+        "财产一切险": 1
+      },
       "description": "若主险为财产基本险，本附加条款属于规范类，不涉及保险费的调整；若主险为财产综合险或财产一切险，本附加险可减收主险保险费的1%",
       "sourceFile": "企业财产保险附加洪水除外特约条款费率方案.docx"
     },
@@ -16476,9 +16556,9 @@
       "clauseName": "附加锅炉爆炸责任",
       "fullName": "企业财产保险附加锅炉爆炸责任条款费率方案",
       "industry": "企业财产保险",
-      "rateType": "included_in_main",
+      "rateType": "simple_percentage",
+      "percentage": 0.2,
       "description": "本附加险承保的财产应纳入主险保险金额计收保险费，并再加收主险保险费的0.2%",
-      "formula": "纳入主险保险金额，按主险费率计收保险费，不另收附加保险费",
       "sourceFile": "企业财产保险附加锅炉爆炸责任条款费率方案.docx"
     },
     {
@@ -17358,7 +17438,14 @@
       ],
       "formula": "保险费＝基准保险费×赔偿限额调整系数",
       "description": "一、基准保险费：主险保险费的1%",
-      "sourceFile": "企业财产保险附加顾客、供应商条款费率方案.docx"
+      "sourceFile": "企业财产保险附加顾客、供应商条款费率方案.docx",
+      "customInputs": [{"key": "compensationLimit", "label": "赔偿限额", "unit": "元"}],
+      "ratioHint": {
+        "numeratorKey": "compensationLimit",
+        "denominatorSource": "mainSumInsured",
+        "label": "赔偿限额÷主险保险金额",
+        "helpText": "输入赔偿限额后自动计算比例，辅助选择系数"
+      }
     },
     {
       "clauseName": "附加预付赔款",
