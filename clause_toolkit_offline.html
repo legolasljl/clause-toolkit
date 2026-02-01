@@ -10213,7 +10213,8 @@ ${fileList}
 
             if (hasSub) {
                 var selEl = document.getElementById('rc_subFormulaSelect');
-                var subIdx = selEl ? parseInt(selEl.value) : 0;
+                var subIdx = selEl ? parseInt(selEl.value, 10) : 0;
+                if (isNaN(subIdx) || subIdx < 0 || subIdx >= e.subFormulas.length) subIdx = 0;
                 var sf = e.subFormulas[subIdx];
                 baseRate = sf.baseRate;
                 customInputs = sf.customInputs || [];
@@ -10264,6 +10265,7 @@ ${fileList}
             }
 
             // 标准公式：customInputProduct × baseRate% × coeffProduct
+            if (baseRate == null || baseRate <= 0) throw new Error('基准费率无效，请检查数据或输入主险基准费率');
             var customInputProduct = 1;
             for (var i = 0; i < inputValues.length; i++) customInputProduct *= inputValues[i];
 

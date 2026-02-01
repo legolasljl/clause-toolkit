@@ -10340,6 +10340,8 @@ class AddonInsuranceTab(QWidget):
         has_sub = bool(entry.get("subFormulas"))
         if has_sub:
             sub_idx = self.brf_sub_combo.currentData() if hasattr(self, "brf_sub_combo") else 0
+            if sub_idx is None or sub_idx < 0 or sub_idx >= len(entry["subFormulas"]):
+                sub_idx = 0
             sf = entry["subFormulas"][sub_idx]
             base_rate = sf.get("baseRate")
             custom_inputs = sf.get("customInputs", [])
@@ -10360,11 +10362,13 @@ class AddonInsuranceTab(QWidget):
         # 获取自定义输入值
         input_values = []
         input_labels = []
+        if not hasattr(self, "brf_sub_inputs"):
+            self.brf_sub_inputs = []
         for ci, inp in enumerate(custom_inputs):
             if ci < len(self.brf_sub_inputs):
                 val = self.brf_sub_inputs[ci].value()
             else:
-                val = 0
+                raise ValueError(f"缺少输入值: {inp['label']}")
             if val <= 0:
                 raise ValueError(f"请输入有效的{inp['label']}")
             input_values.append(val)
@@ -10392,6 +10396,8 @@ class AddonInsuranceTab(QWidget):
             return {"type": "base_rate_formula", "premium": premium, "formulaDisplay": formula_str}
 
         # 标准公式
+        if base_rate is None or base_rate <= 0:
+            raise ValueError("基准费率无效，请检查数据或输入主险基准费率")
         custom_product = 1.0
         for v in input_values:
             custom_product *= v
