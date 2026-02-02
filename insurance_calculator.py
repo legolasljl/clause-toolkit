@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QScrollArea, QFrame, QSlider, QSplitter, QFileDialog, QLineEdit,
     QListWidget, QListWidgetItem, QDateEdit, QTextEdit,
     QGraphicsDropShadowEffect, QMessageBox, QGroupBox,
-    QSizePolicy, QAbstractItemView
+    QSizePolicy, QAbstractItemView, QDialog
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QDate
 from PyQt5.QtGui import QFont, QColor
@@ -66,6 +66,8 @@ MC_PRODUCTS = {
         "amountUnit": "万元",
         "amountLabel": "每人限额",
         "premiumCap": 0.70,
+        "formulaText": "固定限额：年保费＝每人限额×基准费率×各项系数乘积×承保人数；工资总额：年保费＝年度工资总额×基准费率×各项系数乘积",
+        "formulaNote": "若基准费率与各项费率调整系数的乘积大于70%，则按70%参与保险费的计算；短期承保保险费＝年保费×保险期间天数÷365",
         "versions": {
             "original": {
                 "label": "雇主责任险费率",
@@ -7869,6 +7871,44 @@ MC_DISABILITY_GROUP_DESC = {
     "C": "二级90% 三级80% 四级70% 五级60% 六级50% 七级40% 八级30%"
 }
 
+MC_INDUSTRY_DATA = [
+    {
+        "className": "一类（低风险）", "classValue": "class1", "cssClass": "class1",
+        "subs": [
+            {"code": "1.1", "name": "金融保险业", "detail": "银行业、证券业、保险业、其他金融活动业"},
+            {"code": "1.2", "name": "邮政电信业", "detail": "邮政业、电信和其他传输服务业"},
+            {"code": "1.3", "name": "商务服务业", "detail": "租赁业、住宿业、餐饮业、批发业、零售业、仓储业"},
+            {"code": "1.4", "name": "电子服务业", "detail": "计算机服务业、软件业"},
+            {"code": "1.5", "name": "公共服务业", "detail": "城市公共交通业、社会保障业、社会福利业、教育、研究与试验发展、科技交流和推广服务业、专业技术业"},
+            {"code": "1.6", "name": "影音服务业", "detail": "新闻出版业、广播、电视、电影和音像业、文化艺术业"},
+            {"code": "1.7", "name": "其他服务业", "detail": "居民服务业、其他服务业"},
+        ]
+    },
+    {
+        "className": "二类（中风险）", "classValue": "class2", "cssClass": "class2",
+        "subs": [
+            {"code": "2.1", "name": "公共服务业", "detail": "房地产业、体育、娱乐业、水利管理业、环境管理业、公共设施管理业"},
+            {"code": "2.2", "name": "食品加工业", "detail": "农副食品加工业、食品制造业、饮料制造业、烟草制品业"},
+            {"code": "2.3", "name": "普通制造业", "detail": "纺织业、纺织服装/鞋/帽制造业、皮革/毛皮/羽绒及制品业、木材加工及木竹藤草制品业、家具制造业、造纸及纸制品业、印刷业、文教体育用品制造业、通信设备/计算机及其他电子设备制造业"},
+            {"code": "2.4", "name": "农林牧渔业", "detail": "林业、农业、畜牧业、渔业、农林牧渔服务业"},
+            {"code": "2.5", "name": "化工制造业", "detail": "化学纤维制造业、医药制造业、橡胶制品业、塑料制品业"},
+            {"code": "2.6", "name": "机械制造业", "detail": "通用机械制造业、专用机械制造业、交通运输设备制造业、电气机械及器材制造业、仪器仪表及文化办公用机械制造业"},
+            {"code": "2.7", "name": "金属及非金属制造业", "detail": "非金属矿物制品业、金属制品业"},
+            {"code": "2.8", "name": "资源生产供应业", "detail": "废弃资源和废旧材料回收加工业、电力/热力的生产和供应业、燃气生产和供应业、水的生产和供应业"},
+            {"code": "2.9", "name": "建筑安装及相关行业", "detail": "房屋和土木工程建筑业、建筑安装业、建筑装饰业、其他建筑业、地质勘查业"},
+            {"code": "2.10", "name": "运输服务业", "detail": "铁路运输业、道路运输业、水上运输业、航空运输业、管道运输业、装卸搬运和其他运输服务业"},
+        ]
+    },
+    {
+        "className": "三类（高风险）", "classValue": "class3", "cssClass": "class3",
+        "subs": [
+            {"code": "3.1", "name": "石油化工加工业", "detail": "石油加工、炼焦及核燃料加工业、化学原料及化学制品制造业"},
+            {"code": "3.2", "name": "金属冶炼及加工业", "detail": "黑色金属冶炼及压延加工业、有色金属冶炼及压延加工业"},
+            {"code": "3.3", "name": "石油天然气及矿山开采业", "detail": "石油和天然气开采业、黑色金属矿采选业、有色金属矿采选业、非金属矿采选业、煤炭开采和洗选业、其他采矿业"},
+        ]
+    }
+]
+
 
 # =============================================
 # 工具函数
@@ -8031,6 +8071,214 @@ def make_success_button(text):
 
 
 # =============================================
+# IndustryLookupDialog — 行业分类速查
+# =============================================
+
+class IndustryLookupDialog(QDialog):
+    """行业分类速查对话框"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.selected_class = None
+        self.setWindowTitle("行业分类速查")
+        self.setMinimumSize(520, 500)
+        self.setStyleSheet(f"""
+            QDialog {{ background: {AnthropicColors.BG_PRIMARY}; }}
+            QLabel {{ color: {AnthropicColors.TEXT_PRIMARY}; }}
+        """)
+        layout = QVBoxLayout(self)
+        layout.setSpacing(10)
+
+        # 搜索框
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("搜索行业名称或描述...")
+        self.search_input.setStyleSheet(f"""
+            QLineEdit {{ border: 1px solid {AnthropicColors.BORDER}; border-radius: 8px;
+                padding: 8px 12px; font-size: 14px; background: white; }}
+            QLineEdit:focus {{ border-color: {AnthropicColors.ACCENT}; }}
+        """)
+        self.search_input.textChanged.connect(self._filter)
+        layout.addWidget(self.search_input)
+
+        # 列表区
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        self.list_widget = QWidget()
+        self.list_layout = QVBoxLayout(self.list_widget)
+        self.list_layout.setContentsMargins(0, 0, 0, 0)
+        self.list_layout.setSpacing(4)
+        scroll.setWidget(self.list_widget)
+        layout.addWidget(scroll, 1)
+
+        self._render("")
+
+    def _filter(self, text):
+        self._render(text.strip().lower())
+
+    def _render(self, keyword):
+        while self.list_layout.count():
+            item = self.list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        risk_colors = {
+            "class1": ("#fef9c3", "#854d0e"),
+            "class2": ("#fed7aa", "#9a3412"),
+            "class3": ("#fecaca", "#991b1b"),
+        }
+
+        for cls in MC_INDUSTRY_DATA:
+            filtered = [s for s in cls["subs"]
+                        if not keyword
+                        or keyword in s["name"].lower()
+                        or keyword in s["detail"].lower()
+                        or keyword in s["code"]]
+            if not filtered:
+                continue
+
+            bg_color, text_color = risk_colors.get(cls["cssClass"], ("#f0f0f0", "#333"))
+            header = QLabel(f"{cls['className']}（共{len(cls['subs'])}个子类）")
+            header.setStyleSheet(f"""
+                QLabel {{ background: {bg_color}; color: {text_color}; font-weight: 600;
+                    font-size: 13px; padding: 6px 12px; border-radius: 6px; }}
+            """)
+            self.list_layout.addWidget(header)
+
+            for sub in filtered:
+                btn = QPushButton(f"[{sub['code']}] {sub['name']}\n{sub['detail']}")
+                btn.setCursor(Qt.PointingHandCursor)
+                btn.setStyleSheet(f"""
+                    QPushButton {{ text-align: left; padding: 8px 12px; border: 1px solid {AnthropicColors.BORDER};
+                        border-radius: 6px; font-size: 12px; background: white; }}
+                    QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; background: rgba(217, 119, 87, 0.05); }}
+                """)
+                btn.clicked.connect(lambda checked, cv=cls["classValue"]: self._select(cv))
+                self.list_layout.addWidget(btn)
+
+        self.list_layout.addStretch()
+
+    def _select(self, class_value):
+        self.selected_class = class_value
+        self.accept()
+
+
+# =============================================
+# DisabilityAddonDialog — 伤残赔偿比例方案选择
+# =============================================
+
+class DisabilityAddonDialog(QDialog):
+    """15列伤残赔偿比例方案选择对话框"""
+
+    GROUP_DEFS = {
+        "A": [100, 80, 70, 60, 50, 40, 30, 20],
+        "B": [100, 80, 65, 55, 45, 25, 15, 10],
+        "C": [100, 90, 80, 70, 60, 50, 40, 30],
+    }
+    GROUP_COLORS = {
+        "A": ("#fef9c3", "#854d0e"),
+        "B": ("#fed7aa", "#9a3412"),
+        "C": ("#fecaca", "#991b1b"),
+    }
+    LEVELS = ["一级", "二级", "三级", "四级", "五级", "六级", "七级", "八级", "九级", "十级"]
+
+    def __init__(self, table_key, current_option, parent=None):
+        super().__init__(parent)
+        self.table_key = table_key
+        self.selected_option = current_option
+        self.setWindowTitle("选择伤残赔偿比例方案")
+        self.setMinimumSize(800, 480)
+        self.setStyleSheet(f"QDialog {{ background: {AnthropicColors.BG_PRIMARY}; }}")
+        layout = QVBoxLayout(self)
+
+        hint = QLabel("点击任一列选择方案")
+        hint.setAlignment(Qt.AlignCenter)
+        hint.setStyleSheet(f"font-size: 13px; color: {AnthropicColors.TEXT_SECONDARY}; margin-bottom: 8px;")
+        layout.addWidget(hint)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        table_widget = QWidget()
+        table_layout = QGridLayout(table_widget)
+        table_layout.setSpacing(1)
+        scroll.setWidget(table_widget)
+        layout.addWidget(scroll, 1)
+
+        options = MC_DISABILITY_ADDON_OPTIONS
+        col_count = len(options)
+
+        # Header row
+        header_label = QLabel("伤残等级")
+        header_label.setStyleSheet("font-weight: 600; font-size: 11px; padding: 4px;")
+        table_layout.addWidget(header_label, 0, 0)
+        for ci, opt in enumerate(options):
+            bg, fg = self.GROUP_COLORS[opt["group"]]
+            is_sel = ci == current_option
+            lbl = QLabel(f"{opt['group']}-{ci + 1}")
+            lbl.setAlignment(Qt.AlignCenter)
+            style = f"font-weight: 600; font-size: 11px; padding: 4px; background: {bg}; color: {fg};"
+            if is_sel:
+                style += f" border: 2px solid {AnthropicColors.ACCENT};"
+            lbl.setStyleSheet(style)
+            table_layout.addWidget(lbl, 0, ci + 1)
+
+        # Data rows
+        for li, level in enumerate(self.LEVELS):
+            row_label = QLabel(f"{level}伤残")
+            row_label.setStyleSheet("font-size: 11px; padding: 4px; font-weight: 500;")
+            table_layout.addWidget(row_label, li + 1, 0)
+            for ci, opt in enumerate(options):
+                if li <= 7:
+                    pct = self.GROUP_DEFS[opt["group"]][li]
+                elif li == 8:
+                    pct = opt["p9"]
+                else:
+                    pct = opt["p10"]
+                bg, fg = self.GROUP_COLORS[opt["group"]]
+                is_sel = ci == current_option
+                btn = QPushButton(f"{pct}%")
+                btn.setCursor(Qt.PointingHandCursor)
+                style = f"""
+                    QPushButton {{ font-size: 11px; padding: 3px; border: none; background: {bg}; color: {fg};
+                        {'border: 2px solid ' + AnthropicColors.ACCENT + ';' if is_sel else ''} }}
+                    QPushButton:hover {{ background: {AnthropicColors.ACCENT}; color: white; }}
+                """
+                btn.setStyleSheet(style)
+                btn.clicked.connect(lambda checked, idx=ci: self._select_column(idx))
+                table_layout.addWidget(btn, li + 1, ci + 1)
+
+        # Coefficient rows
+        coeff_keys = [("table1", "附表1系数"), ("table2", "附表2系数"), ("table3", "附表3系数")]
+        for ki, (ck, ck_label) in enumerate(coeff_keys):
+            row_label = QLabel(ck_label)
+            row_label.setStyleSheet("font-size: 11px; padding: 4px; font-weight: 600;")
+            table_layout.addWidget(row_label, len(self.LEVELS) + 1 + ki, 0)
+            for ci, opt in enumerate(options):
+                bg, fg = self.GROUP_COLORS[opt["group"]]
+                is_sel = ci == current_option
+                is_active_table = ck == table_key
+                val = opt["coeff"][ck]
+                btn = QPushButton(fmt_num(val, 3))
+                btn.setCursor(Qt.PointingHandCursor)
+                extra = ""
+                if is_sel:
+                    extra += f"border: 2px solid {AnthropicColors.ACCENT};"
+                if is_active_table:
+                    extra += "font-weight: 700;"
+                btn.setStyleSheet(f"""
+                    QPushButton {{ font-size: 11px; padding: 3px; border: none; background: {bg}; color: {fg}; {extra} }}
+                    QPushButton:hover {{ background: {AnthropicColors.ACCENT}; color: white; }}
+                """)
+                btn.clicked.connect(lambda checked, idx=ci: self._select_column(idx))
+                table_layout.addWidget(btn, len(self.LEVELS) + 1 + ki, ci + 1)
+
+    def _select_column(self, col_idx):
+        self.selected_option = col_idx
+        self.accept()
+
+
+# =============================================
 # MainInsuranceTab — 主险计算器
 # =============================================
 
@@ -8049,6 +8297,7 @@ class MainInsuranceTab(QWidget):
         self.selected_disability_table = "none"
         self.selected_disability_option = -1
         self.result = None
+        self.mrs_widgets = {}
         self._setup_ui()
 
     def _setup_ui(self):
@@ -8128,6 +8377,7 @@ class MainInsuranceTab(QWidget):
         self.coeff_selections = {}
         self.result = None
         self._clear_result()
+        self._update_params_visibility()
         self._render_coefficients()
         if self.current_plan:
             self._log(f"切换版本: {self.current_plan.get('label', '')}")
@@ -8140,11 +8390,24 @@ class MainInsuranceTab(QWidget):
 
         self.industry_label_widget = QLabel("行业类别:")
         grid.addWidget(self.industry_label_widget, 0, 0)
+        industry_row = QHBoxLayout()
         self.industry_combo = QComboBox()
         self.industry_combo.addItem("一类行业", "class1")
         self.industry_combo.addItem("二类行业", "class2")
         self.industry_combo.addItem("三类行业", "class3")
-        grid.addWidget(self.industry_combo, 0, 1)
+        self.industry_combo.currentIndexChanged.connect(self._on_industry_change)
+        industry_row.addWidget(self.industry_combo, 1)
+        self.industry_lookup_btn = QPushButton("速查")
+        self.industry_lookup_btn.setCursor(Qt.PointingHandCursor)
+        self.industry_lookup_btn.setFixedWidth(50)
+        self.industry_lookup_btn.setStyleSheet(f"""
+            QPushButton {{ background: {AnthropicColors.BG_CARD}; border: 1px solid {AnthropicColors.BORDER};
+                border-radius: 6px; padding: 4px 8px; font-size: 12px; color: {AnthropicColors.ACCENT}; }}
+            QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; }}
+        """)
+        self.industry_lookup_btn.clicked.connect(self._show_industry_lookup)
+        industry_row.addWidget(self.industry_lookup_btn)
+        grid.addLayout(industry_row, 0, 1)
 
         self.method_label_widget = QLabel("计费方式:")
         grid.addWidget(self.method_label_widget, 0, 2)
@@ -8263,7 +8526,26 @@ class MainInsuranceTab(QWidget):
         self.formula_label.setVisible(False)
         grid.addWidget(self.formula_label, 7, 0, 1, 4)
 
+        # multiRiskSum 风险参数区
+        self.mrs_container = QWidget()
+        self.mrs_layout = QVBoxLayout(self.mrs_container)
+        self.mrs_layout.setContentsMargins(0, 8, 0, 0)
+        self.mrs_layout.setSpacing(6)
+        self.mrs_container.setVisible(False)
+        grid.addWidget(self.mrs_container, 8, 0, 1, 4)
+
         self.scroll_layout.addWidget(card)
+
+    def _on_industry_change(self):
+        self._update_formula_display()
+
+    def _show_industry_lookup(self):
+        dialog = IndustryLookupDialog(self)
+        if dialog.exec_() == QDialog.Accepted and dialog.selected_class:
+            class_map = {"class1": 0, "class2": 1, "class3": 2}
+            idx = class_map.get(dialog.selected_class, 0)
+            self.industry_combo.setCurrentIndex(idx)
+            self._log(f"行业速查选择: {dialog.selected_class}")
 
     def _on_method_change(self):
         is_fixed = self.method_combo.currentData() == "fixed"
@@ -8273,6 +8555,7 @@ class MainInsuranceTab(QWidget):
         self.salary_spin.setVisible(not is_fixed)
         self.coeff_selections = {}
         self._render_coefficients()
+        self._update_formula_display()
         self._log(f"切换计费方式: {'固定限额' if is_fixed else '工资总额'}")
 
     def _on_term_change(self):
@@ -8294,10 +8577,13 @@ class MainInsuranceTab(QWidget):
         is_composite = pt == "composite"
         is_interruption = pt == "interruption"
         is_jewelry = pt == "jewelry"
+        is_multi_risk = pt == "multiRiskSum"
 
         # liability 专属字段
         self.industry_label_widget.setVisible(is_liability)
         self.industry_combo.setVisible(is_liability)
+        if hasattr(self, 'industry_lookup_btn'):
+            self.industry_lookup_btn.setVisible(is_liability)
         self.method_label_widget.setVisible(is_liability)
         self.method_combo.setVisible(is_liability)
         self.limit_label.setVisible(is_liability and self.method_combo.currentData() == "fixed")
@@ -8308,13 +8594,15 @@ class MainInsuranceTab(QWidget):
         self.count_spin.setVisible(is_liability)
 
         # 通用保险金额（元）
-        show_amount = is_property or is_composite or is_interruption or is_jewelry
+        show_amount = is_property or is_composite or is_interruption or is_jewelry or is_multi_risk
         self.amount_label.setVisible(show_amount)
         self.amount_spin.setVisible(show_amount)
         if show_amount:
             label_text = product.get("amountLabel", "保险金额")
             if is_composite:
-                label_text = "物质损失或损坏一切险保额"
+                sub_risks = product.get("subRisks", ["materialDamage", "machineryBreakdown"])
+                sub_labels = product.get("subRiskLabels", {})
+                label_text = sub_labels.get(sub_risks[0], "物质损失或损坏一切险保额")
             self.amount_label.setText(f"{label_text}(元):")
 
         # composite 第二保额
@@ -8332,118 +8620,301 @@ class MainInsuranceTab(QWidget):
         self.coverage_type_label.setVisible(is_jewelry)
         self.coverage_type_combo.setVisible(is_jewelry)
 
+        # multiRiskSum 风险参数区
+        self._build_mrs_params(is_multi_risk)
+
         # 基准费率和公式展示
-        if hasattr(self, 'formula_label'):
-            if not is_liability and product.get("formulaText"):
-                ver = product.get("versions", {}).get(self.selected_version, {})
-                base_rate_text = "基准费率："
-                if is_composite and ver.get("baseRates"):
-                    br = ver["baseRates"]
-                    base_rate_text += f"物质损失 {br.get('materialDamage', 0) * 100:.3f}% | 机器损坏 {br.get('machineryBreakdown', 0) * 100:.3f}%"
-                elif is_jewelry and product.get("coverageCategories"):
-                    parts = []
-                    for k, cat in product["coverageCategories"].items():
-                        parts.append(f"{cat['label'].split('-')[-1]} {cat['baseRates']['wholesale'] * 100:.3f}%")
-                    base_rate_text += " | ".join(parts)
-                elif ver.get("baseRates", {}).get("default") is not None:
-                    base_rate_text += f"{ver['baseRates']['default'] * 100:.3f}%"
-                formula_text = f"{base_rate_text}\n公式：{product['formulaText']}"
-                if product.get("formulaNote"):
-                    formula_text += f"\n{product['formulaNote']}"
-                self.formula_label.setText(formula_text)
-                self.formula_label.setVisible(True)
-            else:
-                self.formula_label.setVisible(False)
+        self._update_formula_display()
 
         # 伤残赔偿比例区域：仅 liability 显示
         if hasattr(self, 'disability_card'):
             self.disability_card.setVisible(is_liability)
 
+    def _update_formula_display(self):
+        """更新基准费率和公式展示卡片"""
+        if not hasattr(self, 'formula_label'):
+            return
+        pt = self._get_product_type()
+        product = MC_PRODUCTS.get(self.selected_product, {})
+        if not product.get("formulaText"):
+            self.formula_label.setVisible(False)
+            return
+        ver = product.get("versions", {}).get(self.selected_version, {})
+        base_rate_text = "基准费率："
+        is_liability = pt == "liability"
+        is_composite = pt == "composite"
+        is_jewelry = pt == "jewelry"
+        is_multi_risk = pt == "multiRiskSum"
+        if is_liability and ver.get("baseRates"):
+            method = self.method_combo.currentData()
+            ind_class = self.industry_combo.currentData()
+            method_label = "固定限额" if method == "fixed" else "工资总额"
+            class_labels = {"class1": "一类", "class2": "二类", "class3": "三类"}
+            rates = ver["baseRates"].get(method, {})
+            if rates:
+                current_rate = rates.get(ind_class, 0)
+                base_rate_text += f"{method_label} · {class_labels.get(ind_class, ind_class)} {current_rate * 100:.2f}%"
+                all_rates = [f"{class_labels.get(k, k)} {v * 100:.2f}%" for k, v in rates.items()]
+                base_rate_text += f"（{method_label}全部：{' / '.join(all_rates)}）"
+        elif is_composite and ver.get("baseRates") and product.get("subRisks"):
+            sr_parts = []
+            for rid in product["subRisks"]:
+                lbl = product.get("subRiskLabels", {}).get(rid, rid)
+                rate = ver["baseRates"].get(rid, 0)
+                if rate:
+                    sr_parts.append(f"{lbl} {rate * 100:.3f}%")
+            base_rate_text += " | ".join(sr_parts)
+        elif is_jewelry and product.get("coverageCategories"):
+            parts = []
+            for k, cat in product["coverageCategories"].items():
+                parts.append(f"{cat['label'].split('-')[-1]} {cat['baseRates']['wholesale'] * 100:.3f}%")
+            base_rate_text += " | ".join(parts)
+        elif is_multi_risk and ver.get("risks"):
+            r_parts = []
+            for rk in ver["risks"]:
+                if rk.get("baseRate") is not None:
+                    r_parts.append(f"{rk['name']} {rk['baseRate'] * 100:.4f}%")
+                else:
+                    r_parts.append(f"{rk['name']} 查表")
+            base_rate_text += " | ".join(r_parts)
+        elif ver.get("baseRates", {}).get("default") is not None:
+            base_rate_text += f"{ver['baseRates']['default'] * 100:.3f}%"
+        formula_text = f"{base_rate_text}\n公式：{product['formulaText']}"
+        if product.get("formulaNote"):
+            formula_text += f"\n{product['formulaNote']}"
+        self.formula_label.setText(formula_text)
+        self.formula_label.setVisible(True)
+
+    def _build_mrs_params(self, visible):
+        """构建/更新 multiRiskSum 风险参数选择区"""
+        if not hasattr(self, 'mrs_container'):
+            return
+        # 清除旧控件
+        while self.mrs_layout.count():
+            item = self.mrs_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self.mrs_widgets = {}
+        self.mrs_container.setVisible(visible)
+        if not visible:
+            return
+        if not self.current_plan:
+            return
+        risks = self.current_plan.get("risks", [])
+        if not risks:
+            return
+        title = QLabel("风险参数选择")
+        title.setStyleSheet(f"font-weight: 600; font-size: 13px; color: {AnthropicColors.TEXT_PRIMARY};")
+        self.mrs_layout.addWidget(title)
+        industry_added = False
+        for risk in risks:
+            tbl = risk.get("baseRateTable")
+            if not tbl:
+                continue
+            tbl_type = tbl.get("type", "")
+            if tbl_type == "industryBuilding" and not industry_added:
+                industry_added = True
+                lbl = QLabel("行业代码:")
+                self.mrs_layout.addWidget(lbl)
+                combo = QComboBox()
+                for code in tbl.get("data", {}).keys():
+                    label = tbl.get("labels", {}).get(code, code)
+                    combo.addItem(label, code)
+                self.mrs_layout.addWidget(combo)
+                self.mrs_widgets["industry"] = combo
+                lbl2 = QLabel("建筑类型:")
+                self.mrs_layout.addWidget(lbl2)
+                combo2 = QComboBox()
+                for bt in tbl.get("buildingTypes", []):
+                    combo2.addItem(bt["name"], bt["id"])
+                self.mrs_layout.addWidget(combo2)
+                self.mrs_widgets["buildingType"] = combo2
+            elif tbl_type == "zoneStructure":
+                lbl = QLabel(f"{risk['name']} — 地区分区:")
+                self.mrs_layout.addWidget(lbl)
+                combo = QComboBox()
+                for zone in tbl.get("data", {}).keys():
+                    z_label = tbl.get("zoneLabels", {}).get(zone, zone)
+                    combo.addItem(z_label, zone)
+                self.mrs_layout.addWidget(combo)
+                self.mrs_widgets[f"zone_{risk['id']}"] = combo
+                lbl2 = QLabel(f"{risk['name']} — 建筑结构:")
+                self.mrs_layout.addWidget(lbl2)
+                combo2 = QComboBox()
+                for s in tbl.get("structures", []):
+                    combo2.addItem(s["name"], s["id"])
+                self.mrs_layout.addWidget(combo2)
+                self.mrs_widgets[f"struct_{risk['id']}"] = combo2
+            elif tbl_type == "plantType":
+                lbl = QLabel(f"{risk['name']} — 工厂类型:")
+                self.mrs_layout.addWidget(lbl)
+                combo = QComboBox()
+                for k in tbl.get("data", {}).keys():
+                    combo.addItem(k, k)
+                self.mrs_layout.addWidget(combo)
+                self.mrs_widgets["plantType"] = combo
+            elif tbl_type == "manual":
+                lbl = QLabel(f"{risk['name']} 基准费率（万分之）:")
+                self.mrs_layout.addWidget(lbl)
+                spin = QDoubleSpinBox()
+                spin.setRange(0, 9999)
+                spin.setDecimals(1)
+                default_val = (risk.get("defaultRate", 0) * 10000)
+                spin.setValue(default_val)
+                spin.setSuffix(" ‱")
+                self.mrs_layout.addWidget(spin)
+                self.mrs_widgets[f"rate_{risk['id']}"] = spin
+                if risk.get("rateRange"):
+                    hint = QLabel(f"范围：{risk['rateRange'][0] * 10000:.1f}‱ ~ {risk['rateRange'][1] * 10000:.1f}‱")
+                    hint.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_SECONDARY};")
+                    self.mrs_layout.addWidget(hint)
+
     def _build_disability_section(self):
         self.disability_card = card = GlassCard()
         layout = QVBoxLayout(card)
         layout.setContentsMargins(16, 12, 16, 12)
-        row = QHBoxLayout()
-        row.addWidget(QLabel("伤残赔偿比例附表:"))
+
+        # Tab 按钮行
+        title_row = QHBoxLayout()
+        title_row.addWidget(QLabel("伤残赔偿比例附表:"))
+        title_row.addStretch()
+        layout.addLayout(title_row)
+
+        tab_row = QHBoxLayout()
+        tab_row.setSpacing(4)
+        self.disability_tab_btns = {}
         self.disability_combo = QComboBox()
         self.disability_combo.addItem("不使用", "none")
         for tid, tdata in MC_DISABILITY_TABLES.items():
             self.disability_combo.addItem(tdata["label"], tid)
-        self.disability_combo.currentIndexChanged.connect(self._on_disability_table_change)
-        row.addWidget(self.disability_combo)
-        row.addStretch()
-        layout.addLayout(row)
+        self.disability_combo.hide()
 
+        for key, label in [("none", "不启用"), ("table1", "附表1"), ("table2", "附表2"), ("table3", "附表3")]:
+            btn = QPushButton(label)
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.setFixedHeight(32)
+            btn.clicked.connect(lambda checked, k=key: self._on_disability_tab_click(k))
+            tab_row.addWidget(btn)
+            self.disability_tab_btns[key] = btn
+        tab_row.addStretch()
+        layout.addLayout(tab_row)
+        self._update_disability_tab_styles("none")
+
+        # 伤残比例展示区
         self.disability_display = QLabel("")
         self.disability_display.setWordWrap(True)
-        self.disability_display.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
+        self.disability_display.setStyleSheet(f"""
+            QLabel {{ background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);
+                border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #3b82f6; }}
+        """)
         self.disability_display.hide()
         layout.addWidget(self.disability_display)
 
-        self.disability_options_area = QWidget()
-        self.disability_options_layout = QVBoxLayout(self.disability_options_area)
-        self.disability_options_layout.setContentsMargins(0, 0, 0, 0)
-        self.disability_options_area.hide()
-        layout.addWidget(self.disability_options_area)
+        # "是否附加" 提示区
+        self.disability_prompt = QWidget()
+        prompt_layout = QHBoxLayout(self.disability_prompt)
+        prompt_layout.setContentsMargins(0, 8, 0, 0)
+        prompt_layout.addWidget(QLabel("是否附加伤残赔偿金赔偿限额比例条款？"))
+        yes_btn = QPushButton("是")
+        yes_btn.setCursor(Qt.PointingHandCursor)
+        yes_btn.setStyleSheet(f"""
+            QPushButton {{ background: {AnthropicColors.ACCENT}; color: white; border: none;
+                border-radius: 6px; padding: 6px 16px; font-size: 13px; }}
+            QPushButton:hover {{ background: {AnthropicColors.ACCENT_DARK}; }}
+        """)
+        yes_btn.clicked.connect(self._show_addon_modal)
+        prompt_layout.addWidget(yes_btn)
+        no_btn = QPushButton("否")
+        no_btn.setCursor(Qt.PointingHandCursor)
+        no_btn.setStyleSheet(f"""
+            QPushButton {{ background: {AnthropicColors.BG_CARD}; color: {AnthropicColors.TEXT_PRIMARY};
+                border: 1px solid {AnthropicColors.BORDER}; border-radius: 6px; padding: 6px 16px; font-size: 13px; }}
+            QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; }}
+        """)
+        no_btn.clicked.connect(self._on_addon_prompt_no)
+        prompt_layout.addWidget(no_btn)
+        prompt_layout.addStretch()
+        self.disability_prompt.hide()
+        layout.addWidget(self.disability_prompt)
+
+        # 已选方案显示
+        self.disability_selection_label = QLabel("")
+        self.disability_selection_label.setWordWrap(True)
+        self.disability_selection_label.setStyleSheet(f"""
+            QLabel {{ background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);
+                border-radius: 8px; padding: 8px 14px; font-size: 12px; color: #059669; }}
+        """)
+        self.disability_selection_label.hide()
+        layout.addWidget(self.disability_selection_label)
+
         self.scroll_layout.addWidget(card)
 
-    def _on_disability_table_change(self):
-        self.selected_disability_table = self.disability_combo.currentData()
+    def _update_disability_tab_styles(self, active_key):
+        for key, btn in self.disability_tab_btns.items():
+            if key == active_key:
+                btn.setStyleSheet(f"""
+                    QPushButton {{ background: {AnthropicColors.ACCENT}; color: white; border: none;
+                        border-radius: 6px; padding: 6px 16px; font-size: 13px; font-weight: 600; }}
+                """)
+            else:
+                btn.setStyleSheet(f"""
+                    QPushButton {{ background: {AnthropicColors.BG_PRIMARY}; color: {AnthropicColors.TEXT_PRIMARY};
+                        border: 1px solid {AnthropicColors.BORDER}; border-radius: 6px; padding: 6px 16px; font-size: 13px; }}
+                    QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; }}
+                """)
+
+    def _on_disability_tab_click(self, table_key):
+        self.selected_disability_table = table_key
         self.selected_disability_option = -1
-        if self.selected_disability_table == "none":
+        self._update_disability_tab_styles(table_key)
+
+        if table_key == "none":
             self.disability_display.hide()
-            self.disability_options_area.hide()
+            self.disability_prompt.hide()
+            self.disability_selection_label.hide()
             self._render_coefficients()
             self._log("已关闭伤残赔偿比例附表")
             return
-        tbl = MC_DISABILITY_TABLES[self.selected_disability_table]
-        lines = [f"📋 {tbl['label']} 伤残赔偿比例:"]
+
+        tbl = MC_DISABILITY_TABLES[table_key]
+        lines = [f"<b>{tbl['label']} · 伤残赔偿比例</b><br>"]
         for r in tbl["ratios"]:
-            lines.append(f"  {r['level']}: {r['pct']}%")
-        self.disability_display.setText("\n".join(lines))
+            lines.append(f"{r['level']}: {r['pct']}%")
+        self.disability_display.setText("<br>".join(lines))
         self.disability_display.show()
-        self._render_disability_options()
-        self.disability_options_area.show()
+        self.disability_prompt.show()
+        self.disability_selection_label.hide()
         self._render_coefficients()
         self._log(f"选择伤残赔偿比例: {tbl['label']}")
 
-    def _render_disability_options(self):
-        while self.disability_options_layout.count():
-            item = self.disability_options_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-        if self.selected_disability_table == "none":
-            return
-        title = QLabel("附加伤残赔偿金赔偿限额比例调整系数")
-        title.setStyleSheet(f"font-weight: 600; color: {AnthropicColors.ACCENT}; font-size: 14px;")
-        self.disability_options_layout.addWidget(title)
-        for group_name in ["A", "B", "C"]:
-            group_label = QLabel(f"{group_name}组 · 一级100% {MC_DISABILITY_GROUP_DESC[group_name]}")
-            group_label.setStyleSheet(f"font-size: 11px; color: {AnthropicColors.TEXT_SECONDARY}; margin-top: 8px;")
-            self.disability_options_layout.addWidget(group_label)
-            for idx, opt in enumerate(MC_DISABILITY_ADDON_OPTIONS):
-                if opt["group"] != group_name:
-                    continue
-                coeff_val = opt["coeff"][self.selected_disability_table]
-                is_selected = self.selected_disability_option == idx
-                btn = QPushButton(f"九级{opt['p9']}% 十级{opt['p10']}%  →  系数 {fmt_num(coeff_val, 3)}")
-                btn.setCursor(Qt.PointingHandCursor)
-                bg = AnthropicColors.ACCENT if is_selected else AnthropicColors.BG_PRIMARY
-                fg = AnthropicColors.TEXT_LIGHT if is_selected else AnthropicColors.TEXT_PRIMARY
-                btn.setStyleSheet(f"""
-                    QPushButton {{ background: {bg}; color: {fg}; border: 1px solid {AnthropicColors.BORDER};
-                        border-radius: 6px; padding: 6px 12px; font-size: 12px; text-align: left; }}
-                    QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; }}
-                """)
-                btn.clicked.connect(lambda checked, i=idx: self._select_disability_option(i))
-                self.disability_options_layout.addWidget(btn)
+    def _on_disability_table_change(self):
+        table_key = self.disability_combo.currentData()
+        self._on_disability_tab_click(table_key)
+
+    def _on_addon_prompt_no(self):
+        self.selected_disability_option = -1
+        self.disability_prompt.hide()
+        self.disability_selection_label.hide()
+        self._render_coefficients()
+        self._log("未附加伤残赔偿比例条款")
+
+    def _show_addon_modal(self):
+        dialog = DisabilityAddonDialog(self.selected_disability_table, self.selected_disability_option, self)
+        if dialog.exec_() == QDialog.Accepted and dialog.selected_option >= 0:
+            self._select_disability_option(dialog.selected_option)
 
     def _select_disability_option(self, idx):
         self.selected_disability_option = idx
-        self._render_disability_options()
-        self._render_coefficients()
+        self.disability_prompt.hide()
         opt = MC_DISABILITY_ADDON_OPTIONS[idx]
-        self._log(f"选择伤残方案: {opt['label']} → 系数 {fmt_num(opt['coeff'][self.selected_disability_table], 3)}")
+        coeff_val = opt["coeff"][self.selected_disability_table]
+        tbl_label = MC_DISABILITY_TABLES[self.selected_disability_table]["label"]
+        self.disability_selection_label.setText(
+            f"已选方案: {opt['group']}组 · 九级{opt['p9']}% 十级{opt['p10']}% → 系数 {fmt_num(coeff_val, 3)} ({tbl_label})"
+        )
+        self.disability_selection_label.show()
+        self._render_coefficients()
+        self._log(f"选择伤残方案: {opt['label']} → 系数 {fmt_num(coeff_val, 3)}")
 
     def _build_coeff_section(self):
         self.coeff_container = QWidget()
@@ -8878,6 +9349,113 @@ class MainInsuranceTab(QWidget):
             "productType": "jewelry"
         }
 
+    def _calc_multi_risk_sum(self):
+        """多风险求和计算: 年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)"""
+        term_type = self.term_combo.currentData()
+        days = self.days_spin.value() if term_type == "short" else 365
+        insured_amount = self.amount_spin.value()
+        if insured_amount <= 0:
+            self._log("计算失败: 保险金额必须大于0", "error")
+            return
+        risks = self.current_plan.get("risks", [])
+        if not risks:
+            self._log("计算失败: 未定义风险类别", "error")
+            return
+        self._log(f"版本: {self.current_plan.get('label', '')} | 保险金额: {fmt_currency(insured_amount)}")
+        all_applicable = self._get_applicable_coefficients()
+        total_rate = 0.0
+        risk_details = []
+        all_coeff_details = []
+        for risk in risks:
+            base_rate = 0.0
+            if risk.get("baseRate") is not None:
+                base_rate = risk["baseRate"]
+            elif risk.get("baseRateTable"):
+                base_rate = self._lookup_multi_risk_base_rate(risk)
+            if not base_rate:
+                self._log(f"风险 {risk['name']}: 基准费率未选定或为0，跳过", "warn")
+            risk_id = risk.get("id", "")
+            risk_coeffs = [c for c in all_applicable
+                           if not c.get("applicableTo")
+                           or "all" in c.get("applicableTo", [])
+                           or risk_id in c.get("applicableTo", [])]
+            coeff_product, coeff_details, _ = self._calc_coeff_product(risk_coeffs)
+            risk_rate = base_rate * coeff_product
+            total_rate += risk_rate
+            risk_details.append({
+                "id": risk["id"], "name": risk["name"],
+                "baseRate": base_rate, "coeffProduct": coeff_product,
+                "riskRate": risk_rate, "coeffDetails": coeff_details
+            })
+            for d in coeff_details:
+                if not any(e.get("name") == d.get("name") and e.get("value") == d.get("value") for e in all_coeff_details):
+                    all_coeff_details.append(d)
+            self._log(f"风险 {risk['name']}: 基准费率={base_rate * 100:.4f}% × 系数乘积={coeff_product:.4f} → {risk_rate * 100:.4f}%")
+        product_data = MC_PRODUCTS.get(self.selected_product, {})
+        cap_note = ""
+        if product_data.get("premiumCap"):
+            for rd in risk_details:
+                if rd["coeffProduct"] < product_data["premiumCap"]:
+                    cap_note = f"注：各风险调整系数乘积不应低于 {product_data['premiumCap']}"
+                    break
+        total_premium = insured_amount * total_rate
+        if term_type == "short":
+            total_premium *= (days / 365)
+        formula = "年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)\n"
+        for rd in risk_details:
+            formula += f"{rd['name']}: {rd['baseRate'] * 100:.4f}% × {rd['coeffProduct']:.4f} = {rd['riskRate'] * 100:.4f}%\n"
+        formula += f"总费率: {total_rate * 100:.4f}%\n"
+        formula += f"年保费 = {fmt_currency(insured_amount)} × {total_rate * 100:.4f}%"
+        if term_type == "short":
+            formula += f" × ({days}/365)"
+        formula += f" = {fmt_currency(total_premium)}"
+        if cap_note:
+            formula += f"\n{cap_note}"
+        self._log(f"总费率: {total_rate * 100:.4f}% | 总保费: {fmt_currency(total_premium)}", "success")
+        self.result = {
+            "version": self.current_plan.get("label", ""), "totalRate": total_rate,
+            "totalPremium": total_premium, "insuredAmount": insured_amount,
+            "riskDetails": risk_details, "termType": term_type, "days": days,
+            "formulaBreakdown": formula, "coeffDetails": all_coeff_details,
+            "productType": "multiRiskSum"
+        }
+
+    def _lookup_multi_risk_base_rate(self, risk):
+        """多风险基准费率查表"""
+        table = risk.get("baseRateTable")
+        if not table:
+            return 0.0
+        tbl_type = table.get("type", "")
+        if tbl_type == "industryBuilding":
+            industry_combo = self.mrs_widgets.get("industry")
+            building_combo = self.mrs_widgets.get("buildingType")
+            if not industry_combo or not building_combo:
+                return 0.0
+            code = industry_combo.currentData()
+            b_type = building_combo.currentData()
+            rates = table.get("data", {}).get(code, {})
+            return rates.get(b_type, 0.0)
+        if tbl_type == "zoneStructure":
+            zone_combo = self.mrs_widgets.get(f"zone_{risk['id']}")
+            struct_combo = self.mrs_widgets.get(f"struct_{risk['id']}")
+            if not zone_combo or not struct_combo:
+                return 0.0
+            zone = zone_combo.currentData()
+            struct = struct_combo.currentData()
+            zone_data = table.get("data", {}).get(zone, {})
+            return zone_data.get(struct, 0.0)
+        if tbl_type == "plantType":
+            pt_combo = self.mrs_widgets.get("plantType")
+            if not pt_combo:
+                return 0.0
+            return table.get("data", {}).get(pt_combo.currentData(), 0.0)
+        if tbl_type == "manual":
+            rate_spin = self.mrs_widgets.get(f"rate_{risk['id']}")
+            if not rate_spin:
+                return 0.0
+            return rate_spin.value() / 10000.0
+        return 0.0
+
     def calculate(self):
         self._log("--- 开始计算 ---")
         pt = self._get_product_type()
@@ -8892,6 +9470,8 @@ class MainInsuranceTab(QWidget):
             self._calc_interruption()
         elif pt == "jewelry":
             self._calc_jewelry()
+        elif pt == "multiRiskSum":
+            self._calc_multi_risk_sum()
         else:
             self._log(f"未知产品类型: {pt}", "error")
             return
@@ -8934,6 +9514,11 @@ class MainInsuranceTab(QWidget):
             lines.append(f"  机器损坏系数乘积: {fmt_num(cp.get('machineryBreakdown', 1), 6)}")
             lines.append(f"  物质损失保额: {fmt_currency(r.get('materialAmount', 0))}")
             lines.append(f"  机器损坏保额: {fmt_currency(r.get('machineryAmount', 0))}")
+        elif pt == "multiRiskSum":
+            lines.append(f"  保险金额: {fmt_currency(r.get('insuredAmount', 0))}")
+            lines.append(f"  总费率: {r.get('totalRate', 0) * 100:.4f}%")
+            for rd in r.get("riskDetails", []):
+                lines.append(f"  {rd['name']}: 基准{rd['baseRate'] * 100:.4f}% × 系数{rd['coeffProduct']:.4f} = {rd['riskRate'] * 100:.4f}%")
         else:
             base_rate_val = r.get('baseRate', 0)
             lines.append(f"  基准费率: {base_rate_val * 100:.4f}%")
@@ -8970,7 +9555,7 @@ class MainInsuranceTab(QWidget):
         self.coverage_type_combo.setCurrentIndex(0)
         self.selected_disability_table = "none"
         self.selected_disability_option = -1
-        self.disability_combo.setCurrentIndex(0)
+        self._on_disability_tab_click("none")
         self._clear_result()
         self._update_params_visibility()
         self._render_coefficients()
