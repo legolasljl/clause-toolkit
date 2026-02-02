@@ -7811,7 +7811,433 @@ MC_PRODUCTS = {
                     ]
                 }
             }
+        },
+    # =============================================
+    # 网络安全保险系列（3个险种）
+    # =============================================
+    "cyberSecurityA2025": {
+        "productName": "网络安全保险（2025版A款）",
+        "productType": "multiRiskSum",
+        "amountUnit": "元",
+        "amountLabel": "各项责任赔偿限额",
+        "formulaText": "各项责任年保险费＝赔偿限额×对应基准费率×适用系数乘积；总保险费为各项保险费之和",
+        "formulaNote": "短期承保保险费按条款所附短期费率表计收；免赔期/免赔率同时约定时取低者作为免赔调整系数",
+        "versions": {
+            "original": {
+                "label": "网络安全保险（2025版A款）费率",
+                "risks": [
+                    {"id": "emergencyDetection", "name": "应急响应-检测鉴定费用", "baseRate": 0.0098},
+                    {"id": "emergencyPR", "name": "应急响应-名誉恢复公关费用", "baseRate": 0.0074},
+                    {"id": "emergencyNotify", "name": "应急响应-通知费用", "baseRate": 0.0008},
+                    {"id": "businessInterruption", "name": "营业中断损失", "baseRate": 0.0003},
+                    {"id": "dataRecovery", "name": "数据恢复及硬件维修费用", "baseRate": 0.0009},
+                    {"id": "cyberExtortion", "name": "网络勒索损失", "baseRate": 0.0002}
+                ],
+                "coefficients": [
+                    {
+                        "id": "csaSecurityLevel", "name": "信息安全管理水平调整系数",
+                        "applicableTo": ["all"],
+                        "rows": [
+                            {"parameter": "较高", "min": 0.7, "max": 1.0, "type": "range"},
+                            {"parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                            {"parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csaLossRatio", "name": "赔付率调整系数",
+                        "applicableTo": ["all"],
+                        "rows": [
+                            {"parameter": "[0,20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                            {"parameter": "(20%,45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                            {"parameter": "(45%,70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                            {"parameter": "(70%,95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                            {"parameter": ">95%", "min": 1.2, "max": 2.0, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csaBiDeductPeriod", "name": "免赔期调整系数（营业中断）",
+                        "applicableTo": ["businessInterruption"],
+                        "linkedGroup": "csaBiDeductible",
+                        "note": "免赔期/免赔率同时约定时取低者；未列明可线性插值",
+                        "rows": [
+                            {"parameter": "0天", "value": 1.0, "type": "fixed"},
+                            {"parameter": "5天", "value": 0.9, "type": "fixed"},
+                            {"parameter": "10天", "value": 0.8, "type": "fixed"},
+                            {"parameter": "≥15天", "min": 0.7, "max": 0.75, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csaBiDeductRate", "name": "免赔率调整系数（营业中断）",
+                        "applicableTo": ["businessInterruption"],
+                        "linkedGroup": "csaBiDeductible",
+                        "note": "免赔期/免赔率同时约定时取低者",
+                        "rows": [
+                            {"parameter": "0", "value": 1.0, "type": "fixed"},
+                            {"parameter": "10%", "value": 0.9, "type": "fixed"},
+                            {"parameter": "20%", "value": 0.8, "type": "fixed"},
+                            {"parameter": "30%", "value": 0.7, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "csaOtherDeductAmt", "name": "免赔额调整系数（其他责任）",
+                        "applicableTo": ["emergencyDetection", "emergencyPR", "emergencyNotify", "dataRecovery", "cyberExtortion"],
+                        "linkedGroup": "csaOtherDeductible",
+                        "note": "免赔额/免赔率同时约定时取低者；未列明可线性插值",
+                        "rows": [
+                            {"parameter": "0万", "value": 1.0, "type": "fixed"},
+                            {"parameter": "2万", "value": 0.9, "type": "fixed"},
+                            {"parameter": "5万", "value": 0.8, "type": "fixed"},
+                            {"parameter": "≥7万", "min": 0.7, "max": 0.75, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csaOtherDeductRate", "name": "免赔率调整系数（其他责任）",
+                        "applicableTo": ["emergencyDetection", "emergencyPR", "emergencyNotify", "dataRecovery", "cyberExtortion"],
+                        "linkedGroup": "csaOtherDeductible",
+                        "note": "免赔额/免赔率同时约定时取低者",
+                        "rows": [
+                            {"parameter": "0", "value": 1.0, "type": "fixed"},
+                            {"parameter": "10%", "value": 0.9, "type": "fixed"},
+                            {"parameter": "20%", "value": 0.8, "type": "fixed"},
+                            {"parameter": "30%", "value": 0.7, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "csaBiCompPeriod", "name": "赔偿期调整系数（营业中断）",
+                        "applicableTo": ["businessInterruption"],
+                        "note": "未列明赔偿期可按线性插值法计算",
+                        "rows": [
+                            {"parameter": "1个月", "value": 1.0, "type": "fixed"},
+                            {"parameter": "3个月", "value": 1.2, "type": "fixed"},
+                            {"parameter": "6个月", "value": 1.4, "type": "fixed"},
+                            {"parameter": "9个月", "value": 1.6, "type": "fixed"},
+                            {"parameter": "12个月", "value": 1.8, "type": "fixed"}
+                        ]
+                    }
+                ]
+            }
         }
+    },
+    "cyberSecurityB2025": {
+        "productName": "企业网络安全保险（2025版B款）",
+        "productType": "multiRiskSum",
+        "amountUnit": "元",
+        "amountLabel": "各项责任赔偿限额",
+        "formulaText": "各项责任年保险费＝赔偿限额×基准费率×适用系数乘积；应对费用＝(IT责任费+网络中断费)×10%×减额赔付比例系数",
+        "formulaNote": "短期承保保险费＝年保险费×保险期间天数÷365；总保险费为各项保险费之和",
+        "versions": {
+            "original": {
+                "label": "企业网络安全保险（2025版B款）费率",
+                "risks": [
+                    {"id": "itBehavior", "name": "IT业务或IT用户行为责任", "baseRate": 0.000106},
+                    {"id": "networkInterruption", "name": "网络中断责任", "baseRate": 0.000232},
+                    {"id": "incidentResponse", "name": "网络安全事故应对费用责任",
+                     "derivedFrom": ["itBehavior", "networkInterruption"], "derivedRate": 0.10},
+                    {"id": "propertyLoss", "name": "被保险人管理下的财产损失责任", "baseRate": 0.000053}
+                ],
+                "coefficients": [
+                    {
+                        "id": "csbRetroperiod", "name": "追溯期调整系数",
+                        "applicableTo": ["itBehavior"],
+                        "note": "追溯期长度/保险期间长度；未列明可线性插值",
+                        "rows": [
+                            {"parameter": "0", "value": 1.0, "type": "fixed"},
+                            {"parameter": "1", "value": 1.6, "type": "fixed"},
+                            {"parameter": "2", "value": 2.1, "type": "fixed"},
+                            {"parameter": "≥3", "min": 2.5, "max": 3.0, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbItDeductAmt", "name": "每次事故免赔额调整系数（IT责任）",
+                        "applicableTo": ["itBehavior"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤1万", "min": 1.02, "max": 1.05, "type": "range"},
+                            {"parameter": "2万", "value": 1.0, "type": "fixed"},
+                            {"parameter": "5万", "value": 0.98, "type": "fixed"},
+                            {"parameter": "≥10万", "min": 0.9, "max": 0.95, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbBusinessScope", "name": "经营范围调整系数",
+                        "applicableTo": ["itBehavior"],
+                        "rows": [
+                            {"parameter": "无IT业务", "value": 1.0, "type": "fixed"},
+                            {"parameter": "有IT业务", "min": 1.1, "max": 1.5, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbProfitCompPeriod", "name": "利润赔偿期间调整系数",
+                        "applicableTo": ["networkInterruption"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤30天", "min": 0.9, "max": 1.0, "type": "range"},
+                            {"parameter": "60天", "value": 1.15, "type": "fixed"},
+                            {"parameter": "90天", "value": 1.3, "type": "fixed"},
+                            {"parameter": "≥120天", "min": 1.4, "max": 1.7, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbContinuityPeriod", "name": "经营延续费用恢复期间调整系数",
+                        "applicableTo": ["networkInterruption"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤15天", "min": 0.9, "max": 0.95, "type": "range"},
+                            {"parameter": "30天", "value": 1.0, "type": "fixed"},
+                            {"parameter": "45天", "value": 1.05, "type": "fixed"},
+                            {"parameter": "≥60天", "min": 1.1, "max": 1.3, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbProfitDeductAmt", "name": "利润免赔额调整系数",
+                        "applicableTo": ["networkInterruption"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤1万", "min": 1.02, "max": 1.05, "type": "range"},
+                            {"parameter": "2万", "value": 1.0, "type": "fixed"},
+                            {"parameter": "5万", "value": 0.98, "type": "fixed"},
+                            {"parameter": "≥10万", "min": 0.9, "max": 0.95, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbContinuityDeductAmt", "name": "经营延续费用免赔额调整系数",
+                        "applicableTo": ["networkInterruption"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤2000元", "min": 1.02, "max": 1.05, "type": "range"},
+                            {"parameter": "5000元", "value": 1.0, "type": "fixed"},
+                            {"parameter": "10000元", "value": 0.98, "type": "fixed"},
+                            {"parameter": "≥15000元", "min": 0.9, "max": 0.95, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbWaitingPeriod", "name": "免赔期调整系数",
+                        "applicableTo": ["networkInterruption"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "0天", "value": 1.5, "type": "fixed"},
+                            {"parameter": "1天", "value": 1.4, "type": "fixed"},
+                            {"parameter": "3天", "value": 1.2, "type": "fixed"},
+                            {"parameter": "5天", "value": 1.0, "type": "fixed"},
+                            {"parameter": "≥10天", "min": 0.7, "max": 0.8, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbInsuredRatio", "name": "投保比率调整系数",
+                        "applicableTo": ["networkInterruption"],
+                        "rows": [
+                            {"parameter": "100%", "value": 1.0, "type": "fixed"},
+                            {"parameter": "90%", "value": 0.9, "type": "fixed"},
+                            {"parameter": "80%", "value": 0.8, "type": "fixed"},
+                            {"parameter": "70%", "value": 0.7, "type": "fixed"},
+                            {"parameter": "60%", "value": 0.6, "type": "fixed"},
+                            {"parameter": "50%", "value": 0.5, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "csbReductionRatio", "name": "减额赔付比例调整系数",
+                        "applicableTo": ["incidentResponse"],
+                        "rows": [
+                            {"parameter": "100%", "value": 1.0, "type": "fixed"},
+                            {"parameter": "90%", "value": 0.9, "type": "fixed"},
+                            {"parameter": "80%", "value": 0.8, "type": "fixed"},
+                            {"parameter": "70%", "value": 0.7, "type": "fixed"},
+                            {"parameter": "60%", "value": 0.6, "type": "fixed"},
+                            {"parameter": "50%", "value": 0.5, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "csbPropertyDeductAmt", "name": "每次事故免赔额调整系数（财产损失）",
+                        "applicableTo": ["propertyLoss"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤1万", "min": 1.05, "max": 1.1, "type": "range"},
+                            {"parameter": "2万", "value": 1.0, "type": "fixed"},
+                            {"parameter": "5万", "value": 0.95, "type": "fixed"},
+                            {"parameter": "≥10万", "min": 0.8, "max": 0.9, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbSecurityLevel", "name": "信息安全管理水平调整系数",
+                        "applicableTo": ["itBehavior", "networkInterruption", "propertyLoss"],
+                        "rows": [
+                            {"parameter": "制度和防护完善", "min": 0.7, "max": 0.9, "type": "range"},
+                            {"parameter": "制度和防护较完善", "min": 0.9, "max": 1.2, "minExclusive": True, "type": "range"},
+                            {"parameter": "制度和防护不完善", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbDataCategory", "name": "信息类别和数量调整系数",
+                        "applicableTo": ["itBehavior", "networkInterruption", "propertyLoss"],
+                        "rows": [
+                            {"parameter": "数量较少/重要程度较低", "min": 0.7, "max": 1.0, "type": "range"},
+                            {"parameter": "数量较大/重要程度较高", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                            {"parameter": "数量大/重要程度高", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbHistoryLoss", "name": "历史事故与损失情况调整系数",
+                        "applicableTo": ["itBehavior", "networkInterruption", "propertyLoss"],
+                        "rows": [
+                            {"parameter": "极少", "min": 0.5, "max": 0.7, "type": "range"},
+                            {"parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range"},
+                            {"parameter": "一般", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range"},
+                            {"parameter": "较多", "min": 1.3, "max": 1.5, "minExclusive": True, "type": "range"},
+                            {"parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbRevenue", "name": "业务收入调整系数",
+                        "applicableTo": ["itBehavior", "networkInterruption", "propertyLoss"],
+                        "rows": [
+                            {"parameter": "低于同业平均", "min": 0.7, "max": 0.9, "type": "range"},
+                            {"parameter": "接近同业平均", "min": 0.9, "max": 1.1, "minExclusive": True, "type": "range"},
+                            {"parameter": "高于同业平均", "min": 1.1, "max": 1.3, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "csbLossRatio", "name": "赔付率调整系数",
+                        "applicableTo": ["itBehavior", "networkInterruption", "propertyLoss"],
+                        "rows": [
+                            {"parameter": "[0,20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                            {"parameter": "(20%,45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                            {"parameter": "(45%,70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                            {"parameter": "(70%,95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                            {"parameter": ">95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "cyberSecurityPH2025": {
+        "productName": "网络安全保险（普惠2025版·上海）",
+        "productType": "property",
+        "amountUnit": "万元",
+        "amountLabel": "累计赔偿限额",
+        "formulaText": "年保险费＝累计赔偿限额×基准费率×各项费率调整系数的乘积",
+        "formulaNote": "短期承保保险费按条款所附短期费率表计收；分期缴费每期保险费＝年保险费÷分期期数",
+        "versions": {
+            "original": {
+                "label": "网络安全保险（普惠2025版·上海）费率",
+                "baseRates": {
+                    "default": 0.0104
+                },
+                "coefficients": [
+                    {
+                        "id": "cspDeductAmt", "name": "免赔额调整系数",
+                        "applicableTo": ["all"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "0元", "value": 1.1, "type": "fixed"},
+                            {"parameter": "1000元", "value": 1.0, "type": "fixed"},
+                            {"parameter": "2000元", "value": 0.95, "type": "fixed"},
+                            {"parameter": "5000元", "value": 0.9, "type": "fixed"},
+                            {"parameter": "10000元", "value": 0.85, "type": "fixed"},
+                            {"parameter": "15000元", "value": 0.8, "type": "fixed"},
+                            {"parameter": "20000元", "value": 0.75, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "cspPerAccidentLimit", "name": "每次事故赔偿限额调整系数",
+                        "applicableTo": ["all"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤1000元", "value": 0.9, "type": "fixed"},
+                            {"parameter": "2000元", "value": 1.0, "type": "fixed"},
+                            {"parameter": "3000元", "value": 1.1, "type": "fixed"},
+                            {"parameter": "5000元", "value": 1.2, "type": "fixed"},
+                            {"parameter": "10000元", "value": 1.5, "type": "fixed"},
+                            {"parameter": "≥100000元", "value": 2.0, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "cspCumulativeLimit", "name": "累计赔偿限额调整系数",
+                        "applicableTo": ["all"],
+                        "note": "未列明可线性插值",
+                        "rows": [
+                            {"parameter": "≤1万", "value": 2.0, "type": "fixed"},
+                            {"parameter": "2万", "value": 1.5, "type": "fixed"},
+                            {"parameter": "5万", "value": 1.3, "type": "fixed"},
+                            {"parameter": "10万", "value": 1.0, "type": "fixed"},
+                            {"parameter": "50万", "value": 0.9, "type": "fixed"},
+                            {"parameter": "100万", "value": 0.8, "type": "fixed"},
+                            {"parameter": "≥500万", "value": 0.7, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "cspLossRatio", "name": "赔付率调整系数",
+                        "applicableTo": ["all"],
+                        "rows": [
+                            {"parameter": "[0,20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                            {"parameter": "(20%,45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                            {"parameter": "(45%,70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                            {"parameter": "(70%,95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                            {"parameter": ">95%", "min": 1.2, "max": 2.0, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "cspRenewal", "name": "续保调整系数",
+                        "applicableTo": ["all"],
+                        "rows": [
+                            {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                            {"parameter": "续保一年", "value": 0.9, "type": "fixed"},
+                            {"parameter": "续保两年或以上", "value": 0.8, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "cspRiskMgmt", "name": "风险管理水平调整系数",
+                        "applicableTo": ["all"],
+                        "note": "根据风险管理规章制度健全程度、防灾防损设施完备程度、安全教育培训等综合判定",
+                        "rows": [
+                            {"parameter": "较好", "min": 0.7, "max": 0.9, "type": "range"},
+                            {"parameter": "一般", "min": 0.9, "max": 1.1, "minExclusive": True, "type": "range"},
+                            {"parameter": "较差", "min": 1.1, "max": 1.3, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "cspRevenue", "name": "营业收入调整系数",
+                        "applicableTo": ["all"],
+                        "rows": [
+                            {"parameter": "≤500万", "min": 0.7, "max": 0.8, "type": "range"},
+                            {"parameter": "(500,1000]万", "min": 0.8, "max": 0.9, "minExclusive": True, "type": "range"},
+                            {"parameter": "(1000,5000]万", "min": 0.9, "max": 1.0, "minExclusive": True, "type": "range"},
+                            {"parameter": "(5000,10000]万", "min": 1.0, "max": 1.1, "minExclusive": True, "type": "range"},
+                            {"parameter": ">10000万", "min": 1.1, "max": 1.2, "minExclusive": True, "type": "range"}
+                        ]
+                    },
+                    {
+                        "id": "cspIndustry", "name": "行业类型调整系数",
+                        "applicableTo": ["all"],
+                        "rows": [
+                            {"parameter": "电力、燃气及水的生产和供应业", "value": 1.15, "type": "fixed"},
+                            {"parameter": "水利、环境和公共设施管理业", "value": 1.1, "type": "fixed"},
+                            {"parameter": "信息传输、计算机服务和软件业", "value": 1.05, "type": "fixed"},
+                            {"parameter": "住宿和餐饮业", "value": 1.0, "type": "fixed"},
+                            {"parameter": "教育业", "value": 0.95, "type": "fixed"},
+                            {"parameter": "金融业", "value": 0.9, "type": "fixed"},
+                            {"parameter": "房地产业", "value": 0.85, "type": "fixed"},
+                            {"parameter": "租赁和商务服务业", "value": 0.8, "type": "fixed"},
+                            {"parameter": "卫生、社会保障和社会福利业", "value": 0.75, "type": "fixed"},
+                            {"parameter": "批发和零售业", "value": 0.7, "type": "fixed"},
+                            {"parameter": "制造业", "value": 0.65, "type": "fixed"},
+                            {"parameter": "交通运输、仓储和邮政业", "value": 0.6, "type": "fixed"},
+                            {"parameter": "居民服务和其他服务业", "value": 0.55, "type": "fixed"},
+                            {"parameter": "其他", "value": 0.8, "type": "fixed"}
+                        ]
+                    },
+                    {
+                        "id": "cspInstallment", "name": "保费分期调整系数",
+                        "applicableTo": ["all"],
+                        "rows": [
+                            {"parameter": "不分期", "value": 1.0, "type": "fixed"},
+                            {"parameter": "分期", "value": 1.09, "type": "fixed"}
+                        ]
+                    }
+                ]
+            }
+        }
+    }
 }
 
 MC_DISABILITY_TABLES = {
@@ -9350,7 +9776,7 @@ class MainInsuranceTab(QWidget):
         }
 
     def _calc_multi_risk_sum(self):
-        """多风险求和计算: 年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)"""
+        """多风险求和计算: 年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积) + 派生风险保费"""
         term_type = self.term_combo.currentData()
         days = self.days_spin.value() if term_type == "short" else 365
         insured_amount = self.amount_spin.value()
@@ -9366,7 +9792,10 @@ class MainInsuranceTab(QWidget):
         total_rate = 0.0
         risk_details = []
         all_coeff_details = []
-        for risk in risks:
+        risk_premiums = {}
+        normal_risks = [r for r in risks if not r.get("derivedFrom")]
+        derived_risks = [r for r in risks if r.get("derivedFrom")]
+        for risk in normal_risks:
             base_rate = 0.0
             if risk.get("baseRate") is not None:
                 base_rate = risk["baseRate"]
@@ -9382,8 +9811,10 @@ class MainInsuranceTab(QWidget):
             coeff_product, coeff_details, _ = self._calc_coeff_product(risk_coeffs)
             risk_rate = base_rate * coeff_product
             total_rate += risk_rate
+            risk_premium = insured_amount * risk_rate
+            risk_premiums[risk_id] = risk_premium
             risk_details.append({
-                "id": risk["id"], "name": risk["name"],
+                "id": risk_id, "name": risk["name"],
                 "baseRate": base_rate, "coeffProduct": coeff_product,
                 "riskRate": risk_rate, "coeffDetails": coeff_details
             })
@@ -9391,33 +9822,69 @@ class MainInsuranceTab(QWidget):
                 if not any(e.get("name") == d.get("name") and e.get("value") == d.get("value") for e in all_coeff_details):
                     all_coeff_details.append(d)
             self._log(f"风险 {risk['name']}: 基准费率={base_rate * 100:.4f}% × 系数乘积={coeff_product:.4f} → {risk_rate * 100:.4f}%")
+        derived_premium_total = 0.0
+        for risk in derived_risks:
+            risk_id = risk.get("id", "")
+            source_ids = risk.get("derivedFrom", [])
+            derived_rate = risk.get("derivedRate", 0.0)
+            source_sum = sum(risk_premiums.get(sid, 0.0) for sid in source_ids)
+            risk_coeffs = [c for c in all_applicable
+                           if not c.get("applicableTo")
+                           or "all" in c.get("applicableTo", [])
+                           or risk_id in c.get("applicableTo", [])]
+            coeff_product, coeff_details, _ = self._calc_coeff_product(risk_coeffs)
+            derived_prem = source_sum * derived_rate * coeff_product
+            derived_premium_total += derived_prem
+            risk_premiums[risk_id] = derived_prem
+            source_names = [r["name"] for r in normal_risks if r.get("id") in source_ids]
+            risk_details.append({
+                "id": risk_id, "name": risk["name"],
+                "derivedFrom": source_ids, "derivedRate": derived_rate,
+                "sourcePremium": source_sum, "coeffProduct": coeff_product,
+                "derivedPremium": derived_prem, "coeffDetails": coeff_details
+            })
+            for d in coeff_details:
+                if not any(e.get("name") == d.get("name") and e.get("value") == d.get("value") for e in all_coeff_details):
+                    all_coeff_details.append(d)
+            self._log(f"派生风险 {risk['name']}: ({'+'.join(source_names)}保费) × {derived_rate*100:.1f}% × 系数={coeff_product:.4f} → {fmt_currency(derived_prem)}")
         product_data = MC_PRODUCTS.get(self.selected_product, {})
         cap_note = ""
         if product_data.get("premiumCap"):
             for rd in risk_details:
-                if rd["coeffProduct"] < product_data["premiumCap"]:
+                if rd.get("coeffProduct", 1) < product_data["premiumCap"]:
                     cap_note = f"注：各风险调整系数乘积不应低于 {product_data['premiumCap']}"
                     break
-        total_premium = insured_amount * total_rate
+        total_premium = insured_amount * total_rate + derived_premium_total
         if term_type == "short":
             total_premium *= (days / 365)
-        formula = "年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)\n"
+        formula = "年保费 = 保险金额 × Σ(风险基准费率 × 调整系数乘积)"
+        if derived_risks:
+            formula += " + 派生风险保费"
+        formula += "\n"
         for rd in risk_details:
-            formula += f"{rd['name']}: {rd['baseRate'] * 100:.4f}% × {rd['coeffProduct']:.4f} = {rd['riskRate'] * 100:.4f}%\n"
-        formula += f"总费率: {total_rate * 100:.4f}%\n"
-        formula += f"年保费 = {fmt_currency(insured_amount)} × {total_rate * 100:.4f}%"
+            if rd.get("derivedFrom"):
+                formula += f"{rd['name']}: ({'+'.join(rd['derivedFrom'])}保费 {fmt_currency(rd['sourcePremium'])}) × {rd['derivedRate']*100:.1f}% × {rd['coeffProduct']:.4f} = {fmt_currency(rd['derivedPremium'])}\n"
+            else:
+                formula += f"{rd['name']}: {rd['baseRate'] * 100:.4f}% × {rd['coeffProduct']:.4f} = {rd['riskRate'] * 100:.4f}%\n"
+        if not derived_risks:
+            formula += f"总费率: {total_rate * 100:.4f}%\n"
+            formula += f"年保费 = {fmt_currency(insured_amount)} × {total_rate * 100:.4f}%"
+        else:
+            formula += f"基础风险总费率: {total_rate * 100:.4f}% → 基础保费 {fmt_currency(insured_amount * total_rate)}\n"
+            formula += f"派生风险保费合计: {fmt_currency(derived_premium_total)}\n"
+            formula += f"年保费 = {fmt_currency(insured_amount * total_rate)} + {fmt_currency(derived_premium_total)}"
         if term_type == "short":
             formula += f" × ({days}/365)"
         formula += f" = {fmt_currency(total_premium)}"
         if cap_note:
             formula += f"\n{cap_note}"
-        self._log(f"总费率: {total_rate * 100:.4f}% | 总保费: {fmt_currency(total_premium)}", "success")
+        self._log(f"总保费: {fmt_currency(total_premium)}", "success")
         self.result = {
             "version": self.current_plan.get("label", ""), "totalRate": total_rate,
             "totalPremium": total_premium, "insuredAmount": insured_amount,
             "riskDetails": risk_details, "termType": term_type, "days": days,
             "formulaBreakdown": formula, "coeffDetails": all_coeff_details,
-            "productType": "multiRiskSum"
+            "productType": "multiRiskSum", "derivedPremium": derived_premium_total
         }
 
     def _lookup_multi_risk_base_rate(self, risk):
