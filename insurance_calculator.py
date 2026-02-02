@@ -566,17 +566,32 @@ MC_PRODUCTS = {
                     "salary": {"class1": 0.0023, "class2": 0.0035, "class3": 0.0058}
                 },
                 "coefficients": [
-                    {"id": "compensationStandard", "name": "赔偿标准调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "A表", "value": 1.0, "type": "fixed"},
-                        {"parameter": "B表", "value": 1.15, "type": "fixed"}
+                    {"id": "perPersonLimit", "name": "每人赔偿限额调整系数", "applicableTo": ["fixed"], "note": "未列明限额可按线性插值法计算", "rows": [
+                        {"parameter": "≤10万元", "min": 1.2, "max": 1.3, "type": "range"},
+                        {"parameter": "30万元", "value": 1.1, "type": "fixed"},
+                        {"parameter": "50万元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "80万元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥100万元", "min": 0.8, "max": 0.85, "type": "range"}
                     ]},
-                    {"id": "perAccidentRatio", "name": "每次事故赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                    {"id": "employeeCount", "name": "承保人数调整系数", "applicableTo": ["fixed"], "note": "未列明人数可按线性插值法计算", "rows": [
+                        {"parameter": "＜100人", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "[100, 500)人", "min": 0.9, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "[500, 1000)人", "min": 0.8, "max": 0.9, "minExclusive": True, "type": "range"},
+                        {"parameter": "≥1000人", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "deathDisabilityMonths", "name": "死亡/伤残每人赔偿限额调整系数", "applicableTo": ["salary"], "rows": [
+                        {"parameter": "36/48个月", "value": 1.0, "type": "fixed"},
+                        {"parameter": "48/60个月", "value": 1.25, "type": "fixed"},
+                        {"parameter": "60/72个月", "value": 1.4, "type": "fixed"},
+                        {"parameter": "72/84个月", "value": 1.5, "type": "fixed"}
+                    ]},
+                    {"id": "perAccidentRatio", "name": "每次事故赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "note": "每次事故赔偿限额÷每人赔偿限额；未列明比例可按线性插值法计算", "rows": [
                         {"parameter": "≤3倍", "min": 0.9, "max": 0.95, "type": "range"},
                         {"parameter": "5倍", "value": 1.0, "type": "fixed"},
                         {"parameter": "10倍", "value": 1.05, "type": "fixed"},
                         {"parameter": "≥15倍", "min": 1.1, "max": 1.2, "type": "range"}
                     ]},
-                    {"id": "cumulativeRatio", "name": "累计赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                    {"id": "cumulativeRatio", "name": "累计赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "note": "累计赔偿限额÷每次事故赔偿限额；未列明比例可按线性插值法计算", "rows": [
                         {"parameter": "1倍", "value": 0.95, "type": "fixed"},
                         {"parameter": "2倍", "value": 1.0, "type": "fixed"},
                         {"parameter": "3倍", "value": 1.05, "type": "fixed"},
@@ -588,29 +603,24 @@ MC_PRODUCTS = {
                         {"parameter": "20%", "value": 0.8, "type": "fixed"},
                         {"parameter": "30%", "value": 0.7, "type": "fixed"}
                     ]},
-                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "rows": [
+                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "note": "每次事故免赔额；未列明免赔额可按线性插值法计算", "rows": [
                         {"parameter": "0元", "value": 1.0, "type": "fixed"},
                         {"parameter": "2000元", "value": 0.9, "type": "fixed"},
                         {"parameter": "≥4000元", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "compensationStandard", "name": "赔偿标准调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "赔偿金额比例表A", "value": 1.0, "type": "fixed"},
+                        {"parameter": "赔偿金额比例表B", "value": 1.15, "type": "fixed"}
                     ]},
                     {"id": "employeeCategory", "name": "雇员类别调整系数", "applicableTo": ["fixed", "salary"], "rows": [
                         {"parameter": "管理人员", "min": 0.7, "max": 0.8, "type": "range"},
                         {"parameter": "后勤人员", "min": 0.9, "max": 1.0, "type": "range"},
                         {"parameter": "一线操作人员", "min": 1.0, "max": 2.0, "type": "range"}
                     ]},
-                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
-                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
-                    ]},
-                    {"id": "safetySystem", "name": "安全管理制度情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "安全管理规章制度健全", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "安全管理规章制度较健全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "安全管理规章制度不健全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "workExperience", "name": "员工工作经验调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "员工工作经验整体较多", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "员工工作经验整体一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "员工工作经验整体较少", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    {"id": "managementLevel", "name": "管理水平调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "制度完善，无明显缺陷", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "较完善，存在个别缺陷", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "不完善或存在较多缺陷", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
                     ]},
                     {"id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["fixed", "salary"], "rows": [
                         {"parameter": "[0, 20%]", "min": 0.5, "max": 0.6, "type": "range"},
@@ -646,30 +656,9 @@ MC_PRODUCTS = {
                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
                     ]},
-                    {"id": "govInspection", "name": "政府安全检查情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "定期对企业进行安全生产检查", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "不定期对企业进行安全生产检查", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "较少对企业进行安全生产检查", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "overtime", "name": "员工长时间加班情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "基本没有", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "偶尔有", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "经常有", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "operationCompliance", "name": "员工操作情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "严格按照安全生产制度操作", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "存在个别违反安全生产制度的情况", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "存在较多违反安全生产制度的情况", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "educationLevel", "name": "员工平均学历情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "较高", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "automationLevel", "name": "机器设备自动化程度调整系数", "applicableTo": ["fixed", "salary"], "rows": [
-                        {"parameter": "机器设备自动化程度较高", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "机器设备自动化程度一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "机器设备自动化程度较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
+                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
                     ]}
                 ]
             },
@@ -783,29 +772,37 @@ MC_PRODUCTS = {
                     "fixed": {"class1": 0.0021, "class2": 0.0032, "class3": 0.0053}
                 },
                 "coefficients": [
-                    {"id": "employeeCount", "name": "承保人数调整系数", "applicableTo": ["fixed"], "base": 500, "rows": [
-                        {"parameter": "＜100人", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "[100, 500)人", "min": 0.9, "max": 1.0, "minExclusive": True, "type": "range"},
-                        {"parameter": "[500, 1000)人", "min": 0.8, "max": 0.9, "minExclusive": True, "type": "range"},
-                        {"parameter": "≥1000人", "min": 0.7, "max": 0.8, "type": "range"}
+                    {"id": "perPersonLimit", "name": "每人伤亡责任限额调整系数", "applicableTo": ["fixed"], "note": "未列明限额可按线性插值法计算", "rows": [
+                        {"parameter": "≤10万元", "min": 1.2, "max": 1.3, "type": "range"},
+                        {"parameter": "30万元", "value": 1.1, "type": "fixed"},
+                        {"parameter": "50万元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "80万元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥100万元", "min": 0.8, "max": 0.85, "type": "range"}
                     ]},
-                    {"id": "legalFeeLimit", "name": "法律费用限额调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "0元", "value": 0.95, "type": "fixed"},
-                        {"parameter": "5000元", "value": 1.0, "type": "fixed"},
-                        {"parameter": "10000元", "value": 1.05, "type": "fixed"},
-                        {"parameter": "≥15000元", "min": 1.10, "max": 1.20, "type": "range"}
+                    {"id": "medicalLimitF", "name": "每人医疗费用责任限额调整系数", "applicableTo": ["fixed"], "note": "每人医疗费用责任限额÷每人伤亡责任限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "≤2%", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "5%", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10%", "value": 1.05, "type": "fixed"},
+                        {"parameter": "15%", "value": 1.1, "type": "fixed"},
+                        {"parameter": "≥20%", "min": 1.15, "max": 1.3, "type": "range"}
                     ]},
-                    {"id": "perAccidentRatio", "name": "每次事故赔偿限额调整系数", "applicableTo": ["fixed"], "rows": [
+                    {"id": "perAccidentRatio", "name": "每次事故责任限额调整系数", "applicableTo": ["fixed"], "note": "每次事故责任限额÷（每人伤亡责任限额＋每人医疗费用责任限额）；未列明比例可按线性插值法计算", "rows": [
                         {"parameter": "≤3倍", "min": 0.9, "max": 0.95, "type": "range"},
                         {"parameter": "5倍", "value": 1.0, "type": "fixed"},
-                        {"parameter": "10倍", "value": 1.05, "type": "fixed"},
-                        {"parameter": "≥15倍", "min": 1.1, "max": 1.2, "type": "range"}
+                        {"parameter": "7倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥10倍", "min": 1.1, "max": 1.2, "type": "range"}
                     ]},
-                    {"id": "cumulativeRatio", "name": "累计赔偿限额调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "1倍", "value": 0.95, "type": "fixed"},
-                        {"parameter": "2倍", "value": 1.0, "type": "fixed"},
-                        {"parameter": "3倍", "value": 1.05, "type": "fixed"},
-                        {"parameter": "≥4倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    {"id": "cumulativeRatio", "name": "累计责任限额调整系数", "applicableTo": ["fixed"], "note": "累计责任限额÷每次事故责任限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "1倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "2倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "3倍", "value": 1.1, "type": "fixed"},
+                        {"parameter": "≥4倍", "min": 1.15, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "legalFeeLimit", "name": "法律费用责任限额调整系数", "applicableTo": ["fixed"], "note": "法律费用累计责任限额÷累计责任限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "≤5%", "min": 0.95, "max": 0.97, "type": "range"},
+                        {"parameter": "10%", "value": 1.0, "type": "fixed"},
+                        {"parameter": "15%", "value": 1.03, "type": "fixed"},
+                        {"parameter": "≥20%", "min": 1.05, "max": 1.1, "type": "range"}
                     ]},
                     {"id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["fixed"], "linkedGroup": "deductible", "rows": [
                         {"parameter": "0", "value": 1.0, "type": "fixed"},
@@ -813,29 +810,26 @@ MC_PRODUCTS = {
                         {"parameter": "20%", "value": 0.8, "type": "fixed"},
                         {"parameter": "30%", "value": 0.7, "type": "fixed"}
                     ]},
-                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed"], "linkedGroup": "deductible", "rows": [
+                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed"], "linkedGroup": "deductible", "note": "每次事故免赔额；未列明免赔额可按线性插值法计算", "rows": [
                         {"parameter": "0元", "value": 1.0, "type": "fixed"},
                         {"parameter": "2000元", "value": 0.9, "type": "fixed"},
                         {"parameter": "≥4000元", "min": 0.7, "max": 0.8, "type": "range"}
                     ]},
+                    {"id": "employeeCount", "name": "承保人数调整系数", "applicableTo": ["fixed"], "note": "未列明人数可按线性插值法计算", "rows": [
+                        {"parameter": "≤100人", "min": 1.1, "max": 1.2, "type": "range"},
+                        {"parameter": "500人", "value": 1.0, "type": "fixed"},
+                        {"parameter": "1000人", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥2000人", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
                     {"id": "employeeCategory", "name": "雇员类别调整系数", "applicableTo": ["fixed"], "rows": [
                         {"parameter": "管理人员", "min": 0.7, "max": 0.8, "type": "range"},
                         {"parameter": "后勤人员", "min": 0.8, "max": 1.0, "type": "range"},
-                        {"parameter": "一线操作人员", "min": 1.0, "max": 2.0, "type": "range"}
+                        {"parameter": "一线操作人员", "min": 1.0, "max": 3.0, "type": "range"}
                     ]},
-                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
-                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
-                    ]},
-                    {"id": "safetySystem", "name": "安全管理制度情况调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "安全管理规章制度健全", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "安全管理规章制度较健全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "安全管理规章制度不健全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "workExperience", "name": "员工工作经验调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "员工工作经验整体较多", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "员工工作经验整体一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "员工工作经验整体较少", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    {"id": "managementLevel", "name": "管理水平调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "制度完善，无明显缺陷", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "较完善，存在个别缺陷", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "不完善或存在较多缺陷", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
                     ]},
                     {"id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["fixed"], "rows": [
                         {"parameter": "[0, 20%]", "min": 0.5, "max": 0.6, "type": "range"},
@@ -871,30 +865,9 @@ MC_PRODUCTS = {
                         {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
                         {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
                     ]},
-                    {"id": "govInspection", "name": "政府安全检查情况调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "定期对企业进行安全生产检查", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "不定期对企业进行安全生产检查", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "较少对企业进行安全生产检查", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "overtime", "name": "员工长时间加班情况调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "基本没有", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "偶尔有", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "经常有", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "operationCompliance", "name": "员工操作情况调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "严格按照安全生产制度操作", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "存在个别违反安全生产制度的情况", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "存在较多违反安全生产制度的情况", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "educationLevel", "name": "员工平均学历情况调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "较高", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
-                    ]},
-                    {"id": "automationLevel", "name": "机器设备自动化程度调整系数", "applicableTo": ["fixed"], "rows": [
-                        {"parameter": "机器设备自动化程度较高", "min": 0.7, "max": 1.0, "type": "range"},
-                        {"parameter": "机器设备自动化程度一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
-                        {"parameter": "机器设备自动化程度较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
+                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
                     ]}
                 ]
             },
