@@ -4206,7 +4206,7 @@ class DonateDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('💝 支持作者')
-        self.setFixedSize(520, 520)
+        self.setMinimumSize(520, 520)
         self._setup_ui()
 
     def _get_qr_image_path(self, name: str) -> str:
@@ -4643,7 +4643,7 @@ class ClauseExtractorTab(QWidget):
 
         # 紧凑型统计面板（水平对齐）- 初始隐藏，有数据时显示
         self.stats_frame = QFrame()
-        self.stats_frame.setFixedHeight(45)
+        self.stats_frame.setMinimumHeight(40)
         self.stats_frame.setStyleSheet(f"""
             QFrame {{
                 background: {AnthropicColors.BG_CARD};
@@ -4660,7 +4660,7 @@ class ClauseExtractorTab(QWidget):
         stat_style = "font-size: 13px; font-family: 'Söhne', 'SF Pro Display', -apple-system, sans-serif;"
 
         self.stat_total_label = QLabel("待处理: 0")
-        self.stat_total_label.setFixedWidth(120)
+        self.stat_total_label.setMinimumWidth(120)
         self.stat_total_label.setAlignment(Qt.AlignCenter)
         self.stat_total_label.setStyleSheet(f"color: {AnthropicColors.ACCENT}; {stat_style} font-weight: 600;")
 
@@ -4670,7 +4670,7 @@ class ClauseExtractorTab(QWidget):
         sep1.setStyleSheet(f"color: {AnthropicColors.BORDER}; font-size: 14px;")
 
         self.stat_extracted_label = QLabel("已提取: 0")
-        self.stat_extracted_label.setFixedWidth(100)
+        self.stat_extracted_label.setMinimumWidth(100)
         self.stat_extracted_label.setAlignment(Qt.AlignCenter)
         self.stat_extracted_label.setStyleSheet(f"color: {AnthropicColors.SUCCESS}; {stat_style} font-weight: 600;")
 
@@ -4680,7 +4680,7 @@ class ClauseExtractorTab(QWidget):
         sep2.setStyleSheet(f"color: {AnthropicColors.BORDER}; font-size: 14px;")
 
         self.stat_categories_label = QLabel("分类数: 0")
-        self.stat_categories_label.setFixedWidth(100)
+        self.stat_categories_label.setMinimumWidth(100)
         self.stat_categories_label.setAlignment(Qt.AlignCenter)
         self.stat_categories_label.setStyleSheet(f"color: {AnthropicColors.INFO}; {stat_style} font-weight: 600;")
 
@@ -4690,7 +4690,7 @@ class ClauseExtractorTab(QWidget):
         sep3.setStyleSheet(f"color: {AnthropicColors.BORDER}; font-size: 14px;")
 
         self.stat_skipped_label = QLabel("已跳过: 0")
-        self.stat_skipped_label.setFixedWidth(100)
+        self.stat_skipped_label.setMinimumWidth(100)
         self.stat_skipped_label.setAlignment(Qt.AlignCenter)
         self.stat_skipped_label.setStyleSheet(f"color: {AnthropicColors.WARNING}; {stat_style} font-weight: 600;")
 
@@ -4914,12 +4914,12 @@ class ClauseExtractorTab(QWidget):
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setFixedHeight(4)
+        self.progress_bar.setFixedHeight(6)
         self.progress_bar.setStyleSheet(f"""
-            QProgressBar {{ background: {AnthropicColors.BORDER}; border-radius: 2px; }}
+            QProgressBar {{ background: {AnthropicColors.BORDER}; border-radius: 3px; }}
             QProgressBar::chunk {{
                 background: {AnthropicColors.ACCENT};
-                border-radius: 2px;
+                border-radius: 3px;
             }}
         """)
         layout.addWidget(self.progress_bar)
@@ -6281,10 +6281,10 @@ class ClauseOutputTab(QWidget):
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setFixedHeight(4)
+        self.progress_bar.setFixedHeight(6)
         self.progress_bar.setStyleSheet(f"""
-            QProgressBar {{ background: {AnthropicColors.BORDER}; border-radius: 2px; }}
-            QProgressBar::chunk {{ background: {AnthropicColors.ACCENT}; border-radius: 2px; }}
+            QProgressBar {{ background: {AnthropicColors.BORDER}; border-radius: 3px; }}
+            QProgressBar::chunk {{ background: {AnthropicColors.ACCENT}; border-radius: 3px; }}
         """)
         layout.addWidget(self.progress_bar)
 
@@ -7111,7 +7111,7 @@ class ClauseComparisonAssistant(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("智能条款工具箱 V18.0")
-        self.setMinimumSize(1000, 900)
+        self.setMinimumSize(860, 700)
         # Anthropic 风格：温暖的奶油白背景
         self.setStyleSheet(f"""
             QMainWindow {{
@@ -7315,7 +7315,7 @@ class ClauseComparisonAssistant(QMainWindow):
         # 添加Sheet选择行
         sheet_row = QHBoxLayout()
         sheet_label = QLabel("📋 险种Sheet")
-        sheet_label.setFixedWidth(90)
+        sheet_label.setMinimumWidth(90)
         self.sheet_combo = QComboBox()
         self.sheet_combo.setMinimumHeight(40)
         self.sheet_combo.setStyleSheet(f"""
@@ -7354,13 +7354,13 @@ class ClauseComparisonAssistant(QMainWindow):
         card_layout.addLayout(sheet_row)
 
         line = QFrame()
-        line.setFixedHeight(1)
+        line.setFixedHeight(2)
         line.setStyleSheet(f"background: {AnthropicColors.BORDER};")
         card_layout.addWidget(line)
 
         row3 = QHBoxLayout()
         label3 = QLabel("💾 保存路径")
-        label3.setFixedWidth(90)
+        label3.setMinimumWidth(90)
         self.out_input = QLineEdit()
         self.out_input.setPlaceholderText("报告保存位置...")
         btn3 = QPushButton("选择")
@@ -7391,7 +7391,7 @@ class ClauseComparisonAssistant(QMainWindow):
                 padding: 8px 12px;
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
-                background: white;
+                background: {AnthropicColors.BG_PRIMARY};
                 color: {AnthropicColors.TEXT_PRIMARY};
                 font-size: 14px;
             }}
@@ -7410,7 +7410,7 @@ class ClauseComparisonAssistant(QMainWindow):
                 margin-right: 8px;
             }}
             QComboBox QAbstractItemView {{
-                background: white;
+                background: {AnthropicColors.BG_PRIMARY};
                 color: {AnthropicColors.TEXT_PRIMARY};
                 selection-background-color: {AnthropicColors.BG_CARD};
                 selection-color: {AnthropicColors.TEXT_PRIMARY};
@@ -7438,7 +7438,7 @@ class ClauseComparisonAssistant(QMainWindow):
                 height: 18px;
                 border: 2px solid {AnthropicColors.BORDER};
                 border-radius: 4px;
-                background: white;
+                background: {AnthropicColors.BG_PRIMARY};
             }}
             QCheckBox::indicator:hover {{
                 border-color: {AnthropicColors.ACCENT};
@@ -7487,11 +7487,11 @@ class ClauseComparisonAssistant(QMainWindow):
         self.cancel_btn.setEnabled(False)  # 默认禁用
         self.cancel_btn.setStyleSheet(f"""
             QPushButton {{
-                background: transparent; color: #e74c3c;
+                background: transparent; color: {AnthropicColors.ERROR};
                 font-size: 14px; font-weight: 500;
-                border-radius: 8px; border: 1px solid #e74c3c;
+                border-radius: 8px; border: 1px solid {AnthropicColors.ERROR};
             }}
-            QPushButton:hover {{ background: #e74c3c; color: white; }}
+            QPushButton:hover {{ background: {AnthropicColors.ERROR}; color: {AnthropicColors.TEXT_LIGHT}; }}
             QPushButton:disabled {{ color: {AnthropicColors.BORDER}; border-color: {AnthropicColors.BORDER}; }}
         """)
         self.cancel_btn.clicked.connect(self._cancel_process)
@@ -7545,12 +7545,12 @@ class ClauseComparisonAssistant(QMainWindow):
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setFixedHeight(4)
+        self.progress_bar.setFixedHeight(6)
         self.progress_bar.setStyleSheet(f"""
-            QProgressBar {{ background: {AnthropicColors.BORDER}; border-radius: 2px; }}
+            QProgressBar {{ background: {AnthropicColors.BORDER}; border-radius: 3px; }}
             QProgressBar::chunk {{
                 background: {AnthropicColors.ACCENT};
-                border-radius: 2px;
+                border-radius: 3px;
             }}
         """)
         layout.addWidget(self.progress_bar)
@@ -7576,7 +7576,7 @@ class ClauseComparisonAssistant(QMainWindow):
                          filter_str: str, btn_style: str) -> QLineEdit:
         row = QHBoxLayout()
         label = QLabel(label_text)
-        label.setFixedWidth(90)
+        label.setMinimumWidth(90)
         line_edit = QLineEdit()
         line_edit.setPlaceholderText(placeholder)
         btn = QPushButton("浏览")
@@ -7604,6 +7604,15 @@ class ClauseComparisonAssistant(QMainWindow):
         f, _ = QFileDialog.getSaveFileName(self, "保存结果", f"条款比对报告_{date_str}.xlsx", "Excel Files (*.xlsx)")
         if f:
             self.out_input.setText(f)
+
+    def changeEvent(self, event):
+        """窗口状态变化时暂停/恢复动画定时器"""
+        if event.type() == event.WindowStateChange:
+            if self.windowState() & Qt.WindowMinimized:
+                self._donate_timer.stop()
+            else:
+                self._donate_timer.start(50)
+        super().changeEvent(event)
 
     def _animate_donate_button(self):
         """支持作者按钮的呼吸发光动画"""
