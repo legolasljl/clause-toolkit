@@ -2569,6 +2569,94 @@
             margin-top: 4px;
         }
 
+        /* 计算结果详情弹窗 */
+        .mc-detail-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .mc-detail-flow-step {
+            display: flex;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .mc-detail-flow-line {
+            width: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .mc-detail-flow-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            flex-shrink: 0;
+            margin-top: 14px;
+        }
+
+        .mc-detail-flow-dot.success {
+            background: var(--success-color);
+        }
+
+        .mc-detail-flow-connector {
+            width: 2px;
+            flex: 1;
+            background: var(--border-color);
+            min-height: 8px;
+        }
+
+        .mc-detail-flow-content {
+            flex: 1;
+            padding: 8px 0;
+        }
+
+        .mc-detail-flow-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .mc-detail-flow-value {
+            font-size: 15px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+
+        .mc-detail-flow-value.highlight {
+            font-size: 22px;
+            color: var(--success-color);
+        }
+
+        .mc-detail-flow-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .mc-detail-coeff-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            margin: 2px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .mc-detail-coeff-chip-value {
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--accent-primary);
+        }
+
         .mc-toast {
             position: fixed;
             bottom: 30px;
@@ -3411,6 +3499,17 @@
         </div>
     </div>
 
+    <!-- 计算结果详情模态框 -->
+    <div class="donate-modal" id="mc_resultDetailModal" onclick="mc_hideResultDetail(event)">
+        <div class="donate-dialog" onclick="event.stopPropagation()" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+            <div id="mc_resultDetailContent"></div>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button class="donate-close-btn" style="flex:1;margin:0;" onclick="mc_copyQuoteSummary()">📋 复制报价摘要</button>
+                <button class="donate-close-btn" style="flex:1;margin:0;background:var(--bg-secondary);color:var(--text-primary);" onclick="mc_hideResultDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 条款查询模态框 -->
     <div class="query-modal" id="cmp_queryModal" onclick="cmp_hideQueryModal(event)">
         <div class="query-dialog" onclick="event.stopPropagation()">
@@ -3714,6 +3813,7 @@
                 hideDonateModal();
                 cmp_hideQueryModal();
                 mc_hideProductInfo();
+                mc_hideResultDetail();
             }
         });
 
@@ -17951,10 +18051,10 @@ ${fileList}
             var html = '<div class="card mc-result-panel">';
             html += '<div class="card-title">📊 ' + mc_escHtml(productName) + ' 计算结果</div>';
 
-            // 主要数字
+            // 主要数字（点击可查看详情）
             html += '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px;">';
-            html += '<div style="flex:1;min-width:180px;background:var(--success-bg);border-radius:12px;padding:16px;text-align:center;">';
-            html += '<div style="font-size:12px;color:var(--success-color);margin-bottom:4px;">主险保费</div>';
+            html += '<div onclick="mc_showResultDetail()" style="flex:1;min-width:180px;background:var(--success-bg);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 4px 12px rgba(90,154,122,0.2)\'" onmouseout="this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
+            html += '<div style="font-size:12px;color:var(--success-color);margin-bottom:4px;">主险保费 <span style="font-size:10px;opacity:0.7;">点击查看详情</span></div>';
             html += '<div style="font-size:24px;font-weight:700;color:var(--success-color);">' + mc_fmtCurrency(r.totalPremium) + '</div>';
             html += '</div>';
             if (pt === 'liability') {
@@ -18042,6 +18142,160 @@ ${fileList}
             html += '</div>';
 
             document.getElementById('mc_resultArea').innerHTML = html;
+        }
+
+        // --- 计算结果详情弹窗 ---
+        function mc_showResultDetail() {
+            if (!mc_result) return;
+            var r = mc_result;
+            var pt = r.productType || 'liability';
+            var productName = (MC_PRODUCTS[mc_selectedProduct] || {}).productName || '';
+
+            var html = '<div class="donate-title" style="margin-bottom:4px;">📊 计算审计详情</div>';
+            html += '<div style="text-align:center;font-size:13px;color:var(--text-secondary);margin-bottom:20px;">' + mc_escHtml(productName) + ' · ' + mc_escHtml(r.version || '') + '</div>';
+
+            // 计算流程可视化
+            html += '<div class="mc-detail-flow">';
+
+            // Step 1: 基础参数
+            html += mc_detailStep('基础参数', '', false);
+            if (pt === 'liability') {
+                html += mc_detailStepContent('计费方式', r.method === 'fixed' ? '固定限额' : '工资总额', '');
+                html += mc_detailStepContent('行业类别', r.industryClass || '', '');
+                if (r.method === 'fixed') {
+                    html += mc_detailStepContent('每人限额', mc_fmtCurrency(r.perPersonLimit || 0), '');
+                } else {
+                    html += mc_detailStepContent('年工资总额', mc_fmtCurrency(r.annualSalary || 0), '');
+                }
+                html += mc_detailStepContent('承保人数', (r.employeeCount || 0) + ' 人', '');
+            } else if (pt === 'multiRiskSum') {
+                html += mc_detailStepContent('保险金额', mc_fmtCurrency(r.insuredAmount || 0), '');
+            } else {
+                if (r.insuredAmount) html += mc_detailStepContent('保险金额', mc_fmtCurrency(r.insuredAmount), '');
+            }
+            html += mc_detailStepContent('保险期间', r.termType === 'annual' ? '年度' : (r.days || 365) + '天', '');
+
+            // Step 2: 基准费率
+            html += mc_detailStep('基准费率', '', false);
+            if (pt === 'multiRiskSum') {
+                (r.riskDetails || []).forEach(function(rd) {
+                    if (rd.derivedFrom) {
+                        html += mc_detailStepContent('⤷ ' + rd.name, '派生: ' + rd.derivedFrom.join('+') + ' × ' + ((rd.derivedRate||0)*100).toFixed(1) + '%', '');
+                    } else {
+                        html += mc_detailStepContent(rd.name, ((rd.baseRate||0) * 100).toFixed(4) + '%', '');
+                    }
+                });
+            } else {
+                html += mc_detailStepContent('基准费率', ((r.baseRate || 0) * 100).toFixed(4) + '%', '');
+            }
+
+            // Step 3: 系数调整
+            html += mc_detailStep('费率调整系数', '', false);
+            var coeffHtml = '<div style="display:flex;flex-wrap:wrap;gap:0;padding:4px 0;">';
+            (r.coeffDetails || []).forEach(function(d) {
+                var color = d.value < 1 ? 'var(--success-color)' : (d.value > 1 ? 'var(--error-color)' : 'var(--text-tertiary)');
+                coeffHtml += '<div class="mc-detail-coeff-chip">';
+                coeffHtml += '<span>' + mc_escHtml(d.name) + '</span>';
+                coeffHtml += '<span class="mc-detail-coeff-chip-value" style="color:' + color + ';">' + mc_fmtNum(d.value, 4) + '</span>';
+                coeffHtml += '</div>';
+            });
+            coeffHtml += '</div>';
+            html += '<div class="mc-detail-flow-step"><div class="mc-detail-flow-line"><div class="mc-detail-flow-connector"></div></div>';
+            html += '<div class="mc-detail-flow-content">' + coeffHtml + '</div></div>';
+
+            if (pt !== 'multiRiskSum') {
+                html += mc_detailStepContent('系数乘积', mc_fmtNum(r.coeffProduct || 1, 6), '');
+                var adjRate = r.adjustedRate || ((r.baseRate || 0) * (r.coeffProduct || 1));
+                html += mc_detailStepContent('调整后费率', (adjRate * 100).toFixed(4) + '%' + (r.isCapped ? ' (已封顶)' : ''), '');
+            }
+
+            // Step 4: 最终保费
+            html += mc_detailStep('计算结果', '', true);
+            html += '<div class="mc-detail-flow-step"><div class="mc-detail-flow-line"><div class="mc-detail-flow-connector"></div></div>';
+            html += '<div class="mc-detail-flow-content">';
+            html += '<div class="mc-detail-flow-value highlight">' + mc_fmtCurrency(r.totalPremium) + '</div>';
+            if (pt === 'liability' && r.perPersonPremium) {
+                html += '<div class="mc-detail-flow-sub">每人保费: ' + mc_fmtCurrency(r.perPersonPremium) + '</div>';
+            }
+            html += '</div></div>';
+
+            html += '</div>';
+
+            // 完整公式
+            html += '<div style="margin-top:16px;padding:12px;background:var(--bg-secondary);border-radius:8px;font-family:var(--font-mono);font-size:12px;white-space:pre-line;line-height:1.8;max-height:200px;overflow-y:auto;">';
+            html += mc_escHtml(r.formulaBreakdown);
+            html += '</div>';
+
+            document.getElementById('mc_resultDetailContent').innerHTML = html;
+            document.getElementById('mc_resultDetailModal').classList.add('show');
+        }
+
+        function mc_detailStep(label, value, isLast) {
+            var html = '<div class="mc-detail-flow-step">';
+            html += '<div class="mc-detail-flow-line">';
+            html += '<div class="mc-detail-flow-dot' + (isLast ? ' success' : '') + '"></div>';
+            html += '<div class="mc-detail-flow-connector"></div>';
+            html += '</div>';
+            html += '<div class="mc-detail-flow-content">';
+            html += '<div class="mc-detail-flow-label">' + label + '</div>';
+            if (value) html += '<div class="mc-detail-flow-value">' + value + '</div>';
+            html += '</div></div>';
+            return html;
+        }
+
+        function mc_detailStepContent(label, value, sub) {
+            var html = '<div class="mc-detail-flow-step">';
+            html += '<div class="mc-detail-flow-line"><div class="mc-detail-flow-connector"></div></div>';
+            html += '<div class="mc-detail-flow-content">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+            html += '<span style="font-size:12px;color:var(--text-secondary);">' + label + '</span>';
+            html += '<span style="font-size:13px;font-weight:600;font-family:var(--font-mono);">' + value + '</span>';
+            html += '</div>';
+            if (sub) html += '<div class="mc-detail-flow-sub">' + sub + '</div>';
+            html += '</div></div>';
+            return html;
+        }
+
+        function mc_hideResultDetail(event) {
+            if (!event || event.target.id === 'mc_resultDetailModal') {
+                document.getElementById('mc_resultDetailModal').classList.remove('show');
+            }
+        }
+
+        function mc_copyQuoteSummary() {
+            if (!mc_result) return;
+            var r = mc_result;
+            var productName = (MC_PRODUCTS[mc_selectedProduct] || {}).productName || '';
+            var lines = [];
+            lines.push('【' + productName + ' 报价摘要】');
+            lines.push('费率版本: ' + (r.version || ''));
+            lines.push('主险保费: ' + mc_fmtCurrency(r.totalPremium));
+            if (r.perPersonPremium) lines.push('每人保费: ' + mc_fmtCurrency(r.perPersonPremium));
+            if (r.insuredAmount) lines.push('保险金额: ' + mc_fmtCurrency(r.insuredAmount));
+            lines.push('保险期间: ' + (r.termType === 'annual' ? '年度' : (r.days || 365) + '天'));
+            lines.push('');
+            lines.push('计算公式:');
+            lines.push(r.formulaBreakdown || '');
+            lines.push('');
+            lines.push('系数明细:');
+            (r.coeffDetails || []).forEach(function(d) {
+                lines.push('  ' + d.name + ': ' + mc_fmtNum(d.value, 4));
+            });
+
+            var text = lines.join('\n');
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    mc_showToast('报价摘要已复制到剪贴板', 'success');
+                });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                mc_showToast('报价摘要已复制到剪贴板', 'success');
+            }
         }
 
         // --- 传入附加险 ---
