@@ -46,6 +46,17 @@
             --info-color: #5a7a9a;
             --info-bg: #eef3f8;
 
+            /* 危险/删除色 */
+            --danger-color: #c75050;
+            --danger-bg: #fdf0f0;
+
+            /* 兼容别名（主险计算器区域使用） */
+            --accent-color: #d97757;
+            --accent-bg: rgba(217, 119, 87, 0.08);
+            --accent: #d97757;
+            --border: #d8d6ce;
+            --bg-card: #ffffff;
+
             /* 阴影 */
             --shadow-sm: 0 1px 3px rgba(20, 20, 19, 0.04);
             --shadow-md: 0 4px 12px rgba(20, 20, 19, 0.08);
@@ -966,7 +977,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(20, 20, 19, 0.5);
             backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
@@ -1017,8 +1028,8 @@
         }
 
         .industry-lookup-close:hover {
-            background: var(--danger-bg);
-            color: var(--danger-color);
+            background: var(--error-bg);
+            color: var(--error-color);
         }
 
         .industry-lookup-search {
@@ -1251,7 +1262,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(20, 20, 19, 0.5);
             backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
@@ -1418,7 +1429,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(20, 20, 19, 0.5);
             backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
@@ -16129,17 +16140,15 @@ ${fileList}
 
         // --- Toast 通知 ---
         function mc_showToast(msg, type) {
-            const toast = document.createElement('div');
+            var toast = document.createElement('div');
             toast.className = 'mc-toast mc-toast-' + (type || 'info');
             toast.textContent = msg;
             document.body.appendChild(toast);
             requestAnimationFrame(function () {
-                toast.style.opacity = '1';
-                toast.style.transform = 'translateX(-50%) translateY(0)';
+                toast.classList.add('show');
             });
             setTimeout(function () {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(-20px)';
+                toast.classList.remove('show');
                 setTimeout(function () { toast.remove(); }, 300);
             }, 3000);
         }
@@ -17782,12 +17791,24 @@ ${fileList}
                 });
             } else if (pt === 'multiRiskSum') {
                 html += '<tr><td>保险金额</td><td>' + mc_fmtCurrency(r.insuredAmount || 0) + '</td></tr>';
-                html += '<tr><td>总费率</td><td>' + ((r.totalRate || 0) * 100).toFixed(4) + '%</td></tr>';
+                html += '<tr><td>基础风险总费率</td><td>' + ((r.totalRate || 0) * 100).toFixed(4) + '%</td></tr>';
+                if (r.derivedPremium) {
+                    html += '<tr><td>派生风险保费合计</td><td>' + mc_fmtCurrency(r.derivedPremium) + '</td></tr>';
+                }
                 (r.riskDetails || []).forEach(function (rd) {
-                    html += '<tr style="background:var(--bg-secondary);"><td colspan="2" style="font-weight:600;">' + mc_escHtml(rd.name) + '</td></tr>';
-                    html += '<tr><td>　基准费率</td><td>' + (rd.baseRate * 100).toFixed(4) + '%</td></tr>';
-                    html += '<tr><td>　系数乘积</td><td>' + mc_fmtNum(rd.coeffProduct, 6) + '</td></tr>';
-                    html += '<tr><td>　风险费率</td><td>' + (rd.riskRate * 100).toFixed(4) + '%</td></tr>';
+                    if (rd.derivedFrom) {
+                        html += '<tr style="background:rgba(90,122,154,0.08);"><td colspan="2" style="font-weight:600;">⤷ ' + mc_escHtml(rd.name) + ' <span style="font-weight:400;font-size:11px;color:var(--info-color);">（派生）</span></td></tr>';
+                        html += '<tr><td>　来源风险</td><td>' + rd.derivedFrom.join(' + ') + '</td></tr>';
+                        html += '<tr><td>　来源保费合计</td><td>' + mc_fmtCurrency(rd.sourcePremium || 0) + '</td></tr>';
+                        html += '<tr><td>　派生比例</td><td>' + ((rd.derivedRate || 0) * 100).toFixed(1) + '%</td></tr>';
+                        html += '<tr><td>　系数乘积</td><td>' + mc_fmtNum(rd.coeffProduct, 6) + '</td></tr>';
+                        html += '<tr><td>　派生保费</td><td style="font-weight:600;">' + mc_fmtCurrency(rd.derivedPremium || 0) + '</td></tr>';
+                    } else {
+                        html += '<tr style="background:var(--bg-secondary);"><td colspan="2" style="font-weight:600;">' + mc_escHtml(rd.name) + '</td></tr>';
+                        html += '<tr><td>　基准费率</td><td>' + ((rd.baseRate || 0) * 100).toFixed(4) + '%</td></tr>';
+                        html += '<tr><td>　系数乘积</td><td>' + mc_fmtNum(rd.coeffProduct, 6) + '</td></tr>';
+                        html += '<tr><td>　风险费率</td><td>' + ((rd.riskRate || 0) * 100).toFixed(4) + '%</td></tr>';
+                    }
                 });
             } else {
                 html += '<tr><td>基准费率</td><td>' + ((r.baseRate || 0) * 100).toFixed(4) + '%</td></tr>';

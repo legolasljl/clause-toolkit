@@ -9983,9 +9983,17 @@ class MainInsuranceTab(QWidget):
             lines.append(f"  机器损坏保额: {fmt_currency(r.get('machineryAmount', 0))}")
         elif pt == "multiRiskSum":
             lines.append(f"  保险金额: {fmt_currency(r.get('insuredAmount', 0))}")
-            lines.append(f"  总费率: {r.get('totalRate', 0) * 100:.4f}%")
+            lines.append(f"  基础风险总费率: {r.get('totalRate', 0) * 100:.4f}%")
+            if r.get("derivedPremium"):
+                lines.append(f"  派生风险保费合计: {fmt_currency(r['derivedPremium'])}")
             for rd in r.get("riskDetails", []):
-                lines.append(f"  {rd['name']}: 基准{rd['baseRate'] * 100:.4f}% × 系数{rd['coeffProduct']:.4f} = {rd['riskRate'] * 100:.4f}%")
+                if rd.get("derivedFrom"):
+                    lines.append(f"  ⤷ {rd['name']}（派生）:")
+                    lines.append(f"    来源: {' + '.join(rd['derivedFrom'])}")
+                    lines.append(f"    来源保费: {fmt_currency(rd.get('sourcePremium', 0))} × {rd.get('derivedRate', 0) * 100:.1f}% × 系数{rd.get('coeffProduct', 1):.4f}")
+                    lines.append(f"    = {fmt_currency(rd.get('derivedPremium', 0))}")
+                else:
+                    lines.append(f"  {rd['name']}: 基准{rd.get('baseRate', 0) * 100:.4f}% × 系数{rd.get('coeffProduct', 1):.4f} = {rd.get('riskRate', 0) * 100:.4f}%")
         else:
             base_rate_val = r.get('baseRate', 0)
             lines.append(f"  基准费率: {base_rate_val * 100:.4f}%")
