@@ -416,6 +416,603 @@ MC_PRODUCTS = {
                         ]
                     }
                 ]
+            },
+            "v2016": {
+                "label": "雇主责任险（2016版）费率",
+                "baseRates": {
+                    "fixed": {"class1": 0.00148, "class2": 0.00220, "class3": 0.00366},
+                    "salary": {"class1": 0.00444, "class2": 0.00663, "class3": 0.01101}
+                },
+                "coefficients": [
+                    {"id": "perPersonLimit", "name": "每人赔偿限额调整系数", "applicableTo": ["fixed"], "note": "未列明限额可按线性插值法计算", "rows": [
+                        {"parameter": "≤10万元", "min": 1.2, "max": 1.3, "type": "range"},
+                        {"parameter": "30万元", "value": 1.1, "type": "fixed"},
+                        {"parameter": "50万元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "80万元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥100万元", "min": 0.8, "max": 0.85, "type": "range"}
+                    ]},
+                    {"id": "employeeCount", "name": "承保人数调整系数", "applicableTo": ["fixed"], "note": "未列明人数可按线性插值法计算", "rows": [
+                        {"parameter": "＜100人", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "[100, 500)人", "min": 0.9, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "[500, 1000)人", "min": 0.8, "max": 0.9, "minExclusive": True, "type": "range"},
+                        {"parameter": "≥1000人", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "deathDisabilityMonths", "name": "死亡/伤残每人赔偿限额调整系数", "applicableTo": ["salary"], "rows": [
+                        {"parameter": "36/48个月", "value": 1.0, "type": "fixed"},
+                        {"parameter": "48/60个月", "value": 1.25, "type": "fixed"},
+                        {"parameter": "60/72个月", "value": 1.4, "type": "fixed"},
+                        {"parameter": "72/84个月", "value": 1.5, "type": "fixed"}
+                    ]},
+                    {"id": "medicalLimit", "name": "医疗费用每人赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "note": "医疗费用每人赔偿限额÷每人赔偿限额", "rows": [
+                        {"parameter": "≤5%", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "10%", "value": 1.0, "type": "fixed"},
+                        {"parameter": "15%", "value": 1.05, "type": "fixed"},
+                        {"parameter": "20%", "value": 1.1, "type": "fixed"},
+                        {"parameter": "≥25%", "min": 1.15, "max": 1.3, "type": "range"}
+                    ]},
+                    {"id": "lostWorkLimit", "name": "误工费用每人赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "≤5%", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "10%", "value": 1.0, "type": "fixed"},
+                        {"parameter": "15%", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥20%", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "perAccidentRatio", "name": "每次事故赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "≤3倍", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "5倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥15倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "cumulativeRatio", "name": "累计赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "1倍", "value": 0.95, "type": "fixed"},
+                        {"parameter": "2倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "3倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥4倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10%", "value": 0.9, "type": "fixed"},
+                        {"parameter": "20%", "value": 0.8, "type": "fixed"},
+                        {"parameter": "30%", "value": 0.7, "type": "fixed"}
+                    ]},
+                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "2000元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥4000元", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "employeeCategory", "name": "雇员类别调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "管理人员", "min": 0.7, "max": 0.8, "type": "range"},
+                        {"parameter": "后勤人员", "min": 0.9, "max": 1.0, "type": "range"},
+                        {"parameter": "一线操作人员", "min": 1.0, "max": 2.0, "type": "range"}
+                    ]},
+                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
+                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
+                    ]},
+                    {"id": "safetySystem", "name": "安全管理制度情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "安全管理规章制度健全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全管理规章制度较健全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全管理规章制度不健全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "workExperience", "name": "员工工作经验调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "员工工作经验整体较多", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "员工工作经验整体一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "员工工作经验整体较少", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "[0, 20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                        {"parameter": "(20%, 45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                        {"parameter": "(45%, 70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "(70%, 95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "＞95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "hazardInspection", "name": "企业隐患排查整改调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "无隐患", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "整改完成", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在重大隐患且未整改", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "historicalAccident", "name": "历史事故与损失情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "极少", "min": 0.5, "max": 0.7, "type": "range"},
+                        {"parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range"},
+                        {"parameter": "较多", "min": 1.3, "max": 1.5, "minExclusive": True, "type": "range"},
+                        {"parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyTraining", "name": "员工安全教育培训调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "每年定期对员工进行安全教育和培训", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对员工进行安全教育和培训", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对员工进行安全教育和培训", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyEquipment", "name": "安全设施和装备配置情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "安全设施和装备配置齐全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全设施和装备配置较齐全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全设施和装备配置不齐全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "renewal", "name": "续保调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                        {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                        {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                    ]},
+                    {"id": "govInspection", "name": "政府安全检查情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "定期对企业进行安全生产检查", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对企业进行安全生产检查", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对企业进行安全生产检查", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "overtime", "name": "员工长时间加班情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "基本没有", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "偶尔有", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "经常有", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "operationCompliance", "name": "员工操作情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "严格按照安全生产制度操作", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "存在个别违反安全生产制度的情况", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在较多违反安全生产制度的情况", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "educationLevel", "name": "员工平均学历情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "较高", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "automationLevel", "name": "机器设备自动化程度调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "机器设备自动化程度较高", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "机器设备自动化程度一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "机器设备自动化程度较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]}
+                ]
+            },
+            "vB": {
+                "label": "雇主责任险（B款）费率",
+                "baseRates": {
+                    "fixed": {"class1": 0.0008, "class2": 0.0012, "class3": 0.0020},
+                    "salary": {"class1": 0.0023, "class2": 0.0035, "class3": 0.0058}
+                },
+                "coefficients": [
+                    {"id": "compensationStandard", "name": "赔偿标准调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "A表", "value": 1.0, "type": "fixed"},
+                        {"parameter": "B表", "value": 1.15, "type": "fixed"}
+                    ]},
+                    {"id": "perAccidentRatio", "name": "每次事故赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "≤3倍", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "5倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥15倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "cumulativeRatio", "name": "累计赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "1倍", "value": 0.95, "type": "fixed"},
+                        {"parameter": "2倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "3倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥4倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10%", "value": 0.9, "type": "fixed"},
+                        {"parameter": "20%", "value": 0.8, "type": "fixed"},
+                        {"parameter": "30%", "value": 0.7, "type": "fixed"}
+                    ]},
+                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "2000元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥4000元", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "employeeCategory", "name": "雇员类别调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "管理人员", "min": 0.7, "max": 0.8, "type": "range"},
+                        {"parameter": "后勤人员", "min": 0.9, "max": 1.0, "type": "range"},
+                        {"parameter": "一线操作人员", "min": 1.0, "max": 2.0, "type": "range"}
+                    ]},
+                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
+                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
+                    ]},
+                    {"id": "safetySystem", "name": "安全管理制度情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "安全管理规章制度健全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全管理规章制度较健全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全管理规章制度不健全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "workExperience", "name": "员工工作经验调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "员工工作经验整体较多", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "员工工作经验整体一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "员工工作经验整体较少", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "[0, 20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                        {"parameter": "(20%, 45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                        {"parameter": "(45%, 70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "(70%, 95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "＞95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "hazardInspection", "name": "企业隐患排查整改调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "无隐患", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "整改完成", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在重大隐患且未整改", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "historicalAccident", "name": "历史事故与损失情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "极少", "min": 0.5, "max": 0.7, "type": "range"},
+                        {"parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range"},
+                        {"parameter": "较多", "min": 1.3, "max": 1.5, "minExclusive": True, "type": "range"},
+                        {"parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyTraining", "name": "员工安全教育培训调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "每年定期对员工进行安全教育和培训", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对员工进行安全教育和培训", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对员工进行安全教育和培训", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyEquipment", "name": "安全设施和装备配置情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "安全设施和装备配置齐全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全设施和装备配置较齐全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全设施和装备配置不齐全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "renewal", "name": "续保调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                        {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                        {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                    ]},
+                    {"id": "govInspection", "name": "政府安全检查情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "定期对企业进行安全生产检查", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对企业进行安全生产检查", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对企业进行安全生产检查", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "overtime", "name": "员工长时间加班情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "基本没有", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "偶尔有", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "经常有", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "operationCompliance", "name": "员工操作情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "严格按照安全生产制度操作", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "存在个别违反安全生产制度的情况", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在较多违反安全生产制度的情况", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "educationLevel", "name": "员工平均学历情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "较高", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "automationLevel", "name": "机器设备自动化程度调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "机器设备自动化程度较高", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "机器设备自动化程度一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "机器设备自动化程度较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]}
+                ]
+            },
+            "vD2026": {
+                "label": "雇主责任险（D款2026版）费率",
+                "premiumCap": 0.70,
+                "baseRates": {
+                    "fixed": {"class1": 0.00124, "class2": 0.00186, "class3": 0.00310},
+                    "salary": {"class1": 0.00350, "class2": 0.00525, "class3": 0.00875}
+                },
+                "coefficients": [
+                    {"id": "deathDisabilityMonths", "name": "死亡/伤残赔偿工资月数调整系数", "applicableTo": ["salary"], "rows": [
+                        {"parameter": "36/48个月", "value": 1.0, "type": "fixed"},
+                        {"parameter": "48/60个月", "value": 1.25, "type": "fixed"},
+                        {"parameter": "60/72个月", "value": 1.4, "type": "fixed"},
+                        {"parameter": "72/84个月", "value": 1.5, "type": "fixed"}
+                    ]},
+                    {"id": "disabilityDeathRatio", "name": "残疾/死亡赔偿限额比值调整系数", "applicableTo": ["fixed"], "note": "每人残疾赔偿限额÷每人死亡赔偿限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "≤0.8", "min": 0.85, "max": 0.9, "type": "range"},
+                        {"parameter": "0.9", "value": 0.95, "type": "fixed"},
+                        {"parameter": "1.0", "value": 1.0, "type": "fixed"},
+                        {"parameter": "1.1", "value": 0.96, "type": "fixed"},
+                        {"parameter": "≥1.2", "min": 0.85, "max": 0.92, "type": "range"}
+                    ]},
+                    {"id": "lostWorkDaysD", "name": "误工费赔偿天数调整系数", "applicableTo": ["fixed"], "note": "每人误工费用最高赔偿天数；未列明天数可按线性插值法计算", "rows": [
+                        {"parameter": "≤90天", "min": 0.96, "max": 0.97, "type": "range"},
+                        {"parameter": "180天", "value": 0.99, "type": "fixed"},
+                        {"parameter": "365天", "value": 1.0, "type": "fixed"}
+                    ]},
+                    {"id": "employeeCount", "name": "承保人数调整系数", "applicableTo": ["fixed"], "note": "未列明人数可按线性插值法计算", "rows": [
+                        {"parameter": "≤50人", "min": 1.05, "max": 1.1, "type": "range"},
+                        {"parameter": "100人", "value": 1.0, "type": "fixed"},
+                        {"parameter": "500人", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥1000人", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "medicalLimit", "name": "医疗费用赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "note": "每人医疗费用赔偿限额（万元）；未列明限额可按线性插值法计算", "rows": [
+                        {"parameter": "≤1万元", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "2万元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "3万元", "value": 1.05, "type": "fixed"},
+                        {"parameter": "4万元", "value": 1.1, "type": "fixed"},
+                        {"parameter": "≥5万元", "min": 1.15, "max": 1.3, "type": "range"}
+                    ]},
+                    {"id": "cumulativeRatio", "name": "累计赔偿限额调整系数", "applicableTo": ["fixed", "salary"], "note": "累计赔偿限额÷每人每次事故赔偿限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "≤2倍", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "5倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "8倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥10倍", "min": 1.1, "max": 1.3, "type": "range"}
+                    ]},
+                    {"id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10%", "value": 0.9, "type": "fixed"},
+                        {"parameter": "20%", "value": 0.8, "type": "fixed"},
+                        {"parameter": "30%", "value": 0.7, "type": "fixed"}
+                    ]},
+                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "note": "每次事故免赔额；未列明免赔额可按线性插值法计算", "rows": [
+                        {"parameter": "0元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "2500元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "7500元", "value": 0.8, "type": "fixed"},
+                        {"parameter": "≥10000元", "min": 0.7, "max": 0.75, "type": "range"}
+                    ]},
+                    {"id": "employeeCategory", "name": "雇员类别调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "管理人员", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "生产人员", "min": 1.0, "max": 3.0, "type": "range"}
+                    ]},
+                    {"id": "historicalAccident", "name": "历史事故情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "极少", "min": 0.5, "max": 0.7, "type": "range"},
+                        {"parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range"},
+                        {"parameter": "较多", "min": 1.3, "max": 1.5, "minExclusive": True, "type": "range"},
+                        {"parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "managementLevel", "name": "管理水平调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "制度完善，无明显缺陷", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "较完善，存在个别缺陷", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "不完善或存在较多缺陷", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "[0, 20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                        {"parameter": "(20%, 45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                        {"parameter": "(45%, 70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "(70%, 95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "＞95%", "min": 1.2, "max": 2.0, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "hazardInspection", "name": "企业隐患排查整改调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "无隐患", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "整改完成", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在重大隐患且未整改", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyTraining", "name": "员工安全教育培训调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "每年定期对员工进行安全教育和培训", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对员工进行安全教育和培训", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对员工进行安全教育和培训", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyEquipment", "name": "安全设施和装备配置情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "安全设施和装备配置齐全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全设施和装备配置较齐全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全设施和装备配置不齐全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "renewal", "name": "续保调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                        {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                        {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                    ]}
+                ]
+            },
+            "vF2026": {
+                "label": "雇主责任险（F款2026版）费率",
+                "premiumCap": 0.70,
+                "fixedOnly": True,
+                "baseRates": {
+                    "fixed": {"class1": 0.0021, "class2": 0.0032, "class3": 0.0053}
+                },
+                "coefficients": [
+                    {"id": "employeeCount", "name": "承保人数调整系数", "applicableTo": ["fixed"], "base": 500, "rows": [
+                        {"parameter": "＜100人", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "[100, 500)人", "min": 0.9, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "[500, 1000)人", "min": 0.8, "max": 0.9, "minExclusive": True, "type": "range"},
+                        {"parameter": "≥1000人", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "legalFeeLimit", "name": "法律费用限额调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "0元", "value": 0.95, "type": "fixed"},
+                        {"parameter": "5000元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10000元", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥15000元", "min": 1.10, "max": 1.20, "type": "range"}
+                    ]},
+                    {"id": "perAccidentRatio", "name": "每次事故赔偿限额调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "≤3倍", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "5倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥15倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "cumulativeRatio", "name": "累计赔偿限额调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "1倍", "value": 0.95, "type": "fixed"},
+                        {"parameter": "2倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "3倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥4倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["fixed"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10%", "value": 0.9, "type": "fixed"},
+                        {"parameter": "20%", "value": 0.8, "type": "fixed"},
+                        {"parameter": "30%", "value": 0.7, "type": "fixed"}
+                    ]},
+                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "2000元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥4000元", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "employeeCategory", "name": "雇员类别调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "管理人员", "min": 0.7, "max": 0.8, "type": "range"},
+                        {"parameter": "后勤人员", "min": 0.8, "max": 1.0, "type": "range"},
+                        {"parameter": "一线操作人员", "min": 1.0, "max": 2.0, "type": "range"}
+                    ]},
+                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
+                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
+                    ]},
+                    {"id": "safetySystem", "name": "安全管理制度情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "安全管理规章制度健全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全管理规章制度较健全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全管理规章制度不健全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "workExperience", "name": "员工工作经验调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "员工工作经验整体较多", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "员工工作经验整体一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "员工工作经验整体较少", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "[0, 20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                        {"parameter": "(20%, 45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                        {"parameter": "(45%, 70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "(70%, 95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "＞95%", "min": 1.2, "max": 2.0, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "hazardInspection", "name": "企业隐患排查整改调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "无隐患", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "整改完成", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在重大隐患且未整改", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "historicalAccident", "name": "历史事故与损失情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "极少", "min": 0.5, "max": 0.7, "type": "range"},
+                        {"parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较多", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"},
+                        {"parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyTraining", "name": "员工安全教育培训调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "每年定期对员工进行安全教育和培训", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对员工进行安全教育和培训", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对员工进行安全教育和培训", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyEquipment", "name": "安全设施和装备配置情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "安全设施和装备配置齐全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全设施和装备配置较齐全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全设施和装备配置不齐全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "renewal", "name": "续保调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                        {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                        {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                    ]},
+                    {"id": "govInspection", "name": "政府安全检查情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "定期对企业进行安全生产检查", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对企业进行安全生产检查", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对企业进行安全生产检查", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "overtime", "name": "员工长时间加班情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "基本没有", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "偶尔有", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "经常有", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "operationCompliance", "name": "员工操作情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "严格按照安全生产制度操作", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "存在个别违反安全生产制度的情况", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在较多违反安全生产制度的情况", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "educationLevel", "name": "员工平均学历情况调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "较高", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "automationLevel", "name": "机器设备自动化程度调整系数", "applicableTo": ["fixed"], "rows": [
+                        {"parameter": "机器设备自动化程度较高", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "机器设备自动化程度一般", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "机器设备自动化程度较低", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]}
+                ]
+            },
+            "vE2026": {
+                "label": "雇主责任险（E款2026版）费率",
+                "dualRate": True,
+                "baseRates": {
+                    "fixed": {
+                        "death": {"class1": 0.00061, "class2": 0.00085, "class3": 0.00139},
+                        "medical": {"class1": 0.00151, "class2": 0.00212, "class3": 0.00350}
+                    },
+                    "salary": {"class1": 0.00212, "class2": 0.00320, "class3": 0.00532}
+                },
+                "coefficients": [
+                    {"id": "deathDisabilityLimit", "name": "每人死亡残疾责任限额调整系数", "applicableTo": ["fixed"], "note": "仅适用于死亡残疾责任；未列明限额可按线性插值法计算", "rows": [
+                        {"parameter": "≤10万元", "min": 1.2, "max": 1.3, "type": "range"},
+                        {"parameter": "30万元", "value": 1.1, "type": "fixed"},
+                        {"parameter": "50万元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "80万元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥100万元", "min": 0.8, "max": 0.85, "type": "range"}
+                    ]},
+                    {"id": "medicalLimitE", "name": "每人医疗费用责任限额调整系数", "applicableTo": ["fixed"], "note": "仅适用于医疗费用责任；未列明限额可按线性插值法计算", "rows": [
+                        {"parameter": "≤1万元", "min": 1.3, "max": 1.5, "type": "range"},
+                        {"parameter": "2万元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "5万元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥8万元", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "employeeCount", "name": "承保人数调整系数", "applicableTo": ["fixed"], "note": "未列明人数可按线性插值法计算", "rows": [
+                        {"parameter": "＜100人", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "[100, 500)人", "min": 0.9, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "[500, 1000)人", "min": 0.8, "max": 0.9, "minExclusive": True, "type": "range"},
+                        {"parameter": "≥1000人", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "deathDisabilityMonths", "name": "每人人身伤亡责任限额调整系数（工资月数）", "applicableTo": ["salary"], "rows": [
+                        {"parameter": "36/48个月", "value": 1.0, "type": "fixed"},
+                        {"parameter": "48/60个月", "value": 1.25, "type": "fixed"},
+                        {"parameter": "60/72个月", "value": 1.4, "type": "fixed"},
+                        {"parameter": "72/84个月", "value": 1.5, "type": "fixed"}
+                    ]},
+                    {"id": "medicalLimitSalary", "name": "每人医疗费用责任限额调整系数", "applicableTo": ["salary"], "note": "每人医疗费用责任限额÷每人人身伤亡责任限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "≤5%", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "10%", "value": 1.0, "type": "fixed"},
+                        {"parameter": "15%", "value": 1.05, "type": "fixed"},
+                        {"parameter": "20%", "value": 1.1, "type": "fixed"},
+                        {"parameter": "≥25%", "min": 1.15, "max": 1.3, "type": "range"}
+                    ]},
+                    {"id": "perAccidentRatio", "name": "每次事故责任限额调整系数", "applicableTo": ["fixed", "salary"], "note": "每次事故责任限额÷每人人身伤亡责任限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "≤3倍", "min": 0.9, "max": 0.95, "type": "range"},
+                        {"parameter": "5倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥15倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "cumulativeRatio", "name": "累计责任限额调整系数", "applicableTo": ["fixed", "salary"], "note": "累计责任限额÷每次事故责任限额；未列明比例可按线性插值法计算", "rows": [
+                        {"parameter": "1倍", "value": 0.95, "type": "fixed"},
+                        {"parameter": "2倍", "value": 1.0, "type": "fixed"},
+                        {"parameter": "3倍", "value": 1.05, "type": "fixed"},
+                        {"parameter": "≥4倍", "min": 1.1, "max": 1.2, "type": "range"}
+                    ]},
+                    {"id": "deductibleRate", "name": "免赔率调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "rows": [
+                        {"parameter": "0", "value": 1.0, "type": "fixed"},
+                        {"parameter": "10%", "value": 0.9, "type": "fixed"},
+                        {"parameter": "20%", "value": 0.8, "type": "fixed"},
+                        {"parameter": "30%", "value": 0.7, "type": "fixed"}
+                    ]},
+                    {"id": "deductibleAmount", "name": "免赔额调整系数", "applicableTo": ["fixed", "salary"], "linkedGroup": "deductible", "note": "每次事故免赔额；未列明免赔额可按线性插值法计算", "rows": [
+                        {"parameter": "0元", "value": 1.0, "type": "fixed"},
+                        {"parameter": "2000元", "value": 0.9, "type": "fixed"},
+                        {"parameter": "≥4000元", "min": 0.7, "max": 0.8, "type": "range"}
+                    ]},
+                    {"id": "employeeCategory", "name": "雇员类别调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "管理人员", "min": 0.7, "max": 0.8, "type": "range"},
+                        {"parameter": "后勤人员", "min": 0.9, "max": 1.0, "type": "range"},
+                        {"parameter": "一线操作人员", "min": 1.0, "max": 2.0, "type": "range"}
+                    ]},
+                    {"id": "managementLevel", "name": "管理水平调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "制度完善，无明显缺陷", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "较完善，存在个别缺陷", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "不完善或存在较多缺陷", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "lossRatio", "name": "赔付率调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "[0, 20%]", "min": 0.5, "max": 0.6, "type": "range"},
+                        {"parameter": "(20%, 45%]", "min": 0.6, "max": 0.8, "minExclusive": True, "type": "range"},
+                        {"parameter": "(45%, 70%]", "min": 0.8, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "(70%, 95%]", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "＞95%", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "hazardInspection", "name": "企业隐患排查整改调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "无隐患", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "整改完成", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "存在重大隐患且未整改", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "historicalAccident", "name": "历史事故与损失情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "极少", "min": 0.5, "max": 0.7, "type": "range"},
+                        {"parameter": "较少", "min": 0.7, "max": 1.0, "minExclusive": True, "type": "range"},
+                        {"parameter": "一般", "min": 1.0, "max": 1.3, "minExclusive": True, "type": "range"},
+                        {"parameter": "较多", "min": 1.3, "max": 1.5, "minExclusive": True, "type": "range"},
+                        {"parameter": "很多", "min": 1.5, "max": 2.0, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyTraining", "name": "员工安全教育培训调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "每年定期对员工进行安全教育和培训", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "不定期对员工进行安全教育和培训", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "较少对员工进行安全教育和培训", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "safetyEquipment", "name": "安全设施和装备配置情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "安全设施和装备配置齐全", "min": 0.7, "max": 1.0, "type": "range"},
+                        {"parameter": "安全设施和装备配置较齐全", "min": 1.0, "max": 1.2, "minExclusive": True, "type": "range"},
+                        {"parameter": "安全设施和装备配置不齐全", "min": 1.2, "max": 1.5, "minExclusive": True, "type": "range"}
+                    ]},
+                    {"id": "renewal", "name": "续保调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "新保", "value": 1.0, "type": "fixed"},
+                        {"parameter": "续保一年", "value": 0.95, "type": "fixed"},
+                        {"parameter": "续保两年及以上", "min": 0.8, "max": 0.9, "type": "range"}
+                    ]},
+                    {"id": "workInjuryInsurance", "name": "工伤保险情况调整系数", "applicableTo": ["fixed", "salary"], "rows": [
+                        {"parameter": "已投保工伤保险", "value": 1.0, "type": "fixed"},
+                        {"parameter": "未投保工伤保险", "value": 1.2, "type": "fixed"}
+                    ]}
+                ]
             }
         }
     },
@@ -8852,51 +9449,73 @@ class MainInsuranceTab(QWidget):
         self.limit_spin.setSuffix(" 万元")
         grid.addWidget(self.limit_spin, 1, 1)
 
+        self.death_limit_label = QLabel("死亡残疾限额(万元):")
+        grid.addWidget(self.death_limit_label, 1, 2)
+        self.death_limit_spin = QDoubleSpinBox()
+        self.death_limit_spin.setRange(1, 10000)
+        self.death_limit_spin.setValue(50)
+        self.death_limit_spin.setDecimals(2)
+        self.death_limit_spin.setSuffix(" 万元")
+        grid.addWidget(self.death_limit_spin, 1, 3)
+        self.death_limit_label.hide()
+        self.death_limit_spin.hide()
+
+        self.medical_limit_label = QLabel("医疗费用限额(万元):")
+        grid.addWidget(self.medical_limit_label, 2, 0)
+        self.medical_limit_spin = QDoubleSpinBox()
+        self.medical_limit_spin.setRange(0.1, 10000)
+        self.medical_limit_spin.setValue(5)
+        self.medical_limit_spin.setDecimals(2)
+        self.medical_limit_spin.setSuffix(" 万元")
+        grid.addWidget(self.medical_limit_spin, 2, 1)
+        self.medical_limit_label.hide()
+        self.medical_limit_spin.hide()
+
         self.salary_label = QLabel("年度工资总额(元):")
-        grid.addWidget(self.salary_label, 1, 2)
+        grid.addWidget(self.salary_label, 2, 2)
         self.salary_spin = QDoubleSpinBox()
         self.salary_spin.setRange(0, 999999999999)
         self.salary_spin.setValue(5000000)
         self.salary_spin.setDecimals(2)
         self.salary_spin.setSuffix(" 元")
-        grid.addWidget(self.salary_spin, 1, 3)
+        grid.addWidget(self.salary_spin, 2, 3)
         self.salary_label.hide()
         self.salary_spin.hide()
 
         self.count_label_widget = QLabel("承保人数:")
-        grid.addWidget(self.count_label_widget, 2, 0)
+        grid.addWidget(self.count_label_widget, 3, 0)
         self.count_spin = QSpinBox()
         self.count_spin.setRange(1, 999999)
         self.count_spin.setValue(100)
         self.count_spin.setSuffix(" 人")
-        grid.addWidget(self.count_spin, 2, 1)
+        grid.addWidget(self.count_spin, 3, 1)
 
-        grid.addWidget(QLabel("保险期间:"), 2, 2)
+        grid.addWidget(QLabel("保险期间:"), 3, 2)
         self.term_combo = QComboBox()
         self.term_combo.addItem("年度", "annual")
         self.term_combo.addItem("短期", "short")
         self.term_combo.currentIndexChanged.connect(self._on_term_change)
-        grid.addWidget(self.term_combo, 2, 3)
+        grid.addWidget(self.term_combo, 3, 3)
 
         self.days_label = QLabel("保险天数:")
-        grid.addWidget(self.days_label, 3, 0)
+        grid.addWidget(self.days_label, 4, 0)
         self.days_spin = QSpinBox()
         self.days_spin.setRange(1, 365)
         self.days_spin.setValue(180)
         self.days_spin.setSuffix(" 天")
-        grid.addWidget(self.days_spin, 3, 1)
+        grid.addWidget(self.days_spin, 4, 1)
         self.days_label.hide()
         self.days_spin.hide()
 
         # === 通用保险金额输入（property / interruption / composite / jewelry） ===
         self.amount_label = QLabel("保险金额(元):")
-        grid.addWidget(self.amount_label, 4, 0)
+        grid.addWidget(self.amount_label, 5, 0)
         self.amount_spin = QDoubleSpinBox()
         self.amount_spin.setRange(0, 999999999999)
         self.amount_spin.setValue(10000000)
         self.amount_spin.setDecimals(2)
         self.amount_spin.setSuffix(" 元")
-        grid.addWidget(self.amount_spin, 4, 1)
+        grid.addWidget(self.amount_spin, 5, 1)
         self.amount_label.hide()
         self.amount_spin.hide()
 
@@ -9006,16 +9625,28 @@ class MainInsuranceTab(QWidget):
         is_multi_risk = pt == "multiRiskSum"
 
         # liability 专属字段
+        is_fixed_only = is_liability and self.current_plan.get("fixedOnly", False)
+        is_dual_rate = is_liability and self.current_plan.get("dualRate", False)
+        is_fixed = self.method_combo.currentData() == "fixed"
         self.industry_label_widget.setVisible(is_liability)
         self.industry_combo.setVisible(is_liability)
         if hasattr(self, 'industry_lookup_btn'):
             self.industry_lookup_btn.setVisible(is_liability)
-        self.method_label_widget.setVisible(is_liability)
-        self.method_combo.setVisible(is_liability)
-        self.limit_label.setVisible(is_liability and self.method_combo.currentData() == "fixed")
-        self.limit_spin.setVisible(is_liability and self.method_combo.currentData() == "fixed")
-        self.salary_label.setVisible(is_liability and self.method_combo.currentData() == "salary")
-        self.salary_spin.setVisible(is_liability and self.method_combo.currentData() == "salary")
+        # fixedOnly版本隐藏计费方式选择器
+        self.method_label_widget.setVisible(is_liability and not is_fixed_only)
+        self.method_combo.setVisible(is_liability and not is_fixed_only)
+        if is_fixed_only:
+            self.method_combo.setCurrentIndex(0)  # 强制fixed
+        # 普通每人限额：非dualRate + fixed
+        self.limit_label.setVisible(is_liability and is_fixed and not is_dual_rate)
+        self.limit_spin.setVisible(is_liability and is_fixed and not is_dual_rate)
+        # E款双限额
+        self.death_limit_label.setVisible(is_liability and is_fixed and is_dual_rate)
+        self.death_limit_spin.setVisible(is_liability and is_fixed and is_dual_rate)
+        self.medical_limit_label.setVisible(is_liability and is_fixed and is_dual_rate)
+        self.medical_limit_spin.setVisible(is_liability and is_fixed and is_dual_rate)
+        self.salary_label.setVisible(is_liability and not is_fixed_only and self.method_combo.currentData() == "salary")
+        self.salary_spin.setVisible(is_liability and not is_fixed_only and self.method_combo.currentData() == "salary")
         self.count_label_widget.setVisible(is_liability)
         self.count_spin.setVisible(is_liability)
 
@@ -9555,45 +10186,77 @@ class MainInsuranceTab(QWidget):
         if employee_count <= 0:
             self._log("计算失败: 承保人数无效", "error")
             return
-        base_rates = self.current_plan.get("baseRates", {}).get(method, {})
-        base_rate = base_rates.get(industry_class)
-        if not base_rate:
-            self._log(f"计算失败: 基准费率不存在 method={method} class={industry_class}", "error")
-            return
-        self._log(f"版本: {self.current_plan.get('label', '')} | 计费: {'固定限额' if method == 'fixed' else '工资总额'} | 行业: {industry_class}")
-        self._log(f"基准费率: {base_rate * 100:.4f}%")
+        is_dual_rate = self.current_plan.get("dualRate") and method == "fixed"
+        product_data = MC_PRODUCTS.get(self.selected_product, {})
+        premium_cap = self.current_plan.get("premiumCap", product_data.get("premiumCap"))
         applicable = [c for c in self.current_plan.get("coefficients", []) if method in c.get("applicableTo", [])]
         coeff_product, coeff_details, _ = self._calc_coeff_product(applicable)
-        adjusted_rate = base_rate * coeff_product
-        product_data = MC_PRODUCTS.get(self.selected_product, {})
-        premium_cap = product_data.get("premiumCap")
-        adjusted_rate, is_capped = self._apply_premium_cap(adjusted_rate, premium_cap)
-        self._log(f"调整后费率: {adjusted_rate * 100:.4f}%{'（封顶）' if is_capped else ''}")
         per_person_premium = 0.0
         total_premium = 0.0
         formula = ""
-        if method == "fixed":
-            limit_yuan = self.limit_spin.value() * 10000
-            per_person_premium = limit_yuan * adjusted_rate
+        base_rate = 0.0
+        adjusted_rate = 0.0
+        is_capped = False
+        if is_dual_rate:
+            # E款双费率模式
+            death_limit = getattr(self, 'death_limit_spin', None)
+            medical_limit_val = getattr(self, 'medical_limit_spin', None)
+            death_limit_wan = death_limit.value() if death_limit else 50
+            medical_limit_wan = medical_limit_val.value() if medical_limit_val else 5
+            death_limit_yuan = death_limit_wan * 10000
+            medical_limit_yuan = medical_limit_wan * 10000
+            fixed_rates = self.current_plan.get("baseRates", {}).get("fixed", {})
+            death_rate = fixed_rates.get("death", {}).get(industry_class, 0)
+            medical_rate = fixed_rates.get("medical", {}).get(industry_class, 0)
+            self._log(f"版本: {self.current_plan.get('label', '')} | 计费: 固定限额（双费率） | 行业: {industry_class}")
+            self._log(f"死亡残疾基准费率: {death_rate * 100:.4f}% | 医疗基准费率: {medical_rate * 100:.4f}%")
+            base_premium = death_limit_yuan * death_rate + medical_limit_yuan * medical_rate
+            per_person_premium = base_premium * coeff_product
             if term_type == "short":
                 per_person_premium *= (days / 365)
             total_premium = per_person_premium * employee_count
-            formula = f"每人保费 = {fmt_currency(limit_yuan)} × {adjusted_rate * 100:.4f}%"
+            base_rate = base_premium / (death_limit_yuan + medical_limit_yuan) if (death_limit_yuan + medical_limit_yuan) > 0 else 0
+            adjusted_rate = base_rate * coeff_product
+            formula = f"每人基础保费 = {fmt_currency(death_limit_yuan)} × {death_rate * 100:.4f}% + {fmt_currency(medical_limit_yuan)} × {medical_rate * 100:.4f}% = {fmt_currency(base_premium)}"
+            formula += f"\n每人保费 = {fmt_currency(base_premium)} × {fmt_num(coeff_product, 6)}"
             if term_type == "short":
                 formula += f" × ({days}/365)"
             formula += f" = {fmt_currency(per_person_premium)}"
             formula += f"\n主险保费 = {fmt_currency(per_person_premium)} × {employee_count}人 = {fmt_currency(total_premium)}"
         else:
-            salary_yuan = self.salary_spin.value()
-            total_premium = salary_yuan * adjusted_rate
-            if term_type == "short":
-                total_premium *= (days / 365)
-            per_person_premium = total_premium / employee_count if employee_count > 0 else 0
-            formula = f"年保费 = {fmt_currency(salary_yuan)} × {adjusted_rate * 100:.4f}%"
-            if term_type == "short":
-                formula += f" × ({days}/365)"
-            formula += f" = {fmt_currency(total_premium)}"
-            formula += f"\n每人均摊: {fmt_currency(total_premium)} / {employee_count}人 = {fmt_currency(per_person_premium)}"
+            # 标准模式
+            base_rates = self.current_plan.get("baseRates", {}).get(method, {})
+            base_rate = base_rates.get(industry_class)
+            if not base_rate:
+                self._log(f"计算失败: 基准费率不存在 method={method} class={industry_class}", "error")
+                return
+            self._log(f"版本: {self.current_plan.get('label', '')} | 计费: {'固定限额' if method == 'fixed' else '工资总额'} | 行业: {industry_class}")
+            self._log(f"基准费率: {base_rate * 100:.4f}%")
+            adjusted_rate = base_rate * coeff_product
+            adjusted_rate, is_capped = self._apply_premium_cap(adjusted_rate, premium_cap)
+            self._log(f"调整后费率: {adjusted_rate * 100:.4f}%{'（封顶）' if is_capped else ''}")
+            if method == "fixed":
+                limit_yuan = self.limit_spin.value() * 10000
+                per_person_premium = limit_yuan * adjusted_rate
+                if term_type == "short":
+                    per_person_premium *= (days / 365)
+                total_premium = per_person_premium * employee_count
+                formula = f"每人保费 = {fmt_currency(limit_yuan)} × {adjusted_rate * 100:.4f}%"
+                if term_type == "short":
+                    formula += f" × ({days}/365)"
+                formula += f" = {fmt_currency(per_person_premium)}"
+                formula += f"\n主险保费 = {fmt_currency(per_person_premium)} × {employee_count}人 = {fmt_currency(total_premium)}"
+            else:
+                salary_yuan = self.salary_spin.value()
+                total_premium = salary_yuan * adjusted_rate
+                if term_type == "short":
+                    total_premium *= (days / 365)
+                per_person_premium = total_premium / employee_count if employee_count > 0 else 0
+                formula = f"年保费 = {fmt_currency(salary_yuan)} × {adjusted_rate * 100:.4f}%"
+                if term_type == "short":
+                    formula += f" × ({days}/365)"
+                formula += f" = {fmt_currency(total_premium)}"
+                formula += f"\n每人均摊: {fmt_currency(total_premium)} / {employee_count}人 = {fmt_currency(per_person_premium)}"
         disability_coeff = 1.0
         disability_desc = ""
         if self.selected_disability_table != "none" and self.selected_disability_option >= 0:
