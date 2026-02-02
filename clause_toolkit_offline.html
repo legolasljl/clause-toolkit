@@ -13469,6 +13469,330 @@ ${fileList}
                                 ]
                             }
                         ]
+                    },
+                    vD2026: {
+                        label: '雇主责任险（2026版D款）费率',
+                        premiumCap: 0.70,
+                        baseRates: {
+                            fixed: { class1: 0.00124, class2: 0.00186, class3: 0.00310 },
+                            salary: { class1: 0.00350, class2: 0.00525, class3: 0.00875 }
+                        },
+                        coefficients: [
+                            // ===== (一) 工资专用 =====
+                            {
+                                id: 'deathDisabilityMonths', name: '死亡/伤残赔偿工资月数调整系数', applicableTo: ['salary'],
+                                rows: [
+                                    { parameter: '36/48个月', value: 1.0, type: 'fixed' },
+                                    { parameter: '48/60个月', value: 1.25, type: 'fixed' },
+                                    { parameter: '60/72个月', value: 1.4, type: 'fixed' },
+                                    { parameter: '72/84个月', value: 1.5, type: 'fixed' }
+                                ]
+                            },
+                            // ===== (二) 固定限额专用 =====
+                            {
+                                id: 'disabilityDeathRatio', name: '残疾/死亡赔偿限额比值调整系数', applicableTo: ['fixed'],
+                                note: '每人残疾赔偿限额÷每人死亡赔偿限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤0.8', min: 0.85, max: 0.9, type: 'range' },
+                                    { parameter: '0.9', value: 0.95, type: 'fixed' },
+                                    { parameter: '1.0', value: 1.0, type: 'fixed' },
+                                    { parameter: '1.1', value: 0.96, type: 'fixed' },
+                                    { parameter: '≥1.2', min: 0.85, max: 0.92, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'lostWorkDaysD', name: '误工费赔偿天数调整系数', applicableTo: ['fixed'],
+                                note: '每人误工费用最高赔偿天数；未列明天数可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤90天', min: 0.96, max: 0.97, type: 'range' },
+                                    { parameter: '180天', value: 0.99, type: 'fixed' },
+                                    { parameter: '365天', value: 1.0, type: 'fixed' }
+                                ]
+                            },
+                            {
+                                id: 'employeeCount', name: '承保人数调整系数', applicableTo: ['fixed'],
+                                note: '未列明人数可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤50人', min: 1.05, max: 1.1, type: 'range' },
+                                    { parameter: '100人', value: 1.0, type: 'fixed' },
+                                    { parameter: '500人', value: 0.9, type: 'fixed' },
+                                    { parameter: '≥1000人', min: 0.7, max: 0.8, type: 'range' }
+                                ]
+                            },
+                            // ===== (三) 通用调整系数 =====
+                            {
+                                id: 'medicalLimit', name: '医疗费用赔偿限额调整系数', applicableTo: ['fixed', 'salary'],
+                                note: '每人医疗费用赔偿限额（万元）；未列明限额可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤1万元', min: 0.9, max: 0.95, type: 'range' },
+                                    { parameter: '2万元', value: 1.0, type: 'fixed' },
+                                    { parameter: '3万元', value: 1.05, type: 'fixed' },
+                                    { parameter: '4万元', value: 1.1, type: 'fixed' },
+                                    { parameter: '≥5万元', min: 1.15, max: 1.3, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'cumulativeRatio', name: '累计赔偿限额调整系数', applicableTo: ['fixed', 'salary'],
+                                note: '累计赔偿限额÷每人每次事故赔偿限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤2倍', min: 0.9, max: 0.95, type: 'range' },
+                                    { parameter: '5倍', value: 1.0, type: 'fixed' },
+                                    { parameter: '8倍', value: 1.05, type: 'fixed' },
+                                    { parameter: '≥10倍', min: 1.1, max: 1.3, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'deductibleRate', name: '免赔率调整系数', applicableTo: ['fixed', 'salary'], linkedGroup: 'deductible',
+                                rows: [
+                                    { parameter: '0', value: 1.0, type: 'fixed' },
+                                    { parameter: '10%', value: 0.9, type: 'fixed' },
+                                    { parameter: '20%', value: 0.8, type: 'fixed' },
+                                    { parameter: '30%', value: 0.7, type: 'fixed' }
+                                ]
+                            },
+                            {
+                                id: 'deductibleAmount', name: '免赔额调整系数', applicableTo: ['fixed', 'salary'], linkedGroup: 'deductible',
+                                note: '每次事故免赔额；未列明免赔额可按线性插值法计算',
+                                rows: [
+                                    { parameter: '0元', value: 1.0, type: 'fixed' },
+                                    { parameter: '2500元', value: 0.9, type: 'fixed' },
+                                    { parameter: '7500元', value: 0.8, type: 'fixed' },
+                                    { parameter: '≥10000元', min: 0.7, max: 0.75, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'employeeCategory', name: '雇员类别调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '管理人员', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '生产人员', min: 1.0, max: 3.0, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'historicalAccident', name: '历史事故情况调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '极少', min: 0.5, max: 0.7, type: 'range' },
+                                    { parameter: '较少', min: 0.7, max: 1.0, minExclusive: true, type: 'range' },
+                                    { parameter: '一般', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                    { parameter: '较多', min: 1.3, max: 1.5, minExclusive: true, type: 'range' },
+                                    { parameter: '很多', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'managementLevel', name: '管理水平调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '制度完善，无明显缺陷', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '较完善，存在个别缺陷', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '不完善或存在较多缺陷', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'lossRatio', name: '赔付率调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '[0, 20%]', min: 0.5, max: 0.6, type: 'range' },
+                                    { parameter: '(20%, 45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                    { parameter: '(45%, 70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                    { parameter: '(70%, 95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '＞95%', min: 1.2, max: 2.0, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'hazardInspection', name: '企业隐患排查整改调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '无隐患', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '整改完成', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '存在重大隐患且未整改', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'safetyTraining', name: '员工安全教育培训调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '每年定期对员工进行安全教育和培训', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '不定期对员工进行安全教育和培训', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '较少对员工进行安全教育和培训', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'safetyEquipment', name: '安全设施和装备配置情况调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '安全设施和装备配置齐全', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '安全设施和装备配置较齐全', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '安全设施和装备配置不齐全', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'renewal', name: '续保调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '新保', value: 1.0, type: 'fixed' },
+                                    { parameter: '续保一年', value: 0.95, type: 'fixed' },
+                                    { parameter: '续保两年及以上', min: 0.8, max: 0.9, type: 'range' }
+                                ]
+                            }
+                        ]
+                    },
+                    vF2026: {
+                        label: '雇主责任险（2026版F款）费率',
+                        premiumCap: 0.70,
+                        fixedOnly: true,
+                        baseRates: {
+                            fixed: { class1: 0.0021, class2: 0.0032, class3: 0.0053 }
+                        },
+                        coefficients: [
+                            {
+                                id: 'perPersonLimit', name: '每人伤亡责任限额调整系数', applicableTo: ['fixed'],
+                                note: '未列明限额可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤10万元', min: 1.2, max: 1.3, type: 'range' },
+                                    { parameter: '30万元', value: 1.1, type: 'fixed' },
+                                    { parameter: '50万元', value: 1.0, type: 'fixed' },
+                                    { parameter: '80万元', value: 0.9, type: 'fixed' },
+                                    { parameter: '≥100万元', min: 0.8, max: 0.85, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'medicalLimitF', name: '每人医疗费用责任限额调整系数', applicableTo: ['fixed'],
+                                note: '每人医疗费用责任限额÷每人伤亡责任限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤2%', min: 0.9, max: 0.95, type: 'range' },
+                                    { parameter: '5%', value: 1.0, type: 'fixed' },
+                                    { parameter: '10%', value: 1.05, type: 'fixed' },
+                                    { parameter: '15%', value: 1.1, type: 'fixed' },
+                                    { parameter: '≥20%', min: 1.15, max: 1.3, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'perAccidentRatio', name: '每次事故责任限额调整系数', applicableTo: ['fixed'],
+                                note: '每次事故责任限额÷（每人伤亡责任限额＋每人医疗费用责任限额）；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤3倍', min: 0.9, max: 0.95, type: 'range' },
+                                    { parameter: '5倍', value: 1.0, type: 'fixed' },
+                                    { parameter: '7倍', value: 1.05, type: 'fixed' },
+                                    { parameter: '≥10倍', min: 1.1, max: 1.2, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'cumulativeRatio', name: '累计责任限额调整系数', applicableTo: ['fixed'],
+                                note: '累计责任限额÷每次事故责任限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '1倍', value: 1.0, type: 'fixed' },
+                                    { parameter: '2倍', value: 1.05, type: 'fixed' },
+                                    { parameter: '3倍', value: 1.1, type: 'fixed' },
+                                    { parameter: '≥4倍', min: 1.15, max: 1.2, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'legalFeeLimit', name: '法律费用责任限额调整系数', applicableTo: ['fixed'],
+                                note: '法律费用累计责任限额÷累计责任限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤5%', min: 0.95, max: 0.97, type: 'range' },
+                                    { parameter: '10%', value: 1.0, type: 'fixed' },
+                                    { parameter: '15%', value: 1.03, type: 'fixed' },
+                                    { parameter: '≥20%', min: 1.05, max: 1.1, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'deductibleRate', name: '免赔率调整系数', applicableTo: ['fixed'], linkedGroup: 'deductible',
+                                rows: [
+                                    { parameter: '0', value: 1.0, type: 'fixed' },
+                                    { parameter: '10%', value: 0.9, type: 'fixed' },
+                                    { parameter: '20%', value: 0.8, type: 'fixed' },
+                                    { parameter: '30%', value: 0.7, type: 'fixed' }
+                                ]
+                            },
+                            {
+                                id: 'deductibleAmount', name: '免赔额调整系数', applicableTo: ['fixed'], linkedGroup: 'deductible',
+                                note: '每次事故免赔额；未列明免赔额可按线性插值法计算',
+                                rows: [
+                                    { parameter: '0元', value: 1.0, type: 'fixed' },
+                                    { parameter: '2000元', value: 0.9, type: 'fixed' },
+                                    { parameter: '≥4000元', min: 0.7, max: 0.8, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'employeeCount', name: '承保人数调整系数', applicableTo: ['fixed'],
+                                note: '未列明人数可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤100人', min: 1.1, max: 1.2, type: 'range' },
+                                    { parameter: '500人', value: 1.0, type: 'fixed' },
+                                    { parameter: '1000人', value: 0.9, type: 'fixed' },
+                                    { parameter: '≥2000人', min: 0.7, max: 0.8, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'employeeCategory', name: '雇员类别调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '管理人员', min: 0.7, max: 0.8, type: 'range' },
+                                    { parameter: '后勤人员', min: 0.8, max: 1.0, type: 'range' },
+                                    { parameter: '一线操作人员', min: 1.0, max: 3.0, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'managementLevel', name: '管理水平调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '制度完善，无明显缺陷', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '较完善，存在个别缺陷', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '不完善或存在较多缺陷', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'lossRatio', name: '赔付率调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '[0, 20%]', min: 0.5, max: 0.6, type: 'range' },
+                                    { parameter: '(20%, 45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                    { parameter: '(45%, 70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                    { parameter: '(70%, 95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '＞95%', min: 1.2, max: 2.0, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'hazardInspection', name: '企业隐患排查整改调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '无隐患', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '整改完成', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '存在重大隐患且未整改', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'historicalAccident', name: '历史事故与损失情况调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '极少', min: 0.5, max: 0.7, type: 'range' },
+                                    { parameter: '较少', min: 0.7, max: 1.0, minExclusive: true, type: 'range' },
+                                    { parameter: '一般', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '较多', min: 1.2, max: 1.5, minExclusive: true, type: 'range' },
+                                    { parameter: '很多', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'safetyTraining', name: '员工安全教育培训调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '每年定期对员工进行安全教育和培训', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '不定期对员工进行安全教育和培训', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '较少对员工进行安全教育和培训', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'safetyEquipment', name: '安全设施和装备配置情况调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '安全设施和装备配置齐全', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '安全设施和装备配置较齐全', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '安全设施和装备配置不齐全', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'renewal', name: '续保调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '新保', value: 1.0, type: 'fixed' },
+                                    { parameter: '续保一年', value: 0.95, type: 'fixed' },
+                                    { parameter: '续保两年及以上', min: 0.8, max: 0.9, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'workInjuryInsurance', name: '工伤保险情况调整系数', applicableTo: ['fixed'],
+                                rows: [
+                                    { parameter: '已投保工伤保险', value: 1.0, type: 'fixed' },
+                                    { parameter: '未投保工伤保险', value: 1.2, type: 'fixed' }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
@@ -16769,13 +17093,20 @@ ${fileList}
             var isMultiRisk = pt === 'multiRiskSum';
 
             // liability 专属字段
-            var liabilityEls = ['mc_industryClass', 'mc_pricingMethod', 'mc_employeeCount'];
+            var isFixedOnly = isLiability && mc_currentPlan && mc_currentPlan.fixedOnly;
+            var liabilityEls = ['mc_industryClass', 'mc_employeeCount'];
             liabilityEls.forEach(function (id) {
                 var el = document.getElementById(id);
                 if (el) el.closest('.mc-input-group').style.display = isLiability ? '' : 'none';
             });
+            // 计费方式：fixedOnly版本隐藏选择器并强制fixed
+            var pricingMethodEl = document.getElementById('mc_pricingMethod');
+            if (pricingMethodEl) {
+                pricingMethodEl.closest('.mc-input-group').style.display = isLiability && !isFixedOnly ? '' : 'none';
+                if (isFixedOnly) pricingMethodEl.value = 'fixed';
+            }
             document.getElementById('mc_perPersonLimitGroup').style.display = isLiability && document.getElementById('mc_pricingMethod').value === 'fixed' ? '' : 'none';
-            document.getElementById('mc_annualSalaryGroup').style.display = isLiability && document.getElementById('mc_pricingMethod').value === 'salary' ? '' : 'none';
+            document.getElementById('mc_annualSalaryGroup').style.display = isLiability && !isFixedOnly && document.getElementById('mc_pricingMethod').value === 'salary' ? '' : 'none';
 
             // 通用保险金额（元）
             var showAmount = isProperty || isComposite || isInterruption || isJewelry || isMultiRisk;
