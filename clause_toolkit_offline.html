@@ -2475,6 +2475,100 @@
             flex-wrap: wrap;
         }
 
+        .mc-product-info-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--info-color);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .mc-product-info-btn:hover {
+            background: var(--info-bg);
+            border-color: var(--info-color);
+            transform: scale(1.1);
+        }
+
+        .mc-product-info-section {
+            margin-bottom: 16px;
+        }
+
+        .mc-product-info-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .mc-product-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .mc-product-info-stat {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        .mc-product-info-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .mc-product-info-stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .mc-product-info-risk-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .mc-product-info-risk-rate {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .mc-product-info-formula {
+            padding: 10px 12px;
+            background: var(--info-bg);
+            border: 1px solid rgba(90, 122, 154, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .mc-product-info-note {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
         .mc-toast {
             position: fixed;
             bottom: 30px;
@@ -2947,16 +3041,19 @@
                 <div class="mc-control-bar">
                     <div class="mc-select-group">
                         <label>险种</label>
-                        <select id="mc_productSelect" onchange="mc_onProductChange()">
-                            <option value="employerLiability">雇主责任险</option>
-                            <option value="propertyAllRisk">财产一切险</option>
-                            <option value="propertyComprehensive">财产综合险</option>
-                            <option value="machineryBreakdown">机器损坏保险</option>
-                            <option value="compositeHengli2025">突发和意外的直接物质损失一切险(恒力2025版)</option>
-                            <option value="businessInterruption">营业中断保险</option>
-                            <option value="cashComprehensive">现金综合保险</option>
-                            <option value="jewelryComprehensive">珠宝商综合保险</option>
-                        </select>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <select id="mc_productSelect" onchange="mc_onProductChange()" style="flex:1;">
+                                <option value="employerLiability">雇主责任险</option>
+                                <option value="propertyAllRisk">财产一切险</option>
+                                <option value="propertyComprehensive">财产综合险</option>
+                                <option value="machineryBreakdown">机器损坏保险</option>
+                                <option value="compositeHengli2025">突发和意外的直接物质损失一切险(恒力2025版)</option>
+                                <option value="businessInterruption">营业中断保险</option>
+                                <option value="cashComprehensive">现金综合保险</option>
+                                <option value="jewelryComprehensive">珠宝商综合保险</option>
+                            </select>
+                            <button class="mc-product-info-btn" onclick="mc_showProductInfo()" title="产品速览">ℹ</button>
+                        </div>
                     </div>
                     <div class="mc-select-group">
                         <label>费率版本</label>
@@ -3306,6 +3403,14 @@
         </div>
     </div>
 
+    <!-- 产品速览模态框 -->
+    <div class="donate-modal" id="mc_productInfoModal" onclick="mc_hideProductInfo(event)">
+        <div class="donate-dialog" onclick="event.stopPropagation()" style="max-width:600px;">
+            <div id="mc_productInfoContent"></div>
+            <button class="donate-close-btn" onclick="mc_hideProductInfo()">关闭</button>
+        </div>
+    </div>
+
     <!-- 条款查询模态框 -->
     <div class="query-modal" id="cmp_queryModal" onclick="cmp_hideQueryModal(event)">
         <div class="query-dialog" onclick="event.stopPropagation()">
@@ -3608,6 +3713,7 @@
             if (e.key === 'Escape') {
                 hideDonateModal();
                 cmp_hideQueryModal();
+                mc_hideProductInfo();
             }
         });
 
@@ -16396,6 +16502,100 @@ ${fileList}
             });
             baseRateText += '（' + methodLabel + '全部：' + allRates.join(' / ') + '）';
             document.getElementById('mc_formulaBaseRate').textContent = baseRateText;
+        }
+
+        // --- 产品速览弹窗 ---
+        function mc_showProductInfo() {
+            var product = MC_PRODUCTS[mc_selectedProduct];
+            if (!product) return;
+            var pt = product.productType || 'liability';
+            var versions = product.versions || {};
+            var versionKeys = Object.keys(versions);
+            var firstVersion = versions[versionKeys[0]] || {};
+
+            // 统计信息
+            var riskCount = 0, coeffCount = 0, rateRange = '';
+            if (pt === 'multiRiskSum' && firstVersion.risks) {
+                riskCount = firstVersion.risks.length;
+                var rates = firstVersion.risks.filter(function(r) { return r.baseRate; }).map(function(r) { return r.baseRate; });
+                if (rates.length) rateRange = (Math.min.apply(null, rates) * 100).toFixed(2) + '% ~ ' + (Math.max.apply(null, rates) * 100).toFixed(2) + '%';
+            } else if (firstVersion.baseRates) {
+                var br = firstVersion.baseRates;
+                var vals = Object.values(br);
+                if (vals.length === 1) rateRange = (vals[0] * 100).toFixed(2) + '%';
+                else if (vals.length > 1) rateRange = (Math.min.apply(null, vals) * 100).toFixed(2) + '% ~ ' + (Math.max.apply(null, vals) * 100).toFixed(2) + '%';
+            }
+            coeffCount = (firstVersion.coefficients || []).length;
+
+            var typeLabels = { liability: '责任险', property: '财产险', composite: '综合险', interruption: '营业中断险', jewelry: '珠宝险', multiRiskSum: '多风险求和' };
+
+            var html = '<div class="donate-title" style="margin-bottom:16px;">' + mc_escHtml(product.productName) + '</div>';
+
+            // 概览统计
+            html += '<div class="mc-product-info-section"><div class="mc-product-info-section-title">概览</div>';
+            html += '<div class="mc-product-info-grid">';
+            html += '<div class="mc-product-info-stat"><div class="mc-product-info-stat-value" style="color:var(--accent-primary);">' + (typeLabels[pt] || pt) + '</div><div class="mc-product-info-stat-label">产品类型</div></div>';
+            html += '<div class="mc-product-info-stat"><div class="mc-product-info-stat-value" style="color:var(--info-color);">' + versionKeys.length + '</div><div class="mc-product-info-stat-label">费率版本</div></div>';
+            if (riskCount) html += '<div class="mc-product-info-stat"><div class="mc-product-info-stat-value" style="color:var(--success-color);">' + riskCount + '</div><div class="mc-product-info-stat-label">风险类别</div></div>';
+            html += '<div class="mc-product-info-stat"><div class="mc-product-info-stat-value" style="color:var(--warning-color);">' + coeffCount + '</div><div class="mc-product-info-stat-label">调整系数</div></div>';
+            html += '</div></div>';
+
+            // 基准费率
+            if (rateRange) {
+                html += '<div class="mc-product-info-section"><div class="mc-product-info-section-title">基准费率范围</div>';
+                html += '<div style="font-size:18px;font-weight:700;font-family:var(--font-mono);color:var(--accent-primary);padding:4px 0;">' + rateRange + '</div>';
+                html += '</div>';
+            }
+
+            // 风险明细（multiRiskSum）
+            if (pt === 'multiRiskSum' && firstVersion.risks) {
+                html += '<div class="mc-product-info-section"><div class="mc-product-info-section-title">风险类别明细</div>';
+                firstVersion.risks.forEach(function(r) {
+                    html += '<div class="mc-product-info-risk-item">';
+                    html += '<span>' + mc_escHtml(r.name) + '</span>';
+                    if (r.baseRate) {
+                        html += '<span class="mc-product-info-risk-rate">' + (r.baseRate * 100).toFixed(4) + '%</span>';
+                    } else if (r.derivedFrom) {
+                        html += '<span style="font-size:11px;color:var(--info-color);">派生: ' + r.derivedFrom.join('+') + ' × ' + ((r.derivedRate || 0) * 100) + '%</span>';
+                    } else if (r.baseRateTable) {
+                        html += '<span style="font-size:11px;color:var(--text-tertiary);">查表</span>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            // 公式说明
+            if (product.formulaText || product.formulaNote) {
+                html += '<div class="mc-product-info-section"><div class="mc-product-info-section-title">计算公式</div>';
+                html += '<div class="mc-product-info-formula">';
+                if (product.formulaText) html += mc_escHtml(product.formulaText);
+                if (product.formulaNote) html += '<div class="mc-product-info-note">' + mc_escHtml(product.formulaNote) + '</div>';
+                html += '</div></div>';
+            }
+
+            // 系数列表
+            if (firstVersion.coefficients && firstVersion.coefficients.length) {
+                html += '<div class="mc-product-info-section"><div class="mc-product-info-section-title">费率调整系数 (' + coeffCount + '项)</div>';
+                firstVersion.coefficients.forEach(function(c) {
+                    var scope = '';
+                    if (c.applicableTo && c.applicableTo.indexOf('all') < 0) scope = ' · 适用: ' + c.applicableTo.join(', ');
+                    html += '<div class="mc-product-info-risk-item">';
+                    html += '<span>' + mc_escHtml(c.name) + '<span style="font-size:10px;color:var(--text-tertiary);">' + scope + '</span></span>';
+                    html += '<span style="font-size:11px;color:var(--text-tertiary);">' + (c.rows || []).length + '档</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            document.getElementById('mc_productInfoContent').innerHTML = html;
+            document.getElementById('mc_productInfoModal').classList.add('show');
+        }
+
+        function mc_hideProductInfo(event) {
+            if (!event || event.target.id === 'mc_productInfoModal') {
+                document.getElementById('mc_productInfoModal').classList.remove('show');
+            }
         }
 
         // --- 险种切换 ---
