@@ -3176,6 +3176,14 @@
                         <label>每人赔偿限额（万元）</label>
                         <input type="number" id="mc_perPersonLimit" value="50" min="1">
                     </div>
+                    <div class="mc-input-group" id="mc_deathLimitGroup" style="display:none;">
+                        <label>每人死亡残疾责任限额（万元）</label>
+                        <input type="number" id="mc_deathLimit" value="50" min="1">
+                    </div>
+                    <div class="mc-input-group" id="mc_medicalLimitGroup" style="display:none;">
+                        <label>每人医疗费用责任限额（万元）</label>
+                        <input type="number" id="mc_medicalLimit" value="5" min="0.1" step="0.1">
+                    </div>
                     <div class="mc-input-group" id="mc_annualSalaryGroup" style="display:none;">
                         <label>年度工资总额（元）</label>
                         <input type="number" id="mc_annualSalary" value="5000000" min="1" step="0.01">
@@ -13793,6 +13801,187 @@ ${fileList}
                                 ]
                             }
                         ]
+                    },
+                    vE2026: {
+                        label: '雇主责任险（2026版E款）费率',
+                        dualRate: true,
+                        baseRates: {
+                            fixed: {
+                                death: { class1: 0.00061, class2: 0.00085, class3: 0.00139 },
+                                medical: { class1: 0.00151, class2: 0.00212, class3: 0.00350 }
+                            },
+                            salary: { class1: 0.00212, class2: 0.00320, class3: 0.00532 }
+                        },
+                        coefficients: [
+                            // ===== (一) 固定限额专用（死亡残疾责任） =====
+                            {
+                                id: 'deathDisabilityLimit', name: '每人死亡残疾责任限额调整系数', applicableTo: ['fixed'],
+                                note: '仅适用于死亡残疾责任；未列明限额可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤10万元', min: 1.2, max: 1.3, type: 'range' },
+                                    { parameter: '30万元', value: 1.1, type: 'fixed' },
+                                    { parameter: '50万元', value: 1.0, type: 'fixed' },
+                                    { parameter: '80万元', value: 0.9, type: 'fixed' },
+                                    { parameter: '≥100万元', min: 0.8, max: 0.85, type: 'range' }
+                                ]
+                            },
+                            // ===== (一) 固定限额专用（医疗费用责任） =====
+                            {
+                                id: 'medicalLimitE', name: '每人医疗费用责任限额调整系数', applicableTo: ['fixed'],
+                                note: '仅适用于医疗费用责任；未列明限额可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤1万元', min: 1.3, max: 1.5, type: 'range' },
+                                    { parameter: '2万元', value: 1.0, type: 'fixed' },
+                                    { parameter: '5万元', value: 0.9, type: 'fixed' },
+                                    { parameter: '≥8万元', min: 0.7, max: 0.8, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'employeeCount', name: '承保人数调整系数', applicableTo: ['fixed'],
+                                note: '未列明人数可按线性插值法计算',
+                                rows: [
+                                    { parameter: '＜100人', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '[100, 500)人', min: 0.9, max: 1.0, minExclusive: true, type: 'range' },
+                                    { parameter: '[500, 1000)人', min: 0.8, max: 0.9, minExclusive: true, type: 'range' },
+                                    { parameter: '≥1000人', min: 0.7, max: 0.8, type: 'range' }
+                                ]
+                            },
+                            // ===== (二) 工资专用 =====
+                            {
+                                id: 'deathDisabilityMonths', name: '每人人身伤亡责任限额调整系数（工资月数）', applicableTo: ['salary'],
+                                rows: [
+                                    { parameter: '36/48个月', value: 1.0, type: 'fixed' },
+                                    { parameter: '48/60个月', value: 1.25, type: 'fixed' },
+                                    { parameter: '60/72个月', value: 1.4, type: 'fixed' },
+                                    { parameter: '72/84个月', value: 1.5, type: 'fixed' }
+                                ]
+                            },
+                            {
+                                id: 'medicalLimitSalary', name: '每人医疗费用责任限额调整系数', applicableTo: ['salary'],
+                                note: '每人医疗费用责任限额÷每人人身伤亡责任限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤5%', min: 0.9, max: 0.95, type: 'range' },
+                                    { parameter: '10%', value: 1.0, type: 'fixed' },
+                                    { parameter: '15%', value: 1.05, type: 'fixed' },
+                                    { parameter: '20%', value: 1.1, type: 'fixed' },
+                                    { parameter: '≥25%', min: 1.15, max: 1.3, type: 'range' }
+                                ]
+                            },
+                            // ===== (三) 通用调整系数 =====
+                            {
+                                id: 'perAccidentRatio', name: '每次事故责任限额调整系数', applicableTo: ['fixed', 'salary'],
+                                note: '每次事故责任限额÷每人人身伤亡责任限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '≤3倍', min: 0.9, max: 0.95, type: 'range' },
+                                    { parameter: '5倍', value: 1.0, type: 'fixed' },
+                                    { parameter: '10倍', value: 1.05, type: 'fixed' },
+                                    { parameter: '≥15倍', min: 1.1, max: 1.2, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'cumulativeRatio', name: '累计责任限额调整系数', applicableTo: ['fixed', 'salary'],
+                                note: '累计责任限额÷每次事故责任限额；未列明比例可按线性插值法计算',
+                                rows: [
+                                    { parameter: '1倍', value: 0.95, type: 'fixed' },
+                                    { parameter: '2倍', value: 1.0, type: 'fixed' },
+                                    { parameter: '3倍', value: 1.05, type: 'fixed' },
+                                    { parameter: '≥4倍', min: 1.1, max: 1.2, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'deductibleRate', name: '免赔率调整系数', applicableTo: ['fixed', 'salary'], linkedGroup: 'deductible',
+                                rows: [
+                                    { parameter: '0', value: 1.0, type: 'fixed' },
+                                    { parameter: '10%', value: 0.9, type: 'fixed' },
+                                    { parameter: '20%', value: 0.8, type: 'fixed' },
+                                    { parameter: '30%', value: 0.7, type: 'fixed' }
+                                ]
+                            },
+                            {
+                                id: 'deductibleAmount', name: '免赔额调整系数', applicableTo: ['fixed', 'salary'], linkedGroup: 'deductible',
+                                note: '每次事故免赔额；未列明免赔额可按线性插值法计算',
+                                rows: [
+                                    { parameter: '0元', value: 1.0, type: 'fixed' },
+                                    { parameter: '2000元', value: 0.9, type: 'fixed' },
+                                    { parameter: '≥4000元', min: 0.7, max: 0.8, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'employeeCategory', name: '雇员类别调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '管理人员', min: 0.7, max: 0.8, type: 'range' },
+                                    { parameter: '后勤人员', min: 0.9, max: 1.0, type: 'range' },
+                                    { parameter: '一线操作人员', min: 1.0, max: 2.0, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'managementLevel', name: '管理水平调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '制度完善，无明显缺陷', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '较完善，存在个别缺陷', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '不完善或存在较多缺陷', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'lossRatio', name: '赔付率调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '[0, 20%]', min: 0.5, max: 0.6, type: 'range' },
+                                    { parameter: '(20%, 45%]', min: 0.6, max: 0.8, minExclusive: true, type: 'range' },
+                                    { parameter: '(45%, 70%]', min: 0.8, max: 1.0, minExclusive: true, type: 'range' },
+                                    { parameter: '(70%, 95%]', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '＞95%', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'hazardInspection', name: '企业隐患排查整改调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '无隐患', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '整改完成', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '存在重大隐患且未整改', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'historicalAccident', name: '历史事故与损失情况调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '极少', min: 0.5, max: 0.7, type: 'range' },
+                                    { parameter: '较少', min: 0.7, max: 1.0, minExclusive: true, type: 'range' },
+                                    { parameter: '一般', min: 1.0, max: 1.3, minExclusive: true, type: 'range' },
+                                    { parameter: '较多', min: 1.3, max: 1.5, minExclusive: true, type: 'range' },
+                                    { parameter: '很多', min: 1.5, max: 2.0, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'safetyTraining', name: '员工安全教育培训调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '每年定期对员工进行安全教育和培训', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '不定期对员工进行安全教育和培训', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '较少对员工进行安全教育和培训', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'safetyEquipment', name: '安全设施和装备配置情况调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '安全设施和装备配置齐全', min: 0.7, max: 1.0, type: 'range' },
+                                    { parameter: '安全设施和装备配置较齐全', min: 1.0, max: 1.2, minExclusive: true, type: 'range' },
+                                    { parameter: '安全设施和装备配置不齐全', min: 1.2, max: 1.5, minExclusive: true, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'renewal', name: '续保调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '新保', value: 1.0, type: 'fixed' },
+                                    { parameter: '续保一年', value: 0.95, type: 'fixed' },
+                                    { parameter: '续保两年及以上', min: 0.8, max: 0.9, type: 'range' }
+                                ]
+                            },
+                            {
+                                id: 'workInjuryInsurance', name: '工伤保险情况调整系数', applicableTo: ['fixed', 'salary'],
+                                rows: [
+                                    { parameter: '已投保工伤保险', value: 1.0, type: 'fixed' },
+                                    { parameter: '未投保工伤保险', value: 1.2, type: 'fixed' }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
@@ -17105,7 +17294,13 @@ ${fileList}
                 pricingMethodEl.closest('.mc-input-group').style.display = isLiability && !isFixedOnly ? '' : 'none';
                 if (isFixedOnly) pricingMethodEl.value = 'fixed';
             }
-            document.getElementById('mc_perPersonLimitGroup').style.display = isLiability && document.getElementById('mc_pricingMethod').value === 'fixed' ? '' : 'none';
+            var isDualRate = isLiability && mc_currentPlan && mc_currentPlan.dualRate;
+            var isFixed = document.getElementById('mc_pricingMethod').value === 'fixed';
+            // 普通每人限额：liability + fixed + 非dualRate
+            document.getElementById('mc_perPersonLimitGroup').style.display = isLiability && isFixed && !isDualRate ? '' : 'none';
+            // E款双限额：liability + fixed + dualRate
+            document.getElementById('mc_deathLimitGroup').style.display = isLiability && isFixed && isDualRate ? '' : 'none';
+            document.getElementById('mc_medicalLimitGroup').style.display = isLiability && isFixed && isDualRate ? '' : 'none';
             document.getElementById('mc_annualSalaryGroup').style.display = isLiability && !isFixedOnly && document.getElementById('mc_pricingMethod').value === 'salary' ? '' : 'none';
 
             // 通用保险金额（元）
@@ -17253,7 +17448,12 @@ ${fileList}
                     var methodLabel = method === 'fixed' ? '固定限额' : '工资总额';
                     var classLabels = { class1: '一类', class2: '二类', class3: '三类' };
                     var rates = ver.baseRates[method];
-                    if (rates) {
+                    if (ver.dualRate && method === 'fixed' && rates && rates.death) {
+                        // E款双费率模式
+                        var dRate = rates.death[indClass];
+                        var mRate = rates.medical[indClass];
+                        baseRateText += '死亡残疾 ' + (dRate * 100).toFixed(3) + '% + 医疗 ' + (mRate * 100).toFixed(3) + '%（' + (classLabels[indClass] || indClass) + '）';
+                    } else if (rates) {
                         var currentRate = rates[indClass];
                         baseRateText += methodLabel + ' · ' + (classLabels[indClass] || indClass) + ' ' + (currentRate * 100).toFixed(2) + '%';
                         // 显示全部费率供参考
@@ -17311,13 +17511,20 @@ ${fileList}
             var classLabels = { class1: '一类', class2: '二类', class3: '三类' };
             var rates = ver.baseRates[method];
             if (!rates) return;
-            var currentRate = rates[indClass];
-            var baseRateText = '基准费率：' + methodLabel + ' · ' + (classLabels[indClass] || indClass) + ' ' + (currentRate * 100).toFixed(2) + '%';
-            var allRates = [];
-            Object.keys(rates).forEach(function (k) {
-                allRates.push((classLabels[k] || k) + ' ' + (rates[k] * 100).toFixed(2) + '%');
-            });
-            baseRateText += '（' + methodLabel + '全部：' + allRates.join(' / ') + '）';
+            var baseRateText = '基准费率：';
+            if (ver.dualRate && method === 'fixed' && rates.death) {
+                var dRate = rates.death[indClass];
+                var mRate = rates.medical[indClass];
+                baseRateText += '死亡残疾 ' + (dRate * 100).toFixed(3) + '% + 医疗 ' + (mRate * 100).toFixed(3) + '%（' + (classLabels[indClass] || indClass) + '）';
+            } else {
+                var currentRate = rates[indClass];
+                baseRateText += methodLabel + ' · ' + (classLabels[indClass] || indClass) + ' ' + (currentRate * 100).toFixed(2) + '%';
+                var allRates = [];
+                Object.keys(rates).forEach(function (k) {
+                    allRates.push((classLabels[k] || k) + ' ' + (rates[k] * 100).toFixed(2) + '%');
+                });
+                baseRateText += '（' + methodLabel + '全部：' + allRates.join(' / ') + '）';
+            }
             document.getElementById('mc_formulaBaseRate').textContent = baseRateText;
         }
 
@@ -18327,41 +18534,71 @@ ${fileList}
                 mc_log('计算失败: 承保人数无效', 'error');
                 return;
             }
-            var baseRate = mc_currentPlan.baseRates[method] && mc_currentPlan.baseRates[method][industryClass];
-            if (!baseRate) {
-                mc_showToast('无法找到对应基准费率', 'error');
-                mc_log('计算失败: 基准费率不存在', 'error');
-                return;
-            }
-            mc_log('版本: ' + mc_currentPlan.label + ' | 计费: ' + (method === 'fixed' ? '固定限额' : '工资总额') + ' | 行业: ' + industryClass, 'info');
-            mc_log('基准费率: ' + (baseRate * 100).toFixed(4) + '%', 'info');
+            var isDualRate = mc_currentPlan.dualRate && method === 'fixed';
+            var product = MC_PRODUCTS[mc_selectedProduct] || {};
+            var premiumCap = mc_currentPlan.premiumCap !== undefined ? mc_currentPlan.premiumCap : product.premiumCap;
             var applicable = mc_getApplicableCoefficients();
             var r = mc_calcCoeffProduct(applicable);
-            var adjustedRate = baseRate * r.coeffProduct;
-            var product = MC_PRODUCTS[mc_selectedProduct] || {};
-            var cap = mc_applyPremiumCap(adjustedRate, product.premiumCap);
-            adjustedRate = cap.adjustedRate;
-            mc_log('调整后费率: ' + (adjustedRate * 100).toFixed(4) + '%' + (cap.isCapped ? '（封顶）' : ''), 'info');
-            var perPersonPremium = 0, totalPremium = 0, formulaBreakdown = '';
-            if (method === 'fixed') {
-                var perPersonLimit = parseFloat(document.getElementById('mc_perPersonLimit').value) || 50;
-                var limitYuan = perPersonLimit * 10000;
-                perPersonPremium = limitYuan * adjustedRate;
+            var baseRate, adjustedRate, perPersonPremium = 0, totalPremium = 0, formulaBreakdown = '';
+            var isCapped = false;
+            if (isDualRate) {
+                // E款双费率模式：fixed = death×deathRate + medical×medicalRate
+                var deathLimit = parseFloat(document.getElementById('mc_deathLimit').value) || 50;
+                var medicalLimitVal = parseFloat(document.getElementById('mc_medicalLimit').value) || 5;
+                var deathLimitYuan = deathLimit * 10000;
+                var medicalLimitYuan = medicalLimitVal * 10000;
+                var deathRate = mc_currentPlan.baseRates.fixed.death[industryClass];
+                var medicalRate = mc_currentPlan.baseRates.fixed.medical[industryClass];
+                mc_log('版本: ' + mc_currentPlan.label + ' | 计费: 固定限额（双费率） | 行业: ' + industryClass, 'info');
+                mc_log('死亡残疾基准费率: ' + (deathRate * 100).toFixed(4) + '% | 医疗基准费率: ' + (medicalRate * 100).toFixed(4) + '%', 'info');
+                mc_log('系数乘积: ' + mc_fmtNum(r.coeffProduct, 6), 'info');
+                // E款无费率封顶
+                var basePremium = deathLimitYuan * deathRate + medicalLimitYuan * medicalRate;
+                perPersonPremium = basePremium * r.coeffProduct;
                 if (termType === 'short') perPersonPremium *= (days / 365);
                 totalPremium = perPersonPremium * employeeCount;
-                formulaBreakdown = '每人保费 = ' + mc_fmtCurrency(limitYuan) + ' × ' + (adjustedRate * 100).toFixed(4) + '%';
+                baseRate = basePremium / (deathLimitYuan + medicalLimitYuan);
+                adjustedRate = baseRate * r.coeffProduct;
+                formulaBreakdown = '每人基础保费 = ' + mc_fmtCurrency(deathLimitYuan) + ' × ' + (deathRate * 100).toFixed(4) + '% + ' + mc_fmtCurrency(medicalLimitYuan) + ' × ' + (medicalRate * 100).toFixed(4) + '% = ' + mc_fmtCurrency(basePremium);
+                formulaBreakdown += '\n每人保费 = ' + mc_fmtCurrency(basePremium) + ' × ' + mc_fmtNum(r.coeffProduct, 6);
                 if (termType === 'short') formulaBreakdown += ' × (' + days + '/365)';
                 formulaBreakdown += ' = ' + mc_fmtCurrency(perPersonPremium);
                 formulaBreakdown += '\n主险保费 = ' + mc_fmtCurrency(perPersonPremium) + ' × ' + employeeCount + '人 = ' + mc_fmtCurrency(totalPremium);
             } else {
-                var salaryYuan = parseFloat(document.getElementById('mc_annualSalary').value) || 5000000;
-                totalPremium = salaryYuan * adjustedRate;
-                if (termType === 'short') totalPremium *= (days / 365);
-                perPersonPremium = totalPremium / employeeCount;
-                formulaBreakdown = '年保费 = ' + mc_fmtCurrency(salaryYuan) + ' × ' + (adjustedRate * 100).toFixed(4) + '%';
-                if (termType === 'short') formulaBreakdown += ' × (' + days + '/365)';
-                formulaBreakdown += ' = ' + mc_fmtCurrency(totalPremium);
-                formulaBreakdown += '\n每人均摊: ' + mc_fmtCurrency(totalPremium) + ' / ' + employeeCount + '人 = ' + mc_fmtCurrency(perPersonPremium);
+                // 标准模式
+                baseRate = mc_currentPlan.baseRates[method] && mc_currentPlan.baseRates[method][industryClass];
+                if (!baseRate) {
+                    mc_showToast('无法找到对应基准费率', 'error');
+                    mc_log('计算失败: 基准费率不存在', 'error');
+                    return;
+                }
+                mc_log('版本: ' + mc_currentPlan.label + ' | 计费: ' + (method === 'fixed' ? '固定限额' : '工资总额') + ' | 行业: ' + industryClass, 'info');
+                mc_log('基准费率: ' + (baseRate * 100).toFixed(4) + '%', 'info');
+                adjustedRate = baseRate * r.coeffProduct;
+                var cap = mc_applyPremiumCap(adjustedRate, premiumCap);
+                adjustedRate = cap.adjustedRate;
+                isCapped = cap.isCapped;
+                mc_log('调整后费率: ' + (adjustedRate * 100).toFixed(4) + '%' + (isCapped ? '（封顶）' : ''), 'info');
+                if (method === 'fixed') {
+                    var perPersonLimit = parseFloat(document.getElementById('mc_perPersonLimit').value) || 50;
+                    var limitYuan = perPersonLimit * 10000;
+                    perPersonPremium = limitYuan * adjustedRate;
+                    if (termType === 'short') perPersonPremium *= (days / 365);
+                    totalPremium = perPersonPremium * employeeCount;
+                    formulaBreakdown = '每人保费 = ' + mc_fmtCurrency(limitYuan) + ' × ' + (adjustedRate * 100).toFixed(4) + '%';
+                    if (termType === 'short') formulaBreakdown += ' × (' + days + '/365)';
+                    formulaBreakdown += ' = ' + mc_fmtCurrency(perPersonPremium);
+                    formulaBreakdown += '\n主险保费 = ' + mc_fmtCurrency(perPersonPremium) + ' × ' + employeeCount + '人 = ' + mc_fmtCurrency(totalPremium);
+                } else {
+                    var salaryYuan = parseFloat(document.getElementById('mc_annualSalary').value) || 5000000;
+                    totalPremium = salaryYuan * adjustedRate;
+                    if (termType === 'short') totalPremium *= (days / 365);
+                    perPersonPremium = totalPremium / employeeCount;
+                    formulaBreakdown = '年保费 = ' + mc_fmtCurrency(salaryYuan) + ' × ' + (adjustedRate * 100).toFixed(4) + '%';
+                    if (termType === 'short') formulaBreakdown += ' × (' + days + '/365)';
+                    formulaBreakdown += ' = ' + mc_fmtCurrency(totalPremium);
+                    formulaBreakdown += '\n每人均摊: ' + mc_fmtCurrency(totalPremium) + ' / ' + employeeCount + '人 = ' + mc_fmtCurrency(perPersonPremium);
+                }
             }
             var disabilityCoeff = 1.0, disabilityDesc = '';
             if (mc_selectedDisabilityTable !== 'none' && mc_selectedDisabilityOption >= 0) {
@@ -18377,11 +18614,11 @@ ${fileList}
             mc_result = {
                 version: mc_currentPlan.label, method: method, industryClass: industryClass,
                 baseRate: baseRate, coeffProduct: r.coeffProduct, disabilityCoeff: disabilityCoeff,
-                disabilityDesc: disabilityDesc, adjustedRate: adjustedRate, isCapped: cap.isCapped,
+                disabilityDesc: disabilityDesc, adjustedRate: adjustedRate, isCapped: isCapped,
                 perPersonPremium: perPersonPremium, totalPremium: totalPremium,
                 employeeCount: employeeCount, termType: termType, days: days,
                 formulaBreakdown: formulaBreakdown, coeffDetails: r.coeffDetails,
-                productType: 'liability'
+                productType: 'liability', dualRate: isDualRate
             };
         }
 
