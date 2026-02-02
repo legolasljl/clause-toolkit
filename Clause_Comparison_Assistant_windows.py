@@ -4666,7 +4666,7 @@ class ClauseExtractorTab(QWidget):
         stats_layout.setSpacing(0)
 
         # 使用固定宽度的统计项确保对齐
-        stat_style = "font-size: 13px; font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;"
+        stat_style = "font-size: 14px; font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;"
 
         self.stat_total_label = QLabel("待处理: 0")
         self.stat_total_label.setMinimumWidth(120)
@@ -4792,7 +4792,7 @@ class ClauseExtractorTab(QWidget):
                 border-radius: 8px;
                 padding: 10px;
                 font-family: 'Cascadia Code', 'Consolas', monospace;
-                font-size: 12px;
+                font-size: 13px;
                 color: {AnthropicColors.TEXT_PRIMARY};
             }}
             QListWidget::item {{
@@ -4944,7 +4944,7 @@ class ClauseExtractorTab(QWidget):
                 color: {AnthropicColors.TEXT_LIGHT};
                 padding: 15px;
                 font-family: 'Consolas', 'Cascadia Code', monospace;
-                font-size: 12px;
+                font-size: 13px;
             }}
         """)
         layout.addWidget(self.log_text, 1)
@@ -5948,9 +5948,10 @@ class ClauseOutputTab(QWidget):
                 background: {AnthropicColors.BG_CARD};
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 6px;
-                padding: 8px 12px;
+                padding: 10px 14px;
                 color: {AnthropicColors.TEXT_PRIMARY};
-                min-width: 160px;
+                font-size: 15px;
+                min-width: 180px;
             }}
             QComboBox:hover {{ border-color: {AnthropicColors.ACCENT}; }}
             QComboBox::drop-down {{
@@ -5979,7 +5980,7 @@ class ClauseOutputTab(QWidget):
         source_layout.setSpacing(12)
 
         source_title = QLabel("📊 选择数据源")
-        source_title.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-weight: 600; font-size: 14px;")
+        source_title.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-weight: 600; font-size: 15px;")
         source_layout.addWidget(source_title)
 
         # 数据源按钮行
@@ -5987,16 +5988,18 @@ class ClauseOutputTab(QWidget):
 
         self.from_extract_btn = QPushButton("📄 从条款提取获取")
         self.from_extract_btn.setCursor(Qt.PointingHandCursor)
-        self.from_extract_btn.setMinimumWidth(160)
+        self.from_extract_btn.setMinimumWidth(180)
+        self.from_extract_btn.setMinimumHeight(44)
         self.from_extract_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {AnthropicColors.BG_PRIMARY};
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
-                padding: 12px 20px;
+                padding: 12px 24px;
                 color: {AnthropicColors.TEXT_PRIMARY};
                 font-weight: 500;
-                min-width: 160px;
+                font-size: 15px;
+                min-width: 180px;
             }}
             QPushButton:hover {{
                 border-color: {AnthropicColors.ACCENT};
@@ -6007,7 +6010,8 @@ class ClauseOutputTab(QWidget):
 
         self.from_file_btn = QPushButton("📁 从Excel文件加载")
         self.from_file_btn.setCursor(Qt.PointingHandCursor)
-        self.from_file_btn.setMinimumWidth(160)
+        self.from_file_btn.setMinimumWidth(180)
+        self.from_file_btn.setMinimumHeight(44)
         self.from_file_btn.setStyleSheet(self.from_extract_btn.styleSheet())
         self.from_file_btn.clicked.connect(self._load_from_excel)
 
@@ -6018,7 +6022,7 @@ class ClauseOutputTab(QWidget):
 
         # 文件路径显示
         self.source_label = QLabel("未选择数据源")
-        self.source_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 12px; padding: 5px 0;")
+        self.source_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 14px; padding: 5px 0;")
         source_layout.addWidget(self.source_label)
 
         layout.addWidget(source_card)
@@ -6030,11 +6034,11 @@ class ClauseOutputTab(QWidget):
 
         preview_header = QHBoxLayout()
         preview_title = QLabel("📋 条款预览")
-        preview_title.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-weight: 600; font-size: 14px;")
+        preview_title.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-weight: 600; font-size: 15px;")
         preview_header.addWidget(preview_title)
 
         self.clause_count_label = QLabel("共 0 条")
-        self.clause_count_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 12px;")
+        self.clause_count_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 14px;")
         preview_header.addWidget(self.clause_count_label)
         preview_header.addStretch()
 
@@ -6045,7 +6049,7 @@ class ClauseOutputTab(QWidget):
                 background: transparent;
                 border: none;
                 color: {AnthropicColors.ACCENT};
-                font-size: 12px;
+                font-size: 14px;
                 padding: 4px 8px;
             }}
             QPushButton:hover {{ text-decoration: underline; }}
@@ -6064,7 +6068,7 @@ class ClauseOutputTab(QWidget):
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
                 padding: 8px;
-                font-size: 13px;
+                font-size: 15px;
                 color: {AnthropicColors.TEXT_PRIMARY};
             }}
             QListWidget::item {{
@@ -6096,14 +6100,14 @@ class ClauseOutputTab(QWidget):
         style_layout.setSpacing(10)
 
         style_title = QLabel("🎨 Word样式设置")
-        style_title.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-weight: 600; font-size: 14px;")
+        style_title.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-weight: 600; font-size: 15px;")
         style_layout.addWidget(style_title)
 
         style_grid = QHBoxLayout()
         style_grid.setSpacing(15)
 
         # 标签通用样式
-        label_style = f"color: {AnthropicColors.TEXT_PRIMARY}; font-size: 13px; font-weight: 500;"
+        label_style = f"color: {AnthropicColors.TEXT_PRIMARY}; font-size: 15px; font-weight: 500;"
         spin_style = f"""
             QSpinBox, QDoubleSpinBox {{
                 background: {AnthropicColors.BG_PRIMARY};
@@ -6111,8 +6115,9 @@ class ClauseOutputTab(QWidget):
                 border-radius: 6px;
                 padding: 8px;
                 color: {AnthropicColors.TEXT_PRIMARY};
-                font-size: 13px;
-                min-width: 60px;
+                font-size: 15px;
+                min-width: 70px;
+                min-height: 32px;
             }}
             QSpinBox:focus, QDoubleSpinBox:focus {{
                 border-color: {AnthropicColors.ACCENT};
@@ -6163,7 +6168,7 @@ class ClauseOutputTab(QWidget):
         include_reg_layout.addWidget(reg_label)
         self.include_reg_check = QCheckBox("显示")
         self.include_reg_check.setChecked(True)
-        self.include_reg_check.setStyleSheet(f"color: {AnthropicColors.TEXT_PRIMARY}; font-size: 13px;")
+        self.include_reg_check.setStyleSheet(f"color: {AnthropicColors.TEXT_PRIMARY}; font-size: 15px;")
         include_reg_layout.addWidget(self.include_reg_check)
         style_grid.addLayout(include_reg_layout)
 
@@ -6185,12 +6190,12 @@ class ClauseOutputTab(QWidget):
         enhanced_layout.setSpacing(8)
 
         self.enhanced_mode_check = QCheckBox("📋 录单增强模式")
-        self.enhanced_mode_check.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-size: 14px; font-weight: 600;")
+        self.enhanced_mode_check.setStyleSheet(f"color: {AnthropicColors.ACCENT}; font-size: 15px; font-weight: 600;")
         self.enhanced_mode_check.toggled.connect(self._toggle_enhanced_mode)
         enhanced_layout.addWidget(self.enhanced_mode_check)
 
         enhanced_desc = QLabel("在条款名称前添加保险公司名称")
-        enhanced_desc.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
+        enhanced_desc.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 14px;")
         enhanced_layout.addWidget(enhanced_desc)
 
         self.enhanced_options = QWidget()
@@ -6205,16 +6210,16 @@ class ClauseOutputTab(QWidget):
                 background: {AnthropicColors.BG_PRIMARY};
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 6px;
-                padding: 8px 10px;
+                padding: 10px 12px;
                 color: {AnthropicColors.TEXT_PRIMARY};
-                font-size: 13px;
+                font-size: 15px;
             }}
             QLineEdit:focus {{ border-color: {AnthropicColors.ACCENT}; }}
         """)
         enhanced_options_layout.addWidget(self.company_prefix_edit)
 
         hint_label = QLabel("💡 输出: Excel + Word")
-        hint_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 11px;")
+        hint_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 13px;")
         enhanced_options_layout.addWidget(hint_label)
 
         self.enhanced_options.setVisible(False)
@@ -6234,7 +6239,7 @@ class ClauseOutputTab(QWidget):
         btn_layout = QHBoxLayout()
 
         self.generate_btn = QPushButton("📄 生成Word文档")
-        self.generate_btn.setMinimumHeight(48)
+        self.generate_btn.setMinimumHeight(52)
         self.generate_btn.setCursor(Qt.PointingHandCursor)
         self.generate_btn.setEnabled(False)
         self.generate_btn.setStyleSheet(f"""
@@ -6243,7 +6248,7 @@ class ClauseOutputTab(QWidget):
                 color: {AnthropicColors.TEXT_LIGHT};
                 border: none;
                 border-radius: 8px;
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 600;
             }}
             QPushButton:hover {{ background: #2a2a28; }}
@@ -6255,7 +6260,7 @@ class ClauseOutputTab(QWidget):
         self.generate_btn.clicked.connect(self._generate_word)
 
         self.preview_btn = QPushButton("👁 预览")
-        self.preview_btn.setMinimumHeight(48)
+        self.preview_btn.setMinimumHeight(52)
         self.preview_btn.setCursor(Qt.PointingHandCursor)
         self.preview_btn.setStyleSheet(f"""
             QPushButton {{
@@ -6263,7 +6268,7 @@ class ClauseOutputTab(QWidget):
                 color: {AnthropicColors.TEXT_PRIMARY};
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
-                font-size: 14px;
+                font-size: 15px;
                 padding: 0 25px;
             }}
             QPushButton:hover {{
@@ -6300,7 +6305,7 @@ class ClauseOutputTab(QWidget):
                 color: {AnthropicColors.TEXT_LIGHT};
                 padding: 12px;
                 font-family: 'Cascadia Code', 'Consolas', monospace;
-                font-size: 12px;
+                font-size: 13px;
             }}
         """)
         layout.addWidget(self.log_text)
@@ -7160,7 +7165,7 @@ class ClauseComparisonAssistant(QMainWindow):
 
         # 版本信息
         subtitle = QLabel("V18.9 · 条款提取 · 条款比对 · 条款输出 · 保险计算")
-        subtitle.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 12px;")
+        subtitle.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 13px;")
         header_layout.addWidget(subtitle)
 
         # 支持作者按钮 - Anthropic 强调色风格
@@ -7281,7 +7286,7 @@ class ClauseComparisonAssistant(QMainWindow):
             stats_text = "📊 使用DCYJIN智能AI配置"
         self.stats_label = QLabel(stats_text)
         self.stats_label.setAlignment(Qt.AlignCenter)
-        self.stats_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 11px;")
+        self.stats_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 13px;")
         layout.addWidget(self.stats_label)
 
         # 输入卡片 - Anthropic 风格
@@ -7296,8 +7301,8 @@ class ClauseComparisonAssistant(QMainWindow):
             QLineEdit {{
                 background: {AnthropicColors.BG_PRIMARY};
                 border: 1px solid {AnthropicColors.BORDER};
-                border-radius: 8px; padding: 12px 15px;
-                color: {AnthropicColors.TEXT_PRIMARY}; font-size: 14px;
+                border-radius: 8px; padding: 14px 16px;
+                color: {AnthropicColors.TEXT_PRIMARY}; font-size: 15px;
             }}
             QLineEdit:focus {{ border-color: {AnthropicColors.ACCENT}; }}
         """
@@ -7307,8 +7312,8 @@ class ClauseComparisonAssistant(QMainWindow):
             QPushButton {{
                 background: {AnthropicColors.BG_PRIMARY};
                 border: 1px solid {AnthropicColors.BORDER};
-                border-radius: 8px; padding: 12px 18px;
-                color: {AnthropicColors.TEXT_PRIMARY}; font-weight: 500;
+                border-radius: 8px; padding: 14px 20px;
+                color: {AnthropicColors.TEXT_PRIMARY}; font-weight: 500; font-size: 15px;
             }}
             QPushButton:hover {{ background: {AnthropicColors.BG_CARD}; border-color: {AnthropicColors.ACCENT}; }}
         """
@@ -7323,15 +7328,15 @@ class ClauseComparisonAssistant(QMainWindow):
         sheet_label = QLabel("📋 险种Sheet")
         sheet_label.setMinimumWidth(90)
         self.sheet_combo = QComboBox()
-        self.sheet_combo.setMinimumHeight(40)
+        self.sheet_combo.setMinimumHeight(44)
         self.sheet_combo.setStyleSheet(f"""
             QComboBox {{
                 background: {AnthropicColors.BG_PRIMARY};
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
-                padding: 8px 12px;
+                padding: 10px 14px;
                 color: {AnthropicColors.TEXT_PRIMARY};
-                font-size: 13px;
+                font-size: 15px;
             }}
             QComboBox:hover {{ border-color: {AnthropicColors.ACCENT}; }}
             QComboBox::drop-down {{
@@ -7385,21 +7390,21 @@ class ClauseComparisonAssistant(QMainWindow):
         mode_layout.setSpacing(12)
 
         mode_label = QLabel("匹配模式：")
-        mode_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 14px;")
+        mode_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 15px;")
 
         self.match_mode_combo = QComboBox()
         self.match_mode_combo.addItems(["🔄 自动检测（推荐）", "📝 纯标题模式", "📄 完整内容模式"])
-        self.match_mode_combo.setMinimumHeight(36)
-        self.match_mode_combo.setMinimumWidth(200)
+        self.match_mode_combo.setMinimumHeight(40)
+        self.match_mode_combo.setMinimumWidth(220)
         self.match_mode_combo.setCursor(Qt.PointingHandCursor)
         self.match_mode_combo.setStyleSheet(f"""
             QComboBox {{
-                padding: 8px 12px;
+                padding: 10px 14px;
                 border: 1px solid {AnthropicColors.BORDER};
                 border-radius: 8px;
                 background: {AnthropicColors.BG_PRIMARY};
                 color: {AnthropicColors.TEXT_PRIMARY};
-                font-size: 14px;
+                font-size: 15px;
             }}
             QComboBox:hover {{
                 border-color: {AnthropicColors.ACCENT};
@@ -7427,7 +7432,7 @@ class ClauseComparisonAssistant(QMainWindow):
         """)
 
         self.mode_hint_label = QLabel("")
-        self.mode_hint_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 12px;")
+        self.mode_hint_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 14px;")
 
         # v18.9: 精准识别模式勾选框
         self.precise_mode_checkbox = QCheckBox("🎯 精准识别")
@@ -7436,12 +7441,12 @@ class ClauseComparisonAssistant(QMainWindow):
         self.precise_mode_checkbox.setStyleSheet(f"""
             QCheckBox {{
                 color: {AnthropicColors.TEXT_PRIMARY};
-                font-size: 14px;
+                font-size: 15px;
                 spacing: 8px;
             }}
             QCheckBox::indicator {{
-                width: 18px;
-                height: 18px;
+                width: 20px;
+                height: 20px;
                 border: 2px solid {AnthropicColors.BORDER};
                 border-radius: 4px;
                 background: {AnthropicColors.BG_PRIMARY};
@@ -7494,7 +7499,7 @@ class ClauseComparisonAssistant(QMainWindow):
         self.cancel_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent; color: {AnthropicColors.ERROR};
-                font-size: 14px; font-weight: 500;
+                font-size: 15px; font-weight: 500;
                 border-radius: 8px; border: 1px solid {AnthropicColors.ERROR};
             }}
             QPushButton:hover {{ background: {AnthropicColors.ERROR}; color: {AnthropicColors.TEXT_LIGHT}; }}
@@ -7506,7 +7511,7 @@ class ClauseComparisonAssistant(QMainWindow):
         normal_btn_style = f"""
             QPushButton {{
                 background: transparent; color: {AnthropicColors.TEXT_PRIMARY};
-                font-size: 14px; font-weight: 500;
+                font-size: 15px; font-weight: 500;
                 border-radius: 8px; border: 1px solid {AnthropicColors.BG_DARK};
             }}
             QPushButton:hover {{ background: {AnthropicColors.BG_DARK}; color: {AnthropicColors.TEXT_LIGHT}; }}
@@ -7532,7 +7537,7 @@ class ClauseComparisonAssistant(QMainWindow):
         self.open_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent; color: {AnthropicColors.TEXT_SECONDARY};
-                font-size: 14px; font-weight: 500;
+                font-size: 15px; font-weight: 500;
                 border-radius: 8px; border: 1px solid {AnthropicColors.BORDER};
             }}
             QPushButton:hover {{ border-color: {AnthropicColors.ACCENT}; color: {AnthropicColors.ACCENT}; }}
@@ -7571,7 +7576,7 @@ class ClauseComparisonAssistant(QMainWindow):
                 border-radius: 12px; color: {AnthropicColors.TEXT_PRIMARY};
                 padding: 15px;
                 font-family: 'JetBrains Mono', 'Consolas', 'Cascadia Code', monospace;
-                font-size: 12px;
+                font-size: 13px;
             }}
         """)
         layout.addWidget(self.log_text, 1)
