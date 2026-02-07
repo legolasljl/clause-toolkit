@@ -191,7 +191,8 @@ from PyQt5.QtWidgets import (
     QLabel, QLineEdit, QPushButton, QProgressBar, QTextEdit,
     QFileDialog, QMessageBox, QFrame, QGraphicsDropShadowEffect,
     QDialog, QFormLayout, QListWidget, QListWidgetItem, QCheckBox,
-    QTabWidget, QSpinBox, QDoubleSpinBox, QGroupBox, QComboBox
+    QTabWidget, QSpinBox, QDoubleSpinBox, QGroupBox, QComboBox,
+    QScrollArea
 )
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl, QTimer, QPropertyAnimation, QEasingCurve
 from PyQt5.QtGui import QFont, QColor, QDesktopServices, QTextCursor
@@ -322,6 +323,54 @@ class AnthropicColors:
     # 边框色
     BORDER = "#e5e3db"          # 浅边框
     BORDER_DARK = "#d0cec6"     # 深边框
+
+
+def get_anthropic_scrollbar_style():
+    """Anthropic 风格细滚动条样式"""
+    return f"""
+        QScrollArea {{
+            border: none;
+            background: transparent;
+        }}
+        QScrollBar:vertical {{
+            background: transparent;
+            width: 8px;
+            margin: 0;
+        }}
+        QScrollBar::handle:vertical {{
+            background: {AnthropicColors.BORDER_DARK};
+            border-radius: 4px;
+            min-height: 30px;
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background: {AnthropicColors.TEXT_SECONDARY};
+        }}
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            height: 0;
+        }}
+        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
+            background: transparent;
+        }}
+        QScrollBar:horizontal {{
+            background: transparent;
+            height: 8px;
+            margin: 0;
+        }}
+        QScrollBar::handle:horizontal {{
+            background: {AnthropicColors.BORDER_DARK};
+            border-radius: 4px;
+            min-width: 30px;
+        }}
+        QScrollBar::handle:horizontal:hover {{
+            background: {AnthropicColors.TEXT_SECONDARY};
+        }}
+        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+            width: 0;
+        }}
+        QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {{
+            background: transparent;
+        }}
+    """
 
 
 class AnthropicFonts:
@@ -4638,8 +4687,18 @@ class ClauseExtractorTab(QWidget):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setSpacing(12)
-        layout.setContentsMargins(20, 15, 20, 15)
+        layout.setSpacing(8)
+        layout.setContentsMargins(15, 10, 15, 10)
+
+        # 滚动区域
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setStyleSheet(get_anthropic_scrollbar_style())
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+        scroll_layout.setSpacing(8)
+        scroll_layout.setContentsMargins(0, 0, 0, 0)
 
         # 紧凑型统计面板（水平对齐）- 初始隐藏，有数据时显示
         self.stats_frame = QFrame()
@@ -4704,7 +4763,7 @@ class ClauseExtractorTab(QWidget):
         stats_layout.addWidget(self.stat_skipped_label)
         stats_layout.addStretch()
 
-        layout.addWidget(self.stats_frame)
+        scroll_layout.addWidget(self.stats_frame)
 
         # 文件选择卡片
         file_card = GlassCard()
@@ -4754,7 +4813,7 @@ class ClauseExtractorTab(QWidget):
 
         # 文件选择区域
         self.file_select_btn = QPushButton("点击选择文件 (.docx / .pdf)")
-        self.file_select_btn.setMinimumHeight(80)
+        self.file_select_btn.setMinimumHeight(60)
         self.file_select_btn.setCursor(Qt.PointingHandCursor)
         self.file_select_btn.setStyleSheet(f"""
             QPushButton {{
@@ -4775,7 +4834,7 @@ class ClauseExtractorTab(QWidget):
 
         # 文件列表
         self.file_list = QListWidget()
-        self.file_list.setMaximumHeight(180)
+        self.file_list.setMaximumHeight(140)
         self.file_list.setStyleSheet(f"""
             QListWidget {{
                 background: {AnthropicColors.BG_CARD};
@@ -4818,13 +4877,13 @@ class ClauseExtractorTab(QWidget):
         self.classify_preview.setVisible(False)
         file_card_layout.addWidget(self.classify_preview)
 
-        layout.addWidget(file_card)
+        scroll_layout.addWidget(file_card)
 
         # 操作按钮行
         btn_layout = QHBoxLayout()
 
         self.extract_btn = QPushButton("🚀 开始提取")
-        self.extract_btn.setMinimumHeight(48)
+        self.extract_btn.setMinimumHeight(40)
         self.extract_btn.setCursor(Qt.PointingHandCursor)
         self.extract_btn.setEnabled(False)
         self.extract_btn.setStyleSheet(f"""
@@ -4847,7 +4906,7 @@ class ClauseExtractorTab(QWidget):
         self.extract_btn.clicked.connect(self._start_extraction)
 
         self.download_zip_btn = QPushButton("📦 进行分类ZIP打包")
-        self.download_zip_btn.setMinimumHeight(48)
+        self.download_zip_btn.setMinimumHeight(40)
         self.download_zip_btn.setCursor(Qt.PointingHandCursor)
         self.download_zip_btn.setVisible(False)
         self.download_zip_btn.setStyleSheet(f"""
@@ -4867,7 +4926,7 @@ class ClauseExtractorTab(QWidget):
         self.download_zip_btn.clicked.connect(self._download_classified_zip)
 
         self.download_excel_btn = QPushButton("📊 下载Excel报告")
-        self.download_excel_btn.setMinimumHeight(48)
+        self.download_excel_btn.setMinimumHeight(40)
         self.download_excel_btn.setCursor(Qt.PointingHandCursor)
         self.download_excel_btn.setVisible(False)
         self.download_excel_btn.setStyleSheet(f"""
@@ -4887,7 +4946,7 @@ class ClauseExtractorTab(QWidget):
         self.download_excel_btn.clicked.connect(self._download_excel_report)
 
         self.clear_btn = QPushButton("🗑 清空")
-        self.clear_btn.setMinimumHeight(48)
+        self.clear_btn.setMinimumHeight(40)
         self.clear_btn.setCursor(Qt.PointingHandCursor)
         self.clear_btn.setStyleSheet(f"""
             QPushButton {{
@@ -4908,7 +4967,7 @@ class ClauseExtractorTab(QWidget):
         btn_layout.addWidget(self.download_zip_btn, 1)
         btn_layout.addWidget(self.download_excel_btn, 1)
         btn_layout.addWidget(self.clear_btn, 1)
-        layout.addLayout(btn_layout)
+        scroll_layout.addLayout(btn_layout)
 
         # 进度条
         self.progress_bar = QProgressBar()
@@ -4922,7 +4981,11 @@ class ClauseExtractorTab(QWidget):
                 border-radius: 3px;
             }}
         """)
-        layout.addWidget(self.progress_bar)
+        scroll_layout.addWidget(self.progress_bar)
+
+        # 完成滚动区域设置
+        scroll_area.setWidget(scroll_widget)
+        layout.addWidget(scroll_area, 1)
 
         # 日志区域
         self.log_text = QTextEdit()
@@ -5925,8 +5988,18 @@ class ClauseOutputTab(QWidget):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setSpacing(12)
-        layout.setContentsMargins(20, 15, 20, 15)
+        layout.setSpacing(6)
+        layout.setContentsMargins(15, 10, 15, 10)
+
+        # 滚动区域
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setStyleSheet(get_anthropic_scrollbar_style())
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+        scroll_layout.setSpacing(6)
+        scroll_layout.setContentsMargins(0, 0, 0, 0)
 
         # 紧凑型标题栏
         header = QHBoxLayout()
@@ -5972,7 +6045,7 @@ class ClauseOutputTab(QWidget):
         mode_label.setStyleSheet(f"color: {AnthropicColors.TEXT_PRIMARY}; font-weight: 500;")
         header.addWidget(mode_label)
         header.addWidget(self.mode_combo)
-        layout.addLayout(header)
+        scroll_layout.addLayout(header)
 
         # 数据源选择卡片
         source_card = GlassCard()
@@ -5989,7 +6062,7 @@ class ClauseOutputTab(QWidget):
         self.from_extract_btn = QPushButton("📄 从条款提取获取")
         self.from_extract_btn.setCursor(Qt.PointingHandCursor)
         self.from_extract_btn.setMinimumWidth(180)
-        self.from_extract_btn.setMinimumHeight(44)
+        self.from_extract_btn.setMinimumHeight(38)
         self.from_extract_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {AnthropicColors.BG_PRIMARY};
@@ -6011,7 +6084,7 @@ class ClauseOutputTab(QWidget):
         self.from_file_btn = QPushButton("📁 从Excel文件加载")
         self.from_file_btn.setCursor(Qt.PointingHandCursor)
         self.from_file_btn.setMinimumWidth(180)
-        self.from_file_btn.setMinimumHeight(44)
+        self.from_file_btn.setMinimumHeight(38)
         self.from_file_btn.setStyleSheet(self.from_extract_btn.styleSheet())
         self.from_file_btn.clicked.connect(self._load_from_excel)
 
@@ -6025,7 +6098,7 @@ class ClauseOutputTab(QWidget):
         self.source_label.setStyleSheet(f"color: {AnthropicColors.TEXT_MUTED}; font-size: 14px; padding: 5px 0;")
         source_layout.addWidget(self.source_label)
 
-        layout.addWidget(source_card)
+        scroll_layout.addWidget(source_card)
 
         # 条款预览列表
         preview_card = GlassCard()
@@ -6061,7 +6134,7 @@ class ClauseOutputTab(QWidget):
 
         # 条款列表
         self.clause_list = QListWidget()
-        self.clause_list.setMinimumHeight(200)
+        self.clause_list.setMinimumHeight(150)
         self.clause_list.setStyleSheet(f"""
             QListWidget {{
                 background: {AnthropicColors.BG_PRIMARY};
@@ -6086,12 +6159,12 @@ class ClauseOutputTab(QWidget):
         """)
         preview_layout.addWidget(self.clause_list)
 
-        layout.addWidget(preview_card)
+        scroll_layout.addWidget(preview_card)
 
         # v18.17: Word样式设置 + 录单增强模式 合并为一个卡片，左右并排
         settings_card = GlassCard()
         settings_main_layout = QHBoxLayout(settings_card)
-        settings_main_layout.setSpacing(20)
+        settings_main_layout.setSpacing(12)
 
         # 左侧: Word样式设置
         style_section = QWidget()
@@ -6233,13 +6306,13 @@ class ClauseOutputTab(QWidget):
         settings_main_layout.setStretch(1, 0)  # 分隔线
         settings_main_layout.setStretch(2, 2)  # 录单增强
 
-        layout.addWidget(settings_card)
+        scroll_layout.addWidget(settings_card)
 
         # 操作按钮行
         btn_layout = QHBoxLayout()
 
         self.generate_btn = QPushButton("📄 生成Word文档")
-        self.generate_btn.setMinimumHeight(52)
+        self.generate_btn.setMinimumHeight(44)
         self.generate_btn.setCursor(Qt.PointingHandCursor)
         self.generate_btn.setEnabled(False)
         self.generate_btn.setStyleSheet(f"""
@@ -6260,7 +6333,7 @@ class ClauseOutputTab(QWidget):
         self.generate_btn.clicked.connect(self._generate_word)
 
         self.preview_btn = QPushButton("👁 预览")
-        self.preview_btn.setMinimumHeight(52)
+        self.preview_btn.setMinimumHeight(44)
         self.preview_btn.setCursor(Qt.PointingHandCursor)
         self.preview_btn.setStyleSheet(f"""
             QPushButton {{
@@ -6280,7 +6353,7 @@ class ClauseOutputTab(QWidget):
 
         btn_layout.addWidget(self.generate_btn, 3)
         btn_layout.addWidget(self.preview_btn, 1)
-        layout.addLayout(btn_layout)
+        scroll_layout.addLayout(btn_layout)
 
         # 进度条
         self.progress_bar = QProgressBar()
@@ -6291,7 +6364,11 @@ class ClauseOutputTab(QWidget):
             QProgressBar {{ background: {AnthropicColors.BORDER}; border-radius: 3px; }}
             QProgressBar::chunk {{ background: {AnthropicColors.ACCENT}; border-radius: 3px; }}
         """)
-        layout.addWidget(self.progress_bar)
+        scroll_layout.addWidget(self.progress_bar)
+
+        # 完成滚动区域设置
+        scroll_area.setWidget(scroll_widget)
+        layout.addWidget(scroll_area, 1)
 
         # 日志区域
         self.log_text = QTextEdit()
@@ -7146,13 +7223,13 @@ class ClauseComparisonAssistant(QMainWindow):
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
         layout.setSpacing(12)
-        layout.setContentsMargins(30, 20, 30, 20)
+        layout.setContentsMargins(20, 12, 20, 12)
 
         # 标题行 - Anthropic 风格
         header_layout = QHBoxLayout()
 
         title = QLabel("🔧 智能条款工具箱")
-        title.setStyleSheet(f"color: {AnthropicColors.TEXT_PRIMARY}; font-size: 26px; font-weight: bold;")
+        title.setStyleSheet(f"color: {AnthropicColors.TEXT_PRIMARY}; font-size: 22px; font-weight: bold;")
         header_layout.addWidget(title)
 
         header_layout.addStretch()
@@ -7211,12 +7288,12 @@ class ClauseComparisonAssistant(QMainWindow):
                 background: {AnthropicColors.BG_CARD};
                 color: {AnthropicColors.TEXT_SECONDARY};
                 border: none;
-                padding: 14px 40px;
+                padding: 10px 28px;
                 margin-right: 8px;
                 border-radius: 8px 8px 0 0;
                 font-size: 14px;
                 font-weight: 600;
-                min-width: 140px;
+                min-width: 110px;
             }}
             QTabBar::tab:selected {{
                 background: {AnthropicColors.BG_DARK};
@@ -7268,8 +7345,18 @@ class ClauseComparisonAssistant(QMainWindow):
         """创建条款比对Tab"""
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        layout.setSpacing(15)
-        layout.setContentsMargins(20, 15, 20, 15)
+        layout.setSpacing(8)
+        layout.setContentsMargins(15, 10, 15, 10)
+
+        # 滚动区域
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setStyleSheet(get_anthropic_scrollbar_style())
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+        scroll_layout.setSpacing(8)
+        scroll_layout.setContentsMargins(0, 0, 0, 0)
 
         # 配置统计
         if self._config:
@@ -7281,13 +7368,13 @@ class ClauseComparisonAssistant(QMainWindow):
         self.stats_label = QLabel(stats_text)
         self.stats_label.setAlignment(Qt.AlignCenter)
         self.stats_label.setStyleSheet(f"color: {AnthropicColors.TEXT_SECONDARY}; font-size: 13px;")
-        layout.addWidget(self.stats_label)
+        scroll_layout.addWidget(self.stats_label)
 
         # 输入卡片 - Anthropic 风格
         card = GlassCard()
         card_layout = QVBoxLayout(card)
-        card_layout.setSpacing(18)
-        card_layout.setContentsMargins(30, 30, 30, 30)
+        card_layout.setSpacing(12)
+        card_layout.setContentsMargins(20, 20, 20, 20)
 
         # Anthropic 风格的输入框样式
         style = f"""
@@ -7322,7 +7409,7 @@ class ClauseComparisonAssistant(QMainWindow):
         sheet_label = QLabel("📋 险种Sheet")
         sheet_label.setMinimumWidth(90)
         self.sheet_combo = QComboBox()
-        self.sheet_combo.setMinimumHeight(44)
+        self.sheet_combo.setMinimumHeight(38)
         self.sheet_combo.setStyleSheet(f"""
             QComboBox {{
                 background: {AnthropicColors.BG_PRIMARY};
@@ -7377,7 +7464,7 @@ class ClauseComparisonAssistant(QMainWindow):
         row3.addWidget(btn3)
         card_layout.addLayout(row3)
 
-        layout.addWidget(card)
+        scroll_layout.addWidget(card)
 
         # v18.3: 匹配模式选择
         mode_layout = QHBoxLayout()
@@ -7388,7 +7475,7 @@ class ClauseComparisonAssistant(QMainWindow):
 
         self.match_mode_combo = QComboBox()
         self.match_mode_combo.addItems(["🔄 自动检测（推荐）", "📝 纯标题模式", "📄 完整内容模式"])
-        self.match_mode_combo.setMinimumHeight(40)
+        self.match_mode_combo.setMinimumHeight(36)
         self.match_mode_combo.setMinimumWidth(220)
         self.match_mode_combo.setCursor(Qt.PointingHandCursor)
         self.match_mode_combo.setStyleSheet(f"""
@@ -7463,7 +7550,7 @@ class ClauseComparisonAssistant(QMainWindow):
         mode_layout.addSpacing(20)
         mode_layout.addWidget(self.precise_mode_checkbox)
         mode_layout.addStretch()
-        layout.addLayout(mode_layout)
+        scroll_layout.addLayout(mode_layout)
 
         # 按钮行
         btn_layout = QHBoxLayout()
@@ -7471,7 +7558,7 @@ class ClauseComparisonAssistant(QMainWindow):
 
         self.start_btn = QPushButton("🚀 开始比对")
         self.start_btn.setCursor(Qt.PointingHandCursor)
-        self.start_btn.setMinimumHeight(52)
+        self.start_btn.setMinimumHeight(44)
         self.start_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {AnthropicColors.BG_DARK};
@@ -7488,7 +7575,7 @@ class ClauseComparisonAssistant(QMainWindow):
         # v18.4: 取消比对按钮（替代原批量处理按钮）
         self.cancel_btn = QPushButton("⛔ 取消比对")
         self.cancel_btn.setCursor(Qt.PointingHandCursor)
-        self.cancel_btn.setMinimumHeight(52)
+        self.cancel_btn.setMinimumHeight(44)
         self.cancel_btn.setEnabled(False)  # 默认禁用
         self.cancel_btn.setStyleSheet(f"""
             QPushButton {{
@@ -7513,20 +7600,20 @@ class ClauseComparisonAssistant(QMainWindow):
 
         self.add_btn = QPushButton("🔧 映射设置")
         self.add_btn.setCursor(Qt.PointingHandCursor)
-        self.add_btn.setMinimumHeight(52)
+        self.add_btn.setMinimumHeight(44)
         self.add_btn.setStyleSheet(normal_btn_style)
         self.add_btn.clicked.connect(self._show_add_mapping_dialog)
 
         # v17.1: 条款查询按钮
         self.query_btn = QPushButton("🔍 条款查询")
         self.query_btn.setCursor(Qt.PointingHandCursor)
-        self.query_btn.setMinimumHeight(52)
+        self.query_btn.setMinimumHeight(44)
         self.query_btn.setStyleSheet(normal_btn_style)
         self.query_btn.clicked.connect(self._show_query_dialog)
 
         self.open_btn = QPushButton("📂 打开目录")
         self.open_btn.setCursor(Qt.PointingHandCursor)
-        self.open_btn.setMinimumHeight(52)
+        self.open_btn.setMinimumHeight(44)
         self.open_btn.setEnabled(False)
         self.open_btn.setStyleSheet(f"""
             QPushButton {{
@@ -7544,7 +7631,7 @@ class ClauseComparisonAssistant(QMainWindow):
         btn_layout.addWidget(self.add_btn, 1)
         btn_layout.addWidget(self.query_btn, 1)  # v17.1: 条款查询
         btn_layout.addWidget(self.open_btn, 1)
-        layout.addLayout(btn_layout)
+        scroll_layout.addLayout(btn_layout)
 
         # 进度条
         self.progress_bar = QProgressBar()
@@ -7558,7 +7645,11 @@ class ClauseComparisonAssistant(QMainWindow):
                 border-radius: 3px;
             }}
         """)
-        layout.addWidget(self.progress_bar)
+        scroll_layout.addWidget(self.progress_bar)
+
+        # 完成滚动区域设置
+        scroll_area.setWidget(scroll_widget)
+        layout.addWidget(scroll_area, 1)
 
         # 日志
         self.log_text = QTextEdit()
