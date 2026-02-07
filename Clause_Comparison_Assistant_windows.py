@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 Clause Comparison Assistant V18.9 Windows Edition
 智能条款工具箱
@@ -53,6 +53,15 @@ Updated: 2026-01-27 (V18.9 Bold Format Preservation)
 
 import sys
 import os
+
+# Windows UTF-8 编码适配（解决 cp936 无法编码 emoji/Unicode 的问题）
+if sys.platform == 'win32':
+    os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 import re
 import difflib
 import traceback
@@ -130,7 +139,11 @@ import shutil
 # ==========================================
 # 日志配置
 # ==========================================
-LOG_DIR = Path(__file__).parent / "logs"
+# PyInstaller 打包时日志放在 exe 同级目录，而非临时解压目录
+if getattr(sys, 'frozen', False):
+    LOG_DIR = Path(sys.executable).parent / "logs"
+else:
+    LOG_DIR = Path(__file__).parent / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 
 logging.basicConfig(
