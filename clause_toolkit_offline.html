@@ -3763,6 +3763,11 @@
 
         // 检查已保存的激活码
         function checkSavedLicense() {
+            // PWA 环境：数据已有 AES 口令保护，跳过激活码验证
+            if (typeof ENCRYPTED_DATA !== 'undefined') {
+                document.getElementById('licenseOverlay').classList.add('hidden');
+                return true;
+            }
             const savedCode = localStorage.getItem(LICENSE_CONFIG.STORAGE_KEY);
             if (savedCode) {
                 const result = verifyLicenseCode(savedCode);
