@@ -1382,6 +1382,52 @@ class ClauseMatcherLogic:
         r'^\d+[\.\s]+\s*(The|It|In|Any|This|Where|If|When|Unless|Subject)\s',
         re.IGNORECASE
     )
+    # _is_valid_clause_line 的预编译正则
+    _RE_CLAUSE_KW_LINE = re.compile(r'\b(CLAUSE|EXTENSION|COVER|INSURANCE|条款)\b', re.IGNORECASE)
+    _RE_PURE_NUMBER = re.compile(r'^[\d,\.\s]+$')
+    _RE_CURRENCY_NUM = re.compile(r'^(RMB|CNY|USD|EUR)\s*[\d,\.]+', re.IGNORECASE)
+    _RE_CN_SUBITEM = re.compile(r'^[\(（]\s*[\d一二三四五六七八九十]+\s*[\)）][\.\s、]?')
+    _RE_CIRCLE_NUM = re.compile(r'^[①②③④⑤⑥⑦⑧⑨⑩]')
+    _RE_NUM_COMMA = re.compile(r'^\d+[、]')
+    _RE_NUM_DOT_LC = re.compile(r'^\d+\.\s+[a-z]')
+    _RE_PAREN_LC = re.compile(r'^[\(（]\s*[a-zA-Z\d]+\s*[\)）]\s+[a-z]')
+    _RE_NUM_PAREN_LC = re.compile(r'^\d+\)\s*[a-z]')
+    _RE_NUM_DOT_NUM = re.compile(r'^\d+\.\d+\s')
+    _RE_PAREN_SAID = re.compile(r'^[\(（]\s*[a-zA-Z]\s*[\)）]\s+(The said|In the event)')
+    # is_likely_title 的预编译正则
+    _RE_NUMBERED_TITLE = re.compile(r'^(\d+|[一二三四五六七八九十]+)[、\.．）\)]')
+    _RE_YEAR_VERSION = re.compile(r'[（(]\d{4}版?[）)]$')
+    _RE_EN_CLAUSE_KW = re.compile(r'\b(Clauses?|Extensions?|Coverage|Cover|Endorsement|Insurance)\b', re.IGNORECASE)
+    _RE_INSURANCE_CO = re.compile(r'Insurance\s+(Company|Co\.?)\b', re.IGNORECASE)
+    _RE_THIS_CLAUSE = re.compile(r'\b(this|the|such|that)\s+(Clause|Extension|Policy|Insurance|Cover|Endorsement)\b', re.IGNORECASE)
+    _RE_UPPER_3PLUS = re.compile(r'[A-Z]{3,}')
+    _RE_CONTENT_START = re.compile(
+        r'(?:^经双方同意|^兹经双方同意|^兹经保险|^兹经合同|^发生.*损失|^如果.*保险'
+        r'|^本保单|^本保险|^本条款|^本款项|^本公司|^本扩展条款|^本附加条款'
+        r'|^保险人|^被保险人|^投保人|^对于|^若|^但|^在保|^上述|^该|^其中|^此|^当'
+        r'|^财产险|^除|^凡|^任何|^无论|^特别条件|^重置价值是指'
+        r'|^每次事故免赔额|^每次事故赔偿限额|^每次及累计|^累计赔偿限额'
+        r'|^RMB\s*[\d,]+|^\d+[\.,]\d+'
+        r'|^Charles\s+Taylor|^McLarens|^Sedgwick|^Crawford'
+        r'|^交付日期|^分期数'
+        r'|^[\(（]\s*[一二三四五六七八九十]+\s*[\)）]'
+        r'|^[一二三四五六七八九十]+[、\.．]'
+        r'|^\d+[、\.．\s](?![\.．\s]*[^\d].*条款)'
+        r'|^[\(（]\s*\d+\s*[\)）]'
+        r'|^①|^②|^③|^④|^⑤)'
+    )
+    # 去除编号的预编译正则
+    _RE_LEADING_CN_NUM = re.compile(r'^[\(（]\s*[一二三四五六七八九十\d]+\s*[\)）]\s*')
+    _RE_LEADING_CN_SEQ = re.compile(r'^[一二三四五六七八九十]+[、\.．]\s*')
+    _RE_LEADING_DIGIT_SEQ = re.compile(r'^\d+[、\.．\s]\s*')
+    _RE_LEADING_LETTER = re.compile(r'^[A-Za-z]\)\s*')
+    # normalize_text 的预编译正则
+    _RE_QUOTE_PAREN = re.compile(r"['\"\'\'\"\"\(\)（）\[\]【】]")
+    _RE_MULTI_SPACE = re.compile(r'\s+')
+    # clean_title 的预编译正则
+    _RE_VERSION_SUFFIX = re.compile(r'[（(]([A-Za-z]款)[）)]')
+    _RE_PAREN_CONTENT = re.compile(r'[\(（].*?[\)）]')
+    _RE_DIGITS_SPACES = re.compile(r'[0-9\s]+')
 
     # v18.4: 排除词汇缓存（完全匹配时排除，忽略编号和大小写）
     _excluded_titles: Optional[set] = None
@@ -1433,11 +1479,21 @@ class ClauseMatcherLogic:
                         return True
 
                 # 方式2: 主题颜色（如 MSO_THEME_COLOR.ACCENT_1 等）
-                # Word 中的蓝色主题通常是 ACCENT_1 或 ACCENT_5
+                # 默认Office主题中 ACCENT_1(5)=蓝色, ACCENT_5(9)=蓝色
                 if color.theme_color is not None:
-                    # 主题颜色索引：1, 5 通常是蓝色系
-                    # 但这取决于文档主题，保守处理
-                    pass
+                    try:
+                        from docx.enum.dml import MSO_THEME_COLOR
+                        blue_themes = {
+                            MSO_THEME_COLOR.ACCENT_1,  # 默认主题中为蓝色
+                            MSO_THEME_COLOR.ACCENT_5,  # 部分主题中为蓝色
+                        }
+                        if color.theme_color in blue_themes:
+                            return True
+                    except (ImportError, AttributeError):
+                        # 回退：通过整数值判断（ACCENT_1=5, ACCENT_5=9）
+                        tc_val = int(color.theme_color) if color.theme_color else -1
+                        if tc_val in (5, 9):
+                            return True
 
             return False
         except Exception as e:
@@ -1470,19 +1526,13 @@ class ClauseMatcherLogic:
                 blue_texts.append(text)
         return '\n'.join(blue_texts).strip()
 
-    @staticmethod
-    def _remove_leading_number(text: str) -> str:
+    @classmethod
+    def _remove_leading_number(cls, text: str) -> str:
         """去除开头的编号，如 '1.', '（一）', '(1)' 等"""
         text = text.strip()
-        # 去除各种编号格式
-        patterns = [
-            r'^[\(（]\s*[一二三四五六七八九十\d]+\s*[\)）]\s*',  # (一)、（1）
-            r'^[一二三四五六七八九十]+[、\.．]\s*',  # 一、二、
-            r'^\d+[、\.．\s]\s*',  # 1、2.
-            r'^[A-Za-z]\)\s*',  # a)、A)
-        ]
-        for pattern in patterns:
-            text = re.sub(pattern, '', text)
+        for pattern in (cls._RE_LEADING_CN_NUM, cls._RE_LEADING_CN_SEQ,
+                        cls._RE_LEADING_DIGIT_SEQ, cls._RE_LEADING_LETTER):
+            text = pattern.sub('', text)
         return text.strip()
 
     @staticmethod
@@ -1495,10 +1545,9 @@ class ClauseMatcherLogic:
             return False
 
         # 排除太长的行（可能是正文内容）
-        # v18.6: 但如果以条款关键词开头，放宽到300字符
         max_len = 200
-        if re.search(r'\b(CLAUSE|EXTENSION|COVER|INSURANCE|条款)\b', text, re.IGNORECASE):
-            max_len = 300  # 条款标题可能包含 Limit 说明，放宽限制
+        if ClauseMatcherLogic._RE_CLAUSE_KW_LINE.search(text):
+            max_len = 300
         if len(text) > max_len:
             return False
 
@@ -1538,33 +1587,32 @@ class ClauseMatcherLogic:
             return False
 
         # 排除纯数字或金额
-        if re.match(r'^[\d,\.\s]+$', text):
+        if ClauseMatcherLogic._RE_PURE_NUMBER.match(text):
             return False
-        if re.match(r'^(RMB|CNY|USD|EUR)\s*[\d,\.]+', text, re.IGNORECASE):
+        if ClauseMatcherLogic._RE_CURRENCY_NUM.match(text):
             return False
 
-        # v18.7.3: 排除中文编号开头的子项（但保留包含"条款"关键词的）
-        # "（1）.", "(一）", "①", "1、"
+        # 排除中文编号开头的子项（但保留包含"条款"关键词的）
         has_clause_keyword = '条款' in text or 'clause' in text.lower() or 'extension' in text.lower()
-        if re.match(r'^[\(（]\s*[\d一二三四五六七八九十]+\s*[\)）][\.\s、]?', text) and not has_clause_keyword:
+        if ClauseMatcherLogic._RE_CN_SUBITEM.match(text) and not has_clause_keyword:
             return False
-        if re.match(r'^[①②③④⑤⑥⑦⑧⑨⑩]', text) and not has_clause_keyword:
+        if ClauseMatcherLogic._RE_CIRCLE_NUM.match(text) and not has_clause_keyword:
             return False
-        if re.match(r'^\d+[、]', text) and not has_clause_keyword:  # "1、保单文本..." - 移除\s*
-            return False
-
-        # 排除编号开头的子项（如 "1. xxx", "(a) xxx", "1)xxx", "1.1 xxx"）
-        if re.match(r'^\d+\.\s+[a-z]', text):  # "1. the liability..."
-            return False
-        if re.match(r'^[\(（]\s*[a-zA-Z\d]+\s*[\)）]\s+[a-z]', text):  # "(a) the..."
-            return False
-        if re.match(r'^\d+\)\s*[a-z]', text):  # "1)theft..."
-            return False
-        if re.match(r'^\d+\.\d+\s', text):  # "1.1 Damage..."
+        if ClauseMatcherLogic._RE_NUM_COMMA.match(text) and not has_clause_keyword:
             return False
 
-        # v18.7: 排除括号编号后跟"The said"等内容
-        if re.match(r'^[\(（]\s*[a-zA-Z]\s*[\)）]\s+(The said|In the event)', text):
+        # 排除编号开头的子项
+        if ClauseMatcherLogic._RE_NUM_DOT_LC.match(text):
+            return False
+        if ClauseMatcherLogic._RE_PAREN_LC.match(text):
+            return False
+        if ClauseMatcherLogic._RE_NUM_PAREN_LC.match(text):
+            return False
+        if ClauseMatcherLogic._RE_NUM_DOT_NUM.match(text):
+            return False
+
+        # 排除括号编号后跟"The said"等内容
+        if ClauseMatcherLogic._RE_PAREN_SAID.match(text):
             return False
 
         # v18.7.3: 排除公司名（含 Ltd/Co./有限公司）
@@ -1645,7 +1693,7 @@ class ClauseMatcherLogic:
         for phrase in cls.BOILERPLATE_PHRASES:
             result = result.replace(phrase, "")
         # 移除多余的空白和换行
-        result = re.sub(r'\s+', ' ', result).strip()
+        result = cls._RE_MULTI_SPACE.sub(' ', result).strip()
         return result
 
     @staticmethod
@@ -1764,14 +1812,14 @@ class ClauseMatcherLogic:
     # 文本处理方法
     # ========================================
 
-    @staticmethod
-    def normalize_text(text: str) -> str:
+    @classmethod
+    def normalize_text(cls, text: str) -> str:
         """标准化文本"""
         if not isinstance(text, str):
             return ""
         text = text.lower().strip()
-        text = re.sub(r"['\"\'\'\"\"\(\)（）\[\]【】]", '', text)
-        text = re.sub(r'\s+', ' ', text)
+        text = cls._RE_QUOTE_PAREN.sub('', text)
+        text = cls._RE_MULTI_SPACE.sub(' ', text)
         return text
 
     def clean_title(self, text: str) -> str:
@@ -1783,20 +1831,23 @@ class ClauseMatcherLogic:
         if not isinstance(text, str):
             return ""
         # 提取版本标识符（A款、B款、C款等）
-        version_match = re.search(r'[（(]([A-Za-z]款)[）)]', text)
+        version_match = self._RE_VERSION_SUFFIX.search(text)
         version_suffix = version_match.group(1).lower() if version_match else ""
 
         # 移除所有括号内容
-        text = re.sub(r'[\(（].*?[\)）]', '', text)
+        text = self._RE_PAREN_CONTENT.sub('', text)
         for w in self._get_noise_words():
             text = text.replace(w, "").replace(w.lower(), "")
-        text = re.sub(r'[0-9\s]+', '', text)
+        text = self._RE_DIGITS_SPACES.sub('', text)
 
         # 重新添加版本标识
         result = text.strip()
         if version_suffix:
             result = result + version_suffix
         return result
+
+    _RE_ALL_WHITESPACE = re.compile(r'\s+')
+    _RE_ALL_DIGITS = re.compile(r'[0-9]+')
 
     @classmethod
     def clean_content(cls, text: str) -> str:
@@ -1808,14 +1859,10 @@ class ClauseMatcherLogic:
         """
         if not isinstance(text, str):
             return ""
-        # 先移除样板文字
         text = cls.remove_boilerplate(text)
-        # 移除括号及其内容
-        text = re.sub(r'[\(（].*?[\)）]', '', text)
-        # 移除空白
-        text = re.sub(r'\s+', '', text)
-        # 移除数字
-        text = re.sub(r'[0-9]+', '', text)
+        text = cls._RE_PAREN_CONTENT.sub('', text)
+        text = cls._RE_ALL_WHITESPACE.sub('', text)
+        text = cls._RE_ALL_DIGITS.sub('', text)
         return text
 
     # ========================================
@@ -2141,16 +2188,23 @@ class ClauseMatcherLogic:
             # 预计算清理结果（避免重复计算）
             name_norm = self.normalize_text(name)
             name_clean = self.clean_title(name)
+            content_raw = str(lib.get('条款内容', ''))
 
             index.cleaned_cache[i] = {
                 'norm': name_norm,
                 'clean': name_clean,
                 'original': name,
+                'content_clean': self.clean_content(content_raw) if content_raw.strip() else "",
+                'lib_category': self._detect_lib_category(name),
+                'fullwidth_clean': re.sub(r'[^\u4e00-\u9fa5a-z0-9%]', '',
+                                          self._fullwidth_to_halfwidth(name.lower().strip())),
             }
 
-            # 名称索引（精确匹配用）
-            index.by_name_norm[name_norm] = i
-            index.by_name_norm[name_clean] = i
+            # 名称索引（精确匹配用，保留首个匹配避免静默覆盖）
+            if name_norm not in index.by_name_norm:
+                index.by_name_norm[name_norm] = i
+            if name_clean not in index.by_name_norm:
+                index.by_name_norm[name_clean] = i
 
             # 关键词倒排索引
             keywords = self._get_keywords(name)
@@ -2195,9 +2249,7 @@ class ClauseMatcherLogic:
         best_score = 0.0
 
         for i, cached in index.cleaned_cache.items():
-            lib_name = cached['original']
-            lib_norm = self._fullwidth_to_halfwidth(lib_name.lower().strip())
-            lib_clean = re.sub(r'[^\u4e00-\u9fa5a-z0-9%]', '', lib_norm)
+            lib_clean = cached.get('fullwidth_clean', '')
 
             # 精确匹配（标准化后）
             if target_clean == lib_clean:
@@ -2341,18 +2393,16 @@ class ClauseMatcherLogic:
         # v17.0: 计算动态权重
         title_weight, content_weight = self.calculate_dynamic_weight(title_clean, content)
 
+        # 预计算客户条款内容的清洗结果（避免循环内重复计算）
+        c_content_clean = self.clean_content(content) if not is_title_only and content.strip() else ""
+
         # v17.0: 使用TF-IDF快速筛选候选（如果可用）
         candidate_indices = set()
-        tfidf_candidates = self.find_tfidf_candidates(original_title or title_clean, top_k=20)
+        tfidf_candidates = self.find_tfidf_candidates(original_title or title_clean, top_k=30)
         if tfidf_candidates:
             candidate_indices = {idx for idx, _ in tfidf_candidates}
-            # 同时也检查所有条款（以防TF-IDF遗漏）
-            # 但优先处理TF-IDF候选
         else:
-            candidate_indices = set(index.cleaned_cache.keys())
-
-        # 如果TF-IDF候选较少，添加所有条款确保覆盖
-        if len(candidate_indices) < 10:
+            # TF-IDF不可用时才回退到全量扫描
             candidate_indices = set(index.cleaned_cache.keys())
 
         for i in candidate_indices:
@@ -2374,13 +2424,11 @@ class ClauseMatcherLogic:
                 # 使用中文增强相似度
                 title_sim = self.calculate_similarity_chinese(title_clean, l_name_clean)
 
-            # 内容相似度
+            # 内容相似度（使用预计算的 content_clean）
             content_sim = 0.0
-            if not is_title_only and content.strip():
-                c_content_clean = self.clean_content(content)
-                l_content = str(index.data[i].get('条款内容', ''))
-                l_content_clean = self.clean_content(l_content)
-                if c_content_clean and l_content_clean:
+            if c_content_clean:
+                l_content_clean = cached.get('content_clean', '')
+                if l_content_clean:
                     # v17.0: 对内容也使用中文增强相似度
                     content_sim = self.calculate_similarity_chinese(c_content_clean, l_content_clean)
 
@@ -2394,9 +2442,9 @@ class ClauseMatcherLogic:
             if self._is_penalty_keyword(cached['original']) and not self._is_penalty_keyword(title_clean):
                 score -= 0.5
 
-            # v19.0: 险种上下文感知 - 同险种加分，跨险种减分
+            # v19.0: 险种上下文感知 - 同险种加分，跨险种减分（使用预计算值）
             if self._current_category:
-                lib_category = self._detect_lib_category(l_name_original)
+                lib_category = cached.get('lib_category', '')
                 if lib_category == self._current_category:
                     score += 0.15
                 elif lib_category and lib_category != self._current_category:
@@ -2598,24 +2646,67 @@ class ClauseMatcherLogic:
             return [special_result]
 
         title_clean = self.clean_title(title)
+        title_norm = self.normalize_text(title)
 
         results = []
         seen_names = set()
 
-        # 获取多条模糊匹配候选
-        fuzzy_candidates = self._try_fuzzy_match(
-            title_clean, content, index, is_title_only,
-            original_title=original_title,
-            max_results=max_results + 5  # 多获取一些以便去重
-        )
+        # === 级别1-3: 精确 > 语义 > 关键词 (与 match_clause 一致) ===
+        top_idx = -1
+        top_score = 0.0
+        top_level = MatchLevel.NONE
 
-        # fuzzy_candidates是列表: [(idx, score, title_sim, content_sim), ...]
-        if isinstance(fuzzy_candidates, tuple):
-            # 单结果模式返回的tuple
-            if fuzzy_candidates[0] >= 0:
-                fuzzy_candidates = [fuzzy_candidates]
-            else:
-                fuzzy_candidates = []
+        exact_result = self._try_exact_match(title_norm, title_clean, index, original_title=original_title)
+        if exact_result:
+            top_idx, top_score = exact_result
+            top_level = MatchLevel.EXACT
+
+        if top_idx < 0:
+            semantic_result = self._try_semantic_match(title, index)
+            if semantic_result:
+                top_idx, top_score = semantic_result
+                top_level = MatchLevel.SEMANTIC
+
+        if top_idx < 0:
+            keyword_result = self._try_keyword_match(title, index)
+            if keyword_result:
+                top_idx, top_score = keyword_result
+                top_level = MatchLevel.KEYWORD
+
+        # 如果级别1-3命中，将其作为首选结果
+        if top_idx >= 0 and top_score > self.thresholds.accept_min:
+            lib = index.data[top_idx]
+            base_name = lib.get('条款名称', '')
+            seen_names.add(base_name)
+            extra_params = self.extract_extra_info(original_title)
+            results.append(MatchResult(
+                matched_name=f"{base_name} {extra_params}".strip() if extra_params else base_name,
+                matched_content=lib.get('条款内容', ''),
+                matched_reg=lib.get('产品注册号', lib.get('注册号', '')),
+                score=max(0, top_score),
+                title_score=top_score,
+                content_score=0.0,
+                match_level=top_level,
+                diff_analysis=""
+            ))
+
+        # === 级别4: 模糊匹配补充候选 ===
+        remaining = max_results - len(results)
+        if remaining > 0:
+            fuzzy_candidates = self._try_fuzzy_match(
+                title_clean, content, index, is_title_only,
+                original_title=original_title,
+                max_results=remaining + 5
+            )
+
+            if isinstance(fuzzy_candidates, tuple):
+                if fuzzy_candidates[0] >= 0:
+                    fuzzy_candidates = [fuzzy_candidates]
+                else:
+                    fuzzy_candidates = []
+
+        else:
+            fuzzy_candidates = []
 
         for idx, score, title_sim, content_sim in fuzzy_candidates:
             if len(results) >= max_results:
@@ -2783,6 +2874,9 @@ class ClauseMatcherLogic:
     # 翻译和差异分析
     # ========================================
 
+    _translator_instance = None
+    _translation_cache: Dict[str, str] = {}
+
     def translate_title(self, title: str) -> Tuple[str, bool]:
         """翻译英文标题"""
         if not self.is_english(title):
@@ -2795,18 +2889,25 @@ class ClauseMatcherLogic:
         if mapped:
             return mapped, True
 
-        # 2. 部分匹配
+        # 2. 部分匹配（要求长度比 >= 0.5 避免短串误匹配）
         client_map = (self.config.client_en_cn_map if self._use_external_config
                       else DefaultConfig.CLIENT_EN_CN_MAP)
         for eng, chn in client_map.items():
             if eng in title_norm or title_norm in eng:
-                return chn, True
+                ratio = min(len(eng), len(title_norm)) / max(len(eng), len(title_norm), 1)
+                if ratio >= 0.5:
+                    return chn, True
 
-        # 3. 在线翻译
+        # 3. 在线翻译（缓存实例和结果）
         if HAS_TRANSLATOR:
+            if title_norm in self._translation_cache:
+                return self._translation_cache[title_norm], True
             try:
-                translated = GoogleTranslator(source='auto', target='zh-CN').translate(title)
+                if self._translator_instance is None:
+                    self._translator_instance = GoogleTranslator(source='auto', target='zh-CN')
+                translated = self._translator_instance.translate(title)
                 logger.debug(f"在线翻译: {title} -> {translated}")
+                self._translation_cache[title_norm] = translated
                 return translated, True
             except ConnectionError as e:
                 logger.warning(f"翻译服务连接失败: {e}")
@@ -2814,6 +2915,7 @@ class ClauseMatcherLogic:
                 logger.warning(f"翻译服务超时: {e}")
             except Exception as e:
                 logger.error(f"翻译失败: {type(e).__name__}: {e}")
+                self._translator_instance = None  # 重置实例以便重试
 
         return title, False
 
@@ -2946,9 +3048,8 @@ class ClauseMatcherLogic:
 
         # ===== 排除明确不是标题的内容 =====
 
-        # 1. 排除包含金额的内容（如 "RMB50万元"、"CNY5000万元"、"人民币100万"）
-        money_pattern = r'(RMB|CNY|人民币|美元|USD|EUR|HKD|港币)?\s*\d+[\d,\.]*\s*(万元|元|万|亿|千元)'
-        if re.search(money_pattern, text, re.IGNORECASE):
+        # 1. 排除包含金额的内容
+        if cls._RE_MONEY_PATTERN.search(text):
             return False
 
         # 2. 排除包含"赔偿限额"、"保险金额"等描述性文字的内容
@@ -2968,33 +3069,28 @@ class ClauseMatcherLogic:
 
         # ===== 其他标题模式检查 =====
 
-        # 带数字编号的条款标题（如 "35、码头吊机、铁路车辆第三者责任险"）
-        # 支持格式：1、xxx, 1.xxx, 1）xxx, (1) xxx, 一、xxx 等
-        numbered_title_pattern = r'^(\d+|[一二三四五六七八九十]+)[、\.．）\)]'
-        if re.match(numbered_title_pattern, text):
-            # 但如果后面是描述性内容则排除
-            title_part = re.sub(numbered_title_pattern, '', text).strip()
+        # 带数字编号的条款标题
+        if cls._RE_NUMBERED_TITLE.match(text):
+            title_part = cls._RE_NUMBERED_TITLE.sub('', text).strip()
             if title_part and len(title_part) > 3 and not title_part.endswith(('。', '；', '，')):
                 # 检查是否包含"险"、"条款"等标志性词汇
                 if any(kw in title_part for kw in ['险', '条款', '责任', '扩展', '附加']):
                     return True
 
-        # 附加保险条款，以 "(XXXX版)" 结尾（无"条款"字样）
-        # 如：平安产险企业财产保险附加提前60天通知解除保单保险（2025版）
-        if '附加' in text and '保险' in text and re.search(r'[（(]\d{4}版?[）)]$', text):
+        # 附加保险条款，以 "(XXXX版)" 结尾
+        if '附加' in text and '保险' in text and cls._RE_YEAR_VERSION.search(text):
             return True
 
         # ===== v18.3: 英文条款关键词优先检查（在排除检查之前）=====
         # 包含 Clause/Extension/Coverage/Cover/Insurance 的英文文本通常是条款标题
         # 注意：Clauses 是复数形式，Cover 是 Coverage 的简写
-        if re.search(r'\b(Clauses?|Extensions?|Coverage|Cover|Endorsement|Insurance)\b', text, re.IGNORECASE):
-            # v18.4 修复1: 排除保险公司名称（包含 "Insurance Company" 或 "Insurance Co."）
-            if re.search(r'Insurance\s+(Company|Co\.?)\b', text, re.IGNORECASE):
+        if cls._RE_EN_CLAUSE_KW.search(text):
+            # v18.4 修复1: 排除保险公司名称
+            if cls._RE_INSURANCE_CO.search(text):
                 return False
 
-            # v18.4 修复2: 排除 "this/the + 关键词" 形式（条款正文内容）
-            # 如 "this Clause", "the Policy", "this extension", "this Endorsement"
-            if re.search(r'\b(this|the|such|that)\s+(Clause|Extension|Policy|Insurance|Cover|Endorsement)\b', text, re.IGNORECASE):
+            # v18.4 修复2: 排除 "this/the + 关键词" 形式
+            if cls._RE_THIS_CLAUSE.search(text):
                 return False
 
             # v18.4 修复3: 排除编号开头的内容（条款正文的子项）
@@ -3041,70 +3137,12 @@ class ClauseMatcherLogic:
                 return True
 
         # ===== 明确是内容的模式（不是标题）=====
-        content_start_patterns = [
-            # 条款内容常见开头
-            r'^经双方同意',
-            r'^兹经双方同意',
-            r'^兹经保险',
-            r'^兹经合同',
-            r'^发生.*损失',
-            r'^如果.*保险',
-            r'^本保单',
-            r'^本保险',
-            r'^本条款',
-            r'^本款项',
-            r'^本公司',
-            r'^本扩展条款',  # v17.1
-            r'^本附加条款',  # v17.1
-            r'^保险人',
-            r'^被保险人',
-            r'^投保人',
-            r'^对于',
-            r'^若',
-            r'^但',
-            r'^在保',
-            r'^上述',
-            r'^该',
-            r'^其中',  # v17.1
-            r'^此',
-            r'^当',
-            r'^财产险',
-            r'^除',
-            r'^凡',
-            r'^任何',
-            r'^无论',
-            r'^特别条件',
-            r'^重置价值是指',
-            # 金额和免赔额描述（不是条款标题）
-            r'^每次事故免赔额',
-            r'^每次事故赔偿限额',
-            r'^每次及累计',
-            r'^累计赔偿限额',
-            r'^RMB\s*[\d,]+',
-            r'^\d+[\.,]\d+',  # 纯数字开头
-            # 公司名称（不是条款标题）- v18.3: 只排除明确的公司名，不要太宽泛
-            r'^Charles\s+Taylor',
-            r'^McLarens',
-            r'^Sedgwick',
-            r'^Crawford',
-            # 交付日期等说明
-            r'^交付日期',
-            r'^分期数',
-            # 列表项（子条目，不是新条款）
-            r'^[\(（]\s*[一二三四五六七八九十]+\s*[\)）]',  # (一)、（二）
-            r'^[一二三四五六七八九十]+[、\.．]',  # 一、二、
-            r'^\d+[、\.．\s](?![\.．\s]*[^\d].*条款)',  # 1、2、但不匹配 "1. xxx条款"
-            r'^[\(（]\s*\d+\s*[\)）]',  # (1)、（2）
-            r'^①|^②|^③|^④|^⑤',  # 圈数字
-        ]
-
-        for pattern in content_start_patterns:
-            if re.match(pattern, text):
-                return False
+        if cls._RE_CONTENT_START.match(text):
+            return False
 
         # ===== 其他标题模式（已通过内容排除检查）=====
         # 全大写英文（可能是英文条款名）
-        if text.isupper() and len(text) > 5 and re.search(r'[A-Z]{3,}', text):
+        if text.isupper() and len(text) > 5 and cls._RE_UPPER_3PLUS.search(text):
             # v18.4: 排除以冒号结尾的（如 WARRANTED:）
             if text.rstrip().endswith(':'):
                 return False
@@ -3763,9 +3801,11 @@ class ExcelStyler:
             return re.sub(r'</?b>', '', text)
 
     @classmethod
-    def apply_styles(cls, output_path: str):
-        """应用Excel样式"""
-        wb = openpyxl.load_workbook(output_path)
+    def apply_styles(cls, output_path: str, wb=None):
+        """应用Excel样式。可传入已有wb避免重复打开文件。"""
+        need_save = wb is None
+        if need_save:
+            wb = openpyxl.load_workbook(output_path)
         ws = wb.active
 
         # 表头
@@ -3824,13 +3864,52 @@ class ExcelStyler:
         # 冻结首行
         ws.freeze_panes = 'A2'
 
-        wb.save(output_path)
+        if need_save:
+            wb.save(output_path)
         logger.info(f"Excel样式已应用: {output_path}")
 
 
 # ==========================================
 # 工作线程
 # ==========================================
+class ExtractionWorker(QThread):
+    """条款提取工作线程 - 避免阻塞主UI"""
+    log_signal = pyqtSignal(str, str)
+    progress_signal = pyqtSignal(int)
+    result_signal = pyqtSignal(dict)
+    finished_signal = pyqtSignal(int, int)  # (success_count, category_count)
+
+    def __init__(self, files: list, extract_fn):
+        super().__init__()
+        self.files = files
+        self.extract_fn = extract_fn
+
+    def run(self):
+        categories = set()
+        success_count = 0
+        self.log_signal.emit(f"🚀 开始处理 {len(self.files)} 个文件...", "info")
+
+        for i, fp in enumerate(self.files):
+            progress = int((i + 1) / len(self.files) * 100)
+            self.progress_signal.emit(progress)
+
+            try:
+                results = self.extract_fn(fp)
+                for result in results:
+                    self.result_signal.emit(result)
+                    categories.add(result['Category'])
+                    if result.get('Error'):
+                        self.log_signal.emit(f"✗ {result['ClauseName']}: {result['Error']}", "error")
+                    else:
+                        self.log_signal.emit(f"✓ {result['ClauseName']} → {result['Category']}", "success")
+                        success_count += 1
+            except Exception as e:
+                fname = os.path.basename(fp)
+                self.log_signal.emit(f"✗ {fname}: {sanitize_error_message(e)}", "error")
+
+        self.finished_signal.emit(success_count, len(categories))
+
+
 class MatchWorker(QThread):
     """单文件匹配工作线程"""
     log_signal = pyqtSignal(str, str)
@@ -3992,10 +4071,11 @@ class MatchWorker(QThread):
 
                 results.append(row)
 
-            # 保存结果
+            # 保存结果（单次写入：pandas写数据 + openpyxl样式 → 一次save）
             df_res = pd.DataFrame(results)
-            df_res.to_excel(self.output_path, index=False)
-            ExcelStyler.apply_styles(self.output_path)
+            with pd.ExcelWriter(self.output_path, engine='openpyxl') as writer:
+                df_res.to_excel(writer, index=False)
+                ExcelStyler.apply_styles(self.output_path, wb=writer.book)
 
             # 输出统计
             self.log_signal.emit(f"📊 匹配统计:", "info")
@@ -4145,8 +4225,9 @@ class BatchMatchWorker(QThread):
                     output_name = f"报告_{Path(doc_path).stem}.xlsx"
                     output_path = Path(self.output_dir) / output_name
                     df_res = pd.DataFrame(results)
-                    df_res.to_excel(output_path, index=False)
-                    ExcelStyler.apply_styles(str(output_path))
+                    with pd.ExcelWriter(str(output_path), engine='openpyxl') as writer:
+                        df_res.to_excel(writer, index=False)
+                        ExcelStyler.apply_styles(str(output_path), wb=writer.book)
 
                     self.log_signal.emit(f"   ✓ 已保存: {output_name}", "success")
                     success_count += 1
@@ -5437,7 +5518,7 @@ class ClauseExtractorTab(QWidget):
         self.preview_zhu.findChild(QLabel, "count").setText(str(len(self.classified_files['zhu'])))
 
     def _start_extraction(self):
-        """开始提取条款"""
+        """开始提取条款 - 使用QThread避免阻塞UI"""
         if not self.selected_files:
             self._log("⚠️ 请先选择文件", "warning")
             return
@@ -5448,32 +5529,23 @@ class ClauseExtractorTab(QWidget):
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
 
-        self._log(f"🚀 开始处理 {len(self.selected_files)} 个文件...", "info")
+        self._extraction_worker = ExtractionWorker(self.selected_files, self._extract_clause)
+        self._extraction_worker.log_signal.connect(self._log)
+        self._extraction_worker.progress_signal.connect(self.progress_bar.setValue)
+        self._extraction_worker.result_signal.connect(self._on_extraction_result)
+        self._extraction_worker.finished_signal.connect(self._on_extraction_finished)
+        self._extraction_worker.start()
 
-        for i, fp in enumerate(self.selected_files):
-            fname = os.path.basename(fp)
-            progress = int((i + 1) / len(self.selected_files) * 100)
-            self.progress_bar.setValue(progress)
-            QApplication.processEvents()
+    def _on_extraction_result(self, result: dict):
+        """处理单条提取结果"""
+        self.extracted_data.append(result)
+        self.categories.add(result['Category'])
 
-            try:
-                results = self._extract_clause(fp)
-                for result in results:
-                    self.extracted_data.append(result)
-                    self.categories.add(result['Category'])
-                    if result.get('Error'):
-                        self._log(f"✗ {result['ClauseName']}: {result['Error']}", "error")
-                    else:
-                        self._log(f"✓ {result['ClauseName']} → {result['Category']}", "success")
-            except Exception as e:
-                self._log(f"✗ {fname}: {sanitize_error_message(e)}", "error")
-
+    def _on_extraction_finished(self, success_count: int, category_count: int):
+        """提取完成回调"""
         self.progress_bar.setValue(100)
         self._update_stats()
-
-        success_count = len([d for d in self.extracted_data if not d.get('Error')])
-        self._log(f"🎉 处理完成! 新增: {success_count} 条，共 {len(self.categories)} 个分类", "success")
-
+        self._log(f"🎉 处理完成! 新增: {success_count} 条，共 {category_count} 个分类", "success")
         self.extract_btn.setEnabled(True)
         if self.extracted_data:
             self.download_excel_btn.setVisible(True)
@@ -5688,36 +5760,27 @@ class ClauseExtractorTab(QWidget):
 
         return paragraphs
 
+    _RE_BOLD_TAG = re.compile(r'</?b>')
+    _RE_NOISE = re.compile(
+        r'(?:^第?\s*\d+\s*页\s*$'                # 第1页
+        r'|^Page\s*\d+\s*$'                      # Page 1
+        r'|^第\s*\d+\s*页\s*共\s*\d+\s*页\s*$'   # 第1页共10页
+        r'|^\d+\s*/\s*\d+\s*$'                   # 1/10
+        r'|^[-—]\s*\d+\s*[-—]\s*$'               # -1-
+        r'|PAGE\s*\\?\*?\s*MERGEFORMAT'           # Word域代码
+        r'|NUMPAGES'                               # NUMPAGES域
+        r'|^\d{4}[-/]\d{1,2}[-/]\d{1,2}\s*$'     # 日期格式
+        r'|^www\.'                                 # 网址
+        r'|^http)',                                # 网址
+        re.IGNORECASE
+    )
+
     def _is_noise_line(self, text: str) -> bool:
         """判断是否为噪声行（页码、网址等明显非内容行）"""
-        # 先清理文本（去除<b>标记以便正确匹配）
-        clean_text = re.sub(r'</?b>', '', text).strip()
+        clean_text = self._RE_BOLD_TAG.sub('', text).strip()
         if not clean_text:
             return True
-
-        # 噪声正则模式（只过滤明显的非内容行）
-        noise_patterns = [
-            # 页码格式
-            r'^第?\s*\d+\s*页\s*$',                      # 第1页
-            r'^Page\s*\d+\s*$',                          # Page 1
-            r'^第\s*\d+\s*页\s*共\s*\d+\s*页\s*$',       # 第1页共10页
-            r'^\d+\s*/\s*\d+\s*$',                       # 1/10 页码格式
-            r'^[-—]\s*\d+\s*[-—]\s*$',                   # -1- 页码格式
-            # Word域代码（textutil转换产生）
-            r'PAGE\s*\\?\*?\s*MERGEFORMAT',              # PAGE \* MERGEFORMAT
-            r'NUMPAGES',                                  # NUMPAGES 域代码
-            # 日期格式
-            r'^\d{4}[-/]\d{1,2}[-/]\d{1,2}\s*$',
-            # 网址
-            r'^www\.',
-            r'^http',
-        ]
-
-        for pattern in noise_patterns:
-            if re.search(pattern, clean_text, re.IGNORECASE):
-                return True
-
-        return False
+        return bool(self._RE_NOISE.search(clean_text))
 
     def _get_category(self, filename: str, title: str) -> str:
         """获取条款分类"""
