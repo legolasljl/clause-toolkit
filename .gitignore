@@ -24,6 +24,12 @@ build/
 *.tmp
 *.bak
 
+# 原始数据文件（加密后通过 encrypted_data.js 部署）
+Property.json
+Liability.json
+clause_mappings.json
+encrypt_data.py
+
 # External directories
 ../*
 !../clause_comparison_package/
